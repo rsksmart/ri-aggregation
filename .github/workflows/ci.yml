@@ -56,8 +56,8 @@ jobs:
           ci_run zk contract build
           ci_run zk db basic-setup
           ci_run zk run yarn
-          # ci_run zk run deploy-erc20 dev
-          # ci_run zk run deploy-eip1271
+          ci_run zk run deploy-erc20 dev
+          ci_run zk run deploy-eip1271
 
       - name: run tests
         run: |
