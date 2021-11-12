@@ -1,0 +1,80 @@
+version: 2.1  
+commands:
+  setup-sccache:
+    steps:
+      - run:
+          name: Install sccache
+          command: |
+            cd /usr/local/src/
+            sudo wget https://www.openssl.org/source/openssl-1.1.1k.tar.gz
+            sudo tar -xzf openssl-1.1.1k.tar.gz
+            sudo apt-get install -y libssl-dev
+            ls
+            sudo rm openssl-1.1.1k.tar.gz -f
+            cd openssl-1.1.1k
+            cd ssl
+            pwd
+            ls
+            sudo chmod +x ./config
+            sudo ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib
+            export OPENSSL_DIR='/usr/local/ssl'
+            ls /usr/local/ssl
+            cargo install sccache
+            # This configures Rust to use sccache.
+            echo 'export "RUSTC_WRAPPER"="sccache"' >> $BASH_ENV
+            # This is the maximum space sccache cache will use on disk.
+            echo 'export "SCCACHE_CACHE_SIZE"="1G"' >> $BASH_ENV
+            sccache --version
+  restore-sccache-cache:
+    steps:
+      - restore_cache:
+          name: Restore sccache cache
+          key: sccache-cache-stable-{{ arch }}-{{ .Environment.CIRCLE_JOB }}
+  save-sccache-cache:
+    steps:
+      - save_cache:
+          name: Save sccache cache
+          # We use {{ epoch }} to always upload a fresh cache:
+          # Of course, restore_cache will not find this exact key,
+          # but it will fall back to the closest key (aka the most recent).
+          # See https://discuss.circleci.com/t/add-mechanism-to-update-existing-cache-key/9014/13
+          key: sccache-cache-stable-{{ arch }}-{{ .Environment.CIRCLE_JOB }}-{{ epoch }}
+          paths:
+            - "~/.cache/sccache"
+jobs:
+  lint:
+    docker:
+      # specify the version you desire here
+      - image: cimg/rust:1.55.0
+
+    working_directory: ~/tmp
+    steps:
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - checkout
+      - setup-sccache
+      - restore-sccache-cache
+      - run: cargo test
+      - save-sccache-cache
+      - run:
+          name: start-services
+          command: |
+            docker-compose -f docker-compose-runner.yml down
+            docker-compose -f docker-compose-runner.yml up --build -d zk
+            sccache --start-server
+      - run:
+          name: setup-env
+          command: |
+            echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
+            echo $(pwd)/bin >> $GITHUB_PATH
+      - run:
+          name: lints
+          command: |
+            zk
+            zk fmt --check
+            zk lint --check
+
+workflows:
+    commit:
+        jobs:
+            - lint
