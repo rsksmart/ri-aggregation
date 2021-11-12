@@ -36,9 +36,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: master
-
+      
       - name: setup-env
         run: |
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
