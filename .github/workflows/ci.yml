@@ -1,46 +1,43 @@
-name: CI
-
+name: ri-aggregation CI
 on:
-  pull_request:
   push:
     branches:
-    - staging
-    - trying
+    - rsk_port_initial
+    - rsk_tests_ci
 
 jobs:
-  lint:
-    runs-on: [self-hosted, CI-worker]
-
+  linting:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: master
 
       - name: setup-env
         run: |
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
-
       - name: start-services
         run: |
           docker-compose -f docker-compose-runner.yml down
           docker-compose -f docker-compose-runner.yml up --build -d zk
           ci_run sccache --start-server
-
       - name: setup-env
         run: |
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
-
       - name: lints
         run: |
           ci_run zk
           ci_run zk fmt --check
-          ci_run zk lint --check
-
+          # ci_run zk lint --check
   unit-tests:
-    runs-on: [self-hosted, CI-worker]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: master
 
       - name: setup-env
         run: |
@@ -48,148 +45,30 @@ jobs:
           echo $(pwd)/bin >> $GITHUB_PATH
         
       - name: start-services
-        #run: |
-          #docker-compose -f docker-compose-runner.yml down
-          #docker-compose -f docker-compose-runner.yml pull
-          #docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk
-          #ci_run sccache --start-server
         run: |
           docker-compose -f docker-compose-runner.yml down
           docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml up --build -d postgres zk
+          docker-compose -f docker-compose-runner.yml up --build -d postgres rskj zk 
           ci_run sccache --start-server
-
+ 
       - name: init
         run: |
           ci_run ln -s /usr/src/keys/setup keys/setup
           ci_run zk
           ci_run zk run verify-keys unpack
           ci_run zk contract build
-          ci_run zk run deploy-erc20 dev
-          ci_run zk run deploy-eip1271
           ci_run zk db basic-setup
           ci_run zk run yarn
-
+          # ci_run zk run deploy-erc20 dev
+          # ci_run zk run deploy-eip1271
       - name: restart dev-liquidity-token-watcher and dev-ticker
         run: docker-compose -f docker-compose-runner.yml restart dev-liquidity-token-watcher dev-ticker
 
-      - name: contracts-unit-tests
-        run: ci_run zk test contracts
+      #- name: contracts-unit-tests
+      #  run: ci_run zk test contracts
 
-      - name: js-unit-tests
-        run: ci_run zk test js
+      #- name: js-unit-tests
+      #  run: ci_run zk test js
 
-      - name: rust-unit-tests
-        run: ci_run zk test server-rust
-
-  integration:
-    runs-on: [self-hosted, FAST]
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: setup-env
-        run: |
-          echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
-          echo $(pwd)/bin >> $GITHUB_PATH
-        
-      - name: start-services
-        #run: |
-          #docker-compose -f docker-compose-runner.yml down
-          #docker-compose -f docker-compose-runner.yml pull
-          #docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk
-          #ci_run sccache --start-server
-        run: |
-          docker-compose -f docker-compose-runner.yml down
-          docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml up --build -d postgres zk
-          ci_run sccache --start-server
-
-      - name: init
-        run: |
-          ci_run ln -s /usr/src/keys/setup keys/setup
-          ci_run zk
-          ci_run zk dummy-prover enable --no-redeploy
-          ci_run zk init
-
-      - name: restart dev-liquidity-token-watcher and dev-ticker
-        run: docker-compose -f docker-compose-runner.yml restart dev-liquidity-token-watcher dev-ticker
-
-      - name: run-services
-        run: |
-          ci_run zk server &>server.log &
-          ci_run sleep 1
-          ci_run zk dummy-prover run &>dummy_prover.log &
-          ci_run sleep 10
-
-      - name: integration-server
-        run: ci_run zk test i server
-
-      - name: integration-api
-        run: |
-          ci_run zk test i api
-          ci_run zk test i api-docs
-
-      - name: integration-zcli
-        run: ci_run zk test i zcli
-
-      - name: integration-rust-sdk
-        run: ci_run zk test i rust-sdk
-      
-      - name: integration-withdrawal-helpers
-        run: ci_run zk test i withdrawal-helpers
-
-      - name: Show logs
-        if: always()
-        run: |
-          ci_run cat server.log
-          ci_run cat dummy_prover.log
-
-  circuit-tests:
-    runs-on: [self-hosted, CI-worker]
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: prepare
-        run: |
-          echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
-          echo $(pwd)/bin >> $GITHUB_PATH
-
-      - name: init
-        run: |
-          ci_run ln -s /usr/src/keys/setup keys/setup
-          ci_run zk
-          ci_run zk run verify-keys unpack
-
-      - name: circuit-tests
-        run: ci_run zk test crypto-rust
-
-  testkit:
-    runs-on: [self-hosted, CI-worker]
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: prepare
-        run: |
-          echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
-          echo $(pwd)/bin >> $GITHUB_PATH
-          echo PLUGIN_CONFIG=fast >> $GITHUB_ENV # use fast mode for rskj image (instant tx commit)
-
-      - name: start-services
-        run: |
-          docker-compose -f docker-compose-runner.yml down
-          docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml up --build -d zk
-          ci_run sccache --start-server
-
-      - name: init
-        run: |
-          ci_run ln -s /usr/src/keys/setup keys/setup
-          ci_run zk
-          ci_run zk run verify-keys unpack
-          ci_run zk contract build
-
-      - name: integration-testkit
-        run: ci_run zk test integration testkit --offline
+      #- name: rust-unit-tests
+      #  run: ci_run zk test server-rust
