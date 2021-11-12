@@ -13,14 +13,14 @@ services:
   rskj:
     build:
       dockerfile: Dockerfile
-      context: ./docker/rskj
+      context: ./etc/rsknode
     ports:
       - "8545:8545"
       - "8546:8546"
     volumes:
       - type: bind
         source: ./volumes/rskj
-        target: /var/lib/rsk
+        target: /etc/rsknode
   dev-liquidity-token-watcher:
     image: "matterlabs/dev-liquidity-token-watcher:latest"
     env_file:

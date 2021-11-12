@@ -7,7 +7,7 @@ services:
 
   rskj:
     build:
-      context: ./docker/rskj
+      context: ./etc/rsknode
     environment:
       - PLUGIN_CONFIG
 
