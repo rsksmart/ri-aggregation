@@ -15,8 +15,8 @@ services:
       dockerfile: Dockerfile
       context: ./etc/rsknode
     ports:
-      - "8545:8545"
-      - "8546:8546"
+      - "4444:4444"
+      - "4445:4445"
     volumes:
       - type: bind
         source: ./volumes/rskj
