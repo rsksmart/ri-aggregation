@@ -33,6 +33,9 @@ COPY --from=build /code/rskj/rskj-core/build/libs/rskj-core-${rskj_version}-${rs
 COPY node.conf ./node.conf
 COPY logback.xml ./logback.xml
 
+EXPOSE 4444
+EXPOSE 4445
+
 ENTRYPOINT ["java", \
     "-Drsk.conf.file=./node.conf", \
     "-Dlogback.configurationFile=./logback.xml", \
