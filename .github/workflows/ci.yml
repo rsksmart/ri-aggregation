@@ -41,15 +41,12 @@ jobs:
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
         
-      - name: start-services
+      - name: start-services & deploy
         run: |
           docker-compose -f docker-compose-runner.yml down
           docker-compose -f docker-compose-runner.yml pull
           docker-compose -f docker-compose-runner.yml up --build -d postgres rskj zk 
           ci_run sccache --start-server
- 
-      - name: init
-        run: |
           ci_run ln -s /usr/src/keys/setup keys/setup
           ci_run zk
           ci_run zk run verify-keys unpack
@@ -58,9 +55,6 @@ jobs:
           ci_run zk run yarn
           ci_run zk run deploy-erc20 dev
           ci_run zk run deploy-eip1271
-
-      - name: run tests
-        run: |
           ci_run zk test js
 
       - name: restart dev-liquidity-token-watcher and dev-ticker
