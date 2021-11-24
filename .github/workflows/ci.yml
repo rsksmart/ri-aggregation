@@ -47,7 +47,7 @@ jobs:
           docker-compose -f docker-compose-runner.yml pull
           docker-compose -f docker-compose-runner.yml up --build -d postgres rskj zk 
           ci_run sccache --start-server
-          curl http://localhost:4444 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+          curl http://127.0.0.1:4444 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 
  
       - name: init
@@ -58,7 +58,6 @@ jobs:
           ci_run zk contract build
           ci_run zk db basic-setup
           ci_run zk run yarn
-          curl http://localhost:4444 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 
 
       - name: run tests
