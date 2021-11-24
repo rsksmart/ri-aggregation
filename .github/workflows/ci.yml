@@ -47,6 +47,7 @@ jobs:
           docker-compose -f docker-compose-runner.yml pull
           docker-compose -f docker-compose-runner.yml up --build -d postgres rskj zk 
           ci_run sccache --start-server
+          docker swarm init
           docker service ls
           echo containers
           docker container ls
