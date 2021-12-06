@@ -45,9 +45,10 @@ jobs:
         run: |
           docker-compose -f docker-compose-runner.yml down
           docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml up --build -d --publish 4444:4444 postgres rskj zk 
+          docker-compose -f docker-compose-runner.yml build
+          docker-compose -f docker-compose-runner.yml up -d --publish 4444:4444 postgres rskj zk 
           ci_run sccache --start-server
-          curl http://172.17.0.1:4444 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+          curl http://localhost:4444 -X POST -H "Content-Type: application/json" --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
 
  
       - name: init
