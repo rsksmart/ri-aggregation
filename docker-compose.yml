@@ -17,6 +17,7 @@ services:
     ports:
       - "4444:4444"
       - "4445:4445"
+    network_mode: 'host'
     volumes:
       - type: bind
         source: ./volumes/rskj
