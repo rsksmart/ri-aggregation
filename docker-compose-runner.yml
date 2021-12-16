@@ -41,3 +41,4 @@ services:
       - CACHE_DIR=/usr/src/cache
       - SCCACHE_CACHE_SIZE=50g
       - CI=1
+    network_mode: "host"
