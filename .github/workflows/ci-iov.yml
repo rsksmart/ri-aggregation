@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - rsk_merge_master_Dec2021
 
 jobs:
   unit-tests:
