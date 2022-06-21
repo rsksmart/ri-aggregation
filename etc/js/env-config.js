@@ -25,6 +25,5 @@ export default {
         ETH_NETWORK: 'rsk_mainnet',
         WS_API_ADDR: 'https://aggregation.rifcomputing.net:3031',
         HTTP_RPC_API_ADDR: 'https://aggregation.rifcomputing.net:3030'
-    },
-   
+    }
 }[`${location.protocol}//${location.hostname}`];
