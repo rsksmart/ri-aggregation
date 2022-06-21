@@ -2,15 +2,19 @@ import config from './env-config';
 import { capitalize } from './utils';
 
 const network = config.ETH_NETWORK;
-const walletLinkPrefix = network == 'mainnet' ? 'wallet' : network;
+const walletLink = config.WALLET_ADDRESS;
+const explorerLink = config.EXPLORER;
+const explorerVersion = config.EXPLORER_VERSION;
 
 const store = {
     contractAddress: undefined,
     config: network,
     network: network,
     capitalizedNetwork: capitalize(network),
-    walletLink: `https://${walletLinkPrefix}.zksync.io`,
-    statusLink: 'https://uptime.com/s/zksync'
+    walletLink: walletLink,
+    statusLink: 'https://uptime.com/s/rig-aggregation',
+    explorerLink: explorerLink,
+    explorerVersion: explorerVersion
 };
 
 export default store;
