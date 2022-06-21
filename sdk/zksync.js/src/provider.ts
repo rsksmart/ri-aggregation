@@ -44,6 +44,12 @@ export async function getDefaultProvider(
         } else if (transport === 'HTTP') {
             return await Provider.newHttpProvider('http://127.0.0.1:3030', pollIntervalMilliSecs);
         }
+    }  else if (network === 'testnet') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://dev.aggregation.rifcomputing.net:3031');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider('https://dev.aggregation.rifcomputing.net:3030', pollIntervalMilliSecs);
+        }
     } else if (network === 'ropsten') {
         if (transport === 'WS') {
             return await Provider.newWebsocketProvider('wss://ropsten-api.zksync.io/jsrpc-ws');
