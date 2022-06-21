@@ -70,7 +70,6 @@ export default {
     components,
     computed: {
         contractLink() {
-            console.log(blockchainExplorerAddress);
             return `${blockchainExplorerAddress}/${store.contractAddress}`;
         }
     },
