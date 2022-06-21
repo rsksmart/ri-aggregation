@@ -11,7 +11,7 @@ export default {
     'https://explorer.dev.aggregation.rifcomputing.net': {
         API_SERVER: 'https://dev.aggregation.rifcomputing.net:3029',
         WALLET_ADDRESS: 'https://wallet.dev.aggregation.rifcomputing.net',
-        EXPLORER: 'http://localhost:7001',
+        EXPLORER: 'https://explorer.dev.aggregation.rifcomputing.net',
         EXPLORER_VERSION: '0.1.0',
         ETH_NETWORK: 'regtest',
         WS_API_ADDR: 'https://dev.aggregation.rifcomputing.net:3031',
@@ -20,7 +20,7 @@ export default {
     'https://explorer.aggregation.rifcomputing.net': {
         API_SERVER: 'https://aggregation.rifcomputing.net:3029',
         WALLET_ADDRESS: 'https://wallet.aggregation.rifcomputing.net',
-        EXPLORER: 'http://localhost:7001',
+        EXPLORER: 'https://explorer.aggregation.rifcomputing.net',
         EXPLORER_VERSION: '0.1.0',
         ETH_NETWORK: 'rsk_mainnet',
         WS_API_ADDR: 'https://aggregation.rifcomputing.net:3031',
