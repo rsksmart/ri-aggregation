@@ -68,6 +68,7 @@ impl<S: EthereumSigner> WalletCredentials<S> {
         // Generate seed, and then zkSync private key.
         let signature_bytes = packed_signature.serialize_packed();
         let zksync_pk = private_key_from_seed(&signature_bytes)?;
+        println!("***L2 PrivateKey {} from Eth Address {}", zksync_pk.0.to_string(), eth_address);
 
         Ok(Self {
             eth_signer: Some(eth_signer),

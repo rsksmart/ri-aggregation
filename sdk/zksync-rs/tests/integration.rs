@@ -43,6 +43,8 @@ use zksync::{
 };
 use zksync_eth_signer::{EthereumSigner, PrivateKeySigner};
 
+// TODO: Change these parameters to generate an L2 private key.
+// see https://github.com/rsksmart/ri-aggregation/blob/58fbf9999f1bf2d04d33a7c7bb4b584ccb65af8c/sdk/zksync-rs/src/credentials.rs#L71
 const ETH_ADDR: &str = "c354d97642faa06781b76ffb6786f72cd7746c97";
 const ETH_PRIVATE_KEY: &str = "20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323";
 const LOCALHOST_WEB3_ADDR: &str = "http://127.0.0.1:4444";
