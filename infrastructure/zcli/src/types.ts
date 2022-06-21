@@ -1,6 +1,6 @@
-export type Network = 'localhost' | 'mainnet' | 'ropsten' | 'rinkeby';
+export type Network = 'localhost' | 'mainnet' | 'ropsten' | 'rinkeby' | 'testnet';
 
-export const ALL_NETWORKS: Network[] = ['localhost', 'mainnet', 'ropsten', 'rinkeby'];
+export const ALL_NETWORKS: Network[] = ['localhost', 'mainnet', 'ropsten', 'rinkeby', 'testnet'];
 
 export interface Config {
     network: Network;
