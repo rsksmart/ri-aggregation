@@ -1,0 +1,85 @@
+services:
+  runner:
+    build: .
+    volumes:
+    - type: bind
+      source: .
+      target: /zksync
+    networks:
+      - zknet
+
+
+  postgres:
+    image: "postgres:12"
+    ports:
+      - "5432:5432"
+    # command: ["./wait-for-runner.sh", "postgres", "--", "ls", "-al"]
+    volumes:
+    - type: bind
+      source: ./volumes/postgres
+      target: /var/lib/postgresql/data
+    environment:
+        - POSTGRES_HOST_AUTH_METHOD=trust
+    # depends_on:
+    #   - runner
+
+  rskj:
+    build:
+      context: ./docker/rskj
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    volumes:
+      - type: bind
+        source: ./volumes/rskj
+        target: /etc/rsknode
+    # depends_on:
+    #   - runner
+  
+  dev-liquidity-token-watcher:
+    image: "matterlabs/dev-liquidity-token-watcher:latest"
+    env_file:
+      - ./etc/env/docker.env
+    ports:
+      - "9975:9975"
+    volumes:
+      - ./etc/tokens/:/etc/tokens
+    # depends_on:
+    #   - runner
+
+  dev-ticker:
+    image: "matterlabs/dev-ticker:latest"
+    ports:
+      - "9876:9876"
+    volumes:
+      - ./etc/tokens/:/etc/tokens
+    # depends_on:
+    #   - runner
+
+  tesseracts:
+    image: "adria0/tesseracts"
+    command: --cfg /tesseracts.toml -vvv
+    ports:
+      - "8000:8000"
+    volumes:
+    - ./etc/tesseracts/tesseracts.toml:/tesseracts.toml
+    - type: bind
+      source: ./volumes/tesseracts
+      target: /var/lib/tesseracts/data
+    # depends_on:
+    #   - runner
+
+  elastic:
+    image: elasticsearch:7.10.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+    networks:
+      - zknet
+    # depends_on:
+    #   - runner
+
+networks:
+  zknet:

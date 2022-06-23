@@ -1,12 +1,12 @@
 import { Command } from 'commander';
 import * as utils from './utils';
 
-import * as db from './db/db';
-import * as server from './server';
 import * as contract from './contract';
-import * as run from './run/run';
-import * as env from './env';
+import * as db from './db/db';
 import * as docker from './docker';
+import * as env from './env';
+import * as run from './run/run';
+import * as server from './server';
 import { up } from './up';
 
 export async function init() {
@@ -39,7 +39,7 @@ async function createVolumes() {
 }
 
 async function checkEnv() {
-    const tools = ['node', 'yarn', 'docker', 'docker-compose', 'cargo', 'psql', 'pg_isready', 'diesel'];
+    const tools = ['node', 'yarn', 'cargo', 'psql', 'pg_isready', 'diesel'];
     for (const tool of tools) {
         await utils.exec(`which ${tool}`);
     }
