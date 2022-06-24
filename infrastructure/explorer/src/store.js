@@ -12,7 +12,6 @@ const store = {
     network: network,
     capitalizedNetwork: capitalize(network),
     walletLink: walletLink,
-    statusLink: 'https://uptime.com/s/rig-aggregation',
     explorerLink: explorerLink,
     explorerVersion: explorerVersion
 };

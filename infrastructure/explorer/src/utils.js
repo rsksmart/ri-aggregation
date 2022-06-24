@@ -74,17 +74,10 @@ export function blockchainExplorerToken(token, account) {
 }
 
 export function getBlockchainExplorerTx(network) {
-    if (store.explorerVersion === '0.1.0') {
-        return `${store.explorerLink}/transactions`;
-    }
-
     return `${store.explorerLink}/tx`;
 }
 
 export function getBlockchainExplorerAddress(network) {
-    if (store.explorerVersion === '0.1.0') {
-        return `${store.explorerLink}/accounts`;
-    }
     return `${store.explorerLink}/address`;
 }
 
