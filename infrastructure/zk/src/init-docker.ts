@@ -2,12 +2,10 @@ import { Command } from 'commander';
 import * as utils from './utils';
 
 import * as contract from './contract';
-import * as db from './db/db';
 import * as docker from './docker';
 import * as env from './env';
 import * as run from './run/run';
 import * as server from './server';
-import { up } from './up';
 
 export async function init() {
     // await createVolumes();
@@ -17,17 +15,24 @@ export async function init() {
         await env.gitHooks();
         // await up();
     }
-    await run.yarn();
-    await run.plonkSetup();
-    await run.verifyKeys.unpack();
-    await db.setup();
+    // await run.yarn();
+    // await run.plonkSetup();
+    // await run.verifyKeys.unpack();
+    // await db.setup();
+    console.info(`ZK: Building contracts...`);
     await contract.build();
+    console.info(`Deploying ERC20 contract...`);
     await run.deployERC20('dev');
+    console.info(`Deploying EIP1271 contract...`);
     await run.deployEIP1271();
+    console.info(`Deploying withdraw helpers contracts...`);
     await run.deployWithdrawalHelpersContracts();
+    console.info(`Generating genesis data...`);
     await server.genesis();
+    console.info(`redeploy contracts and updating addresses in the dbs...`);
     await contract.redeploy();
-    if (!process.env.CI) {
+    if (!process.env.CI && process.env.CHAIN_ETH_NETWORK !== 'rskj') {
+        console.info(`Restarting the liquidity token matcher docker container.`);
         await docker.restart('dev-liquidity-token-watcher');
     }
 }

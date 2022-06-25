@@ -4,10 +4,10 @@
 
 import { Wallet } from 'ethers';
 
-import { readContractCode } from '../src.ts/deploy';
 import { deployContract } from 'ethereum-waffle';
 import * as fs from 'fs';
 import * as path from 'path';
+import { readContractCode } from '../src.ts/deploy';
 import { web3Provider } from './utils';
 
 const testConfigPath = path.join(process.env.ZKSYNC_HOME as string, `etc/test_config/constant`);
@@ -16,7 +16,7 @@ const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, {
 
 async function main() {
     try {
-        if (!['test', 'localhost'].includes(process.env.CHAIN_ETH_NETWORK)) {
+        if (!['test', 'localhost', 'rskj'].includes(process.env.CHAIN_ETH_NETWORK)) {
             console.error('This deploy script is only for localhost-test network');
             process.exit(1);
         }

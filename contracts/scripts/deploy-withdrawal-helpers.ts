@@ -1,8 +1,8 @@
 // This script deploys the contracts required both for production and
 // for testing of the contracts required for the `withdrawal-helpers` library
 
-import { Wallet } from 'ethers';
 import { deployContract } from 'ethereum-waffle';
+import { Wallet } from 'ethers';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -14,7 +14,7 @@ const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, {
 
 async function main() {
     try {
-        if (!['test', 'localhost'].includes(process.env.CHAIN_ETH_NETWORK)) {
+        if (!['test', 'localhost', 'rskj'].includes(process.env.CHAIN_ETH_NETWORK)) {
             console.error('This deploy script is only for localhost-test network');
             process.exit(1);
         }

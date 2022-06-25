@@ -1,8 +1,8 @@
 import { ArgumentParser } from 'argparse';
+import { ethers, Wallet } from 'ethers';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zksync from 'zksync';
-import { ethers, Wallet } from 'ethers';
 import { web3Provider } from './utils';
 
 const DEPOSIT_AMOUNT = ethers.utils.parseEther('10000000000');
@@ -63,7 +63,7 @@ async function main() {
             type: 'function'
         }
     ];
-    if (process.env.CHAIN_ETH_NETWORK !== 'localhost') {
+    if (!['localhost', 'rskj'].includes(process.env.CHAIN_ETH_NETWORK)) {
         const erc20Mintable = new ethers.Contract(TOKEN_ADDRESS, ABI, deployerEthWallet);
         const mintTx = await erc20Mintable.mint(deployerEthWallet.address, DEPOSIT_AMOUNT);
         await mintTx.wait();

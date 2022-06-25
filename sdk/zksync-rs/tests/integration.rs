@@ -45,17 +45,16 @@ use zksync_eth_signer::{EthereumSigner, PrivateKeySigner};
 
 const ETH_ADDR: &str = "c354d97642faa06781b76ffb6786f72cd7746c97";
 const ETH_PRIVATE_KEY: &str = "20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323";
-// const LOCALHOST_WEB3_ADDR: &str = "http://127.0.0.1:4444";
+const LOCALHOST_WEB3_ADDR: &str = "http://127.0.0.1:4444";
 const DOCKER_WEB3_ADDR: &str = "http://rskj:4444";
 
 fn web3_addr() -> &'static str {
-    // let ci: u8 = env::var("CI").map_or(0, |s| s.parse().unwrap());
-    // if ci == 1 {
-    //     DOCKER_WEB3_ADDR
-    // } else {
-    //     LOCALHOST_WEB3_ADDR
-    // }
-    DOCKER_WEB3_ADDR
+    let ci: u8 = env::var("CI").map_or(0, |s| s.parse().unwrap());
+    if ci == 1 {
+        DOCKER_WEB3_ADDR
+    } else {
+        LOCALHOST_WEB3_ADDR
+    }
 }
 
 fn eth_main_account_credentials() -> (H160, H256) {

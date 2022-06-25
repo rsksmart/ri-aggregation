@@ -1,0 +1,32 @@
+[
+  {
+    "name": "DAI",
+    "symbol": "DAI",
+    "decimals": 18,
+    "address": "0xFAD14985148c82b5008CcED06C7ED498a5fB674A"
+  },
+  {
+    "name": "wBTC",
+    "symbol": "wBTC",
+    "decimals": 8,
+    "address": "0xCDda8331e896BEe940FD8AC78180Bd4CCFe7a2fE"
+  },
+  {
+    "name": "BAT",
+    "symbol": "BAT",
+    "decimals": 18,
+    "address": "0xAb17Bcc3cA0487Ea306aEc745F54B88229850252"
+  },
+  {
+    "name": "GNT",
+    "symbol": "GNT",
+    "decimals": 18,
+    "address": "0xC1A62e41AE5779D0D884e60e8358Fa28aF24f5DE"
+  },
+  {
+    "name": "MLTT",
+    "symbol": "MLTT",
+    "decimals": 18,
+    "address": "0x2AF79d538E3135caBDF6a90c75942Ff6deE2f954"
+  }
+]

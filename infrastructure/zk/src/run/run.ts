@@ -1,12 +1,12 @@
 import { Command } from 'commander';
-import * as utils from '../utils';
 import { Wallet } from 'ethers';
 import fs from 'fs';
 import * as path from 'path';
-import * as verifyKeys from './verify-keys';
-import * as eventListener from './event-listener';
-import * as dataRestore from './data-restore';
 import * as docker from '../docker';
+import * as utils from '../utils';
+import * as dataRestore from './data-restore';
+import * as eventListener from './event-listener';
+import * as verifyKeys from './verify-keys';
 
 export { verifyKeys, dataRestore };
 

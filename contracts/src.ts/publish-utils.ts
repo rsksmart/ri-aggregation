@@ -1,8 +1,8 @@
-import Axios from 'axios';
-import * as qs from 'querystring';
-import { ethers } from 'ethers';
 import { gatherSources } from '@resolver-engine/imports';
 import { ImportsFsEngine } from '@resolver-engine/imports-fs';
+import Axios from 'axios';
+import { ethers } from 'ethers';
+import * as qs from 'querystring';
 
 export async function publishSourceCodeToEtherscan(
     address: string,
@@ -44,7 +44,7 @@ export async function publishSourceCodeToEtherscan(
 
 export async function publishAbiToTesseracts(address: string, contractCode) {
     const network = process.env.CHAIN_ETH_NETWORK;
-    if (network !== 'localhost') {
+    if (['localhost', 'rskj'].includes(network)) {
         throw new Error('Only localhost network is supported by Tesseracts');
     }
     const req = {

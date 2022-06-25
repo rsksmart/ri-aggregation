@@ -1,10 +1,10 @@
-import { deployedAddressesFromEnv } from '../src.ts/deploy';
 import { ethers } from 'ethers';
+import { deployedAddressesFromEnv } from '../src.ts/deploy';
 
 const hre = require('hardhat');
 
 async function main() {
-    if (process.env.CHAIN_ETH_NETWORK == 'localhost') {
+    if (['localhost', 'rskj'].includes(process.env.CHAIN_ETH_NETWORK)) {
         console.log('Skip contract publish on localhost');
         return;
     }

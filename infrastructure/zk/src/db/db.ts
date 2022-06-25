@@ -42,11 +42,10 @@ export async function basicSetup() {
     // force read env
     env.reload();
 
-    let postgresServer = 'zksync-postgres-1'
 
     process.chdir('core/lib/storage');
-    if (process.env.DATABASE_URL == `postgres://postgres@${postgresServer}/plasma`) {
-        console.log(`Using ${postgresServer} database:`);
+    if (process.env.DATABASE_URL == `postgres://postgres@postgres/plasma`) {
+        console.log(`Using postgres database:`);
         console.log(`DATABASE_URL = ${process.env.DATABASE_URL}`);
     } else {
         // Remote database, we can't show the contents.

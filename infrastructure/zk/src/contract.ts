@@ -1,7 +1,7 @@
 import { Command } from 'commander';
-import * as utils from './utils';
-import * as env from './env';
 import fs from 'fs';
+import * as env from './env';
+import * as utils from './utils';
 
 import * as db from './db/db';
 import * as run from './run/run';

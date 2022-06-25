@@ -1,7 +1,7 @@
-# Removing the old build
+# # Removing the old build
 rm -rf ./build
 
-# Compiling typescript files
+# # Compiling typescript files
 yarn tsc
 
 # Copying typechain information

@@ -39,7 +39,7 @@ async function createVolumes() {
 }
 
 async function checkEnv() {
-    const tools = ['node', 'yarn', 'cargo', 'psql', 'pg_isready', 'diesel'];
+    const tools =  ['node', 'yarn', 'docker', 'docker-compose', 'cargo', 'psql', 'pg_isready', 'diesel'];
     for (const tool of tools) {
         await utils.exec(`which ${tool}`);
     }

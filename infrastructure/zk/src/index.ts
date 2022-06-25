@@ -1,26 +1,25 @@
 #!/usr/bin/env node
 
-import { program, Command } from 'commander';
 import { spawnSync } from 'child_process';
-import { command as server } from './server';
-import { command as up } from './up';
-import { command as down } from './down';
-import { command as db } from './db/db';
-import { command as contract } from './contract';
-import { command as dummyProver } from './dummy-prover';
-import { command as init } from './init';
-import { command as initDocker } from './init-docker';
-import { command as kube } from './kube';
-import { command as prover } from './prover';
-import { command as run } from './run/run';
-import { command as test } from './test/test';
-import { command as docker } from './docker';
-import { command as fmt } from './fmt';
-import { command as lint } from './lint';
+import { Command, program } from 'commander';
+import { command as apiDocs } from './api-docs';
 import { command as completion } from './completion';
 import { command as config } from './config';
-import { command as apiDocs } from './api-docs';
+import { command as contract } from './contract';
+import { command as db } from './db/db';
+import { command as docker } from './docker';
+import { command as down } from './down';
+import { command as dummyProver } from './dummy-prover';
 import * as env from './env';
+import { command as fmt } from './fmt';
+import { command as init } from './init';
+import { command as kube } from './kube';
+import { command as lint } from './lint';
+import { command as prover } from './prover';
+import { command as run } from './run/run';
+import { command as server } from './server';
+import { command as test } from './test/test';
+import { command as up } from './up';
 
 const COMMANDS = [
     server,
@@ -30,7 +29,6 @@ const COMMANDS = [
     contract,
     dummyProver,
     init,
-    initDocker,
     kube,
     prover,
     run,

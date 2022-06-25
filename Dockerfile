@@ -5,6 +5,7 @@ ENV HOME=/root
 ENV OPENSSL_DIR=/usr/local/ssl
 ENV ZKSYNC_HOME=/zksync
 ENV PATH="${PATH}:/usr/local/ssl/bin:${ZKSYNC_HOME}/bin:${HOME}/.fnm:${HOME}/.cargo/bin"
+ENV CI=1
 
 WORKDIR $HOME
 
@@ -27,8 +28,6 @@ RUN curl -fsSL https://fnm.vercel.app/install | bash
 RUN source ~/.bashrc && fnm use --install-if-missing 14
 RUN source ~/.bashrc && npm config set user 0 
 RUN source ~/.bashrc && npm config set unsafe-perm true 
-# RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
-# RUN apt-get install -y nodejs
 RUN source ~/.bashrc && npm i -g yarn @vue/cli
 
 # Install Axel 2.17.10
@@ -76,7 +75,6 @@ RUN install -t /usr/local/bin drone
 
 WORKDIR ${ZKSYNC_HOME}
 
-# COPY ./init.sh /
-# RUN chmod +x /init.sh
-# RUN echo "|------> $PATH"
-ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+COPY ./init.sh /
+RUN chmod +x /init.sh
+ENTRYPOINT [ "bash", "/init.sh" ]

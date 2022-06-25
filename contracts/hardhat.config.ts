@@ -1,8 +1,8 @@
-import '@nomiclabs/hardhat-solpp';
-import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
-import 'hardhat-typechain';
+import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-solpp';
 import 'hardhat-contract-sizer';
+import 'hardhat-typechain';
 
 const prodConfig = {
     // UPGRADE_NOTICE_PERIOD: 0,
@@ -63,7 +63,8 @@ const contractDefs = {
     ropsten: testnetConfig,
     mainnet: prodConfig,
     test: testConfig,
-    localhost: localConfig
+    localhost: localConfig,
+    rskj: localConfig
 };
 
 export default {
