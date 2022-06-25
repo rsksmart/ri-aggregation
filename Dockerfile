@@ -1,6 +1,5 @@
 FROM debian
 
-RUN echo "Let's go!"
 SHELL ["/bin/bash", "-c"]
 ENV HOME=/root
 ENV OPENSSL_DIR=/usr/local/ssl
@@ -20,7 +19,7 @@ RUN apt install -y libnss3-tools
 RUN curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
 RUN chmod +x mkcert-v*-linux-amd64
 RUN cp mkcert-v*-linux-amd64 /usr/local/bin/mkcert
-RUN mkcert install 
+RUN mkcert install && mkcert 127.0.0.1 localhost && mv 127.0.0.1+1-key.pem key.pem && mv 127.0.0.1+1.pem cert.pem
 ENV NODE_EXTRA_CA_CERTS="${HOME}/.local/share/mkcert/rootCA.pem"
 
 # # Install Yarn and Vue

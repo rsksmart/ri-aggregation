@@ -12,6 +12,9 @@ keywords = ["blockchain", "zksync"]
 categories = ["cryptography"]
 publish = false # This library is not published stand-alone, it is bundled with `zksync.js`.
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
 [lib]
 crate-type = ["cdylib"]
 

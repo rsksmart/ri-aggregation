@@ -44,7 +44,7 @@ mod tests {
     fn expected_config() -> DBConfig {
         DBConfig {
             pool_size: 10,
-            url: "postgres://postgres@localhost/plasma".into(),
+            url: "postgres://postgres@postgres/plasma".into(),
             rejected_transactions_max_age: 336,
             rejected_transactions_cleaner_interval: 24,
         }
@@ -54,7 +54,7 @@ mod tests {
     fn from_env() {
         let config = r#"
 DATABASE_POOL_SIZE="10"
-DATABASE_URL="postgres://postgres@localhost/plasma"
+DATABASE_URL="postgres://postgres@postgres/plasma"
 DATABASE_REJECTED_TRANSACTIONS_MAX_AGE="336"
 DATABASE_REJECTED_TRANSACTIONS_CLEANER_INTERVAL="24"
         "#;

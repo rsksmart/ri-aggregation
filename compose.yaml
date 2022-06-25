@@ -11,6 +11,8 @@ services:
 
   postgres:
     image: "postgres:12"
+    networks:
+      - zknet
     ports:
       - "5432:5432"
     # command: ["./wait-for-runner.sh", "postgres", "--", "ls", "-al"]
@@ -26,6 +28,8 @@ services:
   rskj:
     build:
       context: ./docker/rskj
+    networks:
+      - zknet
     ports:
       - "4444:4444"
       - "4445:4445"
@@ -40,6 +44,8 @@ services:
     image: "matterlabs/dev-liquidity-token-watcher:latest"
     env_file:
       - ./etc/env/docker.env
+    networks:
+      - zknet
     ports:
       - "9975:9975"
     volumes:
@@ -49,6 +55,8 @@ services:
 
   dev-ticker:
     image: "matterlabs/dev-ticker:latest"
+    networks:
+      - zknet
     ports:
       - "9876:9876"
     volumes:
@@ -59,6 +67,8 @@ services:
   tesseracts:
     image: "adria0/tesseracts"
     command: --cfg /tesseracts.toml -vvv
+    networks:
+      - zknet
     ports:
       - "8000:8000"
     volumes:
@@ -71,13 +81,13 @@ services:
 
   elastic:
     image: elasticsearch:7.10.1
+    networks:
+      - zknet
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
       - discovery.type=single-node
-    networks:
-      - zknet
     # depends_on:
     #   - runner
 
