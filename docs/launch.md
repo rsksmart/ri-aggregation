@@ -227,7 +227,7 @@ After this, re-install the project. This will trigger sizable downloads, so expe
 ***Problem***
 The error could be `dyld[xxxx]: missing symbol called`.
 
-Using mac m1, the clang version (c and c++ compiler) its only for that architecture and the code from rust its compiled depending on that version but some dependencies have only support for the intel x86_64.
+With Mac M1, the clang version (c and c++ compiler) compiles for the ARM architecture only but there are some Rust dependencies that have support for the intel x86_64 only.
 
 **Solution**
 Use a terminal fully on [rosetta](https://support.apple.com/en-us/HT211861), for reference on how to do it, follow this [instructions](https://stackoverflow.com/questions/64882584/how-to-run-the-homebrew-installer-under-rosetta-2-on-m1-macbook/66299285#66299285).  
