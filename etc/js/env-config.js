@@ -11,7 +11,7 @@ export default {
         API_SERVER: 'https://dev.aggregation.rifcomputing.net:3029',
         WALLET_ADDRESS: 'https://wallet.dev.aggregation.rifcomputing.net',
         EXPLORER: 'https://explorer.testnet.rsk.co',
-        ETH_NETWORK: 'regtest',
+        ETH_NETWORK: 'testnet',
         WS_API_ADDR: 'https://dev.aggregation.rifcomputing.net:3031',
         HTTP_RPC_API_ADDR: 'https://dev.aggregation.rifcomputing.net:3030'
     },
