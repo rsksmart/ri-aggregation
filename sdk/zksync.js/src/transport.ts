@@ -220,8 +220,6 @@ export class DummyTransport extends AbstractJSONRPCTransport {
                 committed: {
                     balances: {
                         DAI: BigNumber.from(12345),
-                        RIF: BigNumber.from(12345),
-                        RBTC: BigNumber.from(12345)
                     },
                     nonce: 0,
                     pubKeyHash: await this.getPubKeyHash()
