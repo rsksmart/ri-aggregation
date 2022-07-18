@@ -118,8 +118,8 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<TokenData> {
                     "eth" => String::from("ethereum"),
                     "wbtc" => String::from("wrapped-bitcoin"),
                     "bat" => String::from("basic-attention-token"),
-                    "RBTC" => String::from("RSK-bitcoin"),
-                    "RIF" => String::from("RSK-infra"),
+                    "RBTC" => String::from("RSK-smart-bitcoin"),
+                    "RIF" => String::from("RSK-infrastructure-framework"),
                     _ => symbol.clone(),
                 };
 
@@ -153,8 +153,8 @@ async fn handle_coingecko_token_price_query(
         Some("ethereum") => BigDecimal::from(200),
         Some("wrapped-bitcoin") => BigDecimal::from(9000),
         Some("basic-attention-token") => BigDecimal::try_from(0.2).unwrap(),
-        Some("RSK-bitcoim") => BigDecimal::from(18000),
-        Some("RSK-infra") => BigDecimal::from(0.04),
+        Some("RSK-smart-bitcoin") => BigDecimal::from(18000),
+        Some("RSK-infrastructure-framework") => BigDecimal::from(0.04),
         _ => BigDecimal::from(1),
     };
     let random_multiplier = thread_rng().gen_range(0.9, 1.1);
@@ -172,12 +172,10 @@ async fn handle_coingecko_token_price_query(
 
 fn main_scope(sloppy_mode: bool) -> actix_web::Scope {
     let localhost_tokens = load_tokens(&"etc/tokens/localhost.json");
-    let rinkeby_tokens = load_tokens(&"etc/tokens/rinkeby.json");
-    let ropsten_tokens = load_tokens(&"etc/tokens/ropsten.json");
+    let testnet_tokens = load_tokens(&"etc/tokens/testnet.json");
     let data: Vec<TokenData> = localhost_tokens
         .into_iter()
-        .chain(rinkeby_tokens.into_iter())
-        .chain(ropsten_tokens.into_iter())
+        .chain(testnet_tokens.into_iter())
         .collect();
     if sloppy_mode {
         web::scope("/")
