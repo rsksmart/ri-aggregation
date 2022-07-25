@@ -9,7 +9,8 @@ export function apiServer(network: Network) {
         localhost: 'https://localhost:3001',
         ropsten: 'https://ropsten-api.zksync.io',
         rinkeby: 'https://rinkeby-api.zksync.io',
-        mainnet: 'https://api.zksync.io'
+        mainnet: 'https://aggregation.rifcomputing.net:3029',
+        testnet: 'https://dev.aggregation.rifcomputing.net:3029'
     };
     return `${servers[network]}/api/v0.1`;
 }

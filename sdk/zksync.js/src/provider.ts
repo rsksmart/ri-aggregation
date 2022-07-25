@@ -44,35 +44,20 @@ export async function getDefaultProvider(
         } else if (transport === 'HTTP') {
             return await Provider.newHttpProvider('http://127.0.0.1:3030', pollIntervalMilliSecs);
         }
-    } else if (network === 'ropsten') {
+    } else if (network === 'testnet') {
         if (transport === 'WS') {
-            return await Provider.newWebsocketProvider('wss://ropsten-api.zksync.io/jsrpc-ws');
+            return await Provider.newWebsocketProvider('wss://dev.aggregation.rifcomputing.net:3031');
         } else if (transport === 'HTTP') {
-            return await Provider.newHttpProvider('https://ropsten-api.zksync.io/jsrpc', pollIntervalMilliSecs);
-        }
-    } else if (network === 'rinkeby') {
-        if (transport === 'WS') {
-            return await Provider.newWebsocketProvider('wss://rinkeby-api.zksync.io/jsrpc-ws');
-        } else if (transport === 'HTTP') {
-            return await Provider.newHttpProvider('https://rinkeby-api.zksync.io/jsrpc', pollIntervalMilliSecs);
-        }
-    } else if (network === 'ropsten-beta') {
-        if (transport === 'WS') {
-            return await Provider.newWebsocketProvider('wss://ropsten-beta-api.zksync.io/jsrpc-ws');
-        } else if (transport === 'HTTP') {
-            return await Provider.newHttpProvider('https://ropsten-beta-api.zksync.io/jsrpc', pollIntervalMilliSecs);
-        }
-    } else if (network === 'rinkeby-beta') {
-        if (transport === 'WS') {
-            return await Provider.newWebsocketProvider('wss://rinkeby-beta-api.zksync.io/jsrpc-ws');
-        } else if (transport === 'HTTP') {
-            return await Provider.newHttpProvider('https://rinkeby-beta-api.zksync.io/jsrpc', pollIntervalMilliSecs);
+            return await Provider.newHttpProvider(
+                'https://dev.aggregation.rifcomputing.net:3030',
+                pollIntervalMilliSecs
+            );
         }
     } else if (network === 'mainnet') {
         if (transport === 'WS') {
-            return await Provider.newWebsocketProvider('wss://api.zksync.io/jsrpc-ws');
+            return await Provider.newWebsocketProvider('wss://aggregation.rifcomputing.net:3031');
         } else if (transport === 'HTTP') {
-            return await Provider.newHttpProvider('https://api.zksync.io/jsrpc', pollIntervalMilliSecs);
+            return await Provider.newHttpProvider('https://aggregation.rifcomputing.net:3030', pollIntervalMilliSecs);
         }
     } else {
         throw new Error(`Ethereum network ${network} is not supported`);

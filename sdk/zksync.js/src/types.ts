@@ -16,7 +16,7 @@ export type TotalFee = Map<TokenLike, BigNumber>;
 
 export type Nonce = number | 'committed';
 
-export type Network = 'localhost' | 'rinkeby' | 'ropsten' | 'mainnet' | 'rinkeby-beta' | 'ropsten-beta';
+export type Network = 'localhost' | 'mainnet' | 'testnet';
 
 export interface Create2Data {
     creatorAddress: string;
