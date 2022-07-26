@@ -1,7 +1,7 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types } from 'zksync';
-import { ChangePubkeyTypes } from 'zksync/build/types';
+import { Wallet, types } from 'rif-aggregation';
+import { ChangePubkeyTypes } from 'rif-aggregation/build/types';
 
 type TokenLike = types.TokenLike;
 

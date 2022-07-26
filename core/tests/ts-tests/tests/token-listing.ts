@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import * as zksync from 'zksync';
+import * as zksync from 'rif-aggregation';
 import { ContractFactory } from 'ethers';
 
 declare module './tester' {

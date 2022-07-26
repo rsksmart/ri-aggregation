@@ -1,11 +1,11 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types } from 'zksync';
+import { Wallet, types } from 'rif-aggregation';
 import { BigNumber, ethers } from 'ethers';
-import { SignedTransaction, TxEthSignature } from 'zksync/build/types';
-import { submitSignedTransactionsBatch } from 'zksync/build/wallet';
-import { MAX_TIMESTAMP } from 'zksync/build/utils';
-import { Transfer, Withdraw } from 'zksync/build/types';
+import { SignedTransaction, TxEthSignature } from 'rif-aggregation/build/types';
+import { submitSignedTransactionsBatch } from 'rif-aggregation/build/wallet';
+import { MAX_TIMESTAMP } from 'rif-aggregation/build/utils';
+import { Transfer, Withdraw } from 'rif-aggregation/build/types';
 import {
     serializeAccountId,
     serializeAddress,
@@ -15,7 +15,7 @@ import {
     serializeNonce,
     serializeTimestamp,
     numberToBytesBE
-} from 'zksync/build/utils';
+} from 'rif-aggregation/build/utils';
 
 type TokenLike = types.TokenLike;
 

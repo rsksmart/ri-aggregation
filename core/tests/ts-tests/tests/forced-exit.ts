@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types } from 'zksync';
+import { Wallet, types } from 'rif-aggregation';
 
 type TokenLike = types.TokenLike;
 

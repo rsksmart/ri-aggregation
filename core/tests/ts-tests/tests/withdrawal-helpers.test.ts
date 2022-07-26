@@ -1,4 +1,4 @@
-import { Wallet } from 'zksync';
+import { Wallet } from 'rif-aggregation';
 import { Tester } from './tester';
 import { utils } from 'ethers';
 import './priority-ops';

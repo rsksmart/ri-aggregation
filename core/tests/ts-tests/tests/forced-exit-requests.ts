@@ -2,12 +2,12 @@ import { Tester } from './tester';
 import { expect } from 'chai';
 import fs from 'fs';
 import fetch from 'node-fetch';
-import { Wallet, types, utils, wallet } from 'zksync';
+import { Wallet, types, utils, wallet } from 'rif-aggregation';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 import * as path from 'path';
 
-import { Address } from 'zksync/build/types';
-import { sleep } from 'zksync/build/utils';
+import { Address } from 'rif-aggregation/build/types';
+import { sleep } from 'rif-aggregation/build/utils';
 
 import './transfer';
 

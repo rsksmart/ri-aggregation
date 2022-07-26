@@ -1,7 +1,7 @@
 import store from './store';
 import config from './env-config';
 import { Readiness } from './Readiness';
-import { getDefaultProvider } from 'zksync';
+import { getDefaultProvider } from 'rif-aggregation';
 
 export const sleep = async (ms) => await new Promise((resolve) => setTimeout(resolve, ms));
 
