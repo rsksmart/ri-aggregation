@@ -157,8 +157,8 @@ async function main() {
         .command('generate <network>')
         .description('generate a new wallet on L2')
         .action(async (network: Network = 'rinkeby') => {
-            console.log("Using " + network);
-            
+            console.log('Using ' + network);
+
             const ethersProvider = ethers.getDefaultProvider(network);
             const syncProvider = await zksync.getDefaultProvider(network);
 
