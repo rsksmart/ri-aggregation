@@ -48,3 +48,7 @@ members = [
     # SDK section
     "sdk/zksync-rs"
 ]
+
+exclude = [
+    "core/lib/wallet_creator",
+]
