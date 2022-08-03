@@ -28,6 +28,7 @@ fn eth_random_account_credentials() -> (H160, H256) {
 
 async fn create_new_wallet() -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
     let (eth_address, eth_private_key) = eth_random_account_credentials();
+    println!("ETH Address: {:?}",eth_address);
     println!("Private key: {:?}",eth_private_key);
 
     let provider = RpcProvider::new(Network::Localhost);
