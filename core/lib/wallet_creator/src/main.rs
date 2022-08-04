@@ -12,16 +12,6 @@ use zksync::{
 
 use zksync_eth_signer::{PrivateKeySigner};
 
-const ETH_ADDR: &str = "c354d97642faa06781b76ffb6786f72cd7746c97";
-const ETH_PRIVATE_KEY: &str = "20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323";
-
-fn eth_main_account_credentials() -> (H160, H256) {
-    let addr = ETH_ADDR.parse().unwrap();
-    let eth_private_key = ETH_PRIVATE_KEY.parse().unwrap();
-
-    (addr, eth_private_key)
-}
-
 fn eth_random_account_credentials() -> (H160, H256) {
     let mut eth_private_key = H256::default();
     eth_private_key.randomize();
@@ -31,13 +21,22 @@ fn eth_random_account_credentials() -> (H160, H256) {
     (address_from_pk, eth_private_key)
 }
 
-async fn create_new_wallet() -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
-    let (main_eth_address, main_eth_private_key) = eth_main_account_credentials();
-    // let (main_eth_address, main_eth_private_key) = eth_random_account_credentials();
+async fn create_new_wallet(address: &str, key: &str) -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
+    let mut eth_address:H160;
+    let mut eth_private_key:H256;
+    if(address.is_empty() || key.is_empty()) {
+        (eth_address, eth_private_key) = eth_random_account_credentials();
+    } else {
+        eth_address = ETH_ADDR.parse().unwrap();
+        eth_private_key = ETH_PRIVATE_KEY.parse().unwrap();
+    }
 
-    let eth_signer = PrivateKeySigner::new(main_eth_private_key);
+    println!("-> Address {:?}", eth_address);
+    println!("-> Private key {:?}", eth_private_key);
+
+    let eth_signer = PrivateKeySigner::new(eth_private_key);
     let credentials =
-        WalletCredentials::from_eth_signer(main_eth_address, eth_signer, Network::Localhost)
+        WalletCredentials::from_eth_signer(eth_address, eth_signer, Network::Localhost)
             .await
             .unwrap();
 
@@ -50,8 +49,22 @@ async fn create_new_wallet() -> Result<Wallet<PrivateKeySigner, RpcProvider>, an
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
-    let _wallet = create_new_wallet().await?;
-    // print!("well well well");
-    print!("Wallet created");
+    let args: Vec<String> = env::args().collect();
+
+    let mut address: &str = "";
+    let mut key: &str = "";
+
+    if(args.len() > 3){
+        address = &args[2];
+        key = &args[3];
+
+        println!("Address and key supplied will be used");
+    }else {
+        println!("No address and key supplied. Random will be generated");
+    }
+    
+    let _wallet = create_new_wallet(address, key).await?;
+    println!("-> Wallet created");
+
     Ok(())
 }
