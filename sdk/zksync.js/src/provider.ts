@@ -59,6 +59,36 @@ export async function getDefaultProvider(
         } else if (transport === 'HTTP') {
             return await Provider.newHttpProvider('https://aggregation.rifcomputing.net:3030', pollIntervalMilliSecs);
         }
+    } else if (network === 'ropsten') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://ropsten-api.zksync.io/jsrpc-ws');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider('https://ropsten-api.zksync.io/jsrpc', pollIntervalMilliSecs);
+        }
+    } else if (network === 'rinkeby') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://rinkeby-api.zksync.io/jsrpc-ws');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider('https://rinkeby-api.zksync.io/jsrpc', pollIntervalMilliSecs);
+        }
+    } else if (network === 'ropsten-beta') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://ropsten-beta-api.zksync.io/jsrpc-ws');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider('https://ropsten-beta-api.zksync.io/jsrpc', pollIntervalMilliSecs);
+        }
+    } else if (network === 'rinkeby-beta') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://rinkeby-beta-api.zksync.io/jsrpc-ws');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider('https://rinkeby-beta-api.zksync.io/jsrpc', pollIntervalMilliSecs);
+        }
+    } else if (network === 'mainnet-zk') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://api.zksync.io/jsrpc-ws');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider('https://api.zksync.io/jsrpc', pollIntervalMilliSecs);
+        }
     } else {
         throw new Error(`Ethereum network ${network} is not supported`);
     }

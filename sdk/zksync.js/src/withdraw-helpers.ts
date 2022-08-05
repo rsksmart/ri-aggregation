@@ -35,6 +35,8 @@ function getMulticallAddressByNetwork(network: Network) {
             return '0x9e469e1fc7fb4c5d17897b68eaf1afc9df39f103';
         case 'mainnet':
             return '0x6c62bf5440de2cb157205b15c424bceb5c3368f5';
+        case 'mainnet-zk':
+            return '0xeefba1e63905ef1d7acba5a8513c70307c1ce441';
         default:
             throw new Error('There is no default multicall contract address for this network');
     }

@@ -1,5 +1,5 @@
 import 'isomorphic-fetch';
-import * as zksync from 'rif-aggregation';
+import * as zksync from '@rsksmart/rif-aggregation-sdk-js';
 import * as ethers from 'ethers';
 import { saveConfig } from './config';
 import { ALL_NETWORKS, Network, Config, AccountInfo, TxInfo, TxDetails } from './types';

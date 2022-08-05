@@ -1,7 +1,7 @@
 import { Contract, ethers, constants, BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
-import { ETHProxy } from 'rif-aggregation';
-import { Address, TokenAddress } from 'rif-aggregation/build/types';
+import { ETHProxy } from '@rsksmart/rif-aggregation-sdk-js';
+import { Address, TokenAddress } from '@rsksmart/rif-aggregation-sdk-js/build/types';
 import { Deployer, readContractCode, readProductionContracts } from '../../src.ts/deploy';
 import { ZkSyncWithdrawalUnitTestFactory } from '../../typechain';
 

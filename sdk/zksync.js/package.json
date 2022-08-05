@@ -1,9 +1,16 @@
 {
-    "name": "rif-aggregation",
-    "version": "0.11.8",
+    "name": "@rsksmart/rif-aggregation-sdk-js",
+    "version": "0.0.2",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rsksmart/ri-aggregation"
+    },
     "license": "MIT",
     "main": "build/index.js",
     "types": "build/index.d.ts",
+    "publishConfig": {
+        "registry":"https://npm.pkg.github.com"
+    },
     "dependencies": {
         "axios": "^0.21.2",
         "websocket": "^1.0.30",

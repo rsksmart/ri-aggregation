@@ -20,6 +20,16 @@ export async function getDefaultRestProvider(
             'https://aggregation.rifcomputing.net:3029/api/v0.2',
             pollIntervalMilliSecs
         );
+    } else if (network === 'ropsten') {
+        return await RestProvider.newProvider('https://ropsten-api.zksync.io/api/v0.2', pollIntervalMilliSecs);
+    } else if (network === 'rinkeby') {
+        return await RestProvider.newProvider('https://rinkeby-api.zksync.io/api/v0.2', pollIntervalMilliSecs);
+    } else if (network === 'ropsten-beta') {
+        return await RestProvider.newProvider('https://ropsten-beta-api.zksync.io/api/v0.2', pollIntervalMilliSecs);
+    } else if (network === 'rinkeby-beta') {
+        return await RestProvider.newProvider('https://rinkeby-beta-api.zksync.io/api/v0.2', pollIntervalMilliSecs);
+    } else if (network === 'mainnet-zk') {
+        return await RestProvider.newProvider('https://api.zksync.io/api/v0.2', pollIntervalMilliSecs);
     } else {
         throw new Error(`Ethereum network ${network} is not supported`);
     }

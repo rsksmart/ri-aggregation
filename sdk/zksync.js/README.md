@@ -7,9 +7,9 @@ This document is a description of the JS library that can be used to interact wi
 
 ## Usage
 
-Full reference on how to use the library can be found [here](https://developers.rsk.co/rif/aggregation/).
+Full reference on how to use the library can be found [here](https://zksync.io/api/sdk/js/).
 
-## Changelog
+<!-- ## Changelog -->
 
 <!--
 The changelog of the rif-aggregation.js is avaliable
