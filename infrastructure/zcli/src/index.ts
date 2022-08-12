@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { ethers } from 'ethers';
 import * as commands from './commands';
 import { loadConfig } from './config';
 import type { Network } from './types';
-import * as zksync from 'zksync';
 
 function print(object: any) {
     console.log(JSON.stringify(object, null, 4));
@@ -151,20 +149,6 @@ async function main() {
         .action((address: string) => {
             commands.removeWallet(config, address);
             print(commands.listWallets(config));
-        });
-
-    wallets
-        .command('generate <network>')
-        .description('generate a new wallet on L2')
-        .action(async (network: Network = 'rinkeby') => {
-            console.log('Using ' + network);
-
-            const ethersProvider = ethers.getDefaultProvider(network);
-            const syncProvider = await zksync.getDefaultProvider(network);
-
-            const ethWallet = ethers.Wallet.createRandom().connect(ethersProvider);
-            const syncWallet = await zksync.Wallet.fromEthSigner(ethWallet, syncProvider);
-            print(syncWallet);
         });
 
     program.addCommand(wallets);
