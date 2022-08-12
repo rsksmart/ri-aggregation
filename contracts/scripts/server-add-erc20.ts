@@ -118,16 +118,16 @@ async function main() {
         .option('-s, --symbol <symbol>')
         .option('-d, --decimals <decimals>')
         .option('-e, --env <env>')
-        .action(async (cmd: Command) => {
+        .action(async ({ decimals, s_name, address, symbol, env }: Command) => {
             const token: Token = {
                 id: null,
-                address: cmd.address,
-                symbol: cmd.symbol,
-                decimals: Number(cmd.decimals)
+                address: address,
+                symbol: symbol,
+                decimals: Number(decimals)
             };
 
-            if (cmd.env === 'local') {
-                const address = await deployTestnetToken(token, cmd.s_name + '');
+            if (env === 'local') {
+                const address = await deployTestnetToken(token, s_name + '');
                 console.log('TOKEN: ' + address);
 
                 token.address = address;
