@@ -1,9 +1,9 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types, utils, SyncProvider } from 'rif-aggregation';
+import { Wallet, types, utils, SyncProvider } from '@rsksmart/rif-aggregation-sdk-js';
 import { BigNumber, ethers } from 'ethers';
-import { Address } from 'rif-aggregation/build/types';
-import { sleep } from 'rif-aggregation/build/utils';
+import { Address } from '@rsksmart/rif-aggregation-sdk-js/build/types';
+import { sleep } from '@rsksmart/rif-aggregation-sdk-js/build/utils';
 
 import { RevertReceiveAccountFactory, RevertTransferERC20Factory } from '../../../../contracts/typechain';
 import { loadTestConfig } from 'reading-tool';

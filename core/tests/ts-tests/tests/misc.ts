@@ -1,11 +1,11 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types } from 'rif-aggregation';
+import { Wallet, types } from '@rsksmart/rif-aggregation-sdk-js';
 import { BigNumber, ethers } from 'ethers';
-import { SignedTransaction, TxEthSignature } from 'rif-aggregation/build/types';
-import { submitSignedTransactionsBatch } from 'rif-aggregation/build/wallet';
-import { MAX_TIMESTAMP } from 'rif-aggregation/build/utils';
-import { Transfer, Withdraw } from 'rif-aggregation/build/types';
+import { SignedTransaction, TxEthSignature } from '@rsksmart/rif-aggregation-sdk-js/build/types';
+import { submitSignedTransactionsBatch } from '@rsksmart/rif-aggregation-sdk-js/build/wallet';
+import { MAX_TIMESTAMP } from '@rsksmart/rif-aggregation-sdk-js/build/utils';
+import { Transfer, Withdraw } from '@rsksmart/rif-aggregation-sdk-js/build/types';
 import {
     serializeAccountId,
     serializeAddress,
@@ -15,7 +15,7 @@ import {
     serializeNonce,
     serializeTimestamp,
     numberToBytesBE
-} from 'rif-aggregation/build/utils';
+} from '@rsksmart/rif-aggregation-sdk-js/build/utils';
 
 type TokenLike = types.TokenLike;
 

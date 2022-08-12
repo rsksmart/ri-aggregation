@@ -1,4 +1,4 @@
-import { Wallet } from 'rif-aggregation';
+import { Wallet } from '@rsksmart/rif-aggregation-sdk-js';
 import { Tester } from './tester';
 import { utils } from 'ethers';
 import './priority-ops';
