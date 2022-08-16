@@ -5,7 +5,7 @@ on:
 
   push:
     branches:
-      - devops/refactor-pipeline*
+      - rsk_merge_master_Dec2021
 
 # Disable simultaneous deployments into a single environment
 concurrency: deploy-${{ github.event.inputs.environment }}
