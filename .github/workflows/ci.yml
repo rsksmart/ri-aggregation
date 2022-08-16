@@ -4,8 +4,7 @@ on:
   pull_request:
   push:
     branches:
-    - staging
-    - trying
+    - rsk_merge_master_Dec2021
 
 jobs:
   lint:
