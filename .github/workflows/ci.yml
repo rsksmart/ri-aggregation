@@ -63,11 +63,6 @@ jobs:
           docker-compose -f docker-compose-runner.yml pull
           docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk
           ci_run sccache --start-server
-        # run: |
-        #   docker-compose -f docker-compose-runner.yml down
-        #   docker-compose -f docker-compose-runner.yml pull
-        #   docker-compose -f docker-compose-runner.yml up --build -d postgres zk
-        #   ci_run sccache --start-server
 
       - name: init
         run: |
@@ -109,18 +104,13 @@ jobs:
           wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
           chmod +x ./mkcert*
           cp ./mkcert* bin/mkcert
-          
+
       - name: start-services
         run: |
           docker-compose -f docker-compose-runner.yml down
           docker-compose -f docker-compose-runner.yml pull
           docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk
           ci_run sccache --start-server &
-        # run: |
-        #   docker-compose -f docker-compose-runner.yml down
-        #   docker-compose -f docker-compose-runner.yml pull
-        #   docker-compose -f docker-compose-runner.yml up --build -d postgres zk
-        #   ci_run sccache --start-server
 
       - name: setup-env (path)
         run: |
@@ -169,15 +159,9 @@ jobs:
       - name: integration-withdrawal-helpers
         run: ci_run zk test i withdrawal-helpers
 
-      # - name: Show logs
-      #   if: always()
-      #   run: |
-      #     ci_run cat server.log
-      #     ci_run cat dummy_prover.log
-
   circuit-tests:
+    if: github.ref == 'master' # imply that this should run only on production or very controlled env. Refer to research doc
     runs-on:  ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
 
