@@ -12,6 +12,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: modify rsk node conf and install mkcert
+        run: |
+          sed -i '/autoMine/ s/true/false/' docker/rskj/node.conf
+          wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
+          chmod +x ./mkcert*
+          cp ./mkcert* bin/mkcert
         
       - name: start-services
         run: |
@@ -96,6 +103,13 @@ jobs:
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
         
+      - name: modify rsk node conf and install mkcert
+        run: |
+          sed -i '/autoMine/ s/true/false/' docker/rskj/node.conf
+          wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
+          chmod +x ./mkcert*
+          cp ./mkcert* bin/mkcert
+          
       - name: start-services
         run: |
           docker-compose -f docker-compose-runner.yml down
