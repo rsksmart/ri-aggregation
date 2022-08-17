@@ -4,8 +4,7 @@ on:
   pull_request:
   push:
     branches:
-    - staging
-    - trying
+    - rsk_merge_master_Dec2021
 
 jobs:
   lint:
@@ -25,6 +24,14 @@ jobs:
         run: |
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
+      
+      - name: generate SSL certificates
+        run: |
+          ci_run mkcert -CAROOT
+          ci_run mkcert --install
+          ci_run mkcert 127.0.0.1 localhost
+          ci_run mv 127.0.0.1+1-key.pem key.pem
+          ci_run mv 127.0.0.1+1.pem cert.pem
 
       - name: lints
         run: |
@@ -126,9 +133,9 @@ jobs:
 
       - name: run-services
         run: |
-          ci_run zk server &>server.log &
+          ci_run zk server  &>/dev/null &
           ci_run sleep 10
-          ci_run zk dummy-prover run &>dummy_prover.log &
+          ci_run zk dummy-prover run  &>/dev/null &
           ci_run sleep 100
 
       - name: integration-server
@@ -148,11 +155,11 @@ jobs:
       - name: integration-withdrawal-helpers
         run: ci_run zk test i withdrawal-helpers
 
-      - name: Show logs
-        if: always()
-        run: |
-          ci_run cat server.log
-          ci_run cat dummy_prover.log
+      # - name: Show logs
+      #   if: always()
+      #   run: |
+      #     ci_run cat server.log
+      #     ci_run cat dummy_prover.log
 
   circuit-tests:
     runs-on:  ubuntu-latest
