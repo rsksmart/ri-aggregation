@@ -24,11 +24,11 @@ fn eth_random_account_credentials() -> (H160, H256) {
 async fn create_new_wallet(address: &str, private_key: &str) -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
     let mut eth_address:H160;
     let mut eth_private_key:H256;
-    if(address.is_empty() || key.is_empty()) {
+    if address.is_empty() || key.is_empty() {
         (eth_address, eth_private_key) = eth_random_account_credentials();
     } else {
-        eth_address = ETH_ADDR.parse().unwrap();
-        eth_private_key = ETH_PRIVATE_KEY.parse().unwrap();
+        eth_address = address.parse().unwrap();
+        eth_private_key = private_key.parse().unwrap();
     }
 
     println!("-> Address {:?}", eth_address);
@@ -54,12 +54,12 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut address: &str = "";
     let mut key: &str = "";
 
-    if(args.len() > 3){
+    if args.len() > 3 {
         address = &args[2];
         key = &args[3];
 
         println!("Address and key supplied will be used");
-    }else {
+    } else {
         println!("No address and key supplied. Random will be generated");
     }
     
