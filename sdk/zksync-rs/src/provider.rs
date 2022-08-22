@@ -23,7 +23,8 @@ use crate::{error::ClientError, types::*};
 /// Returns a corresponding address for a provided network name.
 pub fn get_rpc_addr(network: Network) -> &'static str {
     match network {
-        Network::Mainnet => "https://api.zksync.io/jsrpc",
+        Network::Mainnet => "https://aggregation.rifcomputing.net:3030",
+        Network::Testnet => "https://dev.aggregation.rifcomputing.net:3030",
         Network::Rinkeby => "https://rinkeby-api.zksync.io/jsrpc",
         Network::Ropsten => "https://ropsten-api.zksync.io/jsrpc",
         Network::Localhost => "http://127.0.0.1:3030",

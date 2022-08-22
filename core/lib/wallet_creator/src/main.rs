@@ -21,9 +21,17 @@ fn eth_random_account_credentials() -> (H160, H256) {
     (address_from_pk, eth_private_key)
 }
 
-async fn create_new_wallet(address: &str, private_key: &str) -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
+async fn create_new_wallet(network: &str, address: &str, private_key: &str) -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
     let eth_address:H160;
     let eth_private_key:H256;
+
+    let network_provider: Network = match network {
+        "localhost" => Network::Localhost,
+        "mainnet" => Network::Mainnet,
+        "testnet" => Network::Testnet,
+        &_ => todo!(),
+    };
+    
     if address.is_empty() || private_key.is_empty() {
         (eth_address, eth_private_key) = eth_random_account_credentials();
     } else {
@@ -36,11 +44,11 @@ async fn create_new_wallet(address: &str, private_key: &str) -> Result<Wallet<Pr
 
     let eth_signer = PrivateKeySigner::new(eth_private_key);
     let credentials =
-        WalletCredentials::from_eth_signer(eth_address, eth_signer, Network::Localhost)
+        WalletCredentials::from_eth_signer(eth_address, eth_signer, network_provider)
             .await
             .unwrap();
 
-    let provider = RpcProvider::new(Network::Localhost);
+    let provider = RpcProvider::new(network_provider);
     let wallet = Wallet::new(provider, credentials).await?;
 
 
@@ -51,19 +59,20 @@ async fn create_new_wallet(address: &str, private_key: &str) -> Result<Wallet<Pr
 async fn main() -> Result<(), anyhow::Error> {
     let args: Vec<String> = env::args().collect();
 
+    let network: &str = &args[2];
     let mut address: &str = "";
     let mut key: &str = "";
 
-    if args.len() > 3 {
-        address = &args[2];
-        key = &args[3];
+    if args.len() > 4 {       
+        address = &args[3];
+        key = &args[4];
 
         println!("Address and key supplied will be used");
     } else {
         println!("No address and key supplied. Random will be generated");
     }
     
-    let _wallet = create_new_wallet(address, key).await?;
+    let _wallet = create_new_wallet(network, address, key).await?;
     println!("-> Wallet created");
 
     Ok(())
@@ -94,7 +103,7 @@ mod tests {
         let eth_address:H160;
         let eth_private_key:H256;
         (eth_address, eth_private_key) = eth_random_account_credentials();
-        let _wallet = create_new_wallet(format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
+        let _wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
         println!("-> Wallet created");
         assert_eq!(1,1);
         Ok(())
@@ -106,7 +115,7 @@ mod tests {
         let eth_private_key:H256 = H256::from_low_u64_be(1_000);
 
         let eth_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
-        let _wallet = create_new_wallet(format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
+        let _wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
         println!("-> Wallet created");
         assert_eq!(1,1);
         Ok(())
