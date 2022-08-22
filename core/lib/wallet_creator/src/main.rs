@@ -24,7 +24,7 @@ fn eth_random_account_credentials() -> (H160, H256) {
 async fn create_new_wallet(address: &str, private_key: &str) -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
     let mut eth_address:H160;
     let mut eth_private_key:H256;
-    if address.is_empty() || key.is_empty() {
+    if address.is_empty() || private_key.is_empty() {
         (eth_address, eth_private_key) = eth_random_account_credentials();
     } else {
         eth_address = address.parse().unwrap();
