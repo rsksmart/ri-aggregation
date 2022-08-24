@@ -103,9 +103,11 @@ mod tests {
         let eth_address:H160;
         let eth_private_key:H256;
         (eth_address, eth_private_key) = eth_random_account_credentials();
-        let _wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
+        let wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
         println!("-> Wallet created");
-        assert_eq!(1,1);
+
+        let expected_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
+        assert_eq!(wallet.address(), expected_address);
         Ok(())
     }
 
@@ -115,9 +117,10 @@ mod tests {
         let eth_private_key:H256 = H256::from_low_u64_be(1_000);
 
         let eth_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
-        let _wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
+        let wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
         println!("-> Wallet created");
-        assert_eq!(1,1);
+        let expected_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
+        assert_eq!(wallet.address(), expected_address);
         Ok(())
     }
 }
