@@ -41,3 +41,11 @@ zksync_config = { path = "../config", version = "1.0" }
 [features]
 integration-tests = []
 mint = []
+
+[[bin]]
+name = "rif_aggreation_wallet_creator"
+path = "src/main.rs"
+
+[lib]
+name = "rif_aggreation_wallet_creator_lib"
+path = "src/lib.rs"

@@ -1,60 +1,8 @@
 use std::{env};
 
-use zksync::{
-    web3::{
-        types::{H160, H256},
-    },
-    zksync_types::{
-        tx::PackedEthSignature,
-    },
-    Network, RpcProvider, Wallet, WalletCredentials,
+use rif_aggreation_wallet_creator_lib::{
+    create_new_wallet
 };
-
-use zksync_eth_signer::{PrivateKeySigner};
-
-fn eth_random_account_credentials() -> (H160, H256) {
-    let mut eth_private_key = H256::default();
-    eth_private_key.randomize();
-
-    let address_from_pk = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
-
-    (address_from_pk, eth_private_key)
-}
-
-async fn create_new_wallet(network: &str, address: &str, private_key: &str) -> Result<Wallet<PrivateKeySigner, RpcProvider>, anyhow::Error>{
-    let eth_address:H160;
-    let eth_private_key:H256;
-
-    let network_provider: Network = match network {
-        "localhost" => Network::Localhost,
-        "mainnet" => Network::Mainnet,
-        "testnet" => Network::Testnet,
-        &_ => todo!(),
-    };
-    
-    if address.is_empty() || private_key.is_empty() {
-        (eth_address, eth_private_key) = eth_random_account_credentials();
-    } else {
-        eth_address = address.parse().unwrap();
-        eth_private_key = private_key.parse().unwrap();
-    }
-
-    println!("-> Address {:?}", eth_address);
-    println!("-> L1 Private key {:?}", eth_private_key);
-
-    let eth_signer = PrivateKeySigner::new(eth_private_key);
-    let credentials =
-        WalletCredentials::from_eth_signer(eth_address, eth_signer, network_provider)
-            .await
-            .unwrap();
-
-    let provider = RpcProvider::new(network_provider);
-    let wallet = Wallet::new(provider, credentials).await?;
-
-    println!("-> L2 PrivateKey {}", wallet.signer.get_zk_private_key());
-
-    Ok(wallet)
-}
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -77,51 +25,4 @@ async fn main() -> Result<(), anyhow::Error> {
     println!("-> Wallet created");
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::*;
-    // use serde_json as ser;
-
-    #[test]
-    fn test_generate_random_keys() {
-        // assert_eq!(add(1, 2), 3);
-        let eth_address:H160;
-        let eth_private_key:H256;
-        (eth_address, eth_private_key) = eth_random_account_credentials();
-
-        println!("-> Address {:?}", eth_address);
-        println!("-> Private key {:?}", eth_private_key);    
-
-        assert_eq!(eth_address.is_zero(), false);
-        assert_eq!(eth_private_key.is_zero(), false);
-    }
-
-    #[tokio::test]
-    async fn test_using_random_keys() -> Result<(), anyhow::Error>  {
-        let eth_address:H160;
-        let eth_private_key:H256;
-        (eth_address, eth_private_key) = eth_random_account_credentials();
-        let wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
-        println!("-> Wallet created");
-
-        let expected_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
-        assert_eq!(wallet.address(), expected_address);
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn test_using_user_address() -> Result<(), anyhow::Error>  {
-        // assert_eq!(bad_add(1, 2), 3);
-        let eth_private_key:H256 = H256::from_low_u64_be(1_000);
-
-        let eth_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
-        let wallet = create_new_wallet("localhost", format!("{:?}",eth_address).as_str(), format!("{:?}",eth_private_key).as_str()).await?;
-        println!("-> Wallet created");
-        let expected_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();
-        assert_eq!(wallet.address(), expected_address);
-        Ok(())
-    }
 }
