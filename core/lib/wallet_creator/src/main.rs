@@ -40,7 +40,7 @@ async fn create_new_wallet(network: &str, address: &str, private_key: &str) -> R
     }
 
     println!("-> Address {:?}", eth_address);
-    println!("-> Private key {:?}", eth_private_key);
+    println!("-> L1 Private key {:?}", eth_private_key);
 
     let eth_signer = PrivateKeySigner::new(eth_private_key);
     let credentials =
@@ -51,6 +51,7 @@ async fn create_new_wallet(network: &str, address: &str, private_key: &str) -> R
     let provider = RpcProvider::new(network_provider);
     let wallet = Wallet::new(provider, credentials).await?;
 
+    println!("-> L2 PrivateKey {}", wallet.signer.get_zk_private_key());
 
     Ok(wallet)
 }

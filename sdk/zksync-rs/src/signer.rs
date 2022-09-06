@@ -75,6 +75,10 @@ impl<S: EthereumSigner> Signer<S> {
         self.account_id
     }
 
+    pub fn get_zk_private_key(&self) -> String {
+        self.private_key.0.to_string()
+    }
+
     pub async fn sign_change_pubkey_tx(
         &self,
         nonce: Nonce,
@@ -85,6 +89,7 @@ impl<S: EthereumSigner> Signer<S> {
     ) -> Result<ChangePubKey, SignerError> {
         let account_id = self.account_id.ok_or(SignerError::NoSigningKey)?;
 
+        println!("sign_change_pubkey 1");
         let mut change_pubkey = ChangePubKey::new_signed(
             account_id,
             self.address,
@@ -97,23 +102,29 @@ impl<S: EthereumSigner> Signer<S> {
             &self.private_key,
         )
         .map_err(signing_failed_error)?;
+        println!("sign_change_pubkey 2");
 
         let eth_auth_data = if auth_onchain {
+            println!("sign_change_pubkey 3");
             ChangePubKeyEthAuthData::Onchain
         } else {
+            println!("sign_change_pubkey 4");
             let eth_signer = self
                 .eth_signer
                 .as_ref()
                 .ok_or(SignerError::MissingEthSigner)?;
 
+            println!("sign_change_pubkey 5");
             let sign_bytes = change_pubkey
                 .get_eth_signed_data()
                 .map_err(signing_failed_error)?;
+            println!("sign_change_pubkey 6");
             let eth_signature = eth_signer
                 .sign_message(&sign_bytes)
                 .await
                 .map_err(signing_failed_error)?;
 
+            println!("sign_change_pubkey 7");
             let eth_signature = match eth_signature {
                 TxEthSignature::EthereumSignature(packed_signature) => Ok(packed_signature),
                 TxEthSignature::EIP1271Signature(..) => Err(SignerError::CustomError(
@@ -121,17 +132,21 @@ impl<S: EthereumSigner> Signer<S> {
                 )),
             }?;
 
+            println!("sign_change_pubkey 8");
             ChangePubKeyEthAuthData::ECDSA(ChangePubKeyECDSAData {
                 eth_signature,
                 batch_hash: H256::zero(),
             })
         };
+        println!("sign_change_pubkey 9");
         change_pubkey.eth_auth_data = Some(eth_auth_data);
 
+        println!("sign_change_pubkey 10");
         assert!(
             change_pubkey.is_eth_auth_data_valid(),
             "eth auth data is incorrect"
         );
+        println!("sign_change_pubkey 11");
 
         Ok(change_pubkey)
     }
