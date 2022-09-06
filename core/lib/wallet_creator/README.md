@@ -15,7 +15,7 @@ run `cargo run rif_aggreation_wallet_creator <network> <eth_address> <private_ke
 ## Note
 
 - The wallet address and private key will be printed on console.
-- The networks suppoerted are `localhost`, `rsk mainnet` and `rsk testnet`.
+- The networks suppoerted are `localhost`, `mainnet` (RSK Mainnet) and `testnet` (RSK Testnet).
 
 ## Tests
 
