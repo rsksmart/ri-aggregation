@@ -7,15 +7,15 @@ RUN apt-get update -y && \
     apt-get autoremove -y && \
     apt-get clean
 
-RUN gpg --keyserver https://secchannel.rsk.co/release.asc --recv-keys 1A92D8942171AFA951A857365DECF4415E3B8FA4
-RUN gpg --finger 1A92D8942171AFA951A857365DECF4415E3B8FA4
+RUN gpg --keyserver https://secchannel.rsk.co/SUPPORT.asc --recv-keys A6DBEAC640C5A14B
+RUN gpg --finger A6DBEAC640C5A14B
 
-ARG rskj_codename=IRIS
-ARG rskj_version=3.1.0
-ENV RSKJ_BRANCH=IRIS_3_1_0
+ARG rskj_codename=HOP
+ARG rskj_version=4.3.0
+ENV RSKJ_BRANCH=HOP-4.3.0
 
 # The code is a fork of 3.1.0 where I removed JCentral repo which has been sunsetted
-RUN git clone --single-branch --depth 1 --branch "${RSKJ_BRANCH}" https://github.com/raullaprida/rskj.git /code/rskj
+RUN git clone --single-branch --depth 1 --branch "${RSKJ_BRANCH}" https://github.com/rsksmart/rskj.git /code/rskj
 
 
 WORKDIR /code/rskj
@@ -27,8 +27,8 @@ RUN ./gradlew --no-daemon clean build -x test
 
 # Run RSKj
 FROM ubuntu:20.04
-ARG rskj_codename=IRIS
-ARG rskj_version=3.1.0
+ARG rskj_codename=HOP
+ARG rskj_version=4.3.0
 
 ARG DEBIAN_FRONTEND=noninteractive
 

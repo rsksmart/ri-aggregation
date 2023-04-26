@@ -19,8 +19,11 @@ services:
       - "4445:4445"
     volumes:
       - type: bind
-        source: ./volumes/rskj
+        source: ./volumes/rskj/node
         target: /etc/rsknode
+      - type: bind
+        source: ./volumes/rskj/data
+        target: /var/lib/rsk
   
   dev-liquidity-token-watcher:
     image: "matterlabs/dev-liquidity-token-watcher:latest"
