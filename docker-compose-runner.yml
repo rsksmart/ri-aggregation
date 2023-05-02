@@ -4,6 +4,19 @@ services:
     image: "postgres:12"
     environment:
         - POSTGRES_HOST_AUTH_METHOD=trust
+
+  rskj:
+    image: rsksmart/rskj:HOP-4.4.0
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    volumes:
+      - type: bind
+        source: ./volumes/rskj
+        target: /etc/rsknode
+      - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+      - ./docker/rskj/node.conf:/etc/rsk/node.conf
+  
   
   dev-ticker:
     image: "matterlabs/dev-ticker:latest"
@@ -22,6 +35,7 @@ services:
       context: ./docker/zk-environment 
     depends_on:
       - postgres
+      - rskj
       - dev-ticker
       - dev-liquidity-token-watcher
     command: tail -f /dev/null
