@@ -4,11 +4,6 @@ services:
     image: "postgres:12"
     environment:
         - POSTGRES_HOST_AUTH_METHOD=trust
-
-  rskj:
-    build:
-      context: ./docker/rskj
-  
   
   dev-ticker:
     image: "matterlabs/dev-ticker:latest"
@@ -27,7 +22,6 @@ services:
       context: ./docker/zk-environment 
     depends_on:
       - postgres
-      - rskj
       - dev-ticker
       - dev-liquidity-token-watcher
     command: tail -f /dev/null
