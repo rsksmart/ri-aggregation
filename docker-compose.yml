@@ -13,7 +13,7 @@ services:
 
   rskj:
     ## TODO: We should the latest stable version
-    image: rsksmart/rskj:HOP-4.1.1
+    image: rsksmart/rskj:HOP-4.4.0
     ports:
       - "4444:4444"
       - "4445:4445"
