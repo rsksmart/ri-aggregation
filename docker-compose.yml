@@ -12,7 +12,6 @@ services:
         - POSTGRES_HOST_AUTH_METHOD=trust
 
   rskj:
-    ## TODO: We should the latest stable version
     image: rsksmart/rskj:HOP-4.4.0
     ports:
       - "4444:4444"

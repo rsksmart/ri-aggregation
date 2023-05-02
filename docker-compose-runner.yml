@@ -11,9 +11,6 @@ services:
       - "4444:4444"
       - "4445:4445"
     volumes:
-      - type: bind
-        source: ./volumes/rskj
-        target: /etc/rsknode
       - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
   
