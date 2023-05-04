@@ -53,3 +53,5 @@ core/lib/storage/.env
 
 *.pem
 bin/mkcert
+
+docker/rskj/data

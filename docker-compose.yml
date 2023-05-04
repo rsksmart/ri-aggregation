@@ -22,6 +22,7 @@ services:
         target: /etc/rsknode
       - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
+      - ./docker/rskj/data:/var/lib/rsk/.rsk
   
   dev-liquidity-token-watcher:
     image: "matterlabs/dev-liquidity-token-watcher:latest"
