@@ -41,6 +41,7 @@ jobs:
 
       - name: lints
         run: |
+          ci_run rustc --version
           ci_run zk
           ci_run zk fmt --check
           ci_run zk lint --check
