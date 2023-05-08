@@ -10,3 +10,9 @@ Copy the `Dockerfile` and `supervisord.conf` files located in `/rskj/from_source
 existing files).
 
 It is recommended that you run `docker-compose build --no-cache`
+
+## Build specific branch
+
+There is an example of a specific rskj branch build: 'EIP2028'.
+Check the files `build_EIP2028.sh` (removes tag, clean cache and build) and `Dockerfile_EIP2028` which can be used as a template for building from a branch, just need to change the environment `VAR RSKJ_BRANCH` with whatever branch needs to be built and then run the RSKJ_BRANCH `build_EIP2028.sh` script.
+
