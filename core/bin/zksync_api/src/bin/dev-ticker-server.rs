@@ -5,7 +5,7 @@
 
 use actix_cors::Cors;
 use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Result};
-use bigdecimal::BigDecimal;
+use bigdecimal::{BigDecimal, FromPrimitive};
 use chrono::{SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -66,7 +66,7 @@ async fn handle_coinmarketcap_token_price_query(
         "tGLM" => BigDecimal::from(1),
         "GLM" => BigDecimal::from(1),
         "RBTC" => BigDecimal::from(18000),
-        "RIF" => BigDecimal::from(0.053533),
+        "RIF" => BigDecimal::from_f64(0.053533).unwrap(),
         _ => BigDecimal::from(1),
     };
     let random_multiplier = thread_rng().gen_range(0.9, 1.1);
@@ -154,7 +154,7 @@ async fn handle_coingecko_token_price_query(
         Some("wrapped-bitcoin") => BigDecimal::from(9000),
         Some("basic-attention-token") => BigDecimal::try_from(0.2).unwrap(),
         Some("RSK-smart-bitcoin") => BigDecimal::from(18000),
-        Some("RSK-infrastructure-framework") => BigDecimal::from(0.04),
+        Some("RSK-infrastructure-framework") => BigDecimal::from_f64(0.04).unwrap(),
         _ => BigDecimal::from(1),
     };
     let random_multiplier = thread_rng().gen_range(0.9, 1.1);
