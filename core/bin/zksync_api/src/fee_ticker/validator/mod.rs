@@ -202,7 +202,7 @@ impl<W: TokenWatcher> FeeTokenValidator<W> {
 mod tests {
     use super::*;
     use crate::fee_ticker::validator::cache::TokenInMemoryCache;
-    use crate::fee_ticker::validator::watcher::UniswapTokenWatcher;
+    use crate::fee_ticker::validator::watcher::CoinGeckoTokenWatcher;
     use bigdecimal::Zero;
     use num::rational::Ratio;
     use num::BigUint;
@@ -233,12 +233,12 @@ mod tests {
     #[ignore]
     // We can use this test only online, run it manually if you need to test connection to uniswap
     async fn get_real_token_amount() {
-        let mut watcher = UniswapTokenWatcher::new(
-            "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2".to_string(),
-        );
-        let dai_token_address =
-            Address::from_str("6b175474e89094c44da98b954eedeac495271d0f").unwrap();
-        let dai_token = Token::new(TokenId(1), dai_token_address, "DAI", 18, TokenKind::ERC20);
+        const MAINNET_RIF_CONTRACT_ADDR: &str = "0x2acc95758f8b5f583470ba265eb685a8f45fc9d5";
+
+        let mut watcher =
+            CoinGeckoTokenWatcher::new("https://api.coingecko.com/api/v3".to_string());
+        let rif_token_address = Address::from_str(MAINNET_RIF_CONTRACT_ADDR).unwrap();
+        let dai_token = Token::new(TokenId(1), rif_token_address, "RIF", 18, TokenKind::ERC20);
 
         let amount = watcher.get_token_market_volume(&dai_token).await.unwrap();
         assert!(amount > BigDecimal::zero());

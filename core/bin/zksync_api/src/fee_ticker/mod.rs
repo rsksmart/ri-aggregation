@@ -45,7 +45,7 @@ use crate::fee_ticker::{
     },
     ticker_info::{FeeTickerInfo, TickerInfo},
     validator::{
-        watcher::{TokenWatcher, UniswapTokenWatcher},
+        watcher::{CoinGeckoTokenWatcher, TokenWatcher},
         FeeTokenValidator, MarketUpdater,
     },
 };
@@ -270,7 +270,7 @@ pub fn run_ticker_task(
     };
 
     let cache = (db_pool.clone(), TokenDBCache::new());
-    let watcher = UniswapTokenWatcher::new(config.ticker.uniswap_url.clone());
+    let watcher = CoinGeckoTokenWatcher::new(config.ticker.coingecko_base_url.clone());
     let validator = FeeTokenValidator::new(
         cache.clone(),
         chrono::Duration::seconds(config.ticker.available_liquidity_seconds as i64),
