@@ -12,8 +12,7 @@ services:
         - POSTGRES_HOST_AUTH_METHOD=trust
 
   rskj:
-    build:
-      context: ./docker/rskj
+    image: rsksmart/rskj:HOP-4.4.0
     ports:
       - "4444:4444"
       - "4445:4445"
@@ -21,6 +20,9 @@ services:
       - type: bind
         source: ./volumes/rskj
         target: /etc/rsknode
+      - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+      - ./docker/rskj/node.conf:/etc/rsk/node.conf
+      - ./docker/rskj/data:/var/lib/rsk/.rsk
   
   dev-liquidity-token-watcher:
     image: "matterlabs/dev-liquidity-token-watcher:latest"
