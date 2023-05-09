@@ -45,12 +45,14 @@ use crate::fee_ticker::{
     },
     ticker_info::{FeeTickerInfo, TickerInfo},
     validator::{
-        watcher::{TokenWatcher, UniswapTokenWatcher},
+        watcher::{CoinGeckoTokenWatcher, TokenWatcher},
         FeeTokenValidator, MarketUpdater,
     },
 };
 use crate::utils::token_db_cache::TokenDBCache;
 use zksync_types::gas_counter::GasCounter;
+
+pub use validator::types as CoinGeckoTypes;
 
 mod constants;
 mod ticker_api;
@@ -270,7 +272,11 @@ pub fn run_ticker_task(
     };
 
     let cache = (db_pool.clone(), TokenDBCache::new());
-    let watcher = UniswapTokenWatcher::new(config.ticker.uniswap_url.clone());
+    let watcher = CoinGeckoTokenWatcher::new(
+        format!("http://127.0.0.1:9975"),
+        // !! TODO: use config.ticker.coingecko_base_url.clone() once fee ticker and liquidity ticker are ran on the same mock server !!
+        config.eth_client.chain_id,
+    );
     let validator = FeeTokenValidator::new(
         cache.clone(),
         chrono::Duration::seconds(config.ticker.available_liquidity_seconds as i64),

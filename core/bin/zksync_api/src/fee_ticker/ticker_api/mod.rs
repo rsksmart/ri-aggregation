@@ -19,7 +19,7 @@ const API_PRICE_EXPIRATION_TIME_SECS: i64 = 30 * 60;
 const UPDATE_PRICE_INTERVAL_SECS: u64 = 10 * 60;
 
 /// The limit of time we are willing to wait for response.
-pub const REQUEST_TIMEOUT: Duration = Duration::from_millis(700);
+pub const REQUEST_TIMEOUT: Duration = Duration::from_secs(2); // had to change it or it times out before response
 /// Configuration parameter of the reqwest Client
 pub const CONNECTION_TIMEOUT: Duration = Duration::from_millis(700);
 

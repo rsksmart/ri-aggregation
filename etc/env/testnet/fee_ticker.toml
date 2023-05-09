@@ -10,8 +10,6 @@ coingecko_base_url="http://127.0.0.1:9876"
 # Coefficient for the fee price for fast withdrawal requests.
 fast_processing_coeff=10.0
 # List of tokens not suitable for paying fees.
-# Url to uniswap api
-uniswap_url="http://127.0.0.1:9975/graphql"
 # The volume of tokens to confirm their liquidity
 liquidity_volume=100
 # Time when liquidity check results are valid

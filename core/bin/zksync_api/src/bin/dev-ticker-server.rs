@@ -5,12 +5,12 @@
 
 use actix_cors::Cors;
 use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Result};
-use bigdecimal::BigDecimal;
+use bigdecimal::{BigDecimal, FromPrimitive};
 use chrono::{SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::time::Duration;
 use std::{collections::HashMap, fs::read_to_string, path::Path};
-use std::{convert::TryFrom, time::Duration};
 use structopt::StructOpt;
 use zksync_crypto::rand::{thread_rng, Rng};
 use zksync_types::Address;
@@ -56,22 +56,13 @@ async fn handle_coinmarketcap_token_price_query(
 ) -> Result<HttpResponse> {
     let symbol = query.symbol.clone();
     let base_price = match symbol.as_str() {
-        "ETH" => BigDecimal::from(200),
-        "wBTC" => BigDecimal::from(9000),
-        "BAT" => BigDecimal::try_from(0.2).unwrap(),
-        // Even though these tokens have their base price equal to
-        // the default one, we still keep them here so that in the future it would
-        // be easier to change the default price without affecting the important tokens
-        "DAI" => BigDecimal::from(1),
-        "tGLM" => BigDecimal::from(1),
-        "GLM" => BigDecimal::from(1),
-        "RBTC" => BigDecimal::from(18000),
-        "RIF" => BigDecimal::from(0.053533),
-        _ => BigDecimal::from(1),
+        "RBTC" => BigDecimal::from_f64(18000.0),
+        "RIF" => BigDecimal::from_f64(0.053533),
+        _ => BigDecimal::from_f64(1.0),
     };
-    let random_multiplier = thread_rng().gen_range(0.9, 1.1);
+    let random_multiplier: f64 = thread_rng().gen_range(0.9, 1.1);
 
-    let price = base_price * BigDecimal::try_from(random_multiplier).unwrap();
+    let price: BigDecimal = base_price.unwrap() * BigDecimal::from_f64(random_multiplier).unwrap();
 
     let last_updated = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
     let resp = json!({
@@ -113,11 +104,8 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<TokenData> {
             .map(|token| {
                 let symbol = token.symbol.to_lowercase();
                 let mut platforms = HashMap::new();
-                platforms.insert(String::from("ethereum"), token.address);
+                platforms.insert(String::from("rootstock"), token.address);
                 let id = match symbol.as_str() {
-                    "eth" => String::from("ethereum"),
-                    "wbtc" => String::from("wrapped-bitcoin"),
-                    "bat" => String::from("basic-attention-token"),
                     "RBTC" => String::from("RSK-smart-bitcoin"),
                     "RIF" => String::from("RSK-infrastructure-framework"),
                     _ => symbol.clone(),
@@ -150,15 +138,12 @@ async fn handle_coingecko_token_price_query(
 ) -> Result<HttpResponse> {
     let coin_id = req.match_info().get("coin_id");
     let base_price = match coin_id {
-        Some("ethereum") => BigDecimal::from(200),
-        Some("wrapped-bitcoin") => BigDecimal::from(9000),
-        Some("basic-attention-token") => BigDecimal::try_from(0.2).unwrap(),
-        Some("RSK-smart-bitcoin") => BigDecimal::from(18000),
-        Some("RSK-infrastructure-framework") => BigDecimal::from(0.04),
-        _ => BigDecimal::from(1),
+        Some("RSK-smart-bitcoin") => BigDecimal::from_f64(18000.0),
+        Some("RSK-infrastructure-framework") => BigDecimal::from_f64(0.04),
+        _ => BigDecimal::from_f64(1.0),
     };
-    let random_multiplier = thread_rng().gen_range(0.9, 1.1);
-    let price = base_price * BigDecimal::try_from(random_multiplier).unwrap();
+    let random_multiplier: f64 = thread_rng().gen_range(0.9, 1.1);
+    let price: BigDecimal = base_price.unwrap() * BigDecimal::from_f64(random_multiplier).unwrap();
 
     let last_updated = Utc::now().timestamp_millis();
     let resp = json!({

@@ -24,8 +24,6 @@ pub struct TickerConfig {
     pub scale_fee_percent: u32,
     /// Coefficient for the fee price for fast withdrawal requests.
     pub fast_processing_coeff: f64,
-    /// Url to uniswap api
-    pub uniswap_url: String,
     /// The volume of tokens to confirm their liquidity
     pub liquidity_volume: f64,
     /// Time when liquidity check results are valid
@@ -65,7 +63,6 @@ mod tests {
             coingecko_base_url: "http://127.0.0.1:9876".into(),
             scale_fee_percent: 100,
             fast_processing_coeff: 10.0f64,
-            uniswap_url: "http://127.0.0.1:9975/graphql".to_string(),
             liquidity_volume: 100.0,
             available_liquidity_seconds: 1000,
             unconditionally_valid_tokens: vec![addr("0000000000000000000000000000000000000000")],
@@ -81,7 +78,6 @@ FEE_TICKER_TOKEN_PRICE_SOURCE="CoinGecko"
 FEE_TICKER_COINMARKETCAP_BASE_URL="http://127.0.0.1:9876"
 FEE_TICKER_COINGECKO_BASE_URL="http://127.0.0.1:9876"
 FEE_TICKER_FAST_PROCESSING_COEFF="10"
-FEE_TICKER_UNISWAP_URL=http://127.0.0.1:9975/graphql
 FEE_TICKER_AVAILABLE_LIQUIDITY_SECONDS=1000
 FEE_TICKER_TOKEN_MARKET_UPDATE_TIME=120
 FEE_TICKER_UNCONDITIONALLY_VALID_TOKENS="0x0000000000000000000000000000000000000000"

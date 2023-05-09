@@ -1,24 +1,22 @@
 //! Token watcher implementation for dev environment
 //!
-//! Implements Uniswap API for token which are deployed in localhost network
+//! Implements Coingecko API for token which are deployed in localhost network
+use actix_cors::Cors;
+use actix_web::{dev::AnyBody, middleware, web, App, HttpResponse, HttpServer, Result};
+use bigdecimal::{BigDecimal, ToPrimitive};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::{
     collections::{HashMap, HashSet},
     fs::File,
     io::BufReader,
     path::Path,
 };
+use zksync_api::fee_ticker::CoinGeckoTypes::{AssetPlatform, ContractSimplified};
 
-use actix_cors::Cors;
-use actix_web::{middleware, web, App, HttpResponse, HttpServer, Result};
-use bigdecimal::BigDecimal;
-use regex::Regex;
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
-
-use zksync_api::fee_ticker::validator::watcher::{
-    GraphqlResponse, GraphqlTokenResponse, TokenResponse,
+use zksync_config::{
+    configs::dev_liquidity_token_watcher::Regime, DevLiquidityTokenWatcherConfig, ETHClientConfig,
 };
-use zksync_config::{configs::dev_liquidity_token_watcher::Regime, DevLiquidityTokenWatcherConfig};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct TokenData {
@@ -78,6 +76,8 @@ impl VolumeStorage {
         }
     }
 }
+type PlatformId = String;
+type CoinGeckoStorage = HashMap<PlatformId, VolumeStorage>;
 
 fn load_tokens(path: impl AsRef<Path>) -> Vec<(String, String)> {
     let file = File::open(path).unwrap();
@@ -94,28 +94,51 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<(String, String)> {
     tokens
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct GrqaphqlQuery {
-    query: String,
+async fn handle_get_asset_platforms(storage: web::Data<CoinGeckoStorage>) -> Result<HttpResponse> {
+    let keys: Vec<PlatformId> = storage.keys().map(|key| key.clone()).collect();
+    if !keys.is_empty() {
+        return Ok(HttpResponse::Ok().json(vec![AssetPlatform {
+            id: keys[0].clone(),
+            chain_identifier: Some(9999),
+            name: format!("Local Dev"),
+            shortname: format!("localdev"),
+        }]));
+    }
+
+    HttpResponse::InternalServerError().message_body(AnyBody::from_message("Nothing in storage"))
 }
 
-async fn handle_graphql(
-    params: web::Json<GrqaphqlQuery>,
-    volume_storage: web::Data<VolumeStorage>,
+async fn handle_get_coin_contract(
+    path: web::Path<(String, String)>,
+    storage: web::Data<CoinGeckoStorage>,
 ) -> Result<HttpResponse> {
-    // TODO https://linear.app/matterlabs/issue/ZKS-413/support-full-version-of-graphql-for-tokenvalidator
-    let query_parser = Regex::new(r#"\{token\(id:\s"(?P<address>.*?)"\).*"#).expect("Right regexp");
-    let caps = query_parser.captures(&params.query).unwrap();
-    let address = &caps["address"].to_ascii_lowercase();
-    let volume = volume_storage.get_volume(address);
-    let response = GraphqlResponse {
-        data: GraphqlTokenResponse {
-            token: Some(TokenResponse {
-                untracked_volume_usd: volume.to_string(),
-            }),
-        },
-    };
-    Ok(HttpResponse::Ok().json(response))
+    let (platform_id, contract_address) = path.into_inner();
+    if let Some(volume_storage) = storage.get(&platform_id) {
+        let volume = volume_storage.get_volume(&contract_address);
+        let mut contract = ContractSimplified::default();
+        contract.market_data.total_volume.usd = volume.to_f64();
+
+        return Ok(HttpResponse::Ok().json(contract));
+    }
+
+    HttpResponse::BadRequest().message_body(AnyBody::from_message(format!(
+        "Invalid platform_id {}.",
+        &platform_id
+    )))
+}
+
+pub fn config_app(cfg: &mut web::ServiceConfig) {
+    cfg.service(web::resource("/asset_platforms").route(web::get().to(handle_get_asset_platforms)))
+        .service(
+            web::scope("/coins").service(
+                web::scope("/{platform_id}").service(
+                    web::scope("/contract").service(
+                        web::resource("/{contract_address}")
+                            .route(web::get().to(handle_get_coin_contract)),
+                    ),
+                ),
+            ),
+        );
 }
 
 fn main() {
@@ -124,7 +147,7 @@ fn main() {
     let runtime = actix_rt::System::new();
     let config = DevLiquidityTokenWatcherConfig::from_env();
 
-    let storage = match config.regime {
+    let volume_storage = match config.regime {
         Regime::Blacklist => VolumeStorage::blacklisted_tokens(
             config.blacklisted_tokens,
             config.default_volume.into(),
@@ -135,13 +158,17 @@ fn main() {
         }
     };
 
+    let eth_client_config = ETHClientConfig::from_env();
+    let chain_id = eth_client_config.chain_id.to_string();
+    let storage: CoinGeckoStorage = [(chain_id, volume_storage)].iter().cloned().collect();
+
     runtime.block_on(async {
         HttpServer::new(move || {
             App::new()
                 .app_data(web::Data::new(storage.clone()))
                 .wrap(Cors::default().send_wildcard().max_age(3600))
                 .wrap(middleware::Logger::default())
-                .route("/graphql", web::post().to(handle_graphql))
+                .configure(config_app)
         })
         .bind("0.0.0.0:9975")
         .unwrap()
@@ -176,5 +203,97 @@ mod tests {
         assert_eq!(volume, 0.into());
         let volume = storage.get_volume("another_token");
         assert_eq!(volume, 500.into())
+    }
+}
+
+#[cfg(test)]
+mod handlers_tests {
+    use super::*;
+    use actix_web::{
+        body::{to_bytes, BoxAnyBody},
+        dev::AnyBody,
+        web,
+    };
+    use bigdecimal::FromPrimitive;
+
+    #[actix_web::test]
+    async fn get_asset_list() {
+        let platform_1: AssetPlatform = AssetPlatform {
+            id: format!("local_dev"),
+            chain_identifier: Some(9999),
+            name: format!("Local Dev"),
+            shortname: format!("localdev"),
+        };
+
+        let volume_storage = VolumeStorage::whitelisted_tokens(Vec::new(), BigDecimal::default());
+
+        let platform_id = platform_1.id.clone();
+        let storage: CoinGeckoStorage = [(platform_id, volume_storage)].iter().cloned().collect();
+        let storage_data: web::Data<CoinGeckoStorage> = web::Data::new(storage);
+
+        let expected_platforms = vec![platform_1];
+        let response = handle_get_asset_platforms(storage_data).await.unwrap();
+        let status = response.status();
+
+        assert!(status.is_success());
+        let body = serde_json::from_slice::<Vec<AssetPlatform>>(
+            &to_bytes(AnyBody::Message(BoxAnyBody::from_body(
+                response.into_body(),
+            )))
+            .await
+            .unwrap()
+            .to_vec(),
+        )
+        .unwrap(); // is this really the simplest way to get the body? seems so unnecessary to convert it to BoxAnyBody, etc!
+
+        for expected_platform in expected_platforms {
+            let platform_option = body
+                .iter()
+                .find(|actual_platform| actual_platform.id.eq(&expected_platform.id));
+
+            assert!(platform_option.is_some());
+
+            let actual_platform = platform_option.unwrap();
+
+            assert_eq!(
+                actual_platform.chain_identifier,
+                expected_platform.chain_identifier
+            );
+            assert_eq!(actual_platform.name, expected_platform.name);
+            assert_eq!(actual_platform.shortname, expected_platform.shortname);
+        }
+    }
+
+    #[actix_web::test]
+    async fn get_coin_contract() {
+        let expected_volume = BigDecimal::from_f32(2.34567).unwrap();
+        let token_address = format!("0x2acc95758f8b5f583470ba265eb685a8f45fc9d5");
+        let expected_token = (token_address.clone(), format!("Token Name"));
+        let tokens = vec![expected_token];
+        let platform_id = format!("localhost");
+        let path = web::Path::from((platform_id.clone(), token_address));
+
+        let volume_storage = VolumeStorage::whitelisted_tokens(tokens, expected_volume.clone());
+
+        let storage: CoinGeckoStorage = [(platform_id, volume_storage)].iter().cloned().collect();
+        let storage_data: web::Data<CoinGeckoStorage> = web::Data::new(storage);
+
+        let response = handle_get_coin_contract(path, storage_data).await.unwrap();
+        let status = response.status();
+        assert!(status.is_success());
+
+        let parsed_body: ContractSimplified = serde_json::from_slice(
+            &to_bytes(AnyBody::Message(BoxAnyBody::from_body(
+                response.into_body(),
+            )))
+            .await
+            .unwrap()
+            .to_vec(),
+        )
+        .unwrap(); // is this really the simplest way to get the body? seems so unnecessary to convert it to BoxAnyBody, etc!
+
+        assert!(parsed_body.market_data.total_volume.usd.is_some());
+        let volume = parsed_body.market_data.total_volume.usd.unwrap(); // For now we're only interested in this field
+        assert_eq!(volume, expected_volume.to_f64().unwrap());
     }
 }
