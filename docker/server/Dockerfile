@@ -14,4 +14,5 @@ EXPOSE 3002
 COPY --from=builder /usr/src/zksync/target/release/zksync_server /usr/bin
 COPY contracts/artifacts/ /contracts/artifacts/
 COPY etc/web3-abi/ /etc/web3-abi/
+COPY etc/token-lists/ /etc/token-lists/
 ENTRYPOINT ["zksync_server"]
