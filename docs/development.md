@@ -1,6 +1,6 @@
 # Development guide
 
-This document covers development-related actions in zkSync.
+This document covers development-related actions in ri-aggregation.
 
 ## Initializing the project
 
@@ -16,7 +16,7 @@ You may also configure autocompletion for your shell via:
 zk completion install
 ```
 
-Once all the dependencies were installed, project can be initialized:
+Once all the dependencies are installed, the project can be initialized through:
 
 ```
 zk init
@@ -69,7 +69,7 @@ Using the real prover for the development can be not really handy, since it’s 
 Instead, one may want to use the Dummy Prover: lightweight version of the prover, which does not actually prove anything,
 but acts as it does.
 
-To enable the dummy prover, run:
+To enable the dummy prover run:
 
 ```
 zk dummy-prover enable
@@ -184,8 +184,8 @@ zk test db
 ## Developing circuit
 
 - To generate proofs one must have the universal setup files (which are downloaded during the first initialization).
-- To verify generated proofs one must have verification keys. Verification keys are generated for specific circuit
-  &Verifier.sol contract; without these keys it is impossible to verify proofs on the Ethereum network.
+- To verify generated proofs one must have verification keys. Verification keys are generated for the specific circuit
+  `Verifier.sol` contract; without these keys it is impossible to verify proofs on the Ethereum network.
 
 Steps to do after updating circuit:
 

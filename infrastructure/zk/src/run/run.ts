@@ -14,11 +14,6 @@ export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?
     if (command == 'dev') {
         await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '
             [
-                { "name": "DAI",  "symbol": "DAI",  "decimals": 18 },
-                { "name": "wBTC", "symbol": "wBTC", "decimals":  8, "implementation": "RevertTransferERC20" },
-                { "name": "BAT",  "symbol": "BAT",  "decimals": 18 },
-                { "name": "GNT",  "symbol": "GNT",  "decimals": 18 },
-                { "name": "MLTT", "symbol": "MLTT", "decimals": 18 }
             ]' > ./etc/tokens/localhost.json`);
         if (!process.env.CI) {
             await docker.restart('dev-liquidity-token-watcher');
@@ -42,6 +37,12 @@ export async function governanceAddERC20(command: 'dev' | 'new', address?: strin
 export async function serverAddERC20(address: string, symbol: string, decimals: string) {
     await utils.spawn(
         `yarn --cwd contracts server-add-erc20 add --address ${address} --symbol ${symbol} --decimals ${decimals}`
+    );
+}
+
+export async function serverAddERC20AndMint(name: string, symbol: string, decimals: string, net: string) {
+    await utils.spawn(
+        `yarn --cwd contracts server-add-erc20 add-and-mint --sname ${name} --symbol ${symbol} --decimals ${decimals} --env ${net}`
     );
 }
 
@@ -115,16 +116,68 @@ export async function catLogs(exitCode?: number) {
 export async function testAccounts() {
     const testConfigPath = path.join(process.env.ZKSYNC_HOME as string, `etc/test_config/constant`);
     const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, { encoding: 'utf-8' }));
-    const NUM_TEST_WALLETS = 10;
-    const baseWalletPath = "m/44'/60'/0'/0/";
+    //const NUM_TEST_WALLETS = 10;
+    //const baseWalletPath = "m/44'/137'/0'/0/";
     const walletKeys = [];
-    for (let i = 0; i < NUM_TEST_WALLETS; ++i) {
+
+    let ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow2_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow3_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow4_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow5_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    //ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow6_privK, 'hex'));
+    //walletKeys.push({
+    //    address: ethWallet.address,
+    //    privateKey: ethWallet.privateKey
+    //});
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow7_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow8_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+    ethWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow9_privK, 'hex'));
+    walletKeys.push({
+        address: ethWallet.address,
+        privateKey: ethWallet.privateKey
+    });
+
+    /*for (let i = 0; i < NUM_TEST_WALLETS; ++i) {
         const ethWallet = Wallet.fromMnemonic(ethTestConfig.test_mnemonic as string, baseWalletPath + i);
         walletKeys.push({
             address: ethWallet.address,
             privateKey: ethWallet.privateKey
         });
-    }
+    }*/
     console.log(JSON.stringify(walletKeys, null, 4));
 }
 
@@ -182,6 +235,14 @@ command
     .action(async (address: string, symbol: string, decimals: string) => {
         await utils.confirmAction();
         await serverAddERC20(address, symbol, decimals);
+    });
+
+command
+    .command('server-add-erc20-and-mint <name> <symbol> <decimals> <net>')
+    .description('add-and-mint testnet erc20 token to the zkSynk server')
+    .action(async (name: string, symbol: string, decimals: string, net: string) => {
+        await utils.confirmAction();
+        await serverAddERC20AndMint(name, symbol, decimals, net);
     });
 
 command

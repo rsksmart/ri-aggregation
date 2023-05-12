@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::{web, App, HttpResponse, HttpServer};
 use futures::channel::mpsc;
 use std::net::SocketAddr;
+
 use zksync_storage::ConnectionPool;
 use zksync_types::{SequentialTxId, H160};
 
@@ -18,6 +19,8 @@ use tokio::task::JoinHandle;
 use zksync_config::ZkSyncConfig;
 use zksync_mempool::MempoolTransactionRequest;
 
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+
 mod forced_exit_requests;
 mod helpers;
 pub mod network_status;
@@ -30,8 +33,9 @@ async fn start_server(
     sign_verifier: mpsc::Sender<VerifySignatureRequest>,
     bind_to: SocketAddr,
     mempool_tx_sender: mpsc::Sender<MempoolTransactionRequest>,
+    use_https: bool,
 ) {
-    HttpServer::new(move || {
+    let server = HttpServer::new(move || {
         let api_v01 = api_v01.clone();
         // This api stores forced exit requests, it's necessary to use main database connection
         let forced_exit_requests_api_scope = forced_exit_requests::api_scope(
@@ -73,16 +77,42 @@ async fn start_server(
                 "/favicon.ico",
                 web::get().to(|| HttpResponse::Ok().finish()),
             )
-    })
-    .workers(super::THREADS_PER_SERVER)
-    .bind(bind_to)
-    .unwrap()
-    .shutdown_timeout(60)
-    .keep_alive(10)
-    .client_timeout(60000)
-    .run()
-    .await
-    .expect("REST API server has crashed");
+    });
+    // FIXME: we need to avoid duplicated code at server run
+    // load ssl keys
+    if use_https {
+        // following example in https://github.com/actix/examples/blob/master/security/openssl/src/main.rs
+        // and https://actix.rs/docs/http2/ (similar)
+        // to create a self-signed temporary cert for testing:
+        // `openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost'`
+        let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+        builder
+            .set_private_key_file("key.pem", SslFiletype::PEM)
+            .unwrap();
+        builder.set_certificate_chain_file("cert.pem").unwrap();
+
+        server
+            .workers(super::THREADS_PER_SERVER)
+            .bind_openssl(bind_to, builder)
+            .unwrap()
+            .shutdown_timeout(1)
+            .keep_alive(10)
+            .client_timeout(60000)
+            .run()
+            .await
+            .expect("REST API server has crashed");
+    } else {
+        server
+            .workers(super::THREADS_PER_SERVER)
+            .bind(bind_to)
+            .unwrap()
+            .shutdown_timeout(1)
+            .keep_alive(10)
+            .client_timeout(60000)
+            .run()
+            .await
+            .expect("REST API server has crashed");
+    }
 }
 
 /// Start HTTP REST API
@@ -121,7 +151,7 @@ pub fn start_server_thread_detached(
                     read_only_connection_pool,
                     main_database_connection_pool,
                     contract_address,
-                    config,
+                    config.clone(),
                     network_status,
                 );
 
@@ -133,6 +163,7 @@ pub fn start_server_thread_detached(
                     sign_verifier,
                     listen_addr,
                     mempool_tx_sender.clone(),
+                    config.api.rest.use_https,
                 )
                 .await;
             });

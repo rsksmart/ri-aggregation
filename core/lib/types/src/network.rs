@@ -66,11 +66,10 @@ impl Network {
     /// Returns the network chain ID on the Ethereum side.
     pub fn chain_id(self) -> u64 {
         match self {
-            Network::Mainnet => 1,
+            Network::Mainnet => 30,
             Network::Ropsten => 3,
             Network::Rinkeby => 4,
-            Network::Goerli => 5,
-            Network::Localhost => 9,
+            Network::Localhost => 33,
             Network::Unknown => panic!("Unknown chain ID"),
             Network::Test => panic!("Test chain ID"),
         }

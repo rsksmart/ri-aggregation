@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types } from 'zksync';
+import { Wallet, types } from '@rsksmart/rif-aggregation-sdk-js';
 import { utils } from 'ethers';
 
 type TokenLike = types.TokenLike;
@@ -71,7 +71,9 @@ Tester.prototype.testGetNFT = async function (wallet: Wallet, feeToken: TokenLik
         feeToken,
         fee
     });
+
     await handle.awaitReceipt();
+
     this.runningFee = this.runningFee.add(fee);
     const state = await wallet.getAccountState();
     const nft = Object.values(state.committed.nfts)[0];

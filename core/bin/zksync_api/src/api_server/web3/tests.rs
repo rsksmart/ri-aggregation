@@ -87,6 +87,7 @@ async fn static_methods() -> anyhow::Result<()> {
         (gas_price, accounts, get_uncle_count_by_block_hash, get_uncle_count_by_block_number, _),
     ) = fut.await;
     assert_eq!(web3_client_version.unwrap().as_str().unwrap(), "zkSync");
+    assert_eq!(net_version.unwrap().as_str().unwrap(), "33");
     assert_eq!(protocol_version.unwrap().as_str().unwrap(), "0");
     assert_eq!(net_version.unwrap().as_str().unwrap(), "240");
     assert!(!mining.unwrap().as_bool().unwrap());

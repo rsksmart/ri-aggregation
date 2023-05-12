@@ -5,11 +5,16 @@ services:
     environment:
         - POSTGRES_HOST_AUTH_METHOD=trust
 
-  geth:
-    image: "matterlabs/geth:latest"
-    environment:
-      - PLUGIN_CONFIG=fast
-
+  rskj:
+    image: rsksmart/rskj:HOP-4.4.0
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    volumes:
+      - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+      - ./docker/rskj/node.conf:/etc/rsk/node.conf
+  
+  
   dev-ticker:
     image: "matterlabs/dev-ticker:latest"
     volumes:
@@ -23,10 +28,11 @@ services:
       - ./etc/tokens/:/etc/tokens
 
   zk:
-    image: "matterlabs/zk-environment:latest"
+    build:
+      context: ./docker/zk-environment 
     depends_on:
       - postgres
-      - geth
+      - rskj
       - dev-ticker
       - dev-liquidity-token-watcher
     command: tail -f /dev/null
@@ -44,3 +50,5 @@ services:
       - SCCACHE_GCS_KEY_PATH=/etc/sa_secret/sa_key.json
       - SCCACHE_GCS_RW_MODE=READ_WRITE
       - CI=1
+      - CAROOT=/usr/src/zksync
+      - NODE_EXTRA_CA_CERTS=/usr/src/zksync/rootCA.pem

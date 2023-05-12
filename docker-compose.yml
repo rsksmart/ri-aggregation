@@ -10,17 +10,20 @@ services:
       target: /var/lib/postgresql/data
     environment:
         - POSTGRES_HOST_AUTH_METHOD=trust
-  geth:
-    image: "matterlabs/geth:latest"
+
+  rskj:
+    image: rsksmart/rskj:HOP-4.4.0
     ports:
-      - "8545:8545"
-      - "8546:8546"
+      - "4444:4444"
+      - "4445:4445"
     volumes:
-    - type: bind
-      source: ./volumes/geth
-      target: /var/lib/geth/data
-    environment:
-      - PLUGIN_CONFIG=fast
+      - type: bind
+        source: ./volumes/rskj
+        target: /etc/rsknode
+      - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+      - ./docker/rskj/node.conf:/etc/rsk/node.conf
+      - ./docker/rskj/data:/var/lib/rsk/.rsk
+  
   dev-liquidity-token-watcher:
     image: "matterlabs/dev-liquidity-token-watcher:latest"
     env_file:
@@ -36,3 +39,21 @@ services:
       - "9876:9876"
     volumes:
       - ./etc/tokens/:/etc/tokens
+  tesseracts:
+    image: "adria0/tesseracts"
+    command: --cfg /tesseracts.toml -vvv
+    ports:
+      - "8000:8000"
+    volumes:
+    - ./etc/tesseracts/tesseracts.toml:/tesseracts.toml
+    - type: bind
+      source: ./volumes/tesseracts
+      target: /var/lib/tesseracts/data
+
+  elastic:
+    image: elasticsearch:7.10.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node

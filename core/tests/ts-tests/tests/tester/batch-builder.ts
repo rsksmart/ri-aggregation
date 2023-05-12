@@ -1,6 +1,6 @@
 import { Tester, expectThrow } from './tester';
 import { expect } from 'chai';
-import { Wallet, types, wallet } from 'zksync';
+import { Wallet, types, wallet } from '@rsksmart/rif-aggregation-sdk-js';
 import { BigNumber } from 'ethers';
 
 type TokenLike = types.TokenLike;
@@ -268,6 +268,7 @@ Tester.prototype.testBatchBuilderNFT = async function (from: Wallet, to: Wallet,
     const mint_handles = await wallet.submitSignedTransactionsBatch(from.provider, mint_batch.txs, [
         mint_batch.signature!
     ]);
+
     await Promise.all(mint_handles.map((handle) => handle.awaitVerifyReceipt()));
 
     const state_after_mint = await to.getAccountState();

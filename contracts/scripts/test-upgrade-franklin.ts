@@ -1,6 +1,6 @@
 import { ArgumentParser } from 'argparse';
 import { deployContract } from 'ethereum-waffle';
-import { constants, ethers } from 'ethers';
+import { constants, ethers, Wallet } from 'ethers';
 import * as fs from 'fs';
 import * as path from 'path';
 import { web3Provider } from './utils';
@@ -31,7 +31,7 @@ async function main() {
     let testContracts = readProductionContracts();
     const provider = web3Provider();
 
-    const wallet = ethers.Wallet.fromMnemonic(ethTestConfig.test_mnemonic, "m/44'/60'/0'/0/0").connect(provider);
+    const wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
 
     const proxyContract = new ethers.Contract(args.contractAddress, testContracts.proxy.abi, wallet);
 
@@ -42,13 +42,13 @@ async function main() {
     );
 
     const newAdditionalZkSync = await deployContract(wallet, testContracts.additionalZkSync, [], {
-        gasLimit: 6500000
+        gasLimit: 6800000
     });
     process.env.CONTRACTS_ADDITIONAL_ZKSYNC_ADDR = newAdditionalZkSync.address;
     await exec('hardhat compile');
     testContracts = readProductionContracts();
     const newTargetZkSync = await deployContract(wallet, testContracts.zkSync, [], {
-        gasLimit: 6500000
+        gasLimit: 6800000
     });
 
     console.log('Starting upgrade');

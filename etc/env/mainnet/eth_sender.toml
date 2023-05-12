@@ -1,0 +1,32 @@
+# Configuration for the Ethereum sender crate
+
+[eth_sender]
+
+[eth_sender.sender]
+# operator_private_key is defined in the `private.toml`
+# operator_commit_eth_addr is defined in the `private.toml`
+
+# Amount of confirmations required to consider L1 transaction committed.
+wait_confirmations=1
+# Amount of blocks we will wait before considering L1 transaction stuck.
+expected_wait_time_block=30
+# Node polling period in seconds.
+tx_poll_period=3
+# The maximum amount of simultaneously sent Ethereum transactions.
+max_txs_in_flight=1
+# Whether sender should interact with L1 or not.
+is_enabled=true
+
+[eth_sender.gas_price_limit]
+# Gas price limit to be used by GasAdjuster until the statistics data is gathered.
+# Defaults to 0.065 gwei (0.06 * 10^9 wei) Adjusted considering RSK gas price limit
+default=65154000
+# Interval between updates of the gas price limit (used by GasAdjuster) in seconds
+# Defaults to 300 (avg time of 1 block is 30 seconds, thus ~10 RSK blocks)
+update_interval=300
+# Interval between adding the RSK node gas price to the GasAdjuster (in seconds).
+# Defaults to 30 seconds (1 Ethereum block)
+sample_interval=30
+# Scale factor for gas price limit (used by GasAdjuster)
+# Defaults to 1.5: every time we can increase the price by no more than 50%.
+scale_factor=1.0

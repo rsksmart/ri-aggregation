@@ -23,6 +23,7 @@ use web3::{
 use zksync_eth_signer::{raw_ethereum_tx::RawTransaction, EthereumSigner};
 
 use crate::ethereum_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
+use sha3::Digest;
 /// Gas limit value to be used in transaction if for some reason
 /// gas limit was not set for it.
 ///
@@ -213,12 +214,12 @@ impl<S: EthereumSigner> ETHDirectClient<S> {
         };
 
         let signed_tx = self.inner.eth_signer.sign_transaction(tx).await?;
-        let hash = self
-            .inner
-            .web3
-            .web3()
-            .sha3(Bytes(signed_tx.clone()))
-            .await?;
+        //let hash = self.inner.web3.web3().sha3(Bytes(signed_tx.clone())).await?;
+
+        let mut hasher = sha3::Keccak256::default();
+        hasher.update(&signed_tx);
+
+        let hash = H256::from_slice(hasher.finalize().as_slice());
 
         #[cfg(feature = "with-metrics")]
         metrics::histogram!(
