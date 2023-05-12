@@ -270,7 +270,11 @@ pub fn run_ticker_task(
     };
 
     let cache = (db_pool.clone(), TokenDBCache::new());
-    let watcher = CoinGeckoTokenWatcher::new(config.ticker.coingecko_base_url.clone());
+    let watcher = CoinGeckoTokenWatcher::new(
+        format!("http://127.0.0.1:9975"),
+        // !! TODO: use config.ticker.coingecko_base_url.clone() once fee ticker and liquidity ticker are ran on the same mock server !!
+        config.eth_client.chain_id,
+    );
     let validator = FeeTokenValidator::new(
         cache.clone(),
         chrono::Duration::seconds(config.ticker.available_liquidity_seconds as i64),

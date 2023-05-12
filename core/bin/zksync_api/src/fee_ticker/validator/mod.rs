@@ -2,6 +2,7 @@
 //! an entity which decides whether certain ERC20 token is suitable for paying fees.
 
 pub mod cache;
+pub mod types;
 pub mod watcher;
 
 // Built-in uses
@@ -233,14 +234,13 @@ mod tests {
     #[ignore]
     // We can use this test only online, run it manually if you need to test connection to uniswap
     async fn get_real_token_amount() {
-        const MAINNET_RIF_CONTRACT_ADDR: &str = "0x2acc95758f8b5f583470ba265eb685a8f45fc9d5";
+        let mainnet_rif_contract_addr = "2acc95758f8b5f583470ba265eb685a8f45fc9d5";
 
         let mut watcher =
-            CoinGeckoTokenWatcher::new("https://api.coingecko.com/api/v3".to_string());
-        let rif_token_address = Address::from_str(MAINNET_RIF_CONTRACT_ADDR).unwrap();
-        let dai_token = Token::new(TokenId(1), rif_token_address, "RIF", 18, TokenKind::ERC20);
-
-        let amount = watcher.get_token_market_volume(&dai_token).await.unwrap();
+            CoinGeckoTokenWatcher::new("https://api.coingecko.com/api/v3".to_string(), 30);
+        let rif_token_address: Address = mainnet_rif_contract_addr.parse().unwrap();
+        let rif_token = Token::new(TokenId(1), rif_token_address, "RIF", 18, TokenKind::ERC20);
+        let amount = watcher.get_token_market_volume(&rif_token).await.unwrap();
         assert!(amount > BigDecimal::zero());
     }
 
