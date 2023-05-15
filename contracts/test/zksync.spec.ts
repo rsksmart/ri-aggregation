@@ -7,7 +7,7 @@ import { Deployer, readContractCode, readProductionContracts } from '../src.ts/d
 const hardhat = require('hardhat');
 const { simpleEncode } = require('ethereumjs-abi');
 const { expect } = require('chai');
-const { getCallRevertReason, IERC20_INTERFACE } = require('./common');
+const { getCallRevertReason, IERC20_INTERFACE, increaseTime, evmMine, DEFAULT_GAS_LIMIT } = require('./common');
 import * as zksync from 'zksync';
 import {
     ZkSync,
@@ -39,7 +39,7 @@ describe('zkSync signature verification unit tests', function () {
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZKSyncSignatureUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
 
         testContract = ZKSyncSignatureUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
     });
@@ -175,7 +175,7 @@ describe('ZK priority queue ops unit tests', function () {
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncProcessOpUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
         zksyncContract = ZkSyncProcessOpUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
 
         const tokenContractFactory = await hardhat.ethers.getContractFactory('TestnetERC20Token');
@@ -299,7 +299,7 @@ describe('zkSync withdraw unit tests', function () {
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncWithdrawalUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
 
         const tokenNoTransferReturnValueFactory = await hardhat.ethers.getContractFactory(
             'DummyERC20NoTransferReturnValue'
@@ -484,7 +484,7 @@ describe('zkSync auth pubkey onchain unit tests', function () {
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncProcessOpUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
         zksyncContract = ZkSyncProcessOpUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
 
         const tokenContractFactory = await hardhat.ethers.getContractFactory('TestnetERC20Token');
@@ -536,7 +536,7 @@ describe('zkSync auth pubkey onchain unit tests', function () {
         // 100 seconds are added so we don't go against the RSK MinerClock
 
         let result = await increaseTime(newTimestampIncrement);
-        assert(result !== null, 'IncreateTime failed');
+        expect(result !== null, 'IncreaseTime failed');
         await evmMine();
         //await zksyncContract.provider.send('evm_setNextBlockTimestamp', [resetTimestamp]);
         await (await zksyncContract.setAuthPubkeyHash(resetPubkeyHash, nonce)).wait();
@@ -588,7 +588,7 @@ describe('zkSync test process next operation', function () {
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncProcessOpUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
         zksyncContract = ZkSyncProcessOpUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
 
         const tokenContractFactory = await hardhat.ethers.getContractFactory('TestnetERC20Token');

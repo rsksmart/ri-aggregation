@@ -7,7 +7,7 @@ import { ZkSyncWithdrawalUnitTestFactory } from '../typechain';
 
 const hardhat = require('hardhat');
 const { expect } = require('chai');
-const { getCallRevertReason, IERC20_INTERFACE, DEFAULT_REVERT_REASON } = require('./common');
+const { getCallRevertReason, IERC20_INTERFACE, DEFAULT_REVERT_REASON, DEFAULT_GAS_LIMIT } = require('./common');
 
 let wallet, exitWallet;
 
@@ -41,7 +41,7 @@ describe('zkSync process tokens which have no return value in `transfer` and `tr
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncWithdrawalUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
         zksyncContract = ZkSyncWithdrawalUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
 
         const tokenContractDeployFactory = await hardhat.ethers.getContractFactory(
@@ -190,7 +190,7 @@ describe('zkSync process tokens which take fee from sender', function () {
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncWithdrawalUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
         zksyncContract = ZkSyncWithdrawalUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
 
         const tokenContractDeployFactory = await hardhat.ethers.getContractFactory('MintableERC20FeeAndPayoutTest');
@@ -331,7 +331,7 @@ describe('zkSync process tokens which take fee from recipient', function () {
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncWithdrawalUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
         zksyncContract = ZkSyncWithdrawalUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
 
         const tokenContractDeployFactory = await hardhat.ethers.getContractFactory('MintableERC20FeeAndPayoutTest');
@@ -362,7 +362,7 @@ describe('zkSync process tokens which adds payout to the recipient', function ()
         const contracts = readProductionContracts();
         contracts.zkSync = readContractCode('dev-contracts/ZkSyncWithdrawalUnitTest');
         const deployer = new Deployer({ deployWallet: wallet, contracts });
-        await deployer.deployAll({ gasLimit: 6500000 });
+        await deployer.deployAll({ gasLimit: DEFAULT_GAS_LIMIT });
         zksyncContract = ZkSyncWithdrawalUnitTestFactory.connect(deployer.addresses.ZkSync, wallet);
 
         const tokenContractDeployFactory = await hardhat.ethers.getContractFactory('MintableERC20FeeAndPayoutTest');

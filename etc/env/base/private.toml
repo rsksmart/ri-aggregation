@@ -11,7 +11,7 @@ operator_private_key="0xc1783a9a8222e47778911c58bb5aac1343eb425159ff140799e0a283
 
 # Address to be used for zkSync account managing the interaction with a contract on Ethereum.
 # Derived from the `OPERATOR_PRIVATE_KEY`.
-operator_commit_eth_addr="0xdebe71e1de41fc77c44df4b6db940026e31b0e71"
+operator_commit_eth_addr="0xDEBe71E1dE41Fc77C44Df4b6Db940026E31b0e71"
 
 [chain.state_keeper]
 # <env_address>

@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import * as ethers from 'ethers';
-import * as zksync from '@rsksmart/rif-aggregation-sdk-js';
+import * as zksync from 'zksync';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 
 const zksyncAbi =
     require('../../../../../contracts/artifacts/cache/solpp-generated-contracts/ZkSync.sol/ZkSync.json').abi;
-type Network = 'localhost' | 'goerli';
+type Network = 'localhost';
 
 const testConfigPath = path.join(process.env.ZKSYNC_HOME as string, `etc/test_config/constant`);
 const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, { encoding: 'utf-8' }));
@@ -52,11 +52,8 @@ export class Tester {
             ethProvider.pollingInterval = 100;
         }
 
-        // FIXME: create syncProvider with Tester.createSyncProvider(network, transport, providerType)
-        const syncProvider = providerType === 'REST' 
-            ? await zksync.getDefaultRestProvider(network) 
-            : await zksync.getDefaultProvider(network, transport);
-        const ethWallet = new ethers.Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), ethProvider);
+        const syncProvider = await Tester.createSyncProvider(network, transport, providerType);
+        const ethWallet = new ethers.Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'), ethProvider);
         
         const syncWallet = await zksync.Wallet.fromEthSigner(ethWallet, syncProvider);
 

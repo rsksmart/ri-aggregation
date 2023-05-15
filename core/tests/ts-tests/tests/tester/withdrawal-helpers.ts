@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types, utils, SyncProvider } from '@rsksmart/rif-aggregation-sdk-js';
+import { Wallet, types, utils, SyncProvider } from 'zksync';
 import { BigNumber, ethers } from 'ethers';
 import { Address } from '@rsksmart/rif-aggregation-sdk-js/build/types';
 import { sleep } from '@rsksmart/rif-aggregation-sdk-js/build/utils';

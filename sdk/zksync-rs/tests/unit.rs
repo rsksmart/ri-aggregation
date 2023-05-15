@@ -10,8 +10,8 @@ fn test_tokens_cache() {
 
     let token_eth = Token::new(TokenId(0), H160::default(), "ETH", 18, TokenKind::ERC20);
     tokens.insert("ETH".to_string(), token_eth.clone());
-    let token_dai = Token::new(TokenId(1), H160::random(), "DAI", 18, TokenKind::ERC20);
-    tokens.insert("DAI".to_string(), token_dai.clone());
+    let token_dai = Token::new(TokenId(1), H160::random(), "RDOC", 18, TokenKind::ERC20);
+    tokens.insert("RDOC".to_string(), token_dai.clone());
 
     let unknown_token = Token::new(TokenId(2), H160::random(), "UNC", 5, TokenKind::None);
 
@@ -552,11 +552,11 @@ mod wallet_tests {
         /// Returns the example `AccountInfo` instance:
         ///  - assigns the '42' value to account_id;
         ///  - assigns the PubKeyHash to match the wallet's signer's PubKeyHash
-        ///  - adds single entry of "DAI" token to the committed balances;
+        ///  - adds single entry of "RDOC" token to the committed balances;
         ///  - adds single entry of "USDC" token to the verified balances.
         async fn account_info(&self, address: Address) -> Result<AccountInfo, ClientError> {
             let mut committed_balances = HashMap::new();
-            committed_balances.insert("DAI".into(), BigUint::from(12345_u32).into());
+            committed_balances.insert("RDOC".into(), BigUint::from(12345_u32).into());
 
             let mut verified_balances = HashMap::new();
             verified_balances.insert("USDC".into(), BigUint::from(98765_u32).into());
@@ -578,14 +578,14 @@ mod wallet_tests {
             })
         }
 
-        /// Returns first three tokens from the configuration found in
+        /// Returns first four tokens from the configuration found in
         /// $ZKSYNC_HOME/etc/tokens/<NETWORK>.json
         async fn tokens(&self) -> Result<Tokens, ClientError> {
             let genesis_tokens = get_genesis_token_list(&self.network.to_string())
                 .expect("Initial token list not found");
 
             let tokens = (1..)
-                .zip(&genesis_tokens[..3])
+                .zip(&genesis_tokens[..4])
                 .map(|(id, token)| {
                     Token::new(
                         TokenId(id),
@@ -707,18 +707,18 @@ mod wallet_tests {
     #[tokio::test]
     async fn test_wallet_refresh_tokens() {
         let mut wallet = get_test_wallet(&[20; 32], Network::Mainnet).await;
-        let _dai_token = wallet
+        let _rdoc_token = wallet
             .tokens
-            .resolve(TokenLike::Symbol("DAI".into()))
+            .resolve(TokenLike::Symbol("RDOC".into()))
             .unwrap();
 
-        wallet.provider.network = Network::Rinkeby;
+        wallet.provider.network = Network::Testnet;
         wallet.refresh_tokens_cache().await.unwrap();
 
-        // DAI is not in the Rinkeby network
+        // BITP is not in the Testnet network
         assert!(wallet
             .tokens
-            .resolve(TokenLike::Symbol("DAI".into()))
+            .resolve(TokenLike::Symbol("BITP".into()))
             .is_none());
     }
 
@@ -726,7 +726,7 @@ mod wallet_tests {
     async fn test_wallet_get_balance_committed() {
         let wallet = get_test_wallet(&[40; 32], Network::Mainnet).await;
         let balance = wallet
-            .get_balance(BlockStatus::Committed, "DAI")
+            .get_balance(BlockStatus::Committed, "RDOC")
             .await
             .unwrap();
         assert_eq!(balance.to_u32(), Some(12345));

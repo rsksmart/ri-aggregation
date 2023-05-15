@@ -89,7 +89,6 @@ async fn static_methods() -> anyhow::Result<()> {
     assert_eq!(web3_client_version.unwrap().as_str().unwrap(), "zkSync");
     assert_eq!(net_version.unwrap().as_str().unwrap(), "33");
     assert_eq!(protocol_version.unwrap().as_str().unwrap(), "0");
-    assert_eq!(net_version.unwrap().as_str().unwrap(), "240");
     assert!(!mining.unwrap().as_bool().unwrap());
     assert_eq!(hashrate.unwrap().as_str().unwrap(), "0x0");
     assert_eq!(gas_price.unwrap().as_str().unwrap(), "0x0");

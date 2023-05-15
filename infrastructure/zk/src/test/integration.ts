@@ -128,7 +128,9 @@ export async function testkit(command: string, timeout: number) {
     let containerID = '';
     const prevUrls = process.env.ETH_CLIENT_WEB3_URL?.split(',')[0];
     if (process.env.ZKSYNC_ENV == 'dev' && process.env.CI != '1') {
-        const { stdout } = await utils.exec('docker run --rm -d -p 7545:4444 rskj:latest');
+        const { stdout } = await utils.exec(
+            'docker run --rm -d -p 7545:4444 -v ./docker/rskj/node.conf:/etc/rsk/node.conf rsksmart/rskj:HOP-4.4.0'
+        );
         containerID = stdout;
         process.env.ETH_CLIENT_WEB3_URL = 'http://localhost:7545';
     }

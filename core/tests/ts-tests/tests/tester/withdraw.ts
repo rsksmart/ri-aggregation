@@ -102,7 +102,11 @@ Tester.prototype.testWithdrawNFT = async function (
     await handle.awaitVerifyReceipt();
 
     const ethProxy = new ETHProxy(this.ethProvider, await this.syncProvider.getContractAddress());
-    await ethProxy.getZkSyncContract().connect(withdrawer).withdrawPendingNFTBalance(nft.id);
+    const withdrawPendingNFTBalanceTrx = await ethProxy
+        .getZkSyncContract()
+        .connect(withdrawer)
+        .withdrawPendingNFTBalance(nft.id);
+    await withdrawPendingNFTBalanceTrx.wait();
     const defaultFactory = await ethProxy.getDefaultNFTFactory();
 
     const creatorId = await defaultFactory.getCreatorAccountId(nft.id);

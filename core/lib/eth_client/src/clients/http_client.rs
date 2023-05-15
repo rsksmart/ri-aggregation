@@ -29,6 +29,8 @@ use sha3::Digest;
 ///
 /// This is an emergency value, which will not be used normally.
 const FALLBACK_GAS_LIMIT: u64 = 3_000_000;
+// length of the message "VM Exception while processing transaction: revert "
+const REVERT_REASON_START_INDEX: usize = 50;
 
 struct ETHDirectClientInner<S: EthereumSigner> {
     eth_signer: S,
@@ -298,7 +300,7 @@ impl<S: EthereumSigner> ETHDirectClient<S> {
                 {
                     let revert_code = e.message.clone();
                     let mut revert_reason = e.message;
-                    let last_symbol_num = std::cmp::min(20, revert_reason.len());
+                    let last_symbol_num = std::cmp::min(REVERT_REASON_START_INDEX, revert_reason.len());
                     revert_reason.replace_range(0..last_symbol_num, "");
                     (revert_code, revert_reason)
                 } else {

@@ -2,7 +2,7 @@ import { Tester } from './tester';
 import { expect } from 'chai';
 import fs from 'fs';
 import fetch from 'node-fetch';
-import { Wallet, types, utils, wallet } from '@rsksmart/rif-aggregation-sdk-js';
+import { Wallet, types, utils, wallet } from 'zksync';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 import * as path from 'path';
 

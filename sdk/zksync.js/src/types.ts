@@ -16,10 +16,7 @@ export type TotalFee = Map<TokenLike, BigNumber>;
 
 export type Nonce = number | 'committed';
 
-export type Network =
-    | 'localhost'
-    | 'testnet'
-    | 'mainnet';
+export type Network = 'localhost' | 'testnet' | 'mainnet';
 
 const MAINNET_NETWORK_CHAIN_ID = 30;
 const TESTNET_NETWORK_CHAIN_ID = 31;

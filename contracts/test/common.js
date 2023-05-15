@@ -11,6 +11,8 @@ const DEFAULT_REVERT_REASON = 'VM did not revert';
 const testConfigPath = path.join(process.env.ZKSYNC_HOME, `etc/test_config/constant`);
 const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, { encoding: 'utf-8' }));
 
+const DEFAULT_GAS_LIMIT = 6_800_000;
+
 // For: geth
 
 // const provider = new ethers.providers.JsonRpcProvider(process.env.ETH_CLIENT_WEB3_URL);
@@ -113,5 +115,6 @@ module.exports = {
     DEFAULT_REVERT_REASON,
     evmMine,
     evmMineMany,
-    increaseTime
+    increaseTime,
+    DEFAULT_GAS_LIMIT
 };

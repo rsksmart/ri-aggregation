@@ -28,9 +28,17 @@ export async function getDefaultRestProvider(
     } else if (network === 'rinkeby') {
         return await RestProvider.newProvider('https://rinkeby-api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
     } else if (network === 'ropsten-beta') {
-        return await RestProvider.newProvider('https://ropsten-beta-api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
+        return await RestProvider.newProvider(
+            'https://ropsten-beta-api.zksync.io/api/v0.2',
+            pollIntervalMilliSecs,
+            network
+        );
     } else if (network === 'rinkeby-beta') {
-        return await RestProvider.newProvider('https://rinkeby-beta-api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
+        return await RestProvider.newProvider(
+            'https://rinkeby-beta-api.zksync.io/api/v0.2',
+            pollIntervalMilliSecs,
+            network
+        );
     } else if (network === 'mainnet-zk') {
         return await RestProvider.newProvider('https://api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
     } else {
