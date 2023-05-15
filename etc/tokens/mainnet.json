@@ -4,5 +4,29 @@
     "decimals": 18,
     "symbol": "RIF",
     "name": "RSK Infrastructure Framework"
+  },
+  {
+    "address": "0xB44A9B6905af7c801311E8F4e76932eE959C663c",
+    "decimals": 6,
+    "symbol": "USDC",
+    "name": "USD Coin"
+  },
+  {
+    "address": "0x2d919f19D4892381d58EdEbEcA66D5642ceF1A1F",
+    "decimals": 18,
+    "symbol": "RDOC",
+    "name": "RIF Dollar on Chain"
+  },
+  {
+    "address": "0xE700691Da7B9851F2F35f8b8182C69C53ccad9DB",
+    "decimals": 18,
+    "symbol": "DOC",
+    "name": "Dollar on Chain"
+  },
+  {
+    "address": "0x440cd83C160de5C96DDb20246815EA44C7Abbca8",
+    "decimals": 18,
+    "symbol": "BITP",
+    "name": "BitPro"
   }
 ]

@@ -16,12 +16,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum Network {
-    /// Ethereum Mainnet.
+    /// RSK Mainnet.
     Mainnet,
     /// Ethereum Rinkeby testnet.
-    Rinkeby,
-    /// Ethereum Ropsten testnet.
-    Ropsten,
+    Testnet,
     /// Self-hosted Ethereum & zkSync networks.
     Localhost,
     /// Unknown network type.
@@ -36,8 +34,7 @@ impl FromStr for Network {
     fn from_str(string: &str) -> Result<Self, Self::Err> {
         Ok(match string {
             "mainnet" => Self::Mainnet,
-            "rinkeby" => Self::Rinkeby,
-            "ropsten" => Self::Ropsten,
+            "testnet" => Self::Testnet,
             "localhost" => Self::Localhost,
             "test" => Self::Test,
             another => return Err(another.to_owned()),
@@ -49,8 +46,7 @@ impl fmt::Display for Network {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Mainnet => write!(f, "mainnet"),
-            Self::Rinkeby => write!(f, "rinkeby"),
-            Self::Ropsten => write!(f, "ropsten"),
+            Self::Testnet => write!(f, "testnet"),
             Self::Localhost => write!(f, "localhost"),
             Self::Unknown => write!(f, "unknown"),
             Self::Test => write!(f, "test"),
@@ -63,8 +59,7 @@ impl Network {
     pub fn chain_id(self) -> u8 {
         match self {
             Network::Mainnet => 30,
-            Network::Ropsten => 3,
-            Network::Rinkeby => 4,
+            Network::Testnet => 31,
             Network::Localhost => 33,
             Network::Unknown => panic!("Unknown chain ID"),
             Network::Test => panic!("Test chain ID"),

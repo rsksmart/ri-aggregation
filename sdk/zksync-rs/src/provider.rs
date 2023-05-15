@@ -23,9 +23,8 @@ use crate::{error::ClientError, types::*};
 /// Returns a corresponding address for a provided network name.
 pub fn get_rpc_addr(network: Network) -> &'static str {
     match network {
-        Network::Mainnet => "https://api.zksync.io/jsrpc",
-        Network::Rinkeby => "https://rinkeby-api.zksync.io/jsrpc",
-        Network::Ropsten => "https://ropsten-api.zksync.io/jsrpc",
+        Network::Mainnet => "https://public-node.rsk.co",
+        Network::Testnet => "https://public-node.testnet.rsk.co",
         Network::Localhost => "http://127.0.0.1:3030",
         Network::Unknown => panic!("Attempt to create a provider from an unknown network"),
         Network::Test => panic!("Attempt to create a provider from an test network"),
