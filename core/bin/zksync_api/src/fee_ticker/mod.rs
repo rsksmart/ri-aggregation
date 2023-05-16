@@ -52,6 +52,8 @@ use crate::fee_ticker::{
 use crate::utils::token_db_cache::TokenDBCache;
 use zksync_types::gas_counter::GasCounter;
 
+pub use validator::types as CoinGeckoTypes;
+
 mod constants;
 mod ticker_api;
 mod ticker_info;

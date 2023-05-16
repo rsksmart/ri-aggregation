@@ -3,17 +3,25 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 // --------- locally simplified Contract struct for retreiving market data only
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ContractSimplified {
-    pub liquidity_score: f64,
-    pub market_data: MarketData,
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct TotalVolumeSimplified {
+    pub usd: Option<f64>,
 }
 
-pub struct ValidatorCoin {}
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct MarketDataSimplified {
+    pub total_volume: TotalVolumeSimplified,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct ContractSimplified {
+    pub liquidity_score: f64,
+    pub market_data: MarketDataSimplified,
+}
 
 // --------- from coingecko sdk
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct AssetPlatform {
     pub id: String,
     pub chain_identifier: Option<i64>,
