@@ -96,7 +96,7 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<(String, String)> {
 
 async fn handle_get_asset_platforms(storage: web::Data<CoinGeckoStorage>) -> Result<HttpResponse> {
     let keys: Vec<PlatformId> = storage.keys().map(|key| key.clone()).collect();
-    if keys.len().gt(&(0 as usize)) {
+    if !keys.is_empty() {
         return Ok(HttpResponse::Ok().json(vec![AssetPlatform {
             id: keys[0].clone(),
             chain_identifier: Some(9999),
@@ -108,7 +108,7 @@ async fn handle_get_asset_platforms(storage: web::Data<CoinGeckoStorage>) -> Res
     HttpResponse::InternalServerError().message_body(AnyBody::from_message("Nothing in storage"))
 }
 
-async fn hancdle_get_coin_contract(
+async fn handle_get_coin_contract(
     path: web::Path<(String, String)>,
     storage: web::Data<CoinGeckoStorage>,
 ) -> Result<HttpResponse> {
@@ -134,7 +134,7 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
                 web::scope("/{platform_id}").service(
                     web::scope("/contract").service(
                         web::resource("/{contract_address}")
-                            .route(web::get().to(hancdle_get_coin_contract)),
+                            .route(web::get().to(handle_get_coin_contract)),
                     ),
                 ),
             ),
@@ -244,16 +244,16 @@ mod handlers_tests {
             .unwrap()
             .to_vec(),
         )
-        .unwrap(); // is this really the simoplest way to get the body? seems so unnecesary to convert it to BoxAnyBody, etc!
+        .unwrap(); // is this really the simplest way to get the body? seems so unnecessary to convert it to BoxAnyBody, etc!
 
         for expected_platform in expected_platforms {
-            let platfom_option = body
+            let platform_option = body
                 .iter()
                 .find(|actual_platform| actual_platform.id.eq(&expected_platform.id));
 
-            assert!(platfom_option.is_some());
+            assert!(platform_option.is_some());
 
-            let actual_platform = platfom_option.unwrap();
+            let actual_platform = platform_option.unwrap();
 
             assert_eq!(
                 actual_platform.chain_identifier,
@@ -278,7 +278,7 @@ mod handlers_tests {
         let storage: CoinGeckoStorage = [(platform_id, volume_storage)].iter().cloned().collect();
         let storage_data: web::Data<CoinGeckoStorage> = web::Data::new(storage);
 
-        let response = hancdle_get_coin_contract(path, storage_data).await.unwrap();
+        let response = handle_get_coin_contract(path, storage_data).await.unwrap();
         let status = response.status();
         assert!(status.is_success());
 
@@ -290,7 +290,7 @@ mod handlers_tests {
             .unwrap()
             .to_vec(),
         )
-        .unwrap(); // is this really the simoplest way to get the body? seems so unnecesary to convert it to BoxAnyBody, etc!
+        .unwrap(); // is this really the simplest way to get the body? seems so unnecessary to convert it to BoxAnyBody, etc!
 
         assert!(parsed_body.market_data.total_volume.usd.is_some());
         let volume = parsed_body.market_data.total_volume.usd.unwrap(); // For now we're only interested in this field

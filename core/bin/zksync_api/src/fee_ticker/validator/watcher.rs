@@ -8,7 +8,7 @@ use serde::de::DeserializeOwned;
 use tokio::sync::Mutex;
 use zksync_types::{Address, Token};
 
-use crate::fee_ticker::{ticker_api::REQUEST_TIMEOUT, validator::types::Contract};
+use crate::fee_ticker::ticker_api::REQUEST_TIMEOUT;
 
 #[async_trait::async_trait]
 pub trait TokenWatcher {

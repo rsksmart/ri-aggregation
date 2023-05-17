@@ -1,19 +1,18 @@
-version: '3.2'
+version: "3.2"
 services:
   postgres:
     image: "postgres:12"
     ports:
       - "5432:5432"
     volumes:
-    - type: bind
-      source: ./volumes/postgres
-      target: /var/lib/postgresql/data
+      - type: bind
+        source: ./volumes/postgres
+        target: /var/lib/postgresql/data
     environment:
-        - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_HOST_AUTH_METHOD=trust
 
   rskj:
-    build:
-      context: ./docker/rskj
+    image: rsksmart/rskj:HOP-4.1.1
     ports:
       - "4444:4444"
       - "4445:4445"
@@ -21,9 +20,12 @@ services:
       - type: bind
         source: ./volumes/rskj
         target: /etc/rsknode
-  
+      - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+      - ./docker/rskj/node.conf:/etc/rsk/node.conf
+
   dev-liquidity-token-watcher:
-    image: "matterlabs/dev-liquidity-token-watcher:latest"
+    build:
+      dockerfile: ./docker/dev-liquidity-token-watcher/Dockerfile
     env_file:
       - ./etc/env/docker.env
     ports:
@@ -43,10 +45,10 @@ services:
     ports:
       - "8000:8000"
     volumes:
-    - ./etc/tesseracts/tesseracts.toml:/tesseracts.toml
-    - type: bind
-      source: ./volumes/tesseracts
-      target: /var/lib/tesseracts/data
+      - ./etc/tesseracts/tesseracts.toml:/tesseracts.toml
+      - type: bind
+        source: ./volumes/tesseracts
+        target: /var/lib/tesseracts/data
 
   elastic:
     image: elasticsearch:7.10.1
