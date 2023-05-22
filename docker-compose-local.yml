@@ -1,5 +1,25 @@
 version: '3.2'
 services:
+  server:
+    image: matterlabs/server
+    ports:
+      - "3001:3001"
+      - "3002:3002"
+      - "3030:3030"
+      - "3031:3031"
+      - "8088:8088"
+    env_file:
+      - ./etc/env/docker.env
+
+  prover:
+    image: matterlabs/prover
+    volumes:
+      - ./keys/contracts-8:/keys/contracts-8
+    env_file:
+      - ./etc/env/docker.env
+    depends_on:
+      - server
+
   postgres:
     image: "postgres:12"
     ports:
@@ -16,15 +36,13 @@ services:
     ports:
       - "4444:4444"
       - "4445:4445"
-    entrypoint: ["java", "-Drpc.providers.web.http.bind_address=0.0.0.0", "-cp", "rsk.jar", "co.rsk.Start"]
-
     volumes:
       - type: bind
         source: ./volumes/rskj
         target: /etc/rsknode
       - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
-      # - ./docker/rskj/data:/var/lib/rsk/.rsk
+      - ./docker/rskj/data:/var/lib/rsk/.rsk
   
   dev-liquidity-token-watcher:
     image: "matterlabs/dev-liquidity-token-watcher:latest"
