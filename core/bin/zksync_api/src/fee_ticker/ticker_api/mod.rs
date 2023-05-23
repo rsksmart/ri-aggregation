@@ -227,7 +227,7 @@ impl<T: TokenPriceAPI + Send + Sync> FeeTickerAPI for TickerApi<T> {
             .ok_or_else(|| PriceError::token_not_found(format!("Token not found: {:?}", token)))?;
 
         // TODO: remove hardcode for Matter Labs Trial Token (ZKS-63).
-        if token.symbol == "MLTT" {
+        if token.symbol == "RDOC" {
             metrics::histogram!("ticker.get_last_quote", start.elapsed());
             return Ok(TokenPrice {
                 usd_price: Ratio::from_integer(1u32.into()),
@@ -316,3 +316,16 @@ impl<T: TokenPriceAPI + Send + Sync> FeeTickerAPI for TickerApi<T> {
         }
     }
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+
+//     #[test]
+//     #[should_panic]
+//     fn should_return_one_for_rdoc() {
+//         tickerApi::TickerApi
+//     }
+
+//     fn should_return
+// }

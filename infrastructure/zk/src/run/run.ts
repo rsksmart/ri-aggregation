@@ -14,6 +14,7 @@ export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?
     if (command == 'dev') {
         await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '
             [
+                { "name": "RDOC",  "symbol": "RDOC",  "decimals": 18 }
             ]' > ./etc/tokens/localhost.json`);
         if (!process.env.CI) {
             await docker.restart('dev-liquidity-token-watcher');
