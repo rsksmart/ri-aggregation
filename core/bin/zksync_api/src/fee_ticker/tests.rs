@@ -3,7 +3,9 @@ use std::any::Any;
 use async_trait::async_trait;
 use bigdecimal::BigDecimal;
 use chrono::Utc;
-use futures::executor::block_on;
+use futures::future::{AbortHandle, Abortable};
+use futures::{channel::mpsc, executor::block_on};
+use std::env;
 use std::str::FromStr;
 use zksync_types::{Address, Token, TokenId, TokenKind, TokenPrice};
 use zksync_utils::{
@@ -707,4 +709,173 @@ fn test_zero_price_token_fee() {
         vec![(TxFeeTypes::Transfer, Address::default())],
     ))
     .unwrap_err();
+}
+
+#[actix_rt::test]
+#[ignore]
+// It's ignore because we can't initialize coingecko in current way with block
+async fn test_error_coingecko_api() {
+    let token = Token {
+        id: TokenId(1),
+        address: Address::random(),
+        symbol: String::from("DAI"),
+        decimals: 18,
+        kind: TokenKind::ERC20,
+        is_nft: false,
+    };
+    let (address, handler) = run_server(token.address);
+    let client = reqwest::ClientBuilder::new()
+        .timeout(CONNECTION_TIMEOUT)
+        .connect_timeout(CONNECTION_TIMEOUT)
+        .build()
+        .expect("Failed to build reqwest::Client");
+    let coingecko = CoinGeckoAPI::new(client, address.parse().unwrap()).unwrap();
+    let validator = FeeTokenValidator::new(
+        TokenInMemoryCache::new(),
+        chrono::Duration::seconds(100),
+        BigDecimal::from(100),
+        Default::default(),
+        FakeTokenWatcher,
+    );
+    let connection_pool: ConnectionPool = ConnectionPool::new(Some(1));
+    {
+        let mut storage = connection_pool.access_storage().await.unwrap();
+        storage
+            .tokens_schema()
+            .store_token(token.clone())
+            .await
+            .unwrap();
+        storage
+            .tokens_schema()
+            .update_historical_ticker_price(
+                token.id,
+                TokenPrice {
+                    usd_price: big_decimal_to_ratio(&BigDecimal::from(10)).unwrap(),
+                    last_updated: chrono::offset::Utc::now(),
+                },
+            )
+            .await
+            .unwrap();
+    }
+    let ticker_api = TickerApi::new(connection_pool, coingecko);
+
+    let config = get_test_ticker_config();
+    let mut ticker = FeeTicker::new(
+        ticker_api,
+        MockTickerInfo::default(),
+        mpsc::channel(1).1,
+        config,
+        validator,
+    );
+    for _ in 0..1000 {
+        ticker
+            .get_fee_from_ticker_in_wei(
+                TxFeeTypes::FastWithdraw,
+                token.id.into(),
+                Address::default(),
+            )
+            .await
+            .unwrap();
+        ticker
+            .get_token_price(token.id.into(), TokenPriceRequestType::USDForOneWei)
+            .await
+            .unwrap();
+    }
+    handler.abort();
+}
+
+#[tokio::test]
+#[ignore]
+async fn test_error_api() {
+    let validator = FeeTokenValidator::new(
+        TokenInMemoryCache::new(),
+        chrono::Duration::seconds(100),
+        BigDecimal::from(100),
+        Default::default(),
+        FakeTokenWatcher,
+    );
+    let connection_pool = ConnectionPool::new(Some(1));
+    let second_connection_pool = connection_pool.clone();
+    let ticker_api = TickerApi::new(second_connection_pool, ErrorTickerApi);
+    connection_pool
+        .access_storage()
+        .await
+        .unwrap()
+        .tokens_schema()
+        .update_historical_ticker_price(
+            TokenId(1),
+            TokenPrice {
+                usd_price: big_decimal_to_ratio(&BigDecimal::from(10)).unwrap(),
+                last_updated: chrono::offset::Utc::now(),
+            },
+        )
+        .await
+        .unwrap();
+    let config = get_test_ticker_config();
+    let mut ticker = FeeTicker::new(
+        ticker_api,
+        MockTickerInfo::default(),
+        mpsc::channel(1).1,
+        config,
+        validator,
+    );
+
+    ticker
+        .get_fee_from_ticker_in_wei(
+            TxFeeTypes::FastWithdraw,
+            TokenId(1).into(),
+            Address::default(),
+        )
+        .await
+        .unwrap();
+    ticker
+        .get_token_price(TokenId(1).into(), TokenPriceRequestType::USDForOneWei)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+#[ignore]
+async fn test_rdoc_price() {
+    const DATABASE_URL: &str = "postgres://postgres@localhost/plasma";
+    const BASE_URL: &str = "http://127.0.0.1:9876";
+    const RDOC_SYMBOL: &str = "RDOC";
+
+    let client = reqwest::ClientBuilder::new()
+        .timeout(CONNECTION_TIMEOUT)
+        .connect_timeout(CONNECTION_TIMEOUT)
+        .build()
+        .expect("Failed to build reqwest::Client");
+
+    env::set_var("DATABASE_URL", DATABASE_URL);
+
+    let token_price_api =
+        CoinMarketCapAPI::new(client, BASE_URL.parse().expect("Correct CoinMarketCap url"));
+    let connection_pool = ConnectionPool::new(Some(1));
+    let ticker_api = TickerApi::new(connection_pool.clone(), token_price_api);
+
+    let validator = FeeTokenValidator::new(
+        TokenInMemoryCache::new(),
+        chrono::Duration::seconds(100),
+        BigDecimal::from(100),
+        Default::default(),
+        FakeTokenWatcher,
+    );
+
+    let fee_ticker_config = get_test_ticker_config();
+    let fee_ticker = FeeTicker::new(
+        ticker_api,
+        MockTickerInfo::default(),
+        mpsc::channel(1).1,
+        fee_ticker_config,
+        validator,
+    );
+
+    let token = TokenLike::Symbol(String::from(RDOC_SYMBOL));
+    let token_price = fee_ticker
+        .get_token_price(token, TokenPriceRequestType::USDForOneToken)
+        .await
+        .unwrap();
+
+    assert_eq!(token_price, BigDecimal::from(1u32));
 }

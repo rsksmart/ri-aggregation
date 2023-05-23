@@ -14,11 +14,7 @@ export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?
     if (command == 'dev') {
         await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '
             [
-                { "name": "DAI",  "symbol": "DAI",  "decimals": 18 },
-                { "name": "wBTC", "symbol": "wBTC", "decimals":  8, "implementation": "RevertTransferERC20" },
-                { "name": "BAT",  "symbol": "BAT",  "decimals": 18 },
-                { "name": "GNT",  "symbol": "GNT",  "decimals": 18 },
-                { "name": "MLTT", "symbol": "MLTT", "decimals": 18 }
+                { "name": "RDOC",  "symbol": "RDOC",  "decimals": 18 }
             ]' > ./etc/tokens/localhost.json`);
         if (!process.env.CI) {
             await docker.restart('dev-liquidity-token-watcher');
@@ -173,7 +169,7 @@ export async function testAccounts() {
         address: ethWallet.address,
         privateKey: ethWallet.privateKey
     });
-    
+
     console.log(JSON.stringify(walletKeys, null, 4));
 }
 
