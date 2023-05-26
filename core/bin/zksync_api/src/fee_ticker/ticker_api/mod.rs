@@ -226,7 +226,6 @@ impl<T: TokenPriceAPI + Send + Sync> FeeTickerAPI for TickerApi<T> {
             .map_err(PriceError::db_error)?
             .ok_or_else(|| PriceError::token_not_found(format!("Token not found: {:?}", token)))?;
 
-        // TODO: remove hardcode for Matter Labs Trial Token (ZKS-63).
         if token.symbol == "RDOC" {
             metrics::histogram!("ticker.get_last_quote", start.elapsed());
             return Ok(TokenPrice {
@@ -317,15 +316,30 @@ impl<T: TokenPriceAPI + Send + Sync> FeeTickerAPI for TickerApi<T> {
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bigdecimal::ToPrimitive;
+    use std::env;
 
-//     #[test]
-//     #[should_panic]
-//     fn should_return_one_for_rdoc() {
-//         tickerApi::TickerApi
-//     }
+    #[tokio::test]
+    async fn should_return_one_for_rdoc() {
+        struct FakeTickerApi;
 
-//     fn should_return
-// }
+        #[async_trait::async_trait]
+        impl TokenPriceAPI for FakeTickerApi {
+            async fn get_price(&self, _token: &Token) -> Result<TokenPrice, PriceError> {
+                Err(PriceError::token_not_found("Wrong token"))
+            }
+        }
+
+        let token = TokenLike::Symbol(format!("RDOC"));
+        env::set_var("DATABASE_URL", "postgres://postgres@localhost/plasma");
+        let ticker_api = TickerApi::new(ConnectionPool::new(Some(1)), FakeTickerApi);
+        let actual_qoute = FeeTickerAPI::get_last_quote(&ticker_api, token)
+            .await
+            .unwrap();
+
+        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), 1u32);
+    }
+}

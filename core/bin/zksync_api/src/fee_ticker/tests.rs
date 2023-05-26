@@ -679,7 +679,6 @@ async fn test_error_api() {
         .unwrap();
 }
 
-
 #[tokio::test]
 #[ignore]
 async fn test_rdoc_price() {
@@ -690,21 +689,10 @@ async fn test_rdoc_price() {
         .expect("Failed to build reqwest::Client");
 
     env::set_var("DATABASE_URL", "postgres://postgres@localhost/plasma");
-    env::set_var("FEE_TICKER_TOKEN_PRICE_SOURCE", "CoinGecko");
-    env::set_var("FEE_TICKER_COINMARKETCAP_BASE_URL", "http://127.0.0.1:9876");
-    env::set_var("FEE_TICKER_COINGECKO_BASE_URL", "http://127.0.0.1:9876");
-    env::set_var("FEE_TICKER_FAST_PROCESSING_COEFF", "10");
-    env::set_var("FEE_TICKER_UNISWAP_URL", "http://127.0.0.1:9975/graphql");
-    env::set_var("FEE_TICKER_LIQUIDITY_VOLUME", "100");
-    env::set_var("FEE_TICKER_AVAILABLE_LIQUIDITY_SECONDS", "720");
-    env::set_var("FEE_TICKER_UNCONDITIONALLY_VALID_TOKENS", "0x0000000000000000000000000000000000000000");
-    env::set_var("FEE_TICKER_TOKEN_MARKET_UPDATE_TIME", "120");
-    env::set_var("FEE_TICKER_NUMBER_OF_TICKER_ACTORS", "5");
-    env::set_var("FEE_TICKER_SCALE_FEE_PERCENT", "100");
 
-    let config = zksync_config::TickerConfig::from_env();
-    let (price_source, base_url) = config.price_source();
-    let token_price_api = CoinMarketCapAPI::new(client, base_url.parse().expect("Correct CoinMarketCap url"));
+    let base_url = "http://127.0.0.1:9876";
+    let token_price_api =
+        CoinMarketCapAPI::new(client, base_url.parse().expect("Correct CoinMarketCap url"));
     let connection_pool = ConnectionPool::new(Some(1));
     let ticker_api = TickerApi::new(connection_pool.clone(), token_price_api);
 
@@ -716,9 +704,8 @@ async fn test_rdoc_price() {
         FakeTokenWatcher,
     );
 
-
     let fee_ticker_config = get_test_ticker_config();
-    let mut feeTicker = FeeTicker::new(
+    let fee_ticker = FeeTicker::new(
         ticker_api,
         MockTickerInfo::default(),
         mpsc::channel(1).1,
@@ -727,8 +714,10 @@ async fn test_rdoc_price() {
     );
 
     let token = TokenLike::Symbol(format!("RDOC"));
+    let token_price = fee_ticker
+        .get_token_price(token, TokenPriceRequestType::USDForOneToken)
+        .await
+        .unwrap();
 
-    let token_price = feeTicker.get_token_price(token, TokenPriceRequestType::USDForOneToken).await.unwrap();
     assert_eq!(token_price, BigDecimal::from(1u32));
-    
 }
