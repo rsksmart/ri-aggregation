@@ -682,17 +682,20 @@ async fn test_error_api() {
 #[tokio::test]
 #[ignore]
 async fn test_rdoc_price() {
+    const DATABASE_URL: &str = "postgres://postgres@localhost/plasma";
+    const BASE_URL: &str = "http://127.0.0.1:9876";
+    const RDOC_SYMBOL: &str = "RDOC";
+
     let client = reqwest::ClientBuilder::new()
         .timeout(CONNECTION_TIMEOUT)
         .connect_timeout(CONNECTION_TIMEOUT)
         .build()
         .expect("Failed to build reqwest::Client");
 
-    env::set_var("DATABASE_URL", "postgres://postgres@localhost/plasma");
+    env::set_var("DATABASE_URL", DATABASE_URL);
 
-    let base_url = "http://127.0.0.1:9876";
     let token_price_api =
-        CoinMarketCapAPI::new(client, base_url.parse().expect("Correct CoinMarketCap url"));
+        CoinMarketCapAPI::new(client, BASE_URL.parse().expect("Correct CoinMarketCap url"));
     let connection_pool = ConnectionPool::new(Some(1));
     let ticker_api = TickerApi::new(connection_pool.clone(), token_price_api);
 
@@ -713,7 +716,7 @@ async fn test_rdoc_price() {
         validator,
     );
 
-    let token = TokenLike::Symbol(format!("RDOC"));
+    let token = TokenLike::Symbol(String::from(RDOC_SYMBOL));
     let token_price = fee_ticker
         .get_token_price(token, TokenPriceRequestType::USDForOneToken)
         .await

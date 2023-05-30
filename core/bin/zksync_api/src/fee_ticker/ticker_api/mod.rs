@@ -321,9 +321,16 @@ mod tests {
     use super::*;
     use bigdecimal::ToPrimitive;
     use std::env;
+    use zksync_types::{Address, Token, TokenId, TokenKind, TokenPrice};
 
     #[tokio::test]
     async fn should_return_one_for_rdoc() {
+        const DATABASE_URL: &str = "postgres://postgres@localhost/plasma";
+        const RDOC_SYMBOL: &str = "RDOC";
+        const RDOC_VALUE: u32 = 1;
+
+        env::set_var("DATABASE_URL", DATABASE_URL);
+
         struct FakeTickerApi;
 
         #[async_trait::async_trait]
@@ -333,13 +340,66 @@ mod tests {
             }
         }
 
-        let token = TokenLike::Symbol(format!("RDOC"));
-        env::set_var("DATABASE_URL", "postgres://postgres@localhost/plasma");
-        let ticker_api = TickerApi::new(ConnectionPool::new(Some(1)), FakeTickerApi);
+        let token = TokenLike::Symbol(String::from(RDOC_SYMBOL));
+
+        let connection_pool = ConnectionPool::new(Some(1));
+        let ticker_api = TickerApi::new(connection_pool, FakeTickerApi);
+
         let actual_qoute = FeeTickerAPI::get_last_quote(&ticker_api, token)
             .await
             .unwrap();
 
-        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), 1u32);
+        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), RDOC_VALUE);
+    }
+
+    #[tokio::test]
+    async fn should_return_value_from_cache() {
+        const DATABASE_URL: &str = "postgres://postgres@localhost/plasma";
+        const TEST_TOKEN_SYMBOL: &str = "TEST";
+        const TOKEN_VALUE: u32 = 5;
+
+        env::set_var("DATABASE_URL", DATABASE_URL);
+
+        struct FakeTickerApi;
+
+        #[async_trait::async_trait]
+        impl TokenPriceAPI for FakeTickerApi {
+            async fn get_price(&self, _token: &Token) -> Result<TokenPrice, PriceError> {
+                Err(PriceError::token_not_found("Wrong token"))
+            }
+        }
+
+        let test_token_symbol = TokenLike::Symbol(String::from(TEST_TOKEN_SYMBOL));
+
+        let test_token_price = TokenPrice {
+            usd_price: Ratio::from_integer(TOKEN_VALUE.into()),
+            last_updated: Utc::now(),
+        };
+
+        let test_token = Token {
+            id: TokenId(2),
+            address: Address::random(),
+            symbol: String::from(TEST_TOKEN_SYMBOL),
+            decimals: 18,
+            kind: TokenKind::ERC20,
+            is_nft: false,
+        };
+
+        let connection_pool = ConnectionPool::new(Some(1));
+        let ticker_api = TickerApi::new(connection_pool, FakeTickerApi);
+
+        let price_cache_map = HashMap::from([(
+            test_token.id,
+            TokenCacheEntry::new(test_token_price.clone(), Instant::now()),
+        )]);
+        let price_cache = Arc::new(Mutex::new(price_cache_map));
+
+        let ticker_api = TickerApi::with_price_cache(ticker_api, price_cache);
+
+        let actual_qoute = FeeTickerAPI::get_last_quote(&ticker_api, test_token_symbol)
+            .await
+            .unwrap();
+
+        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), TOKEN_VALUE);
     }
 }
