@@ -39,7 +39,7 @@ contract ForcedExit is Ownable, ReentrancyGuard {
         uint256 balance = address(this).balance;
 
         (bool success, ) = _to.call{value: balance}("");
-        require(success, "RIF withdraw failed");
+        require(success, "ETH withdraw failed");
     }
 
     // We have to use fallback instead of `receive` since the ethabi
