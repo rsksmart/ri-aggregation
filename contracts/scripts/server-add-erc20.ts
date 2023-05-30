@@ -51,7 +51,6 @@ async function deployTestnetToken(token: Token, name: String) {
 
     //So, instead, we will use an existing test account with RBTC balance
     let wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'), provider);
-    //const wallet = Wallet.fromMnemonic(ethTestConfig.mnemonic, "m/44'/137'/0'/0/1").connect(provider);
     const json_contract = readContractCode(`dev-contracts/${DEFAULT_ERC20}`);
     const token_arr = [name, token.symbol, token.decimals];
     const erc20 = await deployContract(wallet, json_contract, token_arr, { gasLimit: 5000000 });

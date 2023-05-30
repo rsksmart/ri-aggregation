@@ -25,11 +25,7 @@ async function main() {
         provider.pollingInterval = 10;
 
         const deployWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
-
-        // const deployWallet = ethers.Wallet.fromMnemonic(ethTestConfig.test_mnemonic, "m/44'/60'/0'/0/0").connect(
-        //provider
-        // );
-
+        
         const smartWallet = await deployContract(
             deployWallet,
             readContractCode('dev-contracts/AccountMock'),

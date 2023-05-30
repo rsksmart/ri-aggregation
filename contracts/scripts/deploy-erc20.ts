@@ -28,9 +28,8 @@ type TokenDescription = Token & {
 async function deployToken(token: TokenDescription): Promise<Token> {
     token.implementation = token.implementation || DEFAULT_ERC20;
 
-    //So, instead, we will use an existing test account with RBTC balance
+    //We will use an existing test account with RBTC balance
     let wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'), provider);
-    //const wallet = Wallet.fromMnemonic(ethTestConfig.mnemonic, "m/44'/137'/0'/0/1").connect(provider);
     const erc20 = await deployContract(
         wallet,
         readContractCode(`dev-contracts/${token.implementation}`),
@@ -39,13 +38,13 @@ async function deployToken(token: TokenDescription): Promise<Token> {
     );
 
     //These erc20 tokens are deployed and allocated to some accounts just for testing.
-    //These deployments initially lead to a "nonce too high error on RSKJ" during zk init.
+    //These deployments initially lead to a "nonce too high error on RSKj" during zk init.
     //So we added "waits" for contract deployment TX to be mined. The following WILL BLOCK execution until no. of confirmations is met
     //use this together with tx.wait() keep the accountSlots / nonce mismatch within 5
-    // We do not use the timeout paramater. Just block execution until token is deployed.
+    // We do not use the timeout parameter. Just block execution until token is deployed.
     await provider.waitForTransaction(erc20.deployTransaction.hash, 1);
 
-    // now we premine to allocate token balances to some accounts
+    // now we pre-mine to allocate token balances to some accounts
 
     await erc20.mint(wallet.address, parseEther('3000000000'));
     wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);

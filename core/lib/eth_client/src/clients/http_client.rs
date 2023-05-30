@@ -216,7 +216,6 @@ impl<S: EthereumSigner> ETHDirectClient<S> {
         };
 
         let signed_tx = self.inner.eth_signer.sign_transaction(tx).await?;
-        //let hash = self.inner.web3.web3().sha3(Bytes(signed_tx.clone())).await?;
 
         let mut hasher = sha3::Keccak256::default();
         hasher.update(&signed_tx);

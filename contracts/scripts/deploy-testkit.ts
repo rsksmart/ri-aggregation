@@ -35,8 +35,7 @@ async function main() {
 
     const deployWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
 
-    //const deployWallet = ethers.Wallet.fromMnemonic(ethTestConfig.test_mnemonic, "m/44'/60'/0'/0/0").connect(provider);
-    // todo: should be decided when building
+    // TODO: should be decided when building
     const contracts = readProductionContracts();
     const deployer = new Deployer({ deployWallet, contracts, verbose: true });
     await deployer.deployAll();
@@ -55,11 +54,6 @@ async function main() {
         console.error('Problem with testkit deployment, TEST_ERC20 token should have id 1');
         process.exit(1);
     }
-
-    // for (let i = 0; i < 10; ++i) {
-    // const testWallet = Wallet.fromMnemonic(ethTestConfig.test_mnemonic, "m/44'/137'/0'/0/" + i).connect(provider);
-    // await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
-    // }
 
     let testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
     await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();

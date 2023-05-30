@@ -24,9 +24,6 @@ async function main() {
 
         const deployWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
 
-        //const deployWallet = Wallet.fromMnemonic(ethTestConfig.test_mnemonic, "m/44'/60'/0'/0/0").connect(
-        // provider
-        //);
         const multicallContract = await deployContract(deployWallet, readContractCode('dev-contracts/Multicall'), [], {
             gasLimit: 5000000
         });

@@ -65,12 +65,6 @@ async function getCallRevertReason(f) {
     try {
         result = await f();
     } catch (e) {
-        /*try {
-            const data = e.stackTrace[e.stackTrace.length - 1].message.value.slice(4);
-            revertReason = ethers.utils.defaultAbiCoder.decode(['string'], data)[0];
-        } catch (err2) {
-            throw e;
-        }*/
         const message = e.toString();
         let idx = message.lastIndexOf('revert');
         if (idx > 0) {
