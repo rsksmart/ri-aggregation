@@ -1,2 +1,14 @@
 [
+    {
+        "decimals": 18,
+        "symbol": "RIF",
+        "name": "RSK Infrastructure Framework",
+        "address": "0x9bcfc2231024A92cC5aE6294Ea1D07800FFada83"
+    },
+    {
+        "decimals": 18,
+        "symbol": "rDOC",
+        "name": "rDOC",
+        "address": "0x33F3e4Fd2584EBA630890662a2F0E11087fd512e"
+    }
 ]

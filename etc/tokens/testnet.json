@@ -1,26 +1,14 @@
 [
-  {
-    "address": "0x19f64674D8a5b4e652319F5e239EFd3bc969a1FE",
-    "decimals": 18,
-    "symbol": "RIF",
-    "name": "RSK Infrastructure Framework"
-  },
-  {
-    "address": "0xb30b2D36D7a6e3873280Ba4be2E4804A3B418226",
-    "decimals": 6,
-    "symbol": "USDC",
-    "name": "USD Coin"
-  },
-  {
-    "address": "0xc3de9f38581f83e281f260d0ddbaac0e102ff9f8",
-    "decimals": 18,
-    "symbol": "RDOC",
-    "name": "RIF Dollar on Chain"
-  },
-  {
-    "address": "0xf8721aDbB9A0b78D6B793d65782af92498340Ff7",
-    "decimals": 18,
-    "symbol": "DOC",
-    "name": "Dollar on Chain"
-  }
+    {
+        "address": "0x19f64674D8a5b4e652319F5e239EFd3bc969a1FE",
+        "decimals": 18,
+        "symbol": "RIF",
+        "name": "RSK Infrastructure Framework"
+    },
+    {
+        "address": "0xC3De9f38581F83e281F260D0ddBAac0E102Ff9F8",
+        "decimals": 18,
+        "symbol": "rDOC",
+        "name": "rDOC"
+    }
 ]
