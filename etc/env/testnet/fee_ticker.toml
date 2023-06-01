@@ -17,7 +17,8 @@ liquidity_volume=100
 # Time when liquidity check results are valid
 available_liquidity_seconds=720
 # List of the tokens that are unconditionally acceptable for paying fee in. <env_address>
-unconditionally_valid_tokens="0x0000000000000000000000000000000000000000"
+# Pre-configured RBTC, RIF, RDOC in that order
+unconditionally_valid_tokens=["0x0000000000000000000000000000000000000000", "0x19f64674D8a5b4e652319F5e239EFd3bc969a1FE", "0xC3De9f38581F83e281F260D0ddBAac0E102Ff9F8"]
 token_market_update_time=120
 # Number of tickers for load balancing.
 number_of_ticker_actors=5
