@@ -14,10 +14,11 @@ use crate::api_server::{
 use actix_web::error::InternalError;
 use actix_web::{web, HttpResponse, Result as ActixResult};
 use chrono::Duration;
+use itertools::Itertools;
 use num::{rational::Ratio, BigUint, FromPrimitive};
-use std::time::Instant;
+use std::{collections::HashMap, time::Instant};
 use zksync_storage::chain::operations_ext::SearchDirection;
-use zksync_types::{Address, BlockNumber, Token, TokenId, TokenKind};
+use zksync_types::{Address, BlockNumber, Token, TokenId};
 
 /// Helper macro which wraps the serializable object into `Ok(HttpResponse::Ok().json(...))`.
 macro_rules! ok_json {
@@ -65,27 +66,61 @@ impl ApiV01 {
                 .expect("TickerConfig::liquidity_volume must be positive"),
         );
 
+        let ticker_config = zksync_config::configs::TickerConfig::from_env();
+        let unconditionally_valid_addresses = ticker_config
+            .unconditionally_valid_tokens
+            .iter()
+            .map(|h160| h160.to_string())
+            .collect::<Vec<String>>();
+
         let mut storage = self_.access_storage().await?;
-        let mut tokens = storage
+        let tokens = storage
             .tokens_schema()
-            .load_tokens_by_market_volume(liquidity_volume)
+            .load_tokens()
             .await
             .map_err(Self::db_error)?;
 
-        // Add ETH for tokens allowed for fee
-        // Different APIs have different views on how to represent ETH in their system.
-        // But ETH is always allowed to pay fee, and in all cases it should be on the list.
+        // I know this seems like a very inefficient way of doing it, when we could just make a left join in sql and in fact I've got that code stashed for two reasons:
+        // 1. the storage manager should not really have any knowledge of the unconditionally valid tokens
+        // 2. and more importantly, I couldn't make it work, due to limitations of myself and/or sqlx (the 'token.address IN ()' seems to be problematic when not dealing with hardcoded values)
+        // We should optimise this at some point tho  (#tech-dept)
+        let mut unconditionally_valid_tokens: Vec<Token> = Vec::new();
+        let tokens_to_filter: HashMap<TokenId, Token> = tokens
+            .into_iter()
+            .filter(|(_, token)| {
+                if unconditionally_valid_addresses.contains(&token.address.to_string()) {
+                    unconditionally_valid_tokens.push(token.clone());
 
-        if tokens.get(&TokenId(0)).is_none() {
-            let eth = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
-            tokens.insert(eth.id, eth);
-        }
+                    return true;
+                }
 
-        let mut tokens = tokens.values().cloned().collect::<Vec<_>>();
+                return false;
+            })
+            .collect::<HashMap<TokenId, Token>>();
 
-        tokens.sort_by_key(|t| t.id);
+        let tokens_with_liquidity = storage
+            .tokens_schema()
+            .filter_tokens_by_market_volume(
+                tokens_to_filter.keys().cloned().collect_vec(),
+                &liquidity_volume,
+            )
+            .await
+            .map_err(Self::db_error)?;
+
+        let mut tokens = [
+            unconditionally_valid_tokens,
+            tokens_with_liquidity
+                .into_iter()
+                .map(|token_id| tokens_to_filter.get(&token_id).unwrap())
+                .cloned()
+                .collect_vec(),
+        ]
+        .concat();
+
+        tokens.sort_by_key(|token| token.id);
 
         metrics::histogram!("api.v01.tokens_acceptable_for_fees", start.elapsed());
+
         ok_json!(tokens)
     }
 

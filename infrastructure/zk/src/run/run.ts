@@ -12,9 +12,18 @@ export { verifyKeys, dataRestore };
 
 export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?: string, decimals?: string) {
     if (command == 'dev') {
-        await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '
-            [
-            ]' > ./etc/tokens/localhost.json`);
+        await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '[
+            {
+              "decimals": 18,
+              "symbol": "RIF",
+              "name": "RSK Infrastructure Framework"
+            },
+            {
+              "decimals": 18,
+              "symbol": "rDOC",
+              "name": "rDOC"
+            }
+          ]' > ./etc/tokens/localhost.json`);
         if (!process.env.CI) {
             await docker.restart('dev-liquidity-token-watcher');
             await docker.restart('dev-ticker');
