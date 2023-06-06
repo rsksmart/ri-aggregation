@@ -1,4 +1,4 @@
-import { ethers, Wallet } from 'ethers';
+import { Wallet } from 'ethers';
 import { Deployer, readContractCode, readProductionContracts } from '../src.ts/deploy';
 import { deployContract } from 'ethereum-waffle';
 import { ArgumentParser } from 'argparse';
@@ -33,8 +33,9 @@ async function main() {
     const provider = web3Provider();
     provider.pollingInterval = 10;
 
-    const deployWallet = ethers.Wallet.fromMnemonic(ethTestConfig.test_mnemonic, "m/44'/60'/0'/0/0").connect(provider);
-    // todo: should be decided when building
+    const deployWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
+
+    // TODO: should be decided when building
     const contracts = readProductionContracts();
     const deployer = new Deployer({ deployWallet, contracts, verbose: true });
     await deployer.deployAll();
@@ -54,10 +55,27 @@ async function main() {
         process.exit(1);
     }
 
-    for (let i = 0; i < 10; ++i) {
-        const testWallet = Wallet.fromMnemonic(ethTestConfig.test_mnemonic, "m/44'/60'/0'/0/" + i).connect(provider);
-        await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
-    }
+    let testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow2_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow3_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow4_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow5_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    //testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow6_privK, 'hex'), provider);
+    //await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow7_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow8_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+    testWallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow9_privK, 'hex'), provider);
+    await (await erc20.mint(testWallet.address, '0x4B3B4CA85A86C47A098A224000000000')).wait();
+
     const pendingWithdrawer = await deployContract(
         deployWallet,
         readContractCode('dev-contracts/PendingBalanceWithdrawer'),

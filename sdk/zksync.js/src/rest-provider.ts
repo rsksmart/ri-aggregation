@@ -10,12 +10,26 @@ export async function getDefaultRestProvider(
     pollIntervalMilliSecs?: number
 ): Promise<RestProvider> {
     if (network === 'localhost') {
-        return await RestProvider.newProvider('http://127.0.0.1:3001/api/v0.2', pollIntervalMilliSecs, network);
-    } else if (network === 'goerli') {
-        return await RestProvider.newProvider('https://goerli-api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
-    } else if (network === 'goerli-beta') {
+        return await RestProvider.newProvider('https://127.0.0.1:3001/api/v0.2', pollIntervalMilliSecs, network);
+    } else if (network === 'testnet') {
         return await RestProvider.newProvider(
-            'https://goerli-beta-api.zksync.dev/api/v0.2',
+            'https://dev.aggregation.rifcomputing.net:3029/api/v0.2',
+            pollIntervalMilliSecs,
+            network
+        );
+    } else if (network === 'mainnet') {
+        return await RestProvider.newProvider(
+            'https://aggregation.rifcomputing.net:3029/api/v0.2',
+            pollIntervalMilliSecs,
+            network
+        );
+    } else if (network === 'ropsten') {
+        return await RestProvider.newProvider('https://ropsten-api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
+    } else if (network === 'rinkeby') {
+        return await RestProvider.newProvider('https://rinkeby-api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
+    } else if (network === 'ropsten-beta') {
+        return await RestProvider.newProvider(
+            'https://ropsten-beta-api.zksync.io/api/v0.2',
             pollIntervalMilliSecs,
             network
         );
@@ -25,7 +39,7 @@ export async function getDefaultRestProvider(
             pollIntervalMilliSecs,
             network
         );
-    } else if (network === 'mainnet') {
+    } else if (network === 'mainnet-zk') {
         return await RestProvider.newProvider('https://api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
     } else {
         throw new Error(`Ethereum network ${network} is not supported`);

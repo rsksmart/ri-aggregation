@@ -13,7 +13,6 @@ const testConfigPath = path.join(process.env.ZKSYNC_HOME as string, `etc/test_co
 const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, { encoding: 'utf-8' }));
 
 const provider = web3Provider();
-const wallet = Wallet.fromMnemonic(ethTestConfig.mnemonic, "m/44'/60'/0'/0/1").connect(provider);
 
 type Token = {
     address: string | null;
@@ -28,19 +27,52 @@ type TokenDescription = Token & {
 
 async function deployToken(token: TokenDescription): Promise<Token> {
     token.implementation = token.implementation || DEFAULT_ERC20;
+
+    //We will use an existing test account with RBTC balance
+    let wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'), provider);
     const erc20 = await deployContract(
         wallet,
         readContractCode(`dev-contracts/${token.implementation}`),
         [token.name, token.symbol, token.decimals],
         { gasLimit: 5000000 }
     );
+
+    //These erc20 tokens are deployed and allocated to some accounts just for testing.
+    //These deployments initially lead to a "nonce too high error on RSKj" during zk init.
+    //So we added "waits" for contract deployment TX to be mined. The following WILL BLOCK execution until no. of confirmations is met
+    //use this together with tx.wait() keep the accountSlots / nonce mismatch within 5
+    // We do not use the timeout parameter. Just block execution until token is deployed.
+    await provider.waitForTransaction(erc20.deployTransaction.hash, 1);
+
+    // now we pre-mine to allocate token balances to some accounts
+
     await erc20.mint(wallet.address, parseEther('3000000000'));
-    for (let i = 0; i < 10; ++i) {
-        const testWallet = Wallet.fromMnemonic(ethTestConfig.test_mnemonic as string, "m/44'/60'/0'/0/" + i).connect(
-            provider
-        );
-        await erc20.mint(testWallet.address, parseEther('3000000000'));
-    }
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
+    await erc20.mint(wallet.address, parseEther('3000000000'));
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow2_privK, 'hex'), provider);
+
+    // occasionally wait for 1 confirmation to keep nonce increase within 5
+    let tx = await erc20.mint(wallet.address, parseEther('3000000000'));
+    await tx.wait(1);
+
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow3_privK, 'hex'), provider);
+    await erc20.mint(wallet.address, parseEther('3000000000'));
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow4_privK, 'hex'), provider);
+    await erc20.mint(wallet.address, parseEther('3000000000'));
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow5_privK, 'hex'), provider);
+    //wait
+    tx = await erc20.mint(wallet.address, parseEther('3000000000'));
+    await tx.wait(1);
+
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow7_privK, 'hex'), provider);
+    await erc20.mint(wallet.address, parseEther('3000000000'));
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow8_privK, 'hex'), provider);
+    await erc20.mint(wallet.address, parseEther('3000000000'));
+    wallet = new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow9_privK, 'hex'), provider);
+    //wait
+    tx = await erc20.mint(wallet.address, parseEther('3000000000'));
+    await tx.wait(1);
+
     token.address = erc20.address;
 
     // Remove the unneeded field

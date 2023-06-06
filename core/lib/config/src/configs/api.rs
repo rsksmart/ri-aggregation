@@ -190,6 +190,8 @@ impl PrivateApiConfig {
 pub struct RestApiConfig {
     /// Port to which the API server is listening.
     pub port: u16,
+    /// Indicates whether the service is HTTPS or HTTP
+    pub use_https: bool,
     /// URL to access API server.
     pub url: String,
 }
@@ -272,6 +274,7 @@ mod tests {
             rest: RestApiConfig {
                 port: 3001,
                 url: "http://127.0.0.1:3001".into(),
+                use_https: true,
             },
             json_rpc: JsonRpcConfig {
                 http_port: 3030,
@@ -283,7 +286,7 @@ mod tests {
                 port: 3002,
                 url: "http://127.0.0.1:3002".into(),
                 max_block_range: 10,
-                chain_id: 240,
+                chain_id: 33,
             },
             private: PrivateApiConfig {
                 port: 8090,
@@ -325,7 +328,7 @@ API_JSON_RPC_WS_PORT="3031"
 API_JSON_RPC_WS_URL="ws://127.0.0.1:3031"
 API_WEB3_PORT="3002"
 API_WEB3_URL="http://127.0.0.1:3002"
-API_WEB3_CHAIN_ID="240"
+API_WEB3_CHAIN_ID="33"
 API_WEB3_MAX_BLOCK_RANGE="10"
 API_PRIVATE_PORT="8090"
 API_PRIVATE_URL="http://127.0.0.1:8090"
@@ -333,6 +336,7 @@ API_PROVER_PORT="8088"
 API_PROVER_URL="http://127.0.0.1:8088"
 API_PROVER_SECRET_AUTH="sample"
 API_PROMETHEUS_PORT="3312"
+API_USE_HTTPS=true
         "#;
         set_env(config);
 

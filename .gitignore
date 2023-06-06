@@ -28,6 +28,9 @@ Cargo.lock
 !/etc/env/docker.env
 !/etc/env/ci.env
 !/etc/env/base
+!/etc/env/testnet
+!/etc/env/mainnet
+!/etc/env/zk_original_configuration
 /etc/tokens/localhost.json
 !/keys
 /keys/*
@@ -37,6 +40,7 @@ Cargo.lock
 /logs
 /loadtest-config
 /core/tests/blocks.json
+/etc/rsknode/db
 
 .ipynb_checkpoints
 
@@ -49,3 +53,9 @@ core/lib/storage/.env
 # Perf/flamegraph files
 perf.data*
 flamegraph.svg
+.zcli-config.json
+
+*.pem
+bin/mkcert
+
+docker/rskj/data

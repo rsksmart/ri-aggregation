@@ -44,6 +44,21 @@ export async function getDefaultProvider(
         } else if (transport === 'HTTP') {
             return await Provider.newHttpProvider('http://127.0.0.1:3030', pollIntervalMilliSecs, network);
         }
+    } else if (network === 'testnet') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://dev.aggregation.rifcomputing.net:3031');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider(
+                'https://dev.aggregation.rifcomputing.net:3030',
+                pollIntervalMilliSecs
+            );
+        }
+    } else if (network === 'mainnet') {
+        if (transport === 'WS') {
+            return await Provider.newWebsocketProvider('wss://aggregation.rifcomputing.net:3031');
+        } else if (transport === 'HTTP') {
+            return await Provider.newHttpProvider('https://aggregation.rifcomputing.net:3030', pollIntervalMilliSecs);
+        }
     } else if (network === 'goerli') {
         if (transport === 'WS') {
             return await Provider.newWebsocketProvider('wss://goerli-api.zksync.io/jsrpc-ws', network);
@@ -70,7 +85,7 @@ export async function getDefaultProvider(
                 network
             );
         }
-    } else if (network === 'mainnet') {
+    } else if (network === 'mainnet-zk') {
         if (transport === 'WS') {
             return await Provider.newWebsocketProvider('wss://api.zksync.io/jsrpc-ws', network);
         } else if (transport === 'HTTP') {
@@ -244,6 +259,7 @@ export class Provider extends SyncProvider {
         } else {
             while (true) {
                 const transactionStatus = await this.getTxReceipt(hash);
+
                 const notifyDone =
                     action == 'COMMIT'
                         ? transactionStatus.block && transactionStatus.block.committed
