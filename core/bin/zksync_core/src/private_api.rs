@@ -95,7 +95,7 @@ pub fn start_private_core_api(
                         .app_data(web::JsonConfig::default().limit(2usize.pow(32)))
                         .service(status)
                 })
-                .bind(&config.bind_addr())
+                .bind(config.bind_addr())
                 .expect("failed to bind")
                 .run()
                 .await

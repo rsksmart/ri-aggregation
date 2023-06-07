@@ -52,6 +52,8 @@ impl Handler<RemoveSubscriber> for ServerMonitor {
 impl Handler<NewEvents> for ServerMonitor {
     type Result = ();
 
+    //FIXME remove clippy rule.
+    #[allow(clippy::unnecessary_to_owned)]
     fn handle(&mut self, msg: NewEvents, ctx: &mut Self::Context) {
         if msg.0.as_ref().is_empty() {
             vlog::info!("Server monitor received empty array of events");

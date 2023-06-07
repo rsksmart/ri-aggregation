@@ -7,13 +7,13 @@ services:
 
   rskj:
     image: rsksmart/rskj:HOP-4.4.0
+    entrypoint:  ["java", "-cp", "rsk.jar", "co.rsk.Start" ]
     ports:
       - "4444:4444"
       - "4445:4445"
     volumes:
       - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
-  
   
   dev-ticker:
     image: "matterlabs/dev-ticker:latest"
@@ -29,7 +29,7 @@ services:
 
   zk:
     build:
-      context: ./docker/zk-environment 
+      context: ./docker/zk-environment
     depends_on:
       - postgres
       - rskj
@@ -41,14 +41,10 @@ services:
       - /usr/src/cache:/usr/src/cache
       - /usr/src/keys:/usr/src/keys
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${HOST_GCS_KEY_PATH:-/etc/sa_secret/sa_key.json}:/etc/sa_secret/sa_key.json
     environment:
       - IN_DOCKER=true
       - CACHE_DIR=/usr/src/cache
-      - SCCACHE_CACHE_SIZE=50g
-      - SCCACHE_GCS_BUCKET=sccache-zksync-ci
-      - SCCACHE_GCS_KEY_PATH=/etc/sa_secret/sa_key.json
-      - SCCACHE_GCS_RW_MODE=READ_WRITE
+      - SCCACHE_CACHE_SIZE="50g"
       - CI=1
       - CAROOT=/usr/src/zksync
       - NODE_EXTRA_CA_CERTS=/usr/src/zksync/rootCA.pem

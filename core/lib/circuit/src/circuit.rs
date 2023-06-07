@@ -1560,8 +1560,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
             op_data
                 .special_content_hash
                 .iter()
-                .map(|bit| bit.get_bits_be())
-                .flatten(),
+                .flat_map(|bit| bit.get_bits_be()),
         ); // content_hash = 32 bytes
         resize_grow_only(
             &mut pubdata_bits,
@@ -2256,8 +2255,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
             op_data
                 .special_content_hash
                 .iter()
-                .map(|bit| bit.get_bits_be())
-                .flatten(),
+                .flat_map(|bit| bit.get_bits_be()),
         ); // content_hash = 32 bytes
         pubdata_bits.extend(op_data.special_tokens[0].get_bits_be()); // fee_token = 4 bytes
         pubdata_bits.extend(op_data.fee_packed.get_bits_be()); // fee = 2 bytes
@@ -2347,8 +2345,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
                 op_data
                     .special_content_hash
                     .iter()
-                    .map(|bit| bit.get_bits_be())
-                    .flatten(),
+                    .flat_map(|bit| bit.get_bits_be()),
             ); // content_hash
             serialized_tx_bits_version1.extend(op_data.special_eth_addresses[0].get_bits_be()); // recipient_address
             serialized_tx_bits_version1.extend(cur.token.get_bits_be()); // fee token
@@ -2566,8 +2563,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
             op_data
                 .special_content_hash
                 .iter()
-                .map(|bit| bit.get_bits_be())
-                .flatten(),
+                .flat_map(|bit| bit.get_bits_be()),
         ); // content_hash = 32 bytes
         pubdata_bits.extend(op_data.eth_address.get_bits_be()); // to_address = 20 bytes
         pubdata_bits.extend(op_data.special_tokens[1].get_bits_be()); // token = 4 bytes
@@ -3152,15 +3148,13 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
             op_data
                 .special_accounts
                 .iter()
-                .map(|acc| acc.get_bits_be())
-                .flatten(),
+                .flat_map(|acc| acc.get_bits_be()),
         );
         pubdata_bits.extend(
             op_data
                 .special_tokens
                 .iter()
-                .map(|tok| tok.get_bits_be())
-                .flatten(),
+                .flat_map(|tok| tok.get_bits_be()),
         );
         pubdata_bits.extend(op_data.amount_packed.get_bits_be());
         pubdata_bits.extend(op_data.second_amount_packed.get_bits_be());
@@ -4866,8 +4860,7 @@ pub fn hash_nft_content_to_balance_type<E: RescueEngine, CS: ConstraintSystem<E>
 ) -> Result<CircuitElement<E>, SynthesisError> {
     let mut content_hash_as_booleans_le = content_hash
         .iter()
-        .map(|bit| bit.get_bits_le())
-        .flatten()
+        .flat_map(|bit| bit.get_bits_le())
         .collect::<Vec<_>>();
     content_hash_as_booleans_le.reverse();
     assert_eq!(content_hash_as_booleans_le.len(), CONTENT_HASH_WIDTH);

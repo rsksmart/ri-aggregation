@@ -692,8 +692,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .await?;
 
         let final_hash = eth_operation
-            .map(|eth_operation| eth_operation.final_hash.map(|hash| H256::from_slice(&hash)))
-            .flatten();
+            .and_then(|eth_operation| eth_operation.final_hash.map(|hash| H256::from_slice(&hash)));
 
         Ok(final_hash)
     }

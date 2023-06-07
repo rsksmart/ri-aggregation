@@ -34,7 +34,7 @@ impl TxHash {
 
     pub fn batch_hash(tx_hashes: &[TxHash]) -> TxHash {
         let bytes: Vec<u8> = tx_hashes.iter().flat_map(AsRef::as_ref).cloned().collect();
-        TxHash::from_slice(&*sha256(&bytes)).unwrap()
+        TxHash::from_slice(&sha256(&bytes)).unwrap()
     }
 }
 
@@ -46,7 +46,7 @@ impl AsRef<[u8]> for TxHash {
 
 impl ToString for TxHash {
     fn to_string(&self) -> String {
-        format!("sync-tx:{}", hex::encode(&self.data))
+        format!("sync-tx:{}", hex::encode(self.data))
     }
 }
 
@@ -61,7 +61,7 @@ impl FromStr for TxHash {
         } else {
             return Err(TxHashDecodeError::PrefixError);
         };
-        let bytes = hex::decode(&s)?;
+        let bytes = hex::decode(s)?;
         if bytes.len() != 32 {
             return Err(TxHashDecodeError::IncorrectHashLength);
         }

@@ -65,7 +65,7 @@ impl Witness for TransferWitness<Bn256> {
         let transfer_data = TransferData {
             amount: transfer.tx.amount.to_u128().unwrap(),
             fee: transfer.tx.fee.to_u128().unwrap(),
-            token: *transfer.tx.token as u32,
+            token: *transfer.tx.token,
             from_account_address: *transfer.from,
             to_account_address: *transfer.to,
             valid_from: time_range.valid_from,
@@ -122,7 +122,7 @@ impl Witness for TransferWitness<Bn256> {
         let pubdata_chunks: Vec<_> = self
             .get_pubdata()
             .chunks(CHUNK_BIT_WIDTH)
-            .map(|x| le_bit_vector_into_field_element(&x.to_vec()))
+            .map(le_bit_vector_into_field_element)
             .collect();
 
         let operation_zero = Operation {

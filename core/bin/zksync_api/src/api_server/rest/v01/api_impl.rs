@@ -386,7 +386,7 @@ impl ApiV01 {
                 vlog::warn!(
                     "Internal Server Error: '{}'; input: {}",
                     err,
-                    hex::encode(&hash)
+                    hex::encode(hash)
                 );
                 InternalError::from_response(err, HttpResponse::InternalServerError().finish())
             })?;
@@ -404,7 +404,7 @@ impl ApiV01 {
                 vlog::warn!(
                     "Internal Server Error: '{}'; input({})",
                     err,
-                    hex::encode(&hash)
+                    hex::encode(hash)
                 );
                 InternalError::from_response(err, HttpResponse::InternalServerError().finish())
             })?;

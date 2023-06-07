@@ -1,52 +1,67 @@
-name: ri-aggregation CI unit tests
-on:
-  push:
-    branches:
-    - rsk_merge_master_Dec2021
-    #- rsk_port_initial
+name: rif-rollup CI unit/integration tests
+on: 
+  pull_request:
+    types: [ready_for_review]
   
 jobs:
-  unit-tests:
+  unit-integration-tests:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: rsk_merge_master_Dec2021
-        
-      - name: start-services
+
+      - name: install mkcert
         run: |
-          docker-compose -f docker-compose-runner.yml down
-          docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk 
-          ci_run sccache --start-server &
-              
+          wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.3/mkcert-v1.4.3-linux-amd64
+          chmod +x ./mkcert*
+          cp ./mkcert* bin/mkcert
+
       - name: setup-env
         run: |
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
-      
+
+      - name: start-services
+        run: |
+          docker-compose -f docker-compose-runner.yml down
+          docker-compose -f docker-compose-runner.yml pull
+          docker-compose -f docker-compose-runner.yml -f docker-compose-runner.unit-tests.yml up --build -d rskj postgres zk 
+          ci_run sccache --start-server &
+            
+      - name: generate SSL certificates
+        run: |
+          ci_run mkcert -CAROOT
+          ci_run mkcert --install
+          ci_run mkcert 127.0.0.1 localhost
+          ci_run mv 127.0.0.1+1-key.pem key.pem
+          ci_run mv 127.0.0.1+1.pem cert.pem
+
       - name: init
         run: |
           ci_run ln -s /usr/src/keys/setup keys/setup
           ci_run zk
+          ci_run zk run yarn
           ci_run zk run verify-keys unpack
           ci_run zk contract build
-          ci_run zk db basic-setup
-          ci_run zk run yarn
-
-      - name: deploy contracts
-        run: |
           ci_run zk run deploy-erc20 dev
           ci_run zk run deploy-eip1271
+          ci_run zk db basic-setup
 
       - name: restart dev-liquidity-token-watcher and dev-ticker
         run: docker-compose -f docker-compose-runner.yml restart dev-liquidity-token-watcher dev-ticker
 
+      - name: js-unit-tests
+        run: ci_run zk test js
+
       - name: contracts-unit-tests
         run: ci_run zk test contracts
 
-      - name: js-unit-tests
-        run: ci_run zk test js
+      - name: prover-unit-tests
+        run: ci_run zk test prover
+
+      - name: witness-generator-unit-tests
+        run: ci_run zk test witness-generator
 
       - name: server-rust-unit-tests
         run: ci_run zk test server-rust
@@ -57,4 +72,47 @@ jobs:
       - name: rust-api-unit-tests
         run: ci_run zk test rust-api
 
+      - name: start-services (rskj, postgres, zk)
+        run: |
+          docker-compose -f docker-compose-runner.yml down
+          docker-compose -f docker-compose-runner.yml pull
+          docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk 
+          ci_run sccache --start-server &
 
+      - name: run zk init
+        run: |
+          sed -i '/plonkSetup/d' infrastructure/zk/src/init.ts
+          ci_run zk
+          ci_run zk init
+
+      - name: restart dev-liquidity-token-watcher and dev-ticker
+        run: docker-compose -f docker-compose-runner.yml restart dev-liquidity-token-watcher dev-ticker
+
+      - name: run-services
+        run: |
+          ci_run zk server core &>server.log &
+          ci_run zk server api &>api.log &
+          ci_run sleep 10
+          ci_run zk dummy-prover run &>dummy_prover.log &
+          ci_run sleep 100
+
+      - name: server-integration-tests
+        run: ci_run zk test i server
+
+      - name: api-integration-tests
+        run: |
+          ci_run zk test i api
+          ci_run zk test i api-docs
+
+      - name: rust-sdk-integration-tests
+        run: ci_run zk test i rust-sdk
+
+      - name: withdrawal-helpers-integration-tests
+        run: ci_run zk test i withdrawal-helpers
+
+      - name: Show logs
+        if: always()
+        run: |
+          ci_run cat server.log
+          ci_run cat api.log
+          ci_run cat dummy_prover.log

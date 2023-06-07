@@ -174,8 +174,8 @@ async fn handle_coingecko_token_price_query(
 }
 
 fn main_scope(sloppy_mode: bool) -> actix_web::Scope {
-    let localhost_tokens = load_tokens(&"etc/tokens/localhost.json");
-    let testnet_tokens = load_tokens(&"etc/tokens/testnet.json");
+    let localhost_tokens = load_tokens("etc/tokens/localhost.json");
+    let testnet_tokens = load_tokens("etc/tokens/testnet.json");
     let data: Vec<TokenData> = localhost_tokens
         .into_iter()
         .chain(testnet_tokens.into_iter())

@@ -1,12 +1,6 @@
-name: CI
+# name: CI
 
-on:
-  pull_request:
-  push:
-    branches:
-    - rsk_merge_master_Dec2021
-
-jobs:
+# jobs:
   # lint:
   #   runs-on:  ubuntu-latest
 

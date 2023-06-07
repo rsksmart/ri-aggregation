@@ -42,8 +42,7 @@ impl From<DbForcedExitRequest> for ForcedExitRequest {
         let price_in_wei = val
             .price_in_wei
             .to_bigint()
-            .map(|int| int.to_biguint())
-            .flatten()
+            .and_then(|int| int.to_biguint())
             // The fact that the request was found, but could not be convert into the ForcedExitRequest
             // means that invalid data is stored in the DB
             .expect("Invalid forced exit request has been stored");

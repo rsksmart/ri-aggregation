@@ -205,7 +205,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
                 operation.batch_id,
             )
             .fetch_optional(transaction.conn())
-            .await?.map(|a| a.sequence_number).flatten()
+            .await?.and_then(|a| a.sequence_number)
         } else {
             // If transaction failed, we do nothing on conflict.
             sqlx::query!(
@@ -232,7 +232,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
                 operation.batch_id,
             )
             .fetch_optional(transaction.conn())
-            .await?.map(|a| a.sequence_number).flatten()
+            .await?.and_then(|a| a.sequence_number)
         };
         if let Some(seq_no) = sequence_number {
             let mut addresses = Vec::new();
@@ -348,7 +348,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
             operation.tx_hash,
         )
         .fetch_optional(transaction.conn())
-        .await?.map(|a| a.sequence_number).flatten();
+        .await?.and_then(|a| a.sequence_number);
 
         let mut tokens = Vec::new();
         tokens.resize(operation.affected_accounts.len(), operation.token);

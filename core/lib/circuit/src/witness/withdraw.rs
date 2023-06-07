@@ -62,7 +62,7 @@ impl Witness for WithdrawWitness<Bn256> {
         let withdraw_data = WithdrawData {
             amount: withdraw.tx.amount.to_u128().unwrap(),
             fee: withdraw.tx.fee.to_u128().unwrap(),
-            token: *withdraw.tx.token as u32,
+            token: *withdraw.tx.token,
             account_address: *withdraw.account_id,
             eth_address: eth_address_to_fr(&withdraw.tx.to),
             valid_from,
@@ -121,7 +121,7 @@ impl Witness for WithdrawWitness<Bn256> {
         let pubdata_chunks: Vec<_> = self
             .get_pubdata()
             .chunks(CHUNK_BIT_WIDTH)
-            .map(|x| le_bit_vector_into_field_element(&x.to_vec()))
+            .map(le_bit_vector_into_field_element)
             .collect();
 
         let operation_zero = Operation {

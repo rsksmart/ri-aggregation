@@ -53,7 +53,7 @@ impl Witness for DepositWitness<Bn256> {
     fn apply_tx(tree: &mut CircuitAccountTree, deposit: &DepositOp) -> Self {
         let deposit_data = DepositData {
             amount: deposit.priority_op.amount.to_string().parse().unwrap(),
-            token: *deposit.priority_op.token as u32,
+            token: *deposit.priority_op.token,
             account_address: *deposit.account_id,
             address: eth_address_to_fr(&deposit.priority_op.to),
         };
@@ -108,7 +108,7 @@ impl Witness for DepositWitness<Bn256> {
         let pubdata_chunks: Vec<_> = self
             .get_pubdata()
             .chunks(CHUNK_BIT_WIDTH)
-            .map(|x| le_bit_vector_into_field_element(&x.to_vec()))
+            .map(le_bit_vector_into_field_element)
             .collect();
 
         vlog::debug!(

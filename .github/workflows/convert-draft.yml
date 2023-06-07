@@ -1,0 +1,17 @@
+name: rif-rollup Mark as draft
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs: 
+  mark-as-draft:
+    if: github.event.review.state == 'changes_requested'
+    name: Mark as draft
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v3
+      - name: Mark as draft
+        uses: ./.github/actions/draft-pr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
