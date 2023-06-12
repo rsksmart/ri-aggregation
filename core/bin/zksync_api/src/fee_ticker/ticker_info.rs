@@ -192,9 +192,9 @@ impl FeeTickerInfo for TickerInfo {
             }
         };
 
-        // TODO: remove hardcode for Matter Labs Trial Token (ZKS-63).
-        if token.symbol == "MLTT" {
-            metrics::histogram!("ticker_info.get_last_token_price", start.elapsed(), "type" => "MLTT");
+        // TODO: remove hardcode for RDOC token
+        if token.symbol == "RDOC" {
+            metrics::histogram!("ticker_info.get_last_token_price", start.elapsed(), "type" => "RDOC");
             return Ok(TokenPrice {
                 usd_price: Ratio::from_integer(1u32.into()),
                 last_updated: Utc::now(),
@@ -284,5 +284,77 @@ impl TickerInfo {
 
         metrics::histogram!("ticker.get_historical_ticker_price", start.elapsed());
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use bigdecimal::ToPrimitive;
+    use zksync_types::{Address, Token, TokenId, TokenKind, TokenPrice};
+
+    #[tokio::test]
+    async fn should_return_one_for_rdoc() {
+        const RDOC_SYMBOL: &str = "RDOC";
+        const RDOC_VALUE: u32 = 1;
+
+        let rdoc_token_like = TokenLike::Symbol(String::from(RDOC_SYMBOL));
+
+        let connection_pool = ConnectionPool::new(Some(1));
+        let ticker_api = TickerInfo::new(connection_pool);
+
+        let actual_qoute = FeeTickerInfo::get_last_token_price(&ticker_api, rdoc_token_like)
+            .await
+            .unwrap();
+
+        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), RDOC_VALUE);
+    }
+
+    #[tokio::test]
+    async fn should_return_value_from_cache() {
+        const TEST_TOKEN_SYMBOL: &str = "TEST";
+        const TEST_TOKEN_VALUE: u32 = 5;
+
+        let test_token_like = TokenLike::Symbol(String::from(TEST_TOKEN_SYMBOL));
+
+        let connection_pool = ConnectionPool::new(Some(1));
+
+        {
+            let mut storage = connection_pool.access_storage().await.unwrap();
+
+            let test_token = Token {
+                id: TokenId(10000),
+                address: Address::random(),
+                symbol: String::from(TEST_TOKEN_SYMBOL),
+                decimals: 18,
+                kind: TokenKind::ERC20,
+                is_nft: false,
+            };
+
+            storage
+                .tokens_schema()
+                .store_or_update_token(test_token.clone())
+                .await
+                .expect("Store tokens query failed");
+
+            let test_token_price = TokenPrice {
+                usd_price: Ratio::from_integer(TEST_TOKEN_VALUE.into()),
+                last_updated: Utc::now(),
+            };
+
+            storage
+                .tokens_schema()
+                .update_historical_ticker_price(test_token.id, test_token_price)
+                .await
+                .expect("Update token price query failed");
+        }
+
+        let ticker_api = TickerInfo::new(connection_pool);
+
+        let actual_qoute = FeeTickerInfo::get_last_token_price(&ticker_api, test_token_like)
+            .await
+            .unwrap();
+
+        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), TEST_TOKEN_VALUE);
     }
 }
