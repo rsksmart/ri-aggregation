@@ -7,7 +7,7 @@ use sha2::{Digest, Sha256};
 use zksync_crypto::bellman::{pairing::ff::PrimeField, PrimeFieldRepr};
 use zksync_crypto::franklin_crypto::alt_babyjubjub::fs::FsRepr;
 use zksync_crypto::{priv_key_from_fs, Fs, PrivateKey};
-use zksync_eth_signer::EthereumSigner;
+use zksync_eth_signer::RootstockSigner;
 use zksync_types::{AccountId, U256};
 
 use crate::{error::ClientError, provider::Provider, wallet::Wallet};
@@ -61,7 +61,7 @@ pub async fn wait_for_account_id<S, P>(
     timeout_ms: u64,
 ) -> Option<AccountId>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let timeout = Duration::from_millis(timeout_ms);

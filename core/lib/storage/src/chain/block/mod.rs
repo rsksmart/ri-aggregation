@@ -512,7 +512,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
     }
 
     /// Performs a database search with an uncertain query, which can be either of:
-    /// - Hash of commit/verify Ethereum transaction for the block.
+    /// - Hash of commit/verify Rootstock transaction for the block.
     /// - The state root hash of the block.
     /// - The number of the block.
     ///
@@ -656,7 +656,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
         Ok(result)
     }
 
-    /// Returns the number of last block which commit is confirmed on Ethereum.
+    /// Returns the number of last block which commit is confirmed on Rootstock.
     pub async fn get_last_committed_confirmed_block(&mut self) -> QueryResult<BlockNumber> {
         let start = Instant::now();
         let result = OperationsSchema(self.0)
@@ -672,7 +672,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
     /// Returns the number of last block for which proof has been created.
     ///
     /// Note: having a proof for the block doesn't mean that state was updated. Chain state
-    /// is updated only after corresponding transaction is confirmed on the Ethereum blockchain.
+    /// is updated only after corresponding transaction is confirmed on the Rootstock blockchain.
     /// In order to see the last block with updated state, use `get_last_verified_confirmed_block` method.
     pub async fn get_last_verified_block(&mut self) -> QueryResult<BlockNumber> {
         let start = Instant::now();
@@ -683,7 +683,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
         result
     }
 
-    /// Returns the number of last block for which proof has been confirmed on Ethereum.
+    /// Returns the number of last block for which proof has been confirmed on Rootstock.
     pub async fn get_last_proven_confirmed_block(&mut self) -> QueryResult<BlockNumber> {
         let start = Instant::now();
         let result = OperationsSchema(self.0)
@@ -699,7 +699,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
         result
     }
 
-    /// Returns the number of last block for which executed operations has been confirmed on Ethereum .
+    /// Returns the number of last block for which executed operations has been confirmed on Rootstock .
     /// Essentially, it's number of last block for which updates were applied to the chain state.
     pub async fn get_last_verified_confirmed_block(&mut self) -> QueryResult<BlockNumber> {
         let start = Instant::now();

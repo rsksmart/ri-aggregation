@@ -118,7 +118,7 @@ mod test {
     "data": {
         "ETH": {
             "id": 1027,
-            "name": "Ethereum",
+            "name": "Rootstock",
             "symbol": "ETH",
             "slug": "ethereum",
             "num_market_pairs": 5153,

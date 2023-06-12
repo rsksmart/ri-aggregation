@@ -21,7 +21,7 @@ use crate::{
         operations::OperationsSchema,
         state::StateSchema,
     },
-    ethereum::EthereumSchema,
+    ethereum::RootstockSchema,
     test_data::{
         dummy_ethereum_tx_hash, dummy_root_hash_for_block, gen_acc_random_updates,
         gen_sample_block, gen_sample_incomplete_block, gen_sample_pending_block,
@@ -214,8 +214,8 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
 
     let mut rng = create_rng();
 
-    // Required since we use `EthereumSchema` in this test.
-    EthereumSchema(&mut storage).initialize_eth_data().await?;
+    // Required since we use `RootstockSchema` in this test.
+    RootstockSchema(&mut storage).initialize_eth_data().await?;
 
     let mut accounts_map = AccountMap::default();
     let n_committed = 5u32;
@@ -269,7 +269,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
         // commit/verify hashes.
         let eth_tx_hash = dummy_ethereum_tx_hash(id);
 
-        let response = EthereumSchema(&mut storage)
+        let response = RootstockSchema(&mut storage)
             .save_new_eth_tx(
                 AggregatedActionType::CommitBlocks,
                 Some((id, op)),
@@ -279,10 +279,10 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
             )
             .await?;
 
-        EthereumSchema(&mut storage)
+        RootstockSchema(&mut storage)
             .add_hash_entry(response.id, &eth_tx_hash)
             .await?;
-        EthereumSchema(&mut storage)
+        RootstockSchema(&mut storage)
             .confirm_eth_tx(&eth_tx_hash)
             .await?;
 
@@ -312,7 +312,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
 
             // Do not add an ethereum confirmation for the last operation.
             if *block_number != n_verified {
-                let response = EthereumSchema(&mut storage)
+                let response = RootstockSchema(&mut storage)
                     .save_new_eth_tx(
                         AggregatedActionType::CreateProofBlocks,
                         Some((id, op)),
@@ -321,10 +321,10 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
                         Default::default(),
                     )
                     .await?;
-                EthereumSchema(&mut storage)
+                RootstockSchema(&mut storage)
                     .add_hash_entry(response.id, &eth_tx_hash)
                     .await?;
-                EthereumSchema(&mut storage)
+                RootstockSchema(&mut storage)
                     .confirm_eth_tx(&eth_tx_hash)
                     .await?;
                 current_block_detail.verify_tx_hash = Some(eth_tx_hash.as_ref().to_vec());
@@ -438,8 +438,8 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
 
     let mut rng = create_rng();
 
-    // Required since we use `EthereumSchema` in this test.
-    EthereumSchema(&mut storage).initialize_eth_data().await?;
+    // Required since we use `RootstockSchema` in this test.
+    RootstockSchema(&mut storage).initialize_eth_data().await?;
 
     let mut accounts_map = AccountMap::default();
     let n_committed = 5;
@@ -477,7 +477,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
         // Store & confirm the operation in the ethereum schema, as it's used for obtaining
         // commit/verify hashes.
         let eth_tx_hash = dummy_ethereum_tx_hash(id);
-        let response = EthereumSchema(&mut storage)
+        let response = RootstockSchema(&mut storage)
             .save_new_eth_tx(
                 AggregatedActionType::CommitBlocks,
                 Some((id, op)),
@@ -486,10 +486,10 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
                 Default::default(),
             )
             .await?;
-        EthereumSchema(&mut storage)
+        RootstockSchema(&mut storage)
             .add_hash_entry(response.id, &eth_tx_hash)
             .await?;
-        EthereumSchema(&mut storage)
+        RootstockSchema(&mut storage)
             .confirm_eth_tx(&eth_tx_hash)
             .await?;
 
@@ -510,7 +510,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
                 .await?
                 .unwrap();
             let eth_tx_hash = dummy_ethereum_tx_hash(id);
-            let response = EthereumSchema(&mut storage)
+            let response = RootstockSchema(&mut storage)
                 .save_new_eth_tx(
                     AggregatedActionType::ExecuteBlocks,
                     Some((id, op)),
@@ -519,10 +519,10 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
                     Default::default(),
                 )
                 .await?;
-            EthereumSchema(&mut storage)
+            RootstockSchema(&mut storage)
                 .add_hash_entry(response.id, &eth_tx_hash)
                 .await?;
-            EthereumSchema(&mut storage)
+            RootstockSchema(&mut storage)
                 .confirm_eth_tx(&eth_tx_hash)
                 .await?;
         }
@@ -571,8 +571,8 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
 
     let mut rng = create_rng();
 
-    // Required since we use `EthereumSchema` in this test.
-    EthereumSchema(&mut storage).initialize_eth_data().await?;
+    // Required since we use `RootstockSchema` in this test.
+    RootstockSchema(&mut storage).initialize_eth_data().await?;
 
     let mut accounts_map = AccountMap::default();
 
@@ -612,7 +612,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
         // Store & confirm the operation in the ethereum schema, as it's used for obtaining
         // commit/verify hashes.
         let eth_tx_hash = dummy_ethereum_tx_hash(id);
-        let response = EthereumSchema(&mut storage)
+        let response = RootstockSchema(&mut storage)
             .save_new_eth_tx(
                 AggregatedActionType::CommitBlocks,
                 Some((id, op)),
@@ -621,12 +621,12 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
                 Default::default(),
             )
             .await?;
-        EthereumSchema(&mut storage)
+        RootstockSchema(&mut storage)
             .add_hash_entry(response.id, &eth_tx_hash)
             .await?;
 
         if *block_number <= n_commited_confirmed {
-            EthereumSchema(&mut storage)
+            RootstockSchema(&mut storage)
                 .confirm_eth_tx(&eth_tx_hash)
                 .await?;
         }
@@ -649,7 +649,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
                 .unwrap();
 
             let eth_tx_hash = dummy_ethereum_tx_hash(id);
-            let response = EthereumSchema(&mut storage)
+            let response = RootstockSchema(&mut storage)
                 .save_new_eth_tx(
                     AggregatedActionType::ExecuteBlocks,
                     Some((id, op)),
@@ -658,10 +658,10 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
                     Default::default(),
                 )
                 .await?;
-            EthereumSchema(&mut storage)
+            RootstockSchema(&mut storage)
                 .add_hash_entry(response.id, &eth_tx_hash)
                 .await?;
-            EthereumSchema(&mut storage)
+            RootstockSchema(&mut storage)
                 .confirm_eth_tx(&eth_tx_hash)
                 .await?;
         }

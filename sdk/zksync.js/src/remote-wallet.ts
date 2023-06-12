@@ -166,7 +166,7 @@ export class RemoteWallet extends AbstractWallet {
 
     // Withdraw part
 
-    override async signWithdrawFromSyncToEthereum(withdraw: {
+    override async signWithdrawFromSyncToRootstock(withdraw: {
         ethAddress: string;
         token: TokenLike;
         amount: BigNumberish;
@@ -179,7 +179,7 @@ export class RemoteWallet extends AbstractWallet {
         return signed[0];
     }
 
-    override async withdrawFromSyncToEthereum(withdraw: {
+    override async withdrawFromSyncToRootstock(withdraw: {
         ethAddress: string;
         token: TokenLike;
         amount: BigNumberish;
@@ -190,7 +190,7 @@ export class RemoteWallet extends AbstractWallet {
         validUntil?: number;
     }): Promise<Transaction> {
         const fastProcessing = withdraw.fastProcessing;
-        const signed = await this.signWithdrawFromSyncToEthereum(withdraw as any);
+        const signed = await this.signWithdrawFromSyncToRootstock(withdraw as any);
         return submitSignedTransaction(signed, this.provider, fastProcessing);
     }
 

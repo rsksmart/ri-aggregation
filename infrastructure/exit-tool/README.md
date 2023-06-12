@@ -7,7 +7,7 @@ This tool is capable of generating input data for exit transaction for zkSync ex
 - `Docker` and `docker-compose`.
 - 20+ GB of free space. In order to create an exit proof, the universal cryptographical setup must be downloaded (~8GB),
   and besides that there should be enough space to fit the whole zkSync chain.
-- Access to the Web3 API (e.g. provided by Ethereum node or Infura) in order to gather data from Ethereum blockchain.
+- Access to the Web3 API (e.g. provided by Rootstock node or Infura) in order to gather data from Rootstock blockchain.
 
 ## Mechanics
 
@@ -15,7 +15,7 @@ In order to create exit proof, the following steps must be done:
 
 - Download the universal cryptographical setup.
 - Initialize PostgreSQL database to store zkSync network data (blocks, transactions, etc).
-- Restore the network state from the smart contract on Ethereum.
+- Restore the network state from the smart contract on Rootstock.
 - Generate proof for user's exit balance.
 
 This tool handles these steps as follows:
@@ -46,7 +46,7 @@ After that, you can launch the utility:
 
 where:
 
-- NETWORK: Ethereum network to use. Must be one of `rinkeby`, `ropsten` or `mainnet`.
+- NETWORK: Rootstock network to use. Must be one of `rinkeby`, `ropsten` or `mainnet`. FIXME: deprecated on RSK
 - ACCOUNT_ADDRESS: Address of the target account. **Note:** address **should not** start with `0x` prefix.
 - TOKEN: Token to be withdrawn. Must be either numerical token ID or ERC-20 token address.
 - WEB3_ADDR: Address of the Web3 HTTP API.
@@ -57,14 +57,14 @@ Example:
 ./exit-tool.sh run rinkeby 3b48b21a2f4910c04c04de00a23f7c07bf3cb04f 0 http://127.0.0.1:8545
 ```
 
-In this example, we use Rinkeby Ethereum testnet, generate a proof for account with address
+FIXME: deprecated on RSK In this example, we use Rinkeby Ethereum testnet, generate a proof for account with address
 0x3b48b21a2f4910c04c04de00a23f7c07bf3cb04f and token with ID 0 (Ether), and use the API located at
 `http://127.0.0.1:4444`
 
 If during the process you encounter any error with the database, you should reset the database and run the
 `./exit-tool init` again.
 
-**Note:** Synchronizing the state will scan a big part of Ethereum blockchain, and that's a lot of work to do. It may
+**Note:** Synchronizing the state will scan a big part of Rootstock blockchain, and that's a lot of work to do. It may
 take hours or even days to complete, depending on the size of zkSync blockchain.
 
 However, if the synchronization process was interrupted, it is possible to resume a previously started data restore:

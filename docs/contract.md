@@ -112,9 +112,9 @@ it will be stored in the mapping (operation type and expiration block) strictly 
 - `serialId` - serial id of this priority request
 - `opType` - operation type
 - `pubData` - request data
-- `expirationBlock` - the number of Ethereum block when request becomes expired `expirationBlock` is calculated as
+- `expirationBlock` - the number of Rootstock block when request becomes expired `expirationBlock` is calculated as
   follows: `expirationBlock = block.number + 250` - about 1 hour for the transaction to expire, `block.number` - current
-  Ethereum block number.
+  Rootstock block number.
 
 When corresponding transactions are found in the commited block, their count must be recorded. If the block is verified,
 this count of the satisfied **priority requests** is removed from mapping.

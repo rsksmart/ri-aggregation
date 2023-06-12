@@ -106,7 +106,7 @@ impl ZkSyncPriorityOp {
         accounts
     }
 
-    /// Parses legacy priority operation from the Ethereum logs.
+    /// Parses legacy priority operation from the Rootstock logs.
     pub fn legacy_parse_from_priority_queue_logs(
         pub_data: &[u8],
         op_type_id: u8,
@@ -225,7 +225,7 @@ impl ZkSyncPriorityOp {
         }
     }
 
-    /// Parses priority operation from the Ethereum logs.
+    /// Parses priority operation from the Rootstock logs.
     pub fn parse_from_priority_queue_logs(
         pub_data: &[u8],
         op_type_id: u8,
@@ -392,14 +392,14 @@ pub struct PriorityOp {
     pub serial_id: SerialId,
     /// Priority operation.
     pub data: ZkSyncPriorityOp,
-    /// Ethereum deadline block until which operation must be processed.
+    /// Rootstock deadline block until which operation must be processed.
     pub deadline_block: u64,
     #[serde(with = "h256_as_vec")]
-    /// Hash of the corresponding Ethereum transaction. Size should be 32 bytes
+    /// Hash of the corresponding Rootstock transaction. Size should be 32 bytes
     pub eth_hash: H256,
-    /// Block in which Ethereum transaction was included.
+    /// Block in which Rootstock transaction was included.
     pub eth_block: u64,
-    /// Transaction index in Ethereum block.
+    /// Transaction index in Rootstock block.
     /// This field must be optional because of backward compatibility.
     pub eth_block_index: Option<u64>,
 }

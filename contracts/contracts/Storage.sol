@@ -117,7 +117,7 @@ contract Storage {
     /// @member blockNumber Rollup block number
     /// @member priorityOperations Number of priority operations processed
     /// @member pendingOnchainOperationsHash Hash of all operations that must be processed after verify
-    /// @member timestamp Rollup block timestamp, have the same format as Ethereum block constant
+    /// @member timestamp Rollup block timestamp, have the same format as Rootstock block constant
     /// @member stateHash Root hash of the rollup state
     /// @member commitment Verified input for the zkSync circuit
     struct StoredBlockInfo {

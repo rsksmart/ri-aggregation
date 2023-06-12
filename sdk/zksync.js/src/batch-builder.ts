@@ -52,7 +52,7 @@ export class BatchBuilder {
 
     /**
      * Construct the batch from the given transactions.
-     * Returs it with the corresponding Ethereum signature and total fee.
+     * Returns it with the correspondingRootstockm signature and total fee.
      * @param feeToken If provided, the fee for the whole batch will be obtained from the server in this token.
      * Possibly creates phantom transfer.
      */

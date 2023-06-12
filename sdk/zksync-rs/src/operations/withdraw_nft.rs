@@ -1,6 +1,6 @@
 use num::BigUint;
 use zksync_crypto::params::MIN_NFT_TOKEN_ID;
-use zksync_eth_signer::EthereumSigner;
+use zksync_eth_signer::RootstockSigner;
 use zksync_types::{
     helpers::{closest_packable_fee_amount, is_fee_amount_packable},
     tx::{PackedEthSignature, TimeRange},
@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct WithdrawNFTBuilder<'a, S: EthereumSigner, P: Provider> {
+pub struct WithdrawNFTBuilder<'a, S: RootstockSigner, P: Provider> {
     wallet: &'a Wallet<S, P>,
     to: Option<Address>,
     token: Option<TokenId>,
@@ -25,7 +25,7 @@ pub struct WithdrawNFTBuilder<'a, S: EthereumSigner, P: Provider> {
 
 impl<'a, S, P> WithdrawNFTBuilder<'a, S, P>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     /// Initializes a withdraw transaction building process.
@@ -154,7 +154,7 @@ where
         Ok(self)
     }
 
-    /// Sets the address of Ethereum wallet to withdraw nft to.
+    /// Sets the address of Rootstock wallet to withdraw nft to.
     pub fn to(mut self, to: Address) -> Self {
         self.to = Some(to);
         self

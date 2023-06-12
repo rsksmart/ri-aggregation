@@ -8,10 +8,10 @@ where
     continue          continue the interrupted data restoring process
 
 If command is "run" or "continue", the following additional arguments are required:
-    network           Ethereum network (rinkeby / ropsten / mainnet)
+    network           Rootstock network (testnet / mainnet)
     account address   Address of the account to generate exit proof for
     token             Token for which proof will be generated (may be numeric token ID, address or symbol, e.g. ETH)
-    web3 url          Address of the HTTP Web3 API, which will be used to gather data from Ethereum.
+    web3 url          Address of the HTTP Web3 API, which will be used to gather data from Rootstock.
 
 Example workflow:
 

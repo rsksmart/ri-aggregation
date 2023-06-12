@@ -54,14 +54,14 @@ pub enum StorageUpdateState {
 pub struct DataRestoreDriver<T: Transport> {
     /// Web3 provider endpoint
     pub web3: Web3<T>,
-    /// Provides Ethereum Governance contract interface
+    /// Provides Rootstock Governance contract interface
     pub governance_contract: (ethabi::Contract, Contract<T>),
-    /// Ethereum blocks that include correct UpgradeComplete events.
+    /// Rootstock blocks that include correct UpgradeComplete events.
     /// Should be provided via config.
     pub contract_upgrade_eth_blocks: Vec<u64>,
     /// The initial version of the deployed zkSync contract.
     pub init_contract_version: u32,
-    /// Provides Ethereum Rollup contract interface
+    /// Provides Rootstock Rollup contract interface
     pub zksync_contract: ZkSyncDeployedContract<T>,
     /// Rollup contract events state
     pub events_state: EventsState,
@@ -90,7 +90,7 @@ impl<T: Transport> DataRestoreDriver<T> {
     ///
     /// * `web3_transport` - Web3 provider transport
     /// * `governance_contract_eth_addr` - Governance contract address
-    /// * `upgrade_eth_blocks` - Ethereum blocks that include correct UpgradeComplete events
+    /// * `upgrade_eth_blocks` - Rootstock blocks that include correct UpgradeComplete events
     /// * `init_contract_version` - The initial version of the deployed zkSync contract
     /// * `eth_blocks_step` - The step distance of viewing events in the ethereum blocks
     /// * `end_eth_blocks_offset` - The distance to the last ethereum block
@@ -361,7 +361,7 @@ impl<T: Transport> DataRestoreDriver<T> {
 
                     let last_verified_block = self.tree_state.block_number;
 
-                    // We must update the Ethereum stats table to match the actual stored state
+                    // We must update the Rootstock stats table to match the actual stored state
                     // to keep the `state_keeper` consistent with the `eth_sender`.
                     transaction.update_eth_state().await;
 
@@ -480,7 +480,7 @@ impl<T: Transport> DataRestoreDriver<T> {
                 .await;
         }
 
-        // Store priority operations Ethereum metadata in the database.
+        // Store priority operations Rootstock metadata in the database.
         // It may both happen that there's no priority operation for the given
         // `NewPriorityRequest` log and vice versa.
         // For this reason `apply_priority_op_data` returns serial ids for logs
@@ -527,7 +527,7 @@ impl<T: Transport> DataRestoreDriver<T> {
         // It is used as a cache to reuse the fetched data.
         let mut last_tx_blocks = HashMap::new();
 
-        // TODO (ZKS-722): either due to Ethereum node lag or unknown
+        // TODO (ZKS-722): either due to Rootstock node lag or unknown
         // bug in the events state, we have to additionally filter out
         // already processed rollup blocks.
         let mut last_processed_block = self.tree_state.block_number;

@@ -2,16 +2,16 @@ use crate::{error::ClientError, utils::private_key_from_seed};
 
 use web3::types::{Address, H256};
 use zksync_crypto::PrivateKey;
-use zksync_eth_signer::{EthereumSigner, PrivateKeySigner};
+use zksync_eth_signer::{PrivateKeySigner, RootstockSigner};
 use zksync_types::{network::Network, tx::TxEthSignature};
 
-pub struct WalletCredentials<S: EthereumSigner> {
+pub struct WalletCredentials<S: RootstockSigner> {
     pub(crate) eth_signer: Option<S>,
     pub(crate) eth_address: Address,
     pub(crate) zksync_private_key: PrivateKey,
 }
 
-impl<S: EthereumSigner> std::fmt::Debug for WalletCredentials<S> {
+impl<S: RootstockSigner> std::fmt::Debug for WalletCredentials<S> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("WalletCredentials")
             .field("eth_address", &self.eth_address)
@@ -19,12 +19,12 @@ impl<S: EthereumSigner> std::fmt::Debug for WalletCredentials<S> {
     }
 }
 
-impl<S: EthereumSigner> WalletCredentials<S> {
-    /// Creates wallet credentials from the provided Ethereum signer.
+impl<S: RootstockSigner> WalletCredentials<S> {
+    /// Creates wallet credentials from the provided Rootstock signer.
     ///
     /// ## Arguments
     ///
-    /// - `eth_address`: Address of the corresponding Ethereum wallet.
+    /// - `eth_address`: Address of the corresponding Rootstock wallet.
     /// - `eth_signer`: Abstract signer that signs messages and transactions.
     /// - `network`: Network this wallet is used on.
     pub async fn from_eth_signer(
@@ -77,13 +77,13 @@ impl<S: EthereumSigner> WalletCredentials<S> {
     }
 
     /// Creates wallet credentials from the provided seed.
-    /// zkSync private key will be randomly generated and Ethereum signer will not be set.
+    /// zkSync private key will be randomly generated and Rootstock signer will not be set.
     /// Wallet created with such credentials won't be capable of performing on-chain operations,
     /// such as deposits and full exits.
     ///
     /// ## Arguments
     ///
-    /// - `eth_address`: Address of the corresponding Ethereum wallet.
+    /// - `eth_address`: Address of the corresponding Rootstock wallet.
     /// - `seed`: A random bytearray to generate private key from. Must be at least 32 bytes long.
     pub fn from_seed(eth_address: Address, seed: &[u8]) -> Result<Self, ClientError> {
         let zksync_pk = private_key_from_seed(seed)?;
@@ -99,9 +99,9 @@ impl<S: EthereumSigner> WalletCredentials<S> {
     ///
     /// ## Arguments
     ///
-    /// - `eth_address`: Address of the corresponding Ethereum wallet.
+    /// - `eth_address`: Address of the corresponding Rootstock wallet.
     /// - `private_key`: Private key of a zkSync account.
-    /// - `eth_private_key`: Private key of a corresponding Ethereum wallet. If not set, on-chain operations won't be allowed for Wallet.
+    /// - `eth_private_key`: Private key of a corresponding Rootstock wallet. If not set, on-chain operations won't be allowed for Wallet.
     pub fn from_pk(
         eth_address: Address,
         private_key: PrivateKey,

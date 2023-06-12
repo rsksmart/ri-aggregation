@@ -52,7 +52,7 @@
 
 ## Glossary
 
-- **L1**: layer-1 blockchain (Ethereum)
+- **L1**: layer-1 blockchain (Rootstock)
 - **Rollup**: layer-2 blockchain (zkSync)
 - **Owner**: a user who controls some assets in L2.
 - **Operator**: entity operating the Rollup.
@@ -125,10 +125,10 @@ This includes, in particular, the following claims:
 |TokenId|2|BE integer|Incremented number of tokens in Rollup, max value is 65535|
 |PackedTxAmount|5|[Parameters](#amount-packing)|Packed transactions amounts are represented with 40 bit (5 byte) values, encoded as mantissa × 10^exponent where mantissa is represented with 35 bits, exponent is represented with 5 bits. This gives a range from 0 to 34359738368 × 10^31, providing 10 full decimal digit precision.|
 |PackedFee|2|[Parameters](#amount-packing)|Packed fees must be represented with 2 bytes: 5 bit for exponent, 11 bit for mantissa.|
-|StateAmount|16|BE integer|State amount is represented as uint128 with a range from 0 to ~3.4 × 10^38. It allows to represent up to 3.4 × 10^20 "units" if standard Ethereum's 18 decimal symbols are used. This should be a sufficient range.|
+|StateAmount|16|BE integer|State amount is represented as uint128 with a range from 0 to ~3.4 × 10^38. It allows to represent up to 3.4 × 10^20 "units" if standard Rootstock's 18 decimal symbols are used. This should be a sufficient range.|
 |Nonce|4|BE integer|Nonce is the total number of executed transactions of the account. In order to apply the update of this state, it is necessary to indicate the current account nonce in the corresponding transaction, after which it will be automatically incremented. If you specify the wrong nonce, the changes will not occur.|
 |RollupPubkeyHash|20|LE integer|To make a public key hash from a Rollup public key apply [Rescue hash function](#rescue-hash) to the `[x,y]` points of the key and then take the last 20 bytes of the result.|
-|EthAddress|20|LE integer|To make an Ethereum address from the Etherum's public key, all we need to do is to apply Keccak-256 hash function to the key and then take the last 20 bytes of the result.|
+|EthAddress|20|LE integer|To make an Rootstock address from the Etherum's public key, all we need to do is to apply Keccak-256 hash function to the key and then take the last 20 bytes of the result.|
 |PackedRollupPubkey|32|LE integer|A Rollup public key is the first 32 bytes of a Rollup public key |
 |TxHash|32|LE integer|To get hash for transaction apply [SHA256 function](#sha256) to concatenated bytes of [transaction fields](#zk-sync-operations)|
 |Signature|64|LE integer|Read [transaction signature](#transaction-signature)|
@@ -212,7 +212,7 @@ will be filled with empty [Noop](#1-noop-operation) operations.
 ## zkSync operations
 
 zkSync operations are divided into Rollup transactions (initiated inside Rollup by a Rollup account) and Priority
-operations (initiated on the mainchain by an Ethereum account).
+operations (initiated on the mainchain by an Rootstock account).
 
 Rollup transactions:
 
@@ -439,7 +439,7 @@ Signed bytes: 0xfa010000080d1f04204dba8e9e8bf90f5889fe4bdc0f37265dbb05e3066450df
 ```python
 # TransferOp - Rollup operation described above
 # Block - block where this Rollup operation is executed
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 from_account = get_account_tree(TransferOp.from_account_id)
 to_account = get_account_tree(TransferOp.to_account_id)
@@ -533,7 +533,7 @@ Same as [Transfer](#2-transfer)
 ```python
 # TransferToNewOp - Rollup operation described above
 # Block - block where this Rollup operation is executed
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 from_account = get_account_tree(TransferToNewOp.from_account_id)
 to_account = get_account_tree(TransferToNewOp.to_account_id)
@@ -577,7 +577,7 @@ def pubdata_invariants():
 
 #### Description
 
-Withdraws funds from Rollup account to appropriate balance of the indicated Ethereum address.
+Withdraws funds from Rollup account to appropriate balance of the indicated Rootstock address.
 
 #### Onchain operation
 
@@ -589,14 +589,14 @@ Withdraws funds from Rollup account to appropriate balance of the indicated Ethe
 
 ##### Structure
 
-| Field        | Byte len | Value/type  | Description                                                                                |
-| ------------ | -------- | ----------- | ------------------------------------------------------------------------------------------ |
-| opcode       | 1        | `0x03`      | Operation code                                                                             |
-| from_account | 4        | AccountId   | Unique identifier of the rollup account from which funds will be withdrawn (sender)        |
-| token        | 4        | TokenId     | Unique token identifier in the rollup                                                      |
-| full_amount  | 16       | StateAmount | Full amount of funds sent                                                                  |
-| packed_fee   | 2        | PackedFee   | Packed amount of fee paid                                                                  |
-| to_address   | 20       | EthAddress  | The address of Ethereum account, to the balance of which funds will be accrued (recipient) |
+| Field        | Byte len | Value/type  | Description                                                                                 |
+| ------------ | -------- | ----------- | ------------------------------------------------------------------------------------------- |
+| opcode       | 1        | `0x03`      | Operation code                                                                              |
+| from_account | 4        | AccountId   | Unique identifier of the rollup account from which funds will be withdrawn (sender)         |
+| token        | 4        | TokenId     | Unique token identifier in the rollup                                                       |
+| full_amount  | 16       | StateAmount | Full amount of funds sent                                                                   |
+| packed_fee   | 2        | PackedFee   | Packed amount of fee paid                                                                   |
+| to_address   | 20       | EthAddress  | The address of Rootstock account, to the balance of which funds will be accrued (recipient) |
 
 ##### Example
 
@@ -611,19 +611,19 @@ Reads as: transfer from account #4 token #2 amount 0x000000000000000002c68af0bb1
 
 ##### Structure
 
-| Field        | Value/type  | Description                                                                                   |
-| ------------ | ----------- | --------------------------------------------------------------------------------------------- |
-| type         | `0xfc`      | Operation code                                                                                |
-| account_id   | AccountId   | Unique id of the sender rollup account in the state tree                                      |
-| from_address | ETHAddress  | Unique address of the rollup account from which funds will be withdrawn (sender)              |
-| to_address   | EthAddress  | The address of Ethereum account, to the balance of which the funds will be accrued(recipient) |
-| token        | TokenId     | Unique token identifier in the rollup                                                         |
-| amount       | StateAmount | Full amount of funds sent                                                                     |
-| fee          | PackedFee   | Packed amount of fee paid                                                                     |
-| nonce        | Nonce       | A one-time code that specifies the order of transactions                                      |
-| valid_from   | Timestamp   | Unix timestamp from which the block with this transaction can be processed                    |
-| valid_until  | Timestamp   | Unix timestamp until which the block with this transaction can be processed                   |
-| signature    | Signature   | [Signature](#transaction-singature) of previous fields, see the spec below                    |
+| Field        | Value/type  | Description                                                                                    |
+| ------------ | ----------- | ---------------------------------------------------------------------------------------------- |
+| type         | `0xfc`      | Operation code                                                                                 |
+| account_id   | AccountId   | Unique id of the sender rollup account in the state tree                                       |
+| from_address | ETHAddress  | Unique address of the rollup account from which funds will be withdrawn (sender)               |
+| to_address   | EthAddress  | The address of Rootstock account, to the balance of which the funds will be accrued(recipient) |
+| token        | TokenId     | Unique token identifier in the rollup                                                          |
+| amount       | StateAmount | Full amount of funds sent                                                                      |
+| fee          | PackedFee   | Packed amount of fee paid                                                                      |
+| nonce        | Nonce       | A one-time code that specifies the order of transactions                                       |
+| valid_from   | Timestamp   | Unix timestamp from which the block with this transaction can be processed                     |
+| valid_until  | Timestamp   | Unix timestamp until which the block with this transaction can be processed                    |
+| signature    | Signature   | [Signature](#transaction-singature) of previous fields, see the spec below                     |
 
 ##### Example
 
@@ -684,7 +684,7 @@ Signed bytes: 0xfc0100001016041f3b8db956854839d7434f3e53c7141a236b16dc8f1d4d7b5b
 ```python
 # WithdrawOp - Rollup operation described above
 # Block - block where this Rollup operation is executed
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 account = get_tree_account(WithdrawOp.tx.account_id)
 fee_account = get_tree_account(Block.fee_account)
@@ -731,18 +731,18 @@ Withdraws NFT from Rollup account to appropriate ethereum account.
 
 ##### Structure
 
-| Field           | Byte len | Value/type | Description                                                                                |
-| --------------- | -------- | ---------- | ------------------------------------------------------------------------------------------ |
-| opcode          | 1        | `0x0a`     | Operation code                                                                             |
-| from_account    | 4        | AccountId  | Unique identifier of the rollup account from which funds will be withdrawn (sender)        |
-| creator_account | 4        | AccountId  | Unique identifier of the rollup account which create the NFT (creator)                     |
-| creator_address | 20       | EthAddress | The address of Ethereum account, to the balance of which create the NFT (creator)          |
-| serial_id       | 4        | Int        | Special id for NFT for enforcing uniqueness                                                |
-| content_hash    | 32       | H256       | Content hash of NFT                                                                        |
-| to_address      | 20       | EthAddress | The address of Ethereum account, to the balance of which funds will be accrued (recipient) |
-| token           | 4        | TokenId    | Unique token identifier in the rollup                                                      |
-| fee_token       | 4        | TokenId    | Token for paying fees                                                                      |
-| packed_fee      | 2        | PackedFee  | Packed amount of fee paid                                                                  |
+| Field           | Byte len | Value/type | Description                                                                                 |
+| --------------- | -------- | ---------- | ------------------------------------------------------------------------------------------- |
+| opcode          | 1        | `0x0a`     | Operation code                                                                              |
+| from_account    | 4        | AccountId  | Unique identifier of the rollup account from which funds will be withdrawn (sender)         |
+| creator_account | 4        | AccountId  | Unique identifier of the rollup account which create the NFT (creator)                      |
+| creator_address | 20       | EthAddress | The address of Rootstock account, to the balance of which create the NFT (creator)          |
+| serial_id       | 4        | Int        | Special id for NFT for enforcing uniqueness                                                 |
+| content_hash    | 32       | H256       | Content hash of NFT                                                                         |
+| to_address      | 20       | EthAddress | The address of Rootstock account, to the balance of which funds will be accrued (recipient) |
+| token           | 4        | TokenId    | Unique token identifier in the rollup                                                       |
+| fee_token       | 4        | TokenId    | Token for paying fees                                                                       |
+| packed_fee      | 2        | PackedFee  | Packed amount of fee paid                                                                   |
 
 ##### Example
 
@@ -757,19 +757,19 @@ ethereum account with address 0x0809101112131415161718192021222334252628.
 
 ##### Structure
 
-| Field        | Value/type | Description                                                                                   |
-| ------------ | ---------- | --------------------------------------------------------------------------------------------- |
-| type         | `0xf5`     | Operation code                                                                                |
-| account_id   | AccountId  | Unique id of the sender rollup account in the state tree                                      |
-| from_address | ETHAddress | Unique address of the rollup account from which funds will be withdrawn (sender)              |
-| to_address   | EthAddress | The address of Ethereum account, to the balance of which the funds will be accrued(recipient) |
-| token        | TokenId    | Unique token identifier in the rollup                                                         |
-| fee_token    | TokenId    | Fee token identifier in the rollup                                                            |
-| fee          | PackedFee  | Packed amount of fee paid                                                                     |
-| nonce        | Nonce      | A one-time code that specifies the order of transactions                                      |
-| valid_from   | Timestamp  | Unix timestamp from which the block with this transaction can be processed                    |
-| valid_until  | Timestamp  | Unix timestamp until which the block with this transaction can be processed                   |
-| signature    | Signature  | [Signature](#transaction-singature) of previous fields, see the spec below                    |
+| Field        | Value/type | Description                                                                                    |
+| ------------ | ---------- | ---------------------------------------------------------------------------------------------- |
+| type         | `0xf5`     | Operation code                                                                                 |
+| account_id   | AccountId  | Unique id of the sender rollup account in the state tree                                       |
+| from_address | ETHAddress | Unique address of the rollup account from which funds will be withdrawn (sender)               |
+| to_address   | EthAddress | The address of Rootstock account, to the balance of which the funds will be accrued(recipient) |
+| token        | TokenId    | Unique token identifier in the rollup                                                          |
+| fee_token    | TokenId    | Fee token identifier in the rollup                                                             |
+| fee          | PackedFee  | Packed amount of fee paid                                                                      |
+| nonce        | Nonce      | A one-time code that specifies the order of transactions                                       |
+| valid_from   | Timestamp  | Unix timestamp from which the block with this transaction can be processed                     |
+| valid_until  | Timestamp  | Unix timestamp until which the block with this transaction can be processed                    |
+| signature    | Signature  | [Signature](#transaction-singature) of previous fields, see the spec below                     |
 
 ##### Example
 
@@ -830,7 +830,7 @@ Signed bytes: 0xf50100001016041f3b8db956854839d7434f3e53c7141a236b16dc8f1d4d7b5b
 ```python
 # WithdrawNFTOp - Rollup operation described above
 # Block - block where this Rollup operation is executed
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 account = get_tree_account(WithdrawNFTOp.tx.account_id)
 fee_account = get_tree_account(Block.fee_account)
@@ -902,17 +902,17 @@ Reads as: Mint NFT from account to recipient with content hash and pay packed fe
 
 ##### Structure
 
-| Field        | Value/type | Description                                                                                   |
-| ------------ | ---------- | --------------------------------------------------------------------------------------------- |
-| type         | `0xf6`     | Operation code                                                                                |
-| account_id   | AccountId  | Unique id of the sender rollup account in the state tree                                      |
-| from_address | ETHAddress | Unique address of the rollup account from which funds will be withdrawn (sender)              |
-| to_address   | EthAddress | The address of Ethereum account, to the balance of which the funds will be accrued(recipient) |
-| token        | TokenId    | Unique token identifier in the rollup                                                         |
-| fee_token    | TokenId    | Fee token identifier in the rollup                                                            |
-| fee          | PackedFee  | Packed amount of fee paid                                                                     |
-| nonce        | Nonce      | A one-time code that specifies the order of transactions                                      |
-| signature    | Signature  | [Signature](#transaction-singature) of previous fields, see the spec below                    |
+| Field        | Value/type | Description                                                                                    |
+| ------------ | ---------- | ---------------------------------------------------------------------------------------------- |
+| type         | `0xf6`     | Operation code                                                                                 |
+| account_id   | AccountId  | Unique id of the sender rollup account in the state tree                                       |
+| from_address | ETHAddress | Unique address of the rollup account from which funds will be withdrawn (sender)               |
+| to_address   | EthAddress | The address of Rootstock account, to the balance of which the funds will be accrued(recipient) |
+| token        | TokenId    | Unique token identifier in the rollup                                                          |
+| fee_token    | TokenId    | Fee token identifier in the rollup                                                             |
+| fee          | PackedFee  | Packed amount of fee paid                                                                      |
+| nonce        | Nonce      | A one-time code that specifies the order of transactions                                       |
+| signature    | Signature  | [Signature](#transaction-singature) of previous fields, see the spec below                     |
 
 ##### Example
 
@@ -970,7 +970,7 @@ Signed bytes: 0xf60100001016041f3b8db956854839d7434f3e53c7141a236b160d185e587f0a
 ```python
 # MintNFTOp - Rollup operation described above
 # Block - block where this Rollup operation is executed
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 creator_account = get_tree_account(MintNFTOp.tx.creator_id)
 recipient_account = get_tree_account(MintNFTOp.tx.recipient)
@@ -1007,7 +1007,7 @@ def pubdata_invariants():
 
 #### Description
 
-Deposits funds from Ethereum account to the specified Rollup account. Deposit starts as priority operation - user calls
+Deposits funds from Rootstock account to the specified Rollup account. Deposit starts as priority operation - user calls
 contract method [`depositEth`](#deposit-ether) to deposit ethereum, or [`depositERC20`](#deposit-erc-20-token) to
 deposit ERC-20 tokens. After that operator includes this operation in a block. In the account tree, the new account will
 be created if needed.
@@ -1062,7 +1062,7 @@ Reads as: deposit to account #4 token #2 amount 0x000000000000000002c68af0bb1400
 
 ```python
 # DepositOp - Rollup operation described above
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 account = get_account_tree(DepositOp.to_account_id)
 
@@ -1153,7 +1153,7 @@ Reads as: full exit from account #4 with with address 0x080910111213141516171819
 
 ```python
 # FullExitOp - Rollup operation described above
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 account = get_account_tree(FullExitOp.op.account_id)
 withdrawn_amount = 0
@@ -1326,7 +1326,7 @@ Signed bytes: 0xf8010000080d1f04204dba8e9e8bf90f5889fe4bdc0f37265dbb63aa2a0efb97
 
 ```python
 # ChangePkOp - Rollup operation described above
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 account = get_account_tree(ChankgePkOp.tx.account_id)
 fee_account = get_tree_account(Block.fee_account)
@@ -1363,13 +1363,13 @@ def pubdata_invariants():
 Signature validity is verified twice:
 
 1. Rollup signature is verified in circuit.
-2. Ethereum signature is verified when transaction is committed to the Ethereum.
+2. Ethereum signature is verified when transaction is committed to the Rootstock.
 
 ### 10. Forced exit
 
 #### Description
 
-Withdraws funds from unowned Rollup account to appropriate balance of the Ethereum address, corresponding to a Rollup
+Withdraws funds from unowned Rollup account to appropriate balance of the Rootstock address, corresponding to a Rollup
 account. Unowned account is an account with no signing key set.
 
 #### Onchain operation
@@ -1382,15 +1382,15 @@ account. Unowned account is an account with no signing key set.
 
 ##### Structure
 
-| Field                | Byte len | Value/type  | Description                                                                                |
-| -------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------ |
-| opcode               | 1        | `0x08`      | Operation code                                                                             |
-| initiator_account_id | 4        | AccountId   | Unique identifier of the rollup account which initiates a forced exit operation (sender)   |
-| target_account_id    | 4        | AccountId   | Unique identifier of the rollup account to perform a forced exit on (target)               |
-| token                | 4        | TokenId     | Unique token identifier in the rollup                                                      |
-| full_amount          | 16       | StateAmount | Full amount of funds sent                                                                  |
-| packed_fee           | 2        | PackedFee   | Packed amount of fee paid                                                                  |
-| target_address       | 20       | EthAddress  | The address of Ethereum account, to the balance of which funds will be accrued (recipient) |
+| Field                | Byte len | Value/type  | Description                                                                                 |
+| -------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------- |
+| opcode               | 1        | `0x08`      | Operation code                                                                              |
+| initiator_account_id | 4        | AccountId   | Unique identifier of the rollup account which initiates a forced exit operation (sender)    |
+| target_account_id    | 4        | AccountId   | Unique identifier of the rollup account to perform a forced exit on (target)                |
+| token                | 4        | TokenId     | Unique token identifier in the rollup                                                       |
+| full_amount          | 16       | StateAmount | Full amount of funds sent                                                                   |
+| packed_fee           | 2        | PackedFee   | Packed amount of fee paid                                                                   |
+| target_address       | 20       | EthAddress  | The address of Rootstock account, to the balance of which funds will be accrued (recipient) |
 
 ##### Example
 
@@ -1399,7 +1399,7 @@ account. Unowned account is an account with no signing key set.
 ```
 
 Reads as: account #4 initiates a transfer for account #5 of token #2 amount 0x000000000000000002c68af0bb140000 for fee
-packed in representation 0x0012 for the Rollup account which has Ethereum account address
+packed in representation 0x0012 for the Rollup account which has Rootstock account address
 0x0809101112131415161718192021222334252628.
 
 #### User transaction
@@ -1465,7 +1465,7 @@ Signed bytes: 0xf70100001016dc8f1d4d7b5b4cde2dbc793c1d458f8916cb05130000006446e8
 ```python
 # ForcedExitOp - Rollup operation described above
 # Block - block where this Rollup operation is executed
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 # ZeroPubkey - Value determining an unset signing key of an account
 
 initiator_account = get_tree_account(ForcedExitOp.tx.account_id)
@@ -1678,7 +1678,7 @@ Signed bytes: 0xf40100fffffea143fc5851d93cdc72e90d63cfb7286395ce20d57c1077578d2f
 ```python
 # SwapOp - Rollup operation described above
 # Block - block where this Rollup operation is executed
-# OnchainOp - public data created after executing this rollup operation and posted to the Ethereum
+# OnchainOp - public data created after executing this rollup operation and posted to the Rootstock
 
 account_a = get_tree_account(SwapOp.orders.0.account_id)
 account_b = get_tree_account(SwapOp.orders.1.account_id)
@@ -1933,7 +1933,7 @@ function commitBlocks(StoredBlockInfo memory _lastCommittedBlockData, CommitBloc
 - `_lastCommittedBlockData`: Stored info of the last committed block.
 - `_newBlocksData`: Data of the new committed blocks.
 
-`StoredBlockInfo` - block data that we store on Ethereum. We store hash of this structure in storage and pass it in tx
+`StoredBlockInfo` - block data that we store on Rootstock. We store hash of this structure in storage and pass it in tx
 arguments every time we need to access any of its field.
 
 - `blockNumber` - rollup block number

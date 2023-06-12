@@ -241,7 +241,7 @@ async fn test_account_events(mut storage: StorageProcessor<'_>) -> QueryResult<(
     // To create account events we have to commit a block. It will
     // also create a block event which is expected to be inserted first.
 
-    // Commit state update and confirm Ethereum operation.
+    // Commit state update and confirm Rootstock operation.
     storage
         .chain()
         .state_schema()

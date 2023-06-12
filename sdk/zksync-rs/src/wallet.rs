@@ -1,11 +1,11 @@
 use num::BigUint;
-use zksync_eth_signer::EthereumSigner;
+use zksync_eth_signer::RootstockSigner;
 use zksync_types::{AccountId, Address, TokenId, TokenLike};
 
 use crate::{
     credentials::WalletCredentials,
     error::ClientError,
-    ethereum::EthereumProvider,
+    ethereum::RootstockProvider,
     operations::*,
     provider::Provider,
     signer::Signer,
@@ -14,7 +14,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct Wallet<S: EthereumSigner, P: Provider> {
+pub struct Wallet<S: RootstockSigner, P: Provider> {
     pub provider: P,
     pub signer: Signer<S>,
     pub tokens: TokensCache,
@@ -22,7 +22,7 @@ pub struct Wallet<S: EthereumSigner, P: Provider> {
 
 impl<S, P> Wallet<S, P>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     pub async fn new(provider: P, credentials: WalletCredentials<S>) -> Result<Self, ClientError> {
@@ -158,15 +158,15 @@ where
         WithdrawNFTBuilder::new(self)
     }
 
-    /// Creates an `EthereumProvider` to interact with the Ethereum network.
+    /// Creates an `RootstockProvider` to interact with the Rootstock network.
     ///
-    /// Returns an error if wallet was created without providing an Ethereum private key.
+    /// Returns an error if wallet was created without providing an Rootstock private key.
     pub async fn ethereum(
         &self,
         web3_addr: impl AsRef<str>,
-    ) -> Result<EthereumProvider<S>, ClientError> {
+    ) -> Result<RootstockProvider<S>, ClientError> {
         if let Some(eth_signer) = &self.signer.eth_signer {
-            let ethereum_provider = EthereumProvider::new(
+            let ethereum_provider = RootstockProvider::new(
                 &self.provider,
                 self.tokens.clone(),
                 web3_addr,
@@ -177,7 +177,7 @@ where
 
             Ok(ethereum_provider)
         } else {
-            Err(ClientError::NoEthereumPrivateKey)
+            Err(ClientError::NoRootstockPrivateKey)
         }
     }
 }

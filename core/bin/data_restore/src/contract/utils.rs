@@ -9,7 +9,7 @@ use crate::eth_tx_helpers::get_input_data_from_ethereum_transaction;
 ///
 /// # Arguments
 ///
-/// * `transaction` - Ethereum Rollup contract creation transaction description
+/// * `transaction` - Rootstock Rollup contract creation transaction description
 ///
 pub fn get_genesis_account(genesis_transaction: &Transaction) -> Result<Account, anyhow::Error> {
     const ENCODED_INIT_PARAMETERS_WIDTH: usize =

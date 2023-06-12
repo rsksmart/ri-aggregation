@@ -335,7 +335,7 @@ export interface ChangePubKeyFee {
     // Note: Ignore, since it just looks more intuitive if `"ChangePubKey"` is kept as a string literal)
     // prettier-ignore
     // Denotes how authorization of operation is performed:
-    // 'Onchain' if it's done by sending an Ethereum transaction,
+    // 'Onchain' if it's done by sending an Rootstock transaction,
     // 'ECDSA' if it's done by providing an Ethereum signature in zkSync transaction.
     // 'CREATE2' if it's done by providing arguments to restore account ethereum address according to CREATE2 specification.
     "ChangePubKey": ChangePubkeyTypes;
@@ -364,7 +364,7 @@ export interface FeeRpc {
     gasTxAmount: BigNumber;
     // Gas price (in wei)
     gasPriceWei: BigNumber;
-    // Ethereum gas part of fee (in wei)
+    // Rootstock gas part of fee (in wei)
     gasFee: BigNumber;
     // Zero-knowledge proof part of fee (in wei)
     zkpFee: BigNumber;

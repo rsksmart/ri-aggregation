@@ -1,5 +1,5 @@
 use num::BigUint;
-use zksync_eth_signer::EthereumSigner;
+use zksync_eth_signer::RootstockSigner;
 use zksync_types::{
     helpers::{
         closest_packable_fee_amount, closest_packable_token_amount, is_fee_amount_packable,
@@ -14,7 +14,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct WithdrawBuilder<'a, S: EthereumSigner, P: Provider> {
+pub struct WithdrawBuilder<'a, S: RootstockSigner, P: Provider> {
     wallet: &'a Wallet<S, P>,
     token: Option<Token>,
     amount: Option<BigUint>,
@@ -27,7 +27,7 @@ pub struct WithdrawBuilder<'a, S: EthereumSigner, P: Provider> {
 
 impl<'a, S, P> WithdrawBuilder<'a, S, P>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     /// Initializes a withdraw transaction building process.
@@ -172,7 +172,7 @@ where
         Ok(self)
     }
 
-    /// Sets the address of Ethereum wallet to withdraw funds to.
+    /// Sets the address of Rootstock wallet to withdraw funds to.
     pub fn to(mut self, to: Address) -> Self {
         self.to = Some(to);
         self

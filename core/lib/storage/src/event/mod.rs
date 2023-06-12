@@ -110,7 +110,7 @@ impl<'a, 'c> EventSchema<'a, 'c> {
 
     /// Create new block event and store it in the database.
     /// This method relies on the `load_block_range` which may return `None`
-    /// if there're no Ethereum transactions featuring this block (`Committed` or `Executed`).
+    /// if there're no Rootstock transactions featuring this block (`Committed` or `Executed`).
     /// In such cases, it silently returns `Ok`.
     pub async fn store_block_event(
         &mut self,
@@ -127,7 +127,7 @@ impl<'a, 'c> EventSchema<'a, 'c> {
             .await?;
         // If there're no block details for the given block number,
         // ignore the event. Since the `eth_sender` is currently
-        // responsible for confirming Ethereum operations in the database,
+        // responsible for confirming Rootstock operations in the database,
         // failing here will make it think there's some kind of network error.
         let block_details = match block_details.into_iter().next() {
             Some(block_details) => block_details,

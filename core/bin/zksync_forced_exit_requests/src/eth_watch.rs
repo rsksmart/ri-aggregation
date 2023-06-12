@@ -263,7 +263,7 @@ where
     fn handle_infura_error(&mut self, error: anyhow::Error) {
         if self.is_backoff_requested(&error) {
             vlog::warn!(
-                "Rate limit was reached, as reported by Ethereum node. \
+                "Rate limit was reached, as reported by Rootstock node. \
                 Entering the backoff mode"
             );
             self.enter_backoff_mode();

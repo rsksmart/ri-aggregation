@@ -165,7 +165,7 @@ impl ForcedExit {
         }
     }
 
-    /// Get the first part of the message we expect to be signed by Ethereum account key.
+    /// Get the first part of the message we expect to be signed by Rootstock account key.
     /// The only difference is the missing `nonce` since it's added at the end of the transactions
     /// batch message. The format is:
     ///
@@ -192,7 +192,7 @@ impl ForcedExit {
         message
     }
 
-    /// Gets message that should be signed by Ethereum keys of the account for 2-Factor authentication.
+    /// Gets message that should be signed by Rootstock keys of the account for 2-Factor authentication.
     pub fn get_ethereum_sign_message(&self, token_symbol: &str, decimals: u8) -> String {
         let mut message = self.get_ethereum_sign_message_part(token_symbol, decimals);
         message.push_str(format!("\nNonce: {}", self.nonce).as_str());

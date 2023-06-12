@@ -8,13 +8,13 @@ use tokio_stream::wrappers::IntervalStream;
 use web3::types::{Block, BlockId, BlockNumber, H256, U64};
 
 use zksync_config::GatewayWatcherConfig;
-use zksync_eth_client::{EthereumGateway, MultiplexerEthereumClient};
+use zksync_eth_client::{MultiplexerRootstockClient, RootstockGateway};
 use zksync_utils::retry_opt;
 
 /// Watcher which checks multiplexed client's gateways once within specified interval.
 pub struct MultiplexedGatewayWatcher {
     /// Multiplexed client to be verified.
-    client: MultiplexerEthereumClient,
+    client: MultiplexerRootstockClient,
     /// How often client will be checked. In milliseconds.
     interval: Duration,
     /// Time to wait before request again in case of unsuccessful request. In milliseconds.
@@ -46,7 +46,7 @@ impl MultiplexedGatewayWatcher {
     ///
     /// If given ethereum gateway is not `Multiplexed`.
     pub fn new(
-        gateway: EthereumGateway,
+        gateway: RootstockGateway,
         interval: Duration,
         retry_delay: Duration,
         req_timeout: Duration,
@@ -55,9 +55,9 @@ impl MultiplexedGatewayWatcher {
     ) -> Self {
         Self {
             client: match gateway {
-                EthereumGateway::Multiplexed(client) => client,
+                RootstockGateway::Multiplexed(client) => client,
                 _ => {
-                    panic!("Ethereum Gateway Watcher: multiplexed client expected")
+                    panic!("Rootstock Gateway Watcher: multiplexed client expected")
                 }
             },
             interval,
@@ -70,7 +70,7 @@ impl MultiplexedGatewayWatcher {
 
     /// Starts actor.
     pub async fn run(self) {
-        vlog::info!("Ethereum Gateway Watcher started");
+        vlog::info!("Rootstock Gateway Watcher started");
 
         IntervalStream::new(time::interval(self.interval))
             .for_each_concurrent(self.task_limit, |_| self.check_client_gateways())
@@ -132,7 +132,7 @@ impl MultiplexedGatewayWatcher {
                             .await
                             .ok()
                             .flatten(),
-                        vlog::error!("Request to Ethereum Gateway `{}` failed", key),
+                        vlog::error!("Request to Rootstock Gateway `{}` failed", key),
                         self.retry_delay,
                         self.req_timeout
                     };
@@ -144,7 +144,7 @@ impl MultiplexedGatewayWatcher {
                         Some((key, block, req_time))
                     } else {
                         vlog::error!(
-                            "Failed to get latest block from Ethereum Gateway `{}` within specified timeout",
+                            "Failed to get latest block from Rootstock Gateway `{}` within specified timeout",
                             key
                         );
                         None
@@ -190,11 +190,11 @@ impl MultiplexedGatewayWatcher {
 
         if let Some((preferred_client_key, latest_block, _)) = preferred_client {
             if self.client.prioritize_client(preferred_client_key) {
-                vlog::info!("Prioritized Ethereum Gateway: `{}`", preferred_client_key);
+                vlog::info!("Prioritized Rootstock Gateway: `{}`", preferred_client_key);
             }
             for (key, block, _) in &client_latest_blocks {
                 if let Err(err) = Self::verify_blocks(latest_block, block) {
-                    vlog::error!("Ethereum Gateway `{}` - check failed: {}", key, err);
+                    vlog::error!("Rootstock Gateway `{}` - check failed: {}", key, err);
                 }
             }
         }
@@ -208,7 +208,7 @@ impl MultiplexedGatewayWatcher {
 /// If given ethereum gateway is not `Multiplexed`.
 #[must_use]
 pub fn run_multiplexed_gateway_watcher(
-    eth_gateway: EthereumGateway,
+    eth_gateway: RootstockGateway,
     config: &GatewayWatcherConfig,
 ) -> JoinHandle<()> {
     let gateway_watcher = MultiplexedGatewayWatcher::new(
@@ -226,7 +226,7 @@ pub fn run_multiplexed_gateway_watcher(
 /// Runs `MultiplexedGatewayWatcher` as a tokio task for provided ethereum gateway if it's multiplexed.
 #[must_use]
 pub fn run_gateway_watcher_if_multiplexed(
-    eth_gateway: EthereumGateway,
+    eth_gateway: RootstockGateway,
     config: &GatewayWatcherConfig,
 ) -> Option<JoinHandle<()>> {
     if eth_gateway.is_multiplexed() {

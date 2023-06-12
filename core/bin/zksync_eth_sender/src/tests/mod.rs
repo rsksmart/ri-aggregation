@@ -229,7 +229,7 @@ async fn transaction_state() {
 
 /// Test for a normal `ETHSender` workflow:
 /// - we send the two sequential operations (commit, verify, execute);
-/// - they are successfully committed to the Ethereum;
+/// - they are successfully committed to the Rootstock;
 /// - notification is sent after `execute` operation is committed.
 #[tokio::test]
 async fn operation_commitment_workflow() {
@@ -258,7 +258,7 @@ async fn operation_commitment_workflow() {
 
         eth_sender.proceed_next_operations(0).await;
 
-        // Now we should see that transaction is stored in the database and sent to the Ethereum.
+        // Now we should see that transaction is stored in the database and sent to the Rootstock.
         let deadline_block = eth_sender.get_deadline_block(
             eth_sender
                 .ethereum
@@ -307,7 +307,7 @@ async fn operation_commitment_workflow() {
 }
 
 /// A simple scenario for a stuck transaction:
-/// - A transaction is sent to the Ethereum.
+/// - A transaction is sent to the Rootstock.
 /// - It is not processed after some blocks.
 /// - `ETHSender` creates a new transaction with increased gas.
 /// - This transaction is completed successfully.
@@ -599,7 +599,7 @@ async fn restore_state() {
         // This `eth_sender` is required to generate the input only.
         let eth_sender = default_eth_sender().await;
 
-        // Aggregated operations for which Ethereum transactions have been created but have not yet been confirmed.
+        // Aggregated operations for which Rootstock transactions have been created but have not yet been confirmed.
         let processed_commit_op = test_data::commit_blocks_operation(0);
         let processed_verify_op = test_data::publish_proof_blocks_onchain_operations(0);
         let processed_execute_op = test_data::execute_blocks_operations(0);

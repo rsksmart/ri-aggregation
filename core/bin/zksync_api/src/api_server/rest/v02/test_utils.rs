@@ -367,7 +367,7 @@ impl TestServerConfig {
         // Below lies the initialization of the data for the test.
         let mut rng = XorShiftRng::from_seed([0, 1, 2, 3]);
 
-        // Required since we use `EthereumSchema` in this test.
+        // Required since we use `RootstockSchema` in this test.
         storage.ethereum_schema().initialize_eth_data().await?;
 
         // Insert PHNX token
@@ -490,7 +490,7 @@ impl TestServerConfig {
                 .await?
                 .unwrap();
 
-            // Store the Ethereum transaction.
+            // Store the Rootstock transaction.
             let eth_tx_hash = dummy_ethereum_tx_hash(id);
             let response = storage
                 .ethereum_schema()
@@ -617,7 +617,7 @@ impl TestServerConfig {
                     .await?
                     .unwrap();
 
-                // Store the Ethereum transaction.
+                // Store the Rootstock transaction.
                 let eth_tx_hash = dummy_ethereum_tx_hash(id);
                 let response = storage
                     .ethereum_schema()

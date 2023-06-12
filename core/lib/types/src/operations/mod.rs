@@ -97,7 +97,7 @@ impl ZkSyncOp {
         }
     }
 
-    /// Returns the public data required for the Ethereum smart contract to commit the operation.
+    /// Returns the public data required for the Rootstock smart contract to commit the operation.
     pub fn public_data(&self) -> Vec<u8> {
         match self {
             ZkSyncOp::Noop(op) => op.get_public_data(),
@@ -115,7 +115,7 @@ impl ZkSyncOp {
         }
     }
 
-    /// Gets the witness required for the Ethereum smart contract.
+    /// Gets the witness required for the Rootstock smart contract.
     /// Unlike public data, some operations may not have a witness.
     ///
     /// Operations that have witness data:
@@ -145,7 +145,7 @@ impl ZkSyncOp {
         }
     }
 
-    /// Attempts to restore the operation from the public data committed on the Ethereum smart contract.
+    /// Attempts to restore the operation from the public data committed on the Rootstock smart contract.
     pub fn from_public_data(bytes: &[u8]) -> Result<Self, PublicDataDecodeError> {
         let op_type: u8 = *bytes.first().ok_or(PublicDataDecodeError::EmptyData)?;
         match op_type {
@@ -183,7 +183,7 @@ impl ZkSyncOp {
         }
     }
 
-    /// Attempts to restore the operation from the public data committed on the Ethereum smart contract
+    /// Attempts to restore the operation from the public data committed on the Rootstock smart contract
     /// prior to v6 upgrade. The token id bit width is 2 bytes instead of 4.
     ///
     /// Used by the data restore module for recovering old operations.

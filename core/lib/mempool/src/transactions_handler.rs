@@ -13,7 +13,7 @@ use crate::state::MempoolState;
 #[derive(Debug)]
 pub enum MempoolTransactionRequest {
     /// Add new transaction to mempool, transaction should be previously checked
-    /// for correctness (including its Ethereum and ZKSync signatures).
+    /// for correctness (including its Rootstock and ZKSync signatures).
     /// oneshot is used to receive tx add result.
     NewTx(Box<SignedZkSyncTx>, oneshot::Sender<Result<(), TxAddError>>),
 

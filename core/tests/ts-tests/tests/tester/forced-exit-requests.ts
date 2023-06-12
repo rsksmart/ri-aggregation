@@ -153,7 +153,7 @@ async function submitRequest(address: string, tokens: number[], price_in_wei: st
 }
 
 async function getFullOnchainBalance(tester: Tester, address: Address, tokenAddress: Address) {
-    const onchainBalance = await utils.getEthereumBalance(
+    const onchainBalance = await utils.getRootstockBalance(
         tester.ethProvider,
         tester.syncProvider,
         address,

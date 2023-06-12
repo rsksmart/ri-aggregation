@@ -903,7 +903,7 @@ export function getCREATE2AddressAndSalt(
     return { address: address, salt: ethers.utils.hexlify(salt) };
 }
 
-export async function getEthereumBalance(
+export async function getRootstockBalance(
     ethProvider: ethers.providers.Provider,
     syncProvider: SyncProvider,
     address: Address,

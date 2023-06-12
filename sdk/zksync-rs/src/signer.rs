@@ -4,7 +4,7 @@ use std::fmt;
 use num::BigUint;
 // Workspace uses
 use zksync_crypto::PrivateKey;
-use zksync_eth_signer::{error::SignerError, EthereumSigner};
+use zksync_eth_signer::{error::SignerError, RootstockSigner};
 use zksync_types::{
     tx::{
         ChangePubKey, ChangePubKeyECDSAData, ChangePubKeyEthAuthData, PackedEthSignature,
@@ -20,7 +20,7 @@ fn signing_failed_error(err: impl ToString) -> SignerError {
     SignerError::SigningFailed(err.to_string())
 }
 
-pub struct Signer<S: EthereumSigner> {
+pub struct Signer<S: RootstockSigner> {
     pub pubkey_hash: PubKeyHash,
     pub address: Address,
     pub(crate) private_key: PrivateKey,
@@ -28,7 +28,7 @@ pub struct Signer<S: EthereumSigner> {
     pub(crate) account_id: Option<AccountId>,
 }
 
-impl<S: EthereumSigner> fmt::Debug for Signer<S> {
+impl<S: RootstockSigner> fmt::Debug for Signer<S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut pk_contents = Vec::new();
         self.private_key
@@ -41,7 +41,7 @@ impl<S: EthereumSigner> fmt::Debug for Signer<S> {
     }
 }
 
-impl<S: EthereumSigner> Signer<S> {
+impl<S: RootstockSigner> Signer<S> {
     pub fn new(private_key: PrivateKey, address: Address, eth_signer: Option<S>) -> Self {
         let pubkey_hash = PubKeyHash::from_privkey(&private_key);
 

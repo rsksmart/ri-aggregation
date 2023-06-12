@@ -79,7 +79,7 @@ Tester.prototype.testRecoverETHWithdrawal = async function (from: Wallet, to: Ad
     // Make sure that the withdrawal will fail
     await setRevert(from.ethSigner(), this.syncProvider, to, 'ETH', true);
     const balanceBefore = await this.ethProvider.getBalance(to);
-    const withdrawTx = await from.withdrawFromSyncToEthereum({
+    const withdrawTx = await from.withdrawFromSyncToRootstock({
         ethAddress: to,
         token: 'ETH',
         amount
@@ -118,10 +118,10 @@ Tester.prototype.testRecoverERC20Withdrawal = async function (
     await setRevert(from.ethSigner(), from.provider, to, token, true);
 
     const getToBalance = () =>
-        utils.getEthereumBalance(from.ethSigner().provider as ethers.providers.Provider, from.provider, to, token);
+        utils.getRootstockBalance(from.ethSigner().provider as ethers.providers.Provider, from.provider, to, token);
 
     const balanceBefore = await getToBalance();
-    const withdrawTx = await from.withdrawFromSyncToEthereum({
+    const withdrawTx = await from.withdrawFromSyncToRootstock({
         ethAddress: to,
         token: token,
         amount
@@ -159,7 +159,7 @@ Tester.prototype.testRecoverMultipleWithdrawals = async function (
 ) {
     const balancesBefore = await Promise.all(
         to.map(async (recipient, i) => {
-            return utils.getEthereumBalance(this.ethProvider, this.syncProvider, recipient, token[i]);
+            return utils.getRootstockBalance(this.ethProvider, this.syncProvider, recipient, token[i]);
         })
     );
 
@@ -170,7 +170,7 @@ Tester.prototype.testRecoverMultipleWithdrawals = async function (
 
     // Send the withdrawals and wait until they are sent onchain
     for (let i = 0; i < to.length; i++) {
-        const withdrawTx = await from.withdrawFromSyncToEthereum({
+        const withdrawTx = await from.withdrawFromSyncToRootstock({
             ethAddress: to[i],
             token: token[i],
             amount: amount[i]
@@ -183,7 +183,7 @@ Tester.prototype.testRecoverMultipleWithdrawals = async function (
 
     const balancesAfter = await Promise.all(
         to.map(async (recipient, i) => {
-            return utils.getEthereumBalance(this.ethProvider, this.syncProvider, recipient, token[i]);
+            return utils.getRootstockBalance(this.ethProvider, this.syncProvider, recipient, token[i]);
         })
     );
 
@@ -204,7 +204,7 @@ Tester.prototype.testRecoverMultipleWithdrawals = async function (
 
     const balancesAfterRecovery = await Promise.all(
         to.map(async (recipient, i) => {
-            return utils.getEthereumBalance(this.ethProvider, this.syncProvider, recipient, token[i]);
+            return utils.getRootstockBalance(this.ethProvider, this.syncProvider, recipient, token[i]);
         })
     );
 

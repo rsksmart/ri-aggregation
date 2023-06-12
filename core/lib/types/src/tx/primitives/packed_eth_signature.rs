@@ -13,7 +13,7 @@ use zksync_utils::ZeroPrefixHexSerde;
 ///
 /// Some notes on implementation of methods of this structure:
 ///
-/// Ethereum signed message produced by most clients contains v where v = 27 + recovery_id(0,1,2,3),
+/// Rootstock signed message produced by most clients contains v where v = 27 + recovery_id(0,1,2,3),
 /// but for some clients v = recovery_id(0,1,2,3).
 /// Library that we use for signature verification (written for bitcoin) expects v = recovery_id
 ///
@@ -23,7 +23,7 @@ use zksync_utils::ZeroPrefixHexSerde;
 /// 2) When we serialize/create this structure we add 27 to v in `ETHSignature`.
 ///
 /// This way when we have methods that consumes &self we can be sure that ETHSignature::recover_signer works
-/// And we can be sure that we are compatible with Ethereum clients.
+/// And we can be sure that we are compatible with Rootstock clients.
 ///
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PackedEthSignature(ETHSignature);
@@ -86,7 +86,7 @@ impl PackedEthSignature {
         Ok(public_to_address(&public_key))
     }
 
-    /// Get Ethereum address from private key.
+    /// Get Rootstock address from private key.
     pub fn address_from_private_key(
         private_key: &H256,
     ) -> Result<Address, PackedETHSignatureError> {

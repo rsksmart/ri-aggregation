@@ -21,7 +21,7 @@ Tester.prototype.testVerifiedForcedExit = async function (
 
     const tokenAddress = initiatorWallet.provider.tokenSet.resolveTokenAddress(token);
 
-    const onchainBalanceBefore = await targetWallet.getEthereumBalance(token);
+    const onchainBalanceBefore = await targetWallet.getRootstockBalance(token);
     const balanceToWithdraw = await targetWallet.getBalance(token);
 
     const handle = await this.testForcedExit(initiatorWallet, targetWallet, token);
@@ -36,7 +36,7 @@ Tester.prototype.testVerifiedForcedExit = async function (
 
     await this.ethProvider.waitForTransaction(withdrawalTxHash as string);
 
-    const onchainBalanceAfter = await targetWallet.getEthereumBalance(token);
+    const onchainBalanceAfter = await targetWallet.getRootstockBalance(token);
     const pendingToBeOnchain = await this.contract.getPendingBalance(targetWallet.address(), tokenAddress);
 
     expect(

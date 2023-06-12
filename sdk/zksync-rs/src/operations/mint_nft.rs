@@ -1,5 +1,5 @@
 use num::BigUint;
-use zksync_eth_signer::EthereumSigner;
+use zksync_eth_signer::RootstockSigner;
 use zksync_types::{
     helpers::{closest_packable_fee_amount, is_fee_amount_packable},
     tokens::TxFeeTypes,
@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct MintNFTBuilder<'a, S: EthereumSigner, P: Provider> {
+pub struct MintNFTBuilder<'a, S: RootstockSigner, P: Provider> {
     wallet: &'a Wallet<S, P>,
     recipient: Option<Address>,
     content_hash: Option<H256>,
@@ -23,7 +23,7 @@ pub struct MintNFTBuilder<'a, S: EthereumSigner, P: Provider> {
 
 impl<'a, S, P> MintNFTBuilder<'a, S, P>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     /// Initializes a mint nft transaction building process.

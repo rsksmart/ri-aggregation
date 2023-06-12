@@ -1,7 +1,7 @@
 use crate::error::{RpcSignerError, SignerError};
 use crate::json_rpc_signer::messages::JsonRpcRequest;
-use crate::EthereumSigner;
 use crate::RawTransaction;
+use crate::RootstockSigner;
 
 use jsonrpc_core::types::response::Output;
 use zksync_types::tx::{PackedEthSignature, TxEthSignature};
@@ -44,7 +44,7 @@ pub struct JsonRpcSigner {
 }
 
 #[async_trait::async_trait]
-impl EthereumSigner for JsonRpcSigner {
+impl RootstockSigner for JsonRpcSigner {
     /// The sign method calculates an Ethereum specific signature with:
     /// checks if the server adds a prefix if not then adds
     /// return sign(keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))).
@@ -135,7 +135,7 @@ impl JsonRpcSigner {
             None => AddressOrIndex::Index(0),
         };
 
-        // EthereumSigner can support many different addresses,
+        // RootstockSigner can support many different addresses,
         // we define only the one we need by the index
         // of receiving from the server or by the address itself.
         signer.detect_address(address_or_index).await?;
@@ -153,7 +153,7 @@ impl JsonRpcSigner {
         Ok(signer)
     }
 
-    /// Get Ethereum address.
+    /// Get Rootstock address.
     pub fn address(&self) -> Result<Address, SignerError> {
         self.address.ok_or(SignerError::DefineAddress)
     }
@@ -382,7 +382,7 @@ mod tests {
     };
 
     use super::{is_signature_from_address, messages::JsonRpcRequest};
-    use crate::{EthereumSigner, JsonRpcSigner, RawTransaction};
+    use crate::{JsonRpcSigner, RawTransaction, RootstockSigner};
 
     #[post("/")]
     async fn index(req: web::Json<JsonRpcRequest>, state: web::Data<State>) -> impl Responder {

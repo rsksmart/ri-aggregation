@@ -8,7 +8,7 @@
 //! * It is useful to calculate cost of the "griefing" attack.
 //! We don't take fees for deposit and full exit, but we must process them, so it is possible to spam us and force us to spend money.
 
-use crate::eth_account::EthereumAccount;
+use crate::eth_account::RootstockAccount;
 use crate::external_commands::{deploy_contracts, get_test_accounts};
 use crate::zksync_account::ZkSyncAccount;
 use num::{rational::Ratio, traits::Pow, BigInt, BigUint};
@@ -212,7 +212,7 @@ async fn gas_price_test() {
 
     let transport = Http::new(&testkit_config.web3_url).expect("http transport start");
     let (test_accounts_info, commit_account_info) = get_test_accounts();
-    let commit_account = EthereumAccount::new(
+    let commit_account = RootstockAccount::new(
         commit_account_info.private_key,
         commit_account_info.address,
         transport.clone(),
@@ -223,7 +223,7 @@ async fn gas_price_test() {
     let eth_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
-            EthereumAccount::new(
+            RootstockAccount::new(
                 test_eth_account.private_key,
                 test_eth_account.address,
                 transport.clone(),

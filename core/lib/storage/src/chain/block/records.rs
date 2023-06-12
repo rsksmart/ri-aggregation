@@ -106,7 +106,7 @@ pub(crate) struct TransactionItem {
 impl StorageBlockDetails {
     /// Checks if block is finalized, meaning that
     /// both Verify operation is performed for it, and this
-    /// operation is anchored on the Ethereum blockchain.
+    /// operation is anchored on the Rootstock blockchain.
     pub fn is_verified(&self) -> bool {
         // We assume that it's not possible to have block that is
         // verified and not committed.

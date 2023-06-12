@@ -9,7 +9,7 @@ use web3::contract::Options;
 use zksync_basic_types::{BlockNumber, H256, U256};
 // Workspace uses
 use zksync_config::configs::eth_sender::{ETHSenderConfig, GasLimit, Sender};
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 use zksync_storage::{ethereum::records::ETHParams, StorageProcessor};
 use zksync_types::aggregated_operations::{AggregatedActionType, AggregatedOperation};
 use zksync_types::ethereum::{ETHOperation, EthOpId, InsertedOperationResponse};
@@ -17,7 +17,7 @@ use zksync_types::ethereum::{ETHOperation, EthOpId, InsertedOperationResponse};
 use super::ETHSender;
 use crate::database::DatabaseInterface;
 use crate::transactions::ETHStats;
-use zksync_eth_client::clients::mock::MockEthereum;
+use zksync_eth_client::clients::mock::MockRootstock;
 
 /// Mock database is capable of recording all the incoming requests for the further analysis.
 #[derive(Debug)]
@@ -234,7 +234,7 @@ impl DatabaseInterface for MockDatabase {
         Ok(response)
     }
 
-    /// Adds a tx hash entry associated with some Ethereum operation to the database.
+    /// Adds a tx hash entry associated with some Rootstock operation to the database.
     async fn add_hash_entry(
         &self,
         _connection: &mut StorageProcessor<'_>,
@@ -370,7 +370,7 @@ pub(crate) fn default_eth_parameters() -> ETHParams {
     }
 }
 
-/// Creates a default `ETHSender` with mock Ethereum connection/database and no operations in DB.
+/// Creates a default `ETHSender` with mock Rootstock connection/database and no operations in DB.
 /// Returns the `ETHSender` itself along with communication channels to interact with it.
 pub(crate) async fn default_eth_sender() -> ETHSender<MockDatabase> {
     build_eth_sender(
@@ -383,7 +383,7 @@ pub(crate) async fn default_eth_sender() -> ETHSender<MockDatabase> {
     .await
 }
 
-/// Creates an `ETHSender` with mock Ethereum connection/database and no operations in DB
+/// Creates an `ETHSender` with mock Rootstock connection/database and no operations in DB
 /// which supports multiple transactions in flight.
 /// Returns the `ETHSender` itself along with communication channels to interact with it.
 pub(crate) async fn concurrent_eth_sender(max_txs_in_flight: u64) -> ETHSender<MockDatabase> {
@@ -397,7 +397,7 @@ pub(crate) async fn concurrent_eth_sender(max_txs_in_flight: u64) -> ETHSender<M
     .await
 }
 
-/// Creates an `ETHSender` with mock Ethereum connection/database and restores its state "from DB".
+/// Creates an `ETHSender` with mock Rootstock connection/database and restores its state "from DB".
 /// Returns the `ETHSender` itself along with communication channels to interact with it.
 pub(crate) async fn restored_eth_sender(
     eth_operations: Vec<ETHOperation>,
@@ -425,7 +425,7 @@ async fn build_eth_sender(
     unprocessed_operations: Vec<(i64, AggregatedOperation)>,
     eth_parameters: ETHParams,
 ) -> ETHSender<MockDatabase> {
-    let ethereum = EthereumGateway::Mock(MockEthereum::default());
+    let ethereum = RootstockGateway::Mock(MockRootstock::default());
     let db = MockDatabase::with_restorable_state(
         eth_operations,
         aggregated_operations,

@@ -2,7 +2,7 @@
 use std::{collections::VecDeque, marker::PhantomData, time::Instant};
 // External deps
 use zksync_basic_types::U256;
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 // Local deps
 use crate::database::DatabaseInterface;
 
@@ -12,7 +12,7 @@ mod parameters;
 mod tests;
 
 /// Gas adjuster is an entity capable of scaling the gas price for
-/// all the Ethereum transactions.
+/// all the Rootstock transactions.
 ///
 /// Gas price is adjusted with an upper limit, which is configured
 /// dynamically based on the average gas price observed within past
@@ -52,7 +52,7 @@ impl<DB: DatabaseInterface> GasAdjuster<DB> {
 
     async fn get_suggested_price(
         &self,
-        ethereum: &EthereumGateway,
+        ethereum: &RootstockGateway,
         old_tx_gas_price: Option<U256>,
     ) -> anyhow::Result<U256> {
         if let Some(price) = self.statistics.get_average_price() {
@@ -74,7 +74,7 @@ impl<DB: DatabaseInterface> GasAdjuster<DB> {
     /// Replacement price is usually suggested to be at least 10% higher, we make it 15% higher.
     pub async fn get_gas_price(
         &mut self,
-        ethereum: &EthereumGateway,
+        ethereum: &RootstockGateway,
         old_tx_gas_price: Option<U256>,
     ) -> anyhow::Result<U256> {
         let scaled_price = self.get_suggested_price(ethereum, old_tx_gas_price).await?;
@@ -96,7 +96,7 @@ impl<DB: DatabaseInterface> GasAdjuster<DB> {
     /// Performs an actualization routine for `GasAdjuster`:
     /// This method is intended to be invoked periodically, and it updates the
     /// current max gas price limit according to the configurable update interval.
-    pub async fn keep_updated(&mut self, ethereum: &EthereumGateway, db: &DB) {
+    pub async fn keep_updated(&mut self, ethereum: &RootstockGateway, db: &DB) {
         if self.last_sample_added.elapsed() >= parameters::sample_adding_interval() {
             // Report the current price to be gathered by the statistics module.
             match ethereum.get_gas_price().await {

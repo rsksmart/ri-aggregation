@@ -20,7 +20,7 @@ use web3::{
 };
 
 // Workspace uses
-use zksync_eth_signer::{raw_ethereum_tx::RawTransaction, EthereumSigner};
+use zksync_eth_signer::{raw_ethereum_tx::RawTransaction, RootstockSigner};
 
 use crate::ethereum_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
 use sha3::Digest;
@@ -32,7 +32,7 @@ const FALLBACK_GAS_LIMIT: u64 = 3_000_000;
 // length of the message "VM Exception while processing transaction: revert "
 const REVERT_REASON_START_INDEX: usize = 50;
 
-struct ETHDirectClientInner<S: EthereumSigner> {
+struct ETHDirectClientInner<S: RootstockSigner> {
     eth_signer: S,
     sender_account: Address,
     contract_addr: H160,
@@ -43,11 +43,11 @@ struct ETHDirectClientInner<S: EthereumSigner> {
 }
 
 #[derive(Clone)]
-pub struct ETHDirectClient<S: EthereumSigner> {
+pub struct ETHDirectClient<S: RootstockSigner> {
     inner: Arc<ETHDirectClientInner<S>>,
 }
 
-impl<S: EthereumSigner> fmt::Debug for ETHDirectClient<S> {
+impl<S: RootstockSigner> fmt::Debug for ETHDirectClient<S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // We do not want to have a private key in the debug representation.
 
@@ -60,7 +60,7 @@ impl<S: EthereumSigner> fmt::Debug for ETHDirectClient<S> {
     }
 }
 
-impl<S: EthereumSigner> ETHDirectClient<S> {
+impl<S: RootstockSigner> ETHDirectClient<S> {
     pub fn new(
         transport: Http,
         contract: ethabi::Contract,
@@ -299,7 +299,8 @@ impl<S: EthereumSigner> ETHDirectClient<S> {
                 {
                     let revert_code = e.message.clone();
                     let mut revert_reason = e.message;
-                    let last_symbol_num = std::cmp::min(REVERT_REASON_START_INDEX, revert_reason.len());
+                    let last_symbol_num =
+                        std::cmp::min(REVERT_REASON_START_INDEX, revert_reason.len());
                     revert_reason.replace_range(0..last_symbol_num, "");
                     (revert_code, revert_reason)
                 } else {

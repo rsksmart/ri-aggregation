@@ -14,14 +14,14 @@ use crate::ethereum_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
 use crate::ETHDirectClient;
 
 #[derive(Debug, Default)]
-struct MultiplexerEthereumClientInner {
+struct MultiplexerRootstockClientInner {
     clients: Vec<(String, ETHDirectClient<PrivateKeySigner>)>,
     preferred: AtomicUsize,
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct MultiplexerEthereumClient {
-    inner: Arc<MultiplexerEthereumClientInner>,
+pub struct MultiplexerRootstockClient {
+    inner: Arc<MultiplexerRootstockClientInner>,
 }
 
 macro_rules! multiple_call {
@@ -36,7 +36,7 @@ macro_rules! multiple_call {
     };
 }
 
-impl MultiplexerEthereumClient {
+impl MultiplexerRootstockClient {
     pub fn new() -> Self {
         Self::default()
     }

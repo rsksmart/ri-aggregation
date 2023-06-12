@@ -8,7 +8,7 @@ use zksync_types::TokenInfo;
 // Local uses
 use crate::envy_load;
 
-/// Configuration for the Ethereum sender crate.
+/// Configuration for the Rootstock sender crate.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct TokenHandlerConfig {
     /// The name of the trusted list of tokens.

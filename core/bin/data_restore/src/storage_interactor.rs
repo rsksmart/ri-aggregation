@@ -98,7 +98,7 @@ impl StorageInteractor<'_> {
     ///
     /// Ids of operations with no corresponding block in storage yet.
     /// These should not be removed from the events state until the next
-    /// Ethereum block range.
+    /// Rootstock block range.
     ///
     pub async fn apply_priority_op_data(
         &mut self,

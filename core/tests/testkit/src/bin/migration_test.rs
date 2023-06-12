@@ -1,4 +1,4 @@
-use crate::eth_account::{parse_ether, EthereumAccount};
+use crate::eth_account::{parse_ether, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts, run_upgrade_franklin};
 use crate::zksync_account::ZkSyncAccount;
 use std::time::Instant;
@@ -27,7 +27,7 @@ async fn migration_test() {
 
     let transport = Http::new(&testkit_config.web3_url).expect("http transport start");
     let (test_accounts_info, commit_account_info) = get_test_accounts();
-    let commit_account = EthereumAccount::new(
+    let commit_account = RootstockAccount::new(
         commit_account_info.private_key,
         commit_account_info.address,
         transport.clone(),
@@ -38,7 +38,7 @@ async fn migration_test() {
     let eth_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
-            EthereumAccount::new(
+            RootstockAccount::new(
                 test_eth_account.private_key,
                 test_eth_account.address,
                 transport.clone(),

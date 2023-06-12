@@ -167,7 +167,7 @@ impl AccountLifespan {
             None => {
                 // Probably we did something wrong, no big deal.
                 return Ok(ReportLabel::skipped(
-                    "Ethereum transaction for deposit failed",
+                    "Rootstock transaction for deposit failed",
                 ));
             }
         };

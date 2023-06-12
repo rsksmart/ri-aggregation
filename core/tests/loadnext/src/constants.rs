@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-/// Normally, block is committed on Ethereum every 15 seconds; however there are no guarantees that our transaction
-/// will be included in the next block right after sending.
+/// Normally, block is committed on Rootstock every 15 seconds; however there are no guarantees that our transaction
+/// will be included in the next block right after sending.  FIXME: 15 secs probably not correct on RSK
 pub const ETH_CONFIRMATION_TIMEOUT: Duration = Duration::from_secs(300);
 /// Loadtest assumes that blocks on the server will be created relatively quickly (without timeouts set in hours),
 /// but nonetheless we want to provide some buffer in case we'll spam the server with way too many transactions

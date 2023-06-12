@@ -6,7 +6,7 @@ This document covers the structure of this repository.
 
 zkSync repository consists of several applications:
 
-- zkSync smart contract: a Solidity smart contract deployed on the Ethereum blockchain, which manages users' balances
+- zkSync smart contract: a Solidity smart contract deployed on the Rootstock blockchain, which manages users' balances
   and verifies the correctness of operations performed within zkSync network.
 - Prover application: a worker application that creates a proof for an executed block. Prover applications poll Server
   application for available jobs, and once there is a new block, server provides a witness (input data to generate a
@@ -30,14 +30,14 @@ zkSync repository consists of several applications:
   - Microservices applications, which are capable of working independently from each other:
     - `Core` service (`core/bin/zksync_core`) maintains transactions memory pool and commits new blocks.
     - `API` service (`core/bin/zksync_api`) provides a server "front-end": REST API & JSON RPC HTTP/WS implementations.
-    - `Ethereum Sender` service (`core/bin/zksync_eth_sender`) finalizes the blocks by sending corresponding Ethereum
+    - `Rootstock Sender` service (`core/bin/zksync_eth_sender`) finalizes the blocks by sending corresponding Rootstock
       transactions to the L1 smart contract.
     - `Witness Generator` service (`core/bin/zksync_witness_generator`) creates input data required for provers to prove
       blocks, and implements a private API server for provers to interact with.
 
 Thus, in order to get a local zkSync setup running, the following has to be done:
 
-- zkSync smart contract is compiled and deployed to the Ethereum.
+- zkSync smart contract is compiled and deployed to the Rootstock.
 - zkSync server is launched.
 - At least one prover is launched and connected to the Server application.
 
@@ -58,7 +58,7 @@ This section provides an overview on folders / sub-projects that exist in this r
     - `/parse_pub_data`: Utility to parse zkSync operation pubdata.
     - `/zksync_core`: zkSync server Core microservice.
     - `/zksync_api`: zkSync server API microservice.
-    - `/zksync_eth_sender`: zkSync server Ethereum sender microservice.
+    - `/zksync_eth_sender`: zkSync server Rootstock sender microservice.
     - `/zksync_witness_generator`: zkSync server Witness Generator & Prover Server microservice.
   - `/lib`: Dependencies of the binaries above.
     - `/basic_types`: Crate with declaration of the essential zkSync primitives, such as `address`.
@@ -66,7 +66,7 @@ This section provides an overview on folders / sub-projects that exist in this r
     - `/config`: Utilities to load configuration options of zkSync applications.
     - `/contracts`: Loaders for zkSync contracts interfaces and ABI.
     - `/crypto`: Cryptographical primitives using among zkSync crates.
-    - `/eth_client`: Module providing an interface to interact with an Ethereum node.
+    - `/eth_client`: Module providing an interface to interact with an Rootstock node.
     - `/prometheus_exporter`: Prometheus data exporter.
     - `/prover_utils`: Utilities related to the proof generation.
     - `/state`: A fast pre-circuit executor for zkSync transactions used on the Server level to generate blocks.
@@ -84,7 +84,7 @@ This section provides an overview on folders / sub-projects that exist in this r
 - `/etc`: Configration files.
   - `/env`: `.env` files that contain environment variables for different configuration of zkSync Server / Prover.
   - `/js`: Configuration files for JavaScript applications (such as Explorer).
-  - `/tokens`: Configuration of supported Ethereum ERC-20 tokens.
+  - `/tokens`: Configuration of supported Rootstock ERC-20 tokens.
 - `/infrastructure`: Application that aren't naturally a part of zkSync core, but are related to it.
 - `/keys`: Verification keys for `circuit` module.
 - `/sdk`: Implementation of client libraries for zkSync network in different programming languages.

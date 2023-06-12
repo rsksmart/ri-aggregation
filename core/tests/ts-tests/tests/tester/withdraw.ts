@@ -21,7 +21,7 @@ Tester.prototype.testVerifiedWithdraw = async function (
 ) {
     const tokenAddress = wallet.provider.tokenSet.resolveTokenAddress(token);
 
-    const onchainBalanceBefore = await wallet.getEthereumBalance(token);
+    const onchainBalanceBefore = await wallet.getRootstockBalance(token);
     const pendingBalanceBefore = await this.contract.getPendingBalance(wallet.address(), tokenAddress);
     const handle = await this.testWithdraw(wallet, token, amount, fastProcessing);
 
@@ -33,7 +33,7 @@ Tester.prototype.testVerifiedWithdraw = async function (
 
     await this.ethProvider.waitForTransaction(withdrawalTxHash as string);
 
-    const onchainBalanceAfter = await wallet.getEthereumBalance(token);
+    const onchainBalanceAfter = await wallet.getRootstockBalance(token);
     const pendingBalanceAfter = await this.contract.getPendingBalance(wallet.address(), tokenAddress);
     expect(
         onchainBalanceAfter.sub(onchainBalanceBefore).add(pendingBalanceAfter).sub(pendingBalanceBefore).eq(amount),
@@ -51,7 +51,7 @@ Tester.prototype.testWithdraw = async function (
     const { totalFee: fee } = await this.syncProvider.getTransactionFee(type, wallet.address(), token);
     const balanceBefore = await wallet.getBalance(token);
 
-    const handle = await wallet.withdrawFromSyncToEthereum({
+    const handle = await wallet.withdrawFromSyncToRootstock({
         ethAddress: wallet.address(),
         token,
         amount,

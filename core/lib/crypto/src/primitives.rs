@@ -49,9 +49,9 @@ impl<Fr: PrimeField> GetBitsFixed for Fr {
     }
 }
 
-pub struct EthereumSerializer;
+pub struct RootstockSerializer;
 
-impl EthereumSerializer {
+impl RootstockSerializer {
     pub fn serialize_g1(point: &<Bn256 as Engine>::G1Affine) -> (U256, U256) {
         if point.is_zero() {
             return (U256::zero(), U256::zero());

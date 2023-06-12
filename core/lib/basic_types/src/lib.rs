@@ -43,7 +43,7 @@ basic_type!(
 );
 
 basic_type!(
-    /// Block number in the Ethereum network.
+    /// Block number in the Rootstock network.
     EthBlockId,
     u64
 );

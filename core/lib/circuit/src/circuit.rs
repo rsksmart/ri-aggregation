@@ -494,7 +494,7 @@ impl<'a, E: RescueEngine + JubjubEngine> Circuit<E> for ZkSyncCircuit<'a, E> {
         )?;
 
         {
-            // Now it's time to pack the initial SHA256 hash due to Ethereum BE encoding
+            // Now it's time to pack the initial SHA256 hash due to Rootstock BE encoding
             // and start rolling the hash
 
             let mut initial_hash_data: Vec<Boolean> = vec![];
@@ -4270,7 +4270,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
         )?;
         rhs_valid_flags.push(is_rhs_balance_eq_amount);
 
-        // Check that `eth_address` corresponds to the rhs account Ethereum address.
+        // Check that `eth_address` corresponds to the rhs account Rootstock address.
         let is_address_correct = CircuitElement::equals(
             cs.namespace(|| "is_address_correct"),
             &rhs.account.address,
@@ -4278,7 +4278,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
         )?;
         rhs_valid_flags.push(is_address_correct);
 
-        // Check that `eth_address` corresponds to the rhs account Ethereum address.
+        // Check that `eth_address` corresponds to the rhs account Rootstock address.
         let is_pubkey_empty = CircuitElement::equals(
             cs.namespace(|| "is_pubkey_empty"),
             &rhs.account.pub_key_hash,

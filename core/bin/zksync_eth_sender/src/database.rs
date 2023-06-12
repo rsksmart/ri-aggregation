@@ -19,14 +19,14 @@ pub(super) trait DatabaseInterface {
     async fn acquire_connection(&self) -> anyhow::Result<StorageProcessor<'_>>;
 
     /// Loads the unconfirmed and unprocessed operations from the database.
-    /// Unconfirmed operations are Ethereum operations that were started, but not confirmed yet.
+    /// Unconfirmed operations are Rootstock operations that were started, but not confirmed yet.
     /// Unprocessed operations are zkSync operations that were not started at all.
     async fn load_unconfirmed_operations(
         &self,
         connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<VecDeque<ETHOperation>>;
 
-    /// Load all the aggregated operations that have no confirmation yet and have not yet been sent to Ethereum.
+    /// Load all the aggregated operations that have no confirmation yet and have not yet been sent to Rootstock.
     /// Should be used after server restart only.
     async fn restore_unprocessed_operations(
         &self,
@@ -58,7 +58,7 @@ pub(super) trait DatabaseInterface {
         raw_tx: Vec<u8>,
     ) -> anyhow::Result<InsertedOperationResponse>;
 
-    /// Adds a tx hash entry associated with some Ethereum operation to the database.
+    /// Adds a tx hash entry associated with some Rootstock operation to the database.
     async fn add_hash_entry(
         &self,
         connection: &mut StorageProcessor<'_>,
@@ -66,7 +66,7 @@ pub(super) trait DatabaseInterface {
         hash: &H256,
     ) -> anyhow::Result<()>;
 
-    /// Adds a new tx info to the previously started Ethereum operation.
+    /// Adds a new tx info to the previously started Rootstock operation.
     async fn update_eth_tx(
         &self,
         connection: &mut StorageProcessor<'_>,
@@ -83,7 +83,7 @@ pub(super) trait DatabaseInterface {
         op: &ETHOperation,
     ) -> anyhow::Result<()>;
 
-    /// Loads the stored Ethereum operations stats.
+    /// Loads the stored Rootstock operations stats.
     async fn load_stats(&self, connection: &mut StorageProcessor<'_>) -> anyhow::Result<ETHStats>;
 
     /// Loads the stored gas price limit.
@@ -240,7 +240,7 @@ impl DatabaseInterface for Database {
             return Ok(true);
         }
 
-        // Since the operations are sent to the Ethereum one by one,
+        // Since the operations are sent to the Rootstock one by one,
         // we simply consider the operation with ID less by one.
         let previous_op = op.id - 1;
         let confirmed = connection

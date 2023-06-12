@@ -82,7 +82,7 @@ impl TokenLike {
         Self::Symbol(value.to_string())
     }
 
-    /// Checks if the token is Ethereum.
+    /// Checks if the token is Rootstock.
     pub fn is_eth(&self) -> bool {
         match self {
             Self::Symbol(symbol) => {

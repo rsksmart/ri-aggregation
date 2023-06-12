@@ -24,7 +24,7 @@ import {
     ERC20_DEPOSIT_GAS_LIMIT,
     ERC20_RECOMMENDED_DEPOSIT_GAS_LIMIT,
     ETH_RECOMMENDED_DEPOSIT_GAS_LIMIT,
-    getEthereumBalance,
+    getRootstockBalance,
     IERC20_INTERFACE,
     isTokenETH,
     MAX_ERC20_APPROVE_AMOUNT,
@@ -48,14 +48,14 @@ export abstract class AbstractWallet {
     //
 
     /**
-     * Returns the current Ethereum signer connected to this wallet.
+     * Returns the current Rootstock signer connected to this wallet.
      */
     abstract ethSigner(): ethers.Signer;
 
     /**
-     * Returns the current Ethereum **message** signer connected to this wallet.
+     * Returns the current Rootstock **message** signer connected to this wallet.
      *
-     * Ethereum message signer differs from common Ethereum signer in that message signer
+     * Rootstock message signer differs from common Rootstock signer in that message signer
      * returns Ethereum signatures along with its type (e.g. ECDSA / EIP1271).
      */
     abstract ethMessageSigner(): EthMessageSigner;
@@ -152,9 +152,9 @@ export abstract class AbstractWallet {
         return BigNumber.from(balance);
     }
 
-    async getEthereumBalance(token: TokenLike): Promise<BigNumber> {
+    async getRootstockBalance(token: TokenLike): Promise<BigNumber> {
         try {
-            return await getEthereumBalance(this.ethSigner().provider, this.provider, this.cachedAddress, token);
+            return await getRootstockBalance(this.ethSigner().provider, this.provider, this.cachedAddress, token);
         } catch (e) {
             this.modifyEthersError(e);
         }
@@ -241,7 +241,7 @@ export abstract class AbstractWallet {
 
     // Withdraw part
 
-    abstract signWithdrawFromSyncToEthereum(withdraw: {
+    abstract signWithdrawFromSyncToRootstock(withdraw: {
         ethAddress: string;
         token: TokenLike;
         amount: BigNumberish;
@@ -251,7 +251,7 @@ export abstract class AbstractWallet {
         validUntil?: number;
     }): Promise<SignedTransaction>;
 
-    abstract withdrawFromSyncToEthereum(withdraw: {
+    abstract withdrawFromSyncToRootstock(withdraw: {
         ethAddress: string;
         token: TokenLike;
         amount: BigNumberish;
@@ -433,7 +433,7 @@ export abstract class AbstractWallet {
     // *************
     // L1 operations
     //
-    // Priority operations, ones that sent through Ethereum.
+    // Priority operations, ones that sent through Rootstock.
     //
 
     async approveERC20TokenDeposits(
@@ -453,7 +453,7 @@ export abstract class AbstractWallet {
         }
     }
 
-    async depositToSyncFromEthereum(deposit: {
+    async depositToSyncFromRootstock(deposit: {
         depositTo: Address;
         token: TokenLike;
         amount: BigNumberish;
@@ -700,7 +700,7 @@ export abstract class AbstractWallet {
             ];
             if (!correct_errors.includes(error.code)) {
                 // This is an error which we don't expect
-                error.message = `Ethereum smart wallet JSON RPC server returned the following error while executing an operation: "${error.message}". Please contact your smart wallet support for help.`;
+                error.message = `Rootstock smart wallet JSON RPC server returned the following error while executing an operation: "${error.message}". Please contact your smart wallet support for help.`;
             }
         }
 

@@ -42,7 +42,7 @@ export async function getDefaultRestProvider(
     } else if (network === 'mainnet-zk') {
         return await RestProvider.newProvider('https://api.zksync.io/api/v0.2', pollIntervalMilliSecs, network);
     } else {
-        throw new Error(`Ethereum network ${network} is not supported`);
+        throw new Error(`Rootstock network ${network} is not supported`);
     }
 }
 

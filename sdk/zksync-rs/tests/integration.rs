@@ -15,7 +15,7 @@
 //!    ensure that dummy prover is enabled.
 //! 2. If tests are failing with an error "replacement transaction underpriced",
 //!    ensure that tests are ran in one thread. Running the tests with many threads won't
-//!    work, since many thread will attempt in sending transactions from one (main) Ethereum
+//!    work, since many thread will attempt in sending transactions from one (main) Rootstock
 //!    account, which may result in nonce mismatch.
 //!    Also, if there will be many tests running at once, and the server will die, it will be
 //!    hard to distinguish which test exactly caused this problem.
@@ -39,9 +39,9 @@ use zksync::{
     zksync_types::{
         tx::PackedEthSignature, PriorityOp, PriorityOpId, Token, TokenLike, TxFeeTypes, ZkSyncTx,
     },
-    EthereumProvider, Network, RpcProvider, Wallet, WalletCredentials,
+    Network, RootstockProvider, RpcProvider, Wallet, WalletCredentials,
 };
-use zksync_eth_signer::{EthereumSigner, PrivateKeySigner};
+use zksync_eth_signer::{PrivateKeySigner, RootstockSigner};
 
 const ETH_ADDR: &str = "c354d97642faa06781b76ffb6786f72cd7746c97";
 const ETH_PRIVATE_KEY: &str = "20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323";
@@ -77,9 +77,9 @@ fn one_ether() -> U256 {
     U256::from(10).pow(18.into())
 }
 
-/// Auxiliary function that returns the balance of the account on Ethereum.
-async fn get_ethereum_balance<S: EthereumSigner>(
-    eth_provider: &EthereumProvider<S>,
+/// Auxiliary function that returns the balance of the account on Rootstock.
+async fn get_ethereum_balance<S: RootstockSigner>(
+    eth_provider: &RootstockProvider<S>,
     address: Address,
     token: &Token,
 ) -> Result<U256, anyhow::Error> {
@@ -88,7 +88,7 @@ async fn get_ethereum_balance<S: EthereumSigner>(
             .client()
             .eth_balance(address)
             .await
-            .map_err(|_e| anyhow::anyhow!("failed to request balance from Ethereum {}", _e));
+            .map_err(|_e| anyhow::anyhow!("failed to request balance from Rootstock {}", _e));
     }
     eth_provider
         .client()
@@ -102,12 +102,12 @@ async fn get_ethereum_balance<S: EthereumSigner>(
             ierc20_contract(),
         )
         .await
-        .map_err(|_e| anyhow::anyhow!("failed to request erc20 balance from Ethereum"))
+        .map_err(|_e| anyhow::anyhow!("failed to request erc20 balance from Rootstock"))
 }
 
 async fn wait_for_deposit_and_update_account_id<S, P>(wallet: &mut Wallet<S, P>)
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let timeout = Duration::from_secs(60);
@@ -122,7 +122,7 @@ where
         .is_none()
     {
         if start.elapsed() > timeout {
-            panic!("Timeout elapsed while waiting for Ethereum transaction");
+            panic!("Timeout elapsed while waiting for Rootstock transaction");
         }
         poller.tick().await;
     }
@@ -160,7 +160,7 @@ async fn transfer_to(
 /// from a new wallet without SigningKey.
 async fn test_tx_fail<S, P>(zksync_depositor_wallet: &Wallet<S, P>) -> Result<(), anyhow::Error>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let provider = RpcProvider::new(Network::Localhost);
@@ -196,7 +196,7 @@ async fn test_deposit<S, P>(
     amount: u128,
 ) -> Result<(), anyhow::Error>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let ethereum = deposit_wallet.ethereum(web3_addr()).await?;
@@ -254,7 +254,7 @@ async fn test_change_pubkey<S, P>(
     token_symbol: &str,
 ) -> Result<(), anyhow::Error>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     if !sync_wallet.is_signing_key_set().await? {
@@ -282,7 +282,7 @@ async fn test_transfer<S, P>(
     transfer_amount: u128,
 ) -> Result<(), anyhow::Error>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let transfer_amount = num::BigUint::from(transfer_amount);
@@ -337,7 +337,7 @@ async fn test_transfer_to_self<S, P>(
     transfer_amount: u128,
 ) -> Result<(), anyhow::Error>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let transfer_amount = num::BigUint::from(transfer_amount);
@@ -375,7 +375,7 @@ where
 /// Makes a withdraw operation on L2
 /// checks the correctness of their execution.
 async fn test_withdraw<S, P>(
-    eth_provider: &EthereumProvider<S>,
+    eth_provider: &RootstockProvider<S>,
     main_contract: &Contract<Http>,
     sync_wallet: &Wallet<S, P>,
     withdraw_to: &Wallet<S, P>,
@@ -383,7 +383,7 @@ async fn test_withdraw<S, P>(
     amount: u128,
 ) -> Result<(), anyhow::Error>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let total_fee = sync_wallet
@@ -460,7 +460,7 @@ where
 /// checks the correctness of their execution.
 async fn move_funds<S, P>(
     main_contract: &Contract<Http>,
-    eth_provider: &EthereumProvider<S>,
+    eth_provider: &RootstockProvider<S>,
     depositor_wallet: &Wallet<S, P>,
     alice: &mut Wallet<S, P>,
     bob: &Wallet<S, P>,
@@ -468,7 +468,7 @@ async fn move_funds<S, P>(
     deposit_amount: u128,
 ) -> Result<(), anyhow::Error>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     let token_like = token_like.into();

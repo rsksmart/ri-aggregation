@@ -163,7 +163,7 @@ export class Wallet extends AbstractWallet {
             switch (tx.type) {
                 case 'Withdraw':
                     messages.push(this.getWithdrawEthMessagePart(tx.tx));
-                    const withdraw = { tx: await this.getWithdrawFromSyncToEthereum(tx.tx) };
+                    const withdraw = { tx: await this.getWithdrawFromSyncToRootstock(tx.tx) };
                     processedTxs.push(withdraw);
                     break;
                 case 'Transfer':
@@ -395,7 +395,7 @@ export class Wallet extends AbstractWallet {
 
     // Withdraw part
 
-    override async signWithdrawFromSyncToEthereum(withdraw: {
+    override async signWithdrawFromSyncToRootstock(withdraw: {
         ethAddress: string;
         token: TokenLike;
         amount: BigNumberish;
@@ -406,7 +406,7 @@ export class Wallet extends AbstractWallet {
     }): Promise<SignedTransaction> {
         withdraw.validFrom = withdraw.validFrom || 0;
         withdraw.validUntil = withdraw.validUntil || MAX_TIMESTAMP;
-        const signedWithdrawTransaction = await this.getWithdrawFromSyncToEthereum(withdraw as any);
+        const signedWithdrawTransaction = await this.getWithdrawFromSyncToRootstock(withdraw as any);
 
         const stringAmount = BigNumber.from(withdraw.amount).isZero()
             ? null
@@ -432,7 +432,7 @@ export class Wallet extends AbstractWallet {
         };
     }
 
-    override async withdrawFromSyncToEthereum(withdraw: {
+    override async withdrawFromSyncToRootstock(withdraw: {
         ethAddress: string;
         token: TokenLike;
         amount: BigNumberish;
@@ -451,7 +451,7 @@ export class Wallet extends AbstractWallet {
             withdraw.fee = fullFee.totalFee;
         }
 
-        const signedWithdrawTransaction = await this.signWithdrawFromSyncToEthereum(withdraw as any);
+        const signedWithdrawTransaction = await this.signWithdrawFromSyncToRootstock(withdraw as any);
 
         return submitSignedTransaction(signedWithdrawTransaction, this.provider, withdraw.fastProcessing);
     }
@@ -876,7 +876,7 @@ export class Wallet extends AbstractWallet {
         return changePubKeyTx;
     }
 
-    protected async getWithdrawFromSyncToEthereum(withdraw: {
+    protected async getWithdrawFromSyncToRootstock(withdraw: {
         ethAddress: string;
         token: TokenLike;
         amount: BigNumberish;

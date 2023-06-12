@@ -13,7 +13,7 @@
 //!   stored in the `connection` module.
 //! - `Schema`s. Schema is a logically extracted access to the part of
 //!   the database, e.g. `ethereum` (which contains methods to store the
-//!   information about interaction with the Ethereum blockchain).
+//!   information about interaction with the Rootstock blockchain).
 //! - `StorageProcessor`. A structure that connects the two points above
 //!   into one user-friendly interface.
 //!
@@ -34,7 +34,7 @@
 //!
 //! - config, for the server config.
 //! - data_restore, for the data_restore crate.
-//! - ethereum, for the data associated with the Ethereum blockchain.
+//! - ethereum, for the data associated with the Rootstock blockchain.
 //! - prover, for the data on prover jobs, proofs, etc.
 //! - tokens, for storing and loading known tokens.
 //! - chain - the biggest one, which includes several schemas for the ZKSync sidechain itself.
@@ -216,9 +216,9 @@ impl<'a> StorageProcessor<'a> {
         data_restore::DataRestoreSchema(self)
     }
 
-    /// Gains access to the `Ethereum` schema.
-    pub fn ethereum_schema(&mut self) -> ethereum::EthereumSchema<'_, 'a> {
-        ethereum::EthereumSchema(self)
+    /// Gains access to the `Rootstock` schema.
+    pub fn ethereum_schema(&mut self) -> ethereum::RootstockSchema<'_, 'a> {
+        ethereum::RootstockSchema(self)
     }
 
     /// Gains access to the `Prover` schema.

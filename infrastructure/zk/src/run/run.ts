@@ -173,7 +173,7 @@ export async function testAccounts() {
         address: ethWallet.address,
         privateKey: ethWallet.privateKey
     });
-    
+
     console.log(JSON.stringify(walletKeys, null, 4));
 }
 

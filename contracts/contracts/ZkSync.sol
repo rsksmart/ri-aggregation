@@ -523,7 +523,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
 
     /// @dev Executes one block
     /// @dev 1. Processes all priority operations or save them as pending
-    /// @dev 2. Finalizes block on Ethereum
+    /// @dev 2. Finalizes block on Rootstock
     /// @dev _executedBlockIdx is index in the array of the blocks that we want to execute together
     function executeOneBlock(
         ExecuteBlockInfo memory _blockExecuteData,
@@ -585,7 +585,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
 
     /// @notice Execute blocks, completing priority operations and processing withdrawals.
     /// @notice 1. Processes all pending operations (Send Exits, Complete priority requests)
-    /// @notice 2. Finalizes block on Ethereum
+    /// @notice 2. Finalizes block on Rootstock
     function executeBlocks(ExecuteBlockInfo[] memory _blocksData, bool _completeWithdrawals) external nonReentrant {
         requireActive();
         governance.requireActiveValidator(msg.sender);

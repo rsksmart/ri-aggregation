@@ -8,10 +8,10 @@ use crate::{
     DatabaseInterface, GasAdjuster,
 };
 
-use zksync_eth_client::ethereum_gateway::EthereumGateway;
+use zksync_eth_client::ethereum_gateway::RootstockGateway;
 
-/// Creates `Ethereum` and `Database` instances for the `GasAdjuster` tests.
-async fn eth_and_db_clients() -> (EthereumGateway, MockDatabase) {
+/// Creates `Rootstock` and `Database` instances for the `GasAdjuster` tests.
+async fn eth_and_db_clients() -> (RootstockGateway, MockDatabase) {
     let eth_sender = default_eth_sender().await;
 
     (eth_sender.ethereum, eth_sender.db)
@@ -74,7 +74,7 @@ async fn lower_gas_limit() {
     ];
 
     for (eth_client_price, previous_price, expected_price) in test_vector {
-        // Set the gas price in Ethereum.
+        // Set the gas price in Rootstock.
         ethereum
             .get_mut_mock()
             .unwrap()
@@ -117,7 +117,7 @@ async fn initial_upper_gas_limit() {
     db.update_gas_price_limit(PRICE_LIMIT).await.unwrap();
     let mut gas_adjuster: GasAdjuster<MockDatabase> = GasAdjuster::new(&db).await;
 
-    // Set the gas price in Ethereum, which is greater than the current limit.
+    // Set the gas price in Rootstock, which is greater than the current limit.
     ethereum
         .get_mut_mock()
         .unwrap()
@@ -160,7 +160,7 @@ async fn average_gas_price_stored_correctly() {
     let initial_db_price = db.average_gas_price().await;
     assert_eq!(initial_db_price, 0u64.into()); // Check just in case.
 
-    // Set the low gas price in Ethereum.
+    // Set the low gas price in Rootstock.
     let ethereum_price = U256::from(1u64);
     ethereum
         .get_mut_mock()
@@ -232,7 +232,7 @@ async fn gas_price_limit_scaling() {
         gas_adjuster.keep_updated(&ethereum, &db).await;
     }
 
-    // Stats are gathered. Now they're based on the Ethereum price.
+    // Stats are gathered. Now they're based on the Rootstock price.
     expected_price = ethereum
         .get_mock()
         .unwrap()
@@ -265,7 +265,7 @@ async fn gas_price_limit_scaling() {
     }
 }
 
-/// Checks that if the price suggested by the Ethereum client is below the price limit,
+/// Checks that if the price suggested by the Rootstock client is below the price limit,
 /// the limit is calculated as (average of samples) * scale_factor.
 #[tokio::test]
 #[ignore] // TODO: Disabled as currently the limit is calculated based on the network price rather than used txs samples (ZKS-118).
@@ -281,7 +281,7 @@ async fn gas_price_limit_average_basis() {
     const N_SAMPLES: usize = GasStatistics::GAS_PRICE_SAMPLES_AMOUNT;
     // Initial price limit to set.
     const PRICE_LIMIT: u64 = 10000;
-    // Price suggested by Ethereum client;
+    // Price suggested by Rootstock client;
     const SUGGESTED_PRICE: u64 = 10;
 
     let (mut ethereum, db) = eth_and_db_clients().await;
@@ -344,7 +344,7 @@ async fn gas_price_limit_preservation() {
     const PRICE_UPDATES: u64 = 2;
     // Amount of samples to gather statistics.
     const N_SAMPLES: usize = GasStatistics::GAS_PRICE_SAMPLES_AMOUNT;
-    // Price suggested by Ethereum client;
+    // Price suggested by Rootstock client;
     const SUGGESTED_PRICE: u64 = 10;
     // Price limit to set: it's based on the suggested price, so it won't ever change.
     let price_limit = scale_gas_limit(SUGGESTED_PRICE);
@@ -366,7 +366,7 @@ async fn gas_price_limit_preservation() {
         // Request the gas price N times to gather statistics in GasAdjuster.
         for _ in 0..N_SAMPLES {
             // Every time we get the new price (without old price provided), so no scaling
-            // involved, every time an Ethereum client price is provided (since it's lower
+            // involved, every time an Rootstock client price is provided (since it's lower
             // than the limit).
             let suggested_price = gas_adjuster.get_gas_price(&ethereum, None).await.unwrap();
             assert_eq!(suggested_price, SUGGESTED_PRICE.into());

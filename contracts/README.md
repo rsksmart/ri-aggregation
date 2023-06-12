@@ -1,7 +1,7 @@
 # zkSync Smart Contracts
 
-**zkSync** is a scaling and privacy engine for Ethereum. Its current functionality scope includes low gas transfers of
-ETH and ERC20 tokens in the Ethereum network.
+**zkSync** is a scaling and privacy engine for Rootstock. Its current functionality scope includes low gas transfers of
+ETH and ERC20 tokens in the Rootstock network.
 
 This document is a description of the zkSync smart contracts.
 

@@ -218,7 +218,7 @@ impl Executor {
         let ethereum = master_wallet
             .ethereum(&self.config.web3_url)
             .await
-            .expect("Can't get Ethereum client");
+            .expect("Can't get Rootstock client");
 
         // We request nonce each time, so that if one iteration was failed, it will be repeated on the next iteration.
         let mut nonce = master_wallet.account_info().await?.committed.nonce;
@@ -422,7 +422,7 @@ impl Executor {
             .master_wallet
             .ethereum(&self.config.web3_url)
             .await
-            .expect("Can't get Ethereum client");
+            .expect("Can't get Rootstock client");
 
         // Assuming that gas prices on testnets are somewhat stable, we will consider it a constant.
         let average_gas_price = ethereum.client().get_gas_price().await?;
@@ -451,21 +451,21 @@ impl Executor {
         u128::max_value() >> 32
     }
 
-    /// Ensures that Ethereum transaction was successfully executed.
+    /// Ensures that Rootstock transaction was successfully executed.
     async fn assert_eth_tx_success(&self, receipt: &TransactionReceipt) {
         if receipt.status != Some(1u64.into()) {
             let master_wallet = &self.pool.master_wallet;
             let ethereum = master_wallet
                 .ethereum(&self.config.web3_url)
                 .await
-                .expect("Can't get Ethereum client");
+                .expect("Can't get Rootstock client");
             let failure_reason = ethereum
                 .client()
                 .failure_reason(receipt.transaction_hash)
                 .await
-                .expect("Can't connect to the Ethereum node");
+                .expect("Can't connect to the Rootstock node");
             panic!(
-                "Ethereum transaction unexpectedly failed.\nReceipt: {:#?}\nFailure reason: {:#?}",
+                "Rootstock transaction unexpectedly failed.\nReceipt: {:#?}\nFailure reason: {:#?}",
                 receipt, failure_reason
             );
         }

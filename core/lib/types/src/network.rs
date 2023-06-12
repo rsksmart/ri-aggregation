@@ -20,7 +20,7 @@ pub enum Network {
     Mainnet,
     /// RSK Testnet.
     Testnet,
-    /// Self-hosted Ethereum & zkSync networks.
+    /// Self-hosted Rootstock & zkSync networks.
     Localhost,
     /// Unknown network type.
     Unknown,
@@ -55,7 +55,7 @@ impl fmt::Display for Network {
 }
 
 impl Network {
-    /// Returns the network chain ID on the Ethereum side.
+    /// Returns the network chain ID on the Rootstock side.
     pub fn chain_id(self) -> u64 {
         match self {
             Network::Mainnet => 30,

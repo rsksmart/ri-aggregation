@@ -70,7 +70,7 @@ async function main() {
         console.log('Mint successful');
     }
 
-    const deposit = await deployerWallet.depositToSyncFromEthereum({
+    const deposit = await deployerWallet.depositToSyncFromRootstock({
         depositTo: faucetEthWallet.address,
         token: 'MLTT',
         amount: DEPOSIT_AMOUNT,

@@ -17,20 +17,20 @@ use crate::{
 };
 
 #[derive(Debug)]
-struct MockEthereumInner {
+struct MockRootstockInner {
     block_number: u64,
     gas_price: U256,
     tx_statuses: Arc<RwLock<HashMap<H256, ExecutedTxStatus>>>,
     sent_txs: Arc<RwLock<HashSet<Vec<u8>>>>,
 }
 
-/// Mock Ethereum client is capable of recording all the incoming requests for the further analysis.
+/// Mock Rootstock client is capable of recording all the incoming requests for the further analysis.
 #[derive(Debug, Default, Clone)]
-pub struct MockEthereum {
-    inner: Arc<MockEthereumInner>,
+pub struct MockRootstock {
+    inner: Arc<MockRootstockInner>,
 }
 
-impl Default for MockEthereumInner {
+impl Default for MockRootstockInner {
     fn default() -> Self {
         Self {
             block_number: 1,
@@ -41,7 +41,7 @@ impl Default for MockEthereumInner {
     }
 }
 
-impl MockEthereum {
+impl MockRootstock {
     /// A fake `sha256` hasher, which calculates an `std::hash` instead.
     /// This is done for simplicity and it's also much faster.
     pub fn fake_sha256(data: &[u8]) -> H256 {

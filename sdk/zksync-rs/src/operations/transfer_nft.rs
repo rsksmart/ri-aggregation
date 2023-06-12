@@ -1,5 +1,5 @@
 use num::BigUint;
-use zksync_eth_signer::EthereumSigner;
+use zksync_eth_signer::RootstockSigner;
 use zksync_types::{
     helpers::{closest_packable_fee_amount, is_fee_amount_packable},
     tx::PackedEthSignature,
@@ -13,7 +13,7 @@ use crate::{
 use zksync_types::tx::TimeRange;
 
 #[derive(Debug)]
-pub struct TransferNFTBuilder<'a, S: EthereumSigner, P: Provider> {
+pub struct TransferNFTBuilder<'a, S: RootstockSigner, P: Provider> {
     wallet: &'a Wallet<S, P>,
     nft: Option<NFT>,
     fee_token: Option<Token>,
@@ -26,7 +26,7 @@ pub struct TransferNFTBuilder<'a, S: EthereumSigner, P: Provider> {
 
 impl<'a, S, P> TransferNFTBuilder<'a, S, P>
 where
-    S: EthereumSigner,
+    S: RootstockSigner,
     P: Provider + Clone,
 {
     /// Initializes a transfer nft transaction batch building process.

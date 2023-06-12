@@ -16,7 +16,7 @@ declare module './tester' {
 Tester.prototype.testDeposit = async function (wallet: Wallet, token: TokenLike, amount: BigNumber, approve?: boolean) {
     const balanceBefore = await wallet.getBalance(token);
 
-    const depositHandle = await this.syncWallet.depositToSyncFromEthereum({
+    const depositHandle = await this.syncWallet.depositToSyncFromRootstock({
         depositTo: wallet.address(),
         token: token,
         amount,

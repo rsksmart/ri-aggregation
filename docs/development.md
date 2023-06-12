@@ -25,11 +25,11 @@ zk init
 This command will do the following:
 
 - Generate `$ZKSYNC_HOME/etc/env/dev.env` file with settings for the applications.
-- Initialize docker containers with `geth` Ethereum node and `postgres` database for local development.
+- Initialize docker containers with `geth` Rootstock node and `postgres` database for local development. FIXME: no geth!
 - Download and unpack files for cryptographical backend (`circuit`).
 - Generate required smart contracts.
 - Compile all the smart contracts.
-- Deploy smart contracts to the local Ethereum network.
+- Deploy smart contracts to the local Rootstock network.
 - Initialize database and apply migrations.
 - Insert required data into created database.
 - Create “genesis block” for server.
@@ -185,7 +185,7 @@ zk test db
 
 - To generate proofs one must have the universal setup files (which are downloaded during the first initialization).
 - To verify generated proofs one must have verification keys. Verification keys are generated for the specific circuit
-  `Verifier.sol` contract; without these keys it is impossible to verify proofs on the Ethereum network.
+  `Verifier.sol` contract; without these keys it is impossible to verify proofs on the Rootstock network.
 
 Steps to do after updating circuit:
 

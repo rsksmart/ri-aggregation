@@ -1,7 +1,7 @@
-//! Ethereum transaction utilities.
+//! Rootstock transaction utilities.
 //!
 //! This module contains the helper types that represent the state of
-//! ZKSync and Ethereum blockchains synchronization.
+//! ZKSync and Rootstock blockchains synchronization.
 
 // Built-in deps
 // External uses
@@ -9,7 +9,7 @@ use zksync_basic_types::TransactionReceipt;
 // Workspace uses
 use zksync_storage::ethereum::records::ETHStats as StorageETHStats;
 
-/// Collected statistics of the amount of operations sent to the Ethereum.
+/// Collected statistics of the amount of operations sent to the Rootstock.
 /// This structure represents the count of **operations**, and not transactions.
 /// It means that if for some operation there were N txs sent, it will be counted as
 /// 1 operation anyway.
@@ -33,7 +33,7 @@ impl From<StorageETHStats> for ETHStats {
     }
 }
 
-/// The result of the check for the Ethereum transaction commitment.
+/// The result of the check for the Rootstock transaction commitment.
 #[derive(Debug, PartialEq)]
 pub enum TxCheckOutcome {
     /// Transaction was committed and confirmed.

@@ -28,7 +28,7 @@ pub struct EventsState {
     /// Priority operations data parsed from logs
     /// emitted by the zkSync contract. Required for
     /// fetching fields which are not present in public data
-    /// such as Ethereum transaction hash.
+    /// such as Rootstock transaction hash.
     pub priority_op_data: HashMap<SerialId, PriorityOp>,
 }
 
@@ -84,7 +84,7 @@ impl EventsState {
     /// * `web3` - Web3 provider url
     /// * `zksync_contract` - Rollup contract
     /// * `governance_contract` - Governance contract
-    /// * `contract_upgrade_eth_blocks` - Ethereum blocks that include correct UpgradeComplete events
+    /// * `contract_upgrade_eth_blocks` - Rootstock blocks that include correct UpgradeComplete events
     /// * `eth_blocks_step` - Blocks step for watching
     /// * `end_eth_blocks_offset` - Delta between last eth block and last watched block
     /// * `init_contract_version` - The initial version of the deployed zkSync contract
@@ -115,7 +115,7 @@ impl EventsState {
         // Parse the initial contract version.
         let init_contract_version = ZkSyncContractVersion::try_from(init_contract_version)
             .expect("invalid initial contract version provided");
-        // Pass Ethereum block numbers that correspond to `UpgradeComplete`
+        // Pass Rootstock block numbers that correspond to `UpgradeComplete`
         // events emitted by the Upgrade GateKeeper. Should be provided by the
         // config.
         self.last_watched_eth_block_number = to_block_number;
@@ -164,7 +164,7 @@ impl EventsState {
     /// * `zksync_contract` - Rollup contract
     /// * `governance_contract` - Governance contract
     /// * `last_watched_block_number` - the current last watched eth block
-    /// * `eth_blocks_step` - Ethereum blocks delta step
+    /// * `eth_blocks_step` - Rootstock blocks delta step
     /// * `end_eth_blocks_offset` - last block delta
     ///
     #[allow(clippy::needless_lifetimes)] // Cargo clippy gives a false positive warning on needless_lifetimes there, so can be allowed.
@@ -335,7 +335,7 @@ impl EventsState {
                     if err.to_string().contains(LIMIT_ERR) {
                         if to_number <= from_number || to_number - from_number == 1.into() {
                             return Err(format_err!(
-                                "Ethereum node failed to return logs for a single block: {}",
+                                "Rootstock node failed to return logs for a single block: {}",
                                 err
                             ));
                         }
@@ -450,7 +450,7 @@ impl EventsState {
     ///
     /// * `contract` - Specified contract
     /// * `logs` - Block events with their info
-    /// * `contract_upgrade_eth_blocks` - Ethereum blocks that correspond to emitted `UpgradeComplete` events
+    /// * `contract_upgrade_eth_blocks` - Rootstock blocks that correspond to emitted `UpgradeComplete` events
     /// * `init_contract_version` - The initial version of the deployed zkSync contract
     fn update_blocks_state<T: Transport>(
         &mut self,
@@ -510,7 +510,7 @@ impl EventsState {
             // Restore the number of contract upgrades using Eth block numbers.
             let eth_block = log
                 .block_number
-                .expect("no Ethereum block number for block log");
+                .expect("no Rootstock block number for block log");
             let num = contract_upgrade_eth_blocks
                 .iter()
                 .filter(|block| eth_block.as_u64() >= **block)

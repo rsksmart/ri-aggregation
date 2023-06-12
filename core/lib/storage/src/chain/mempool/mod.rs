@@ -884,7 +884,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
             let operation =
                 serde_json::to_value(op).expect("Failed to serialize reverted transaction");
             let eth_sign_data = eth_sign_data.as_ref().map(|sign_data| {
-                serde_json::to_value(sign_data).expect("Failed to serialize Ethereum sign data")
+                serde_json::to_value(sign_data).expect("Failed to serialize Rootstock sign data")
             });
 
             sqlx::query!(

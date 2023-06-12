@@ -1,4 +1,4 @@
-//! Ethereum watcher polls the Ethereum node for new events
+//! Rootstock watcher polls the Rootstock node for new events
 //! such as PriorityQueue events or NewToken events.
 //! New events are accepted to the zkSync network once they have the sufficient amount of confirmations.
 //!
@@ -23,7 +23,7 @@ use web3::types::BlockNumber;
 
 use zksync_config::{ContractsConfig, ETHWatchConfig};
 use zksync_crypto::params::PRIORITY_EXPIRATION;
-use zksync_eth_client::ethereum_gateway::EthereumGateway;
+use zksync_eth_client::ethereum_gateway::RootstockGateway;
 use zksync_mempool::MempoolTransactionRequest;
 use zksync_types::{NewTokenEvent, PriorityOp, RegisterNFTFactoryEvent, SerialId};
 
@@ -41,11 +41,11 @@ mod tests;
 /// before repeating the request.
 const RATE_LIMIT_DELAY: Duration = Duration::from_secs(30);
 
-/// Ethereum Watcher operating mode.
+/// Rootstock Watcher operating mode.
 ///
-/// Normally Ethereum watcher will always poll the Ethereum node upon request,
+/// Normally Rootstock watcher will always poll the Rootstock node upon request,
 /// but unfortunately `infura` may decline requests if they are produced too
-/// often. Thus, upon receiving the order to limit amount of request, Ethereum
+/// often. Thus, upon receiving the order to limit amount of request, Rootstock
 /// watcher goes into "backoff" mode in which polling is disabled for a
 /// certain amount of time.
 #[derive(Debug)]
@@ -101,7 +101,7 @@ impl<W: EthClient> EthWatch<W> {
         }
     }
 
-    /// Atomically replaces the stored Ethereum state.
+    /// Atomically replaces the stored Rootstock state.
     fn set_new_state(&mut self, new_state: ETHState) {
         self.eth_state = new_state;
     }
@@ -416,7 +416,7 @@ impl<W: EthClient> EthWatch<W> {
                     if let Err(error) = poll_result {
                         if self.is_backoff_requested(&error) {
                             vlog::warn!(
-                                "Rate limit was reached, as reported by Ethereum node. \
+                                "Rate limit was reached, as reported by Rootstock node. \
                                 Entering the backoff mode"
                             );
                             self.enter_backoff_mode();
@@ -452,7 +452,7 @@ impl<W: EthClient> EthWatch<W> {
 pub async fn start_eth_watch(
     eth_req_sender: mpsc::Sender<EthWatchRequest>,
     eth_req_receiver: mpsc::Receiver<EthWatchRequest>,
-    eth_gateway: EthereumGateway,
+    eth_gateway: RootstockGateway,
     contract_config: &ContractsConfig,
     eth_watcher_config: &ETHWatchConfig,
     mempool_req_sender: mpsc::Sender<MempoolTransactionRequest>,

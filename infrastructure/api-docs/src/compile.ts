@@ -54,7 +54,7 @@ async function setupWallet() {
 
     const syncWallet = await zksync.Wallet.fromEthSigner(ethWallet, syncProvider);
 
-    const depositHandle = await syncWallet.depositToSyncFromEthereum({
+    const depositHandle = await syncWallet.depositToSyncFromRootstock({
         depositTo: syncWallet.address(),
         token: 'ETH',
         amount: syncWallet.provider.tokenSet.parseToken('ETH', '1000')

@@ -318,7 +318,7 @@ pub fn public_data_commitment<E: JubjubEngine>(
 ) -> E::Fr {
     let mut public_data_initial_bits = vec![];
 
-    // these two are BE encodings because an iterator is BE. This is also an Ethereum standard behavior
+    // these two are BE encodings because an iterator is BE. This is also an Rootstock standard behavior
 
     let block_number_bits: Vec<bool> =
         BitIterator::new(block_number.unwrap().into_repr()).collect();

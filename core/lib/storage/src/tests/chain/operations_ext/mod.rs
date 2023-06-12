@@ -128,7 +128,7 @@ pub async fn commit_block(
     storage: &mut StorageProcessor<'_>,
     block_number: BlockNumber,
 ) -> QueryResult<()> {
-    // Required since we use `EthereumSchema` in this test.
+    // Required since we use `RootstockSchema` in this test.
     storage.ethereum_schema().initialize_eth_data().await?;
     BlockSchema(storage)
         .save_full_block(gen_sample_block(
