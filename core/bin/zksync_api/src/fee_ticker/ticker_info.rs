@@ -303,11 +303,11 @@ mod tests {
         let connection_pool = ConnectionPool::new(Some(1));
         let ticker_api = TickerInfo::new(connection_pool);
 
-        let actual_qoute = FeeTickerInfo::get_last_token_price(&ticker_api, rdoc_token_like)
+        let actual_quote = FeeTickerInfo::get_last_token_price(&ticker_api, rdoc_token_like)
             .await
             .unwrap();
 
-        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), RDOC_VALUE);
+        assert_eq!(actual_quote.usd_price.to_u32().unwrap(), RDOC_VALUE);
     }
 
     #[tokio::test]
@@ -351,10 +351,10 @@ mod tests {
 
         let ticker_api = TickerInfo::new(connection_pool);
 
-        let actual_qoute = FeeTickerInfo::get_last_token_price(&ticker_api, test_token_like)
+        let actual_quote = FeeTickerInfo::get_last_token_price(&ticker_api, test_token_like)
             .await
             .unwrap();
 
-        assert_eq!(actual_qoute.usd_price.to_u32().unwrap(), TEST_TOKEN_VALUE);
+        assert_eq!(actual_quote.usd_price.to_u32().unwrap(), TEST_TOKEN_VALUE);
     }
 }
