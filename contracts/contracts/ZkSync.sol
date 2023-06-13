@@ -206,7 +206,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         delegateAdditional();
     }
 
-    /// @notice Deposit ETH to Layer 2 - transfer ether from user into contract, validate it, register deposit
+    /// @notice Deposit RBTC to Layer 2 - transfer ether from user into contract, validate it, register deposit
     /// @param _zkSyncAddress The receiver Layer 2 address
     function depositETH(address _zkSyncAddress) external payable {
         require(_zkSyncAddress != SPECIAL_ACCOUNT_ADDRESS, "P");
@@ -274,7 +274,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
 
         if (tokenId == 0) {
             (bool success, ) = _owner.call{value: amount}("");
-            require(success, "d"); // ETH withdraw failed
+            require(success, "d"); // RBTC withdraw failed
         } else {
             // We will allow withdrawals of `value` such that:
             // `value` <= user pending balance

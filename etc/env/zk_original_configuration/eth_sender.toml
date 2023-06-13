@@ -22,7 +22,7 @@ is_enabled=true
 # Defaults to 400 gwei (400 * 10^9 wei)
 default=400000000000
 # Interval between updates of the gas price limit (used by GasAdjuster) in seconds
-# Defaults to 150 (avg time of 1 block is 15 seconds, thus ~10 ETH blocks)
+# Defaults to 150 (avg time of 1 block is 15 seconds, thus ~10 RSK blocks)
 update_interval=150
 # Interval between adding the Rootstock node gas price to the GasAdjuster (in seconds).
 # Defaults to 15 seconds (1 Rootstock block)

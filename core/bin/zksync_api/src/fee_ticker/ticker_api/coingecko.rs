@@ -100,7 +100,7 @@ impl TokenPriceAPI for CoinGeckoAPI {
             .take(6)
             .map(|token_price| token_price.1);
 
-        // We use max price for ETH token because we spend ETH with each commit and collect token
+        // We use max price for ETH token because we spend RBTC with each commit and collect token
         // so it is in our interest to assume highest price for ETH.
         // Theoretically we should use min and max price for ETH in our ticker formula when we
         // calculate fee for tx with ETH token. Practically if we use only max price foe ETH it is fine because

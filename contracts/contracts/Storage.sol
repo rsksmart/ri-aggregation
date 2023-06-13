@@ -56,7 +56,7 @@ contract Storage {
 
     /// @Old rollup block stored data - not used in current version
     /// @member validator Block producer
-    /// @member committedAtBlock ETH block number at which this block was committed
+    /// @member committedAtBlock RSK block number at which this block was committed
     /// @member cumulativeOnchainOperations Total number of operations in this and all previous blocks
     /// @member priorityOperations Total number of priority operations for this block
     /// @member commitment Hash of the block circuit commitment
@@ -86,7 +86,7 @@ contract Storage {
     /// @notice Old Priority Operation container
     /// @member opType Priority operation type
     /// @member pubData Priority operation public data
-    /// @member expirationBlock Expiration block number (ETH block) for this request (must be satisfied before)
+    /// @member expirationBlock Expiration block number (RSK block) for this request (must be satisfied before)
     struct PriorityOperationDEPRECATED {
         Operations.OpType opType;
         bytes pubData;
@@ -142,7 +142,7 @@ contract Storage {
 
     /// @notice Priority Operation container
     /// @member hashedPubData Hashed priority operation public data
-    /// @member expirationBlock Expiration block number (ETH block) for this request (must be satisfied before)
+    /// @member expirationBlock Expiration block number (RSK block) for this request (must be satisfied before)
     /// @member opType Priority operation type
     struct PriorityOperation {
         bytes20 hashedPubData;

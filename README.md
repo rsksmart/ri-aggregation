@@ -4,7 +4,7 @@
 
 [![Live on Mainnet](https://img.shields.io/badge/wallet-Live%20on%20Mainnet-blue)](https://wallet.zksync.io)
 
-zkSync is a scaling and privacy engine for Rootstock. Its current functionality scope includes low gas transfers of ETH
+zkSync is a scaling and privacy engine for Rootstock. Its current functionality scope includes low gas transfers of RBTC
 and ERC20 tokens in the Rootstock network.
 
 ## Description

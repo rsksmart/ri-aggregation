@@ -43,7 +43,7 @@ const TestSuite = (providerType: 'REST' | 'RPC') =>
             await tester.disconnect();
         });
 
-        it('should recover failed ETH withdraw', async () => {
+        it('should recover failed RBTC withdraw', async () => {
             await tester.testRecoverETHWithdrawal(alice, TEST_CONFIG.withdrawalHelpers.revert_receive_address, TX_AMOUNT);
         });
 

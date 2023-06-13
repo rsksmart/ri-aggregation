@@ -94,7 +94,7 @@ Anybody can perform verification for the committed block.
 
 ## Reverting expired blocks
 
-If the first committed block was not verified within `EXPECT_VERIFICATION_IN` ETH blocks, all unverified blocks will be
+If the first committed block was not verified within `EXPECT_VERIFICATION_IN` RSK blocks, all unverified blocks will be
 reverted and the funds held by **onchain operations** and **priority requests** will be released and stored on
 **root-chain balances**..
 
@@ -166,13 +166,13 @@ shall be easy and cheap, but MUST require a separate opt-in or allow the user to
 
 The update mechanism shall follow this workflow:
 
-- The **network governor** can schedule an update, specifying a target contract and an ETH block deadline.
+- The **network governor** can schedule an update, specifying a target contract and an RSK block deadline.
 - A scheduled update can not be cancelled (to proceed with migration even if exodus mode is activated while waiting for
   the migration; otherwise we would need to recover funds scheduled for migration with a separate procedure).
 - Users can opt-in via a separate ZKSync operation: move specific token balance into a subtree on a special migration
   account. This subtree must also maintain and update counters for total balances per token.
 - The migration account MUST have a dedicated hardcoded account_id (to specify).
-- When the scheduled ETH block is reached, anybody MUST be able to seal the migration.
+- When the scheduled RSK block is reached, anybody MUST be able to seal the migration.
 - After the migration is sealed, anybody MUST be able to transfer total balances for each token by providing a SNARK
   proof of the amounts from the migration account subtree.
 - When the migration is sealed, the contract enters exodus mode: whoever has not opted in can now exit. Thus, the root
