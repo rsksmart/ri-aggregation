@@ -5,9 +5,9 @@ use zksync_types::{AccountId, Address, TokenId, TokenLike};
 use crate::{
     credentials::WalletCredentials,
     error::ClientError,
-    ethereum::RootstockProvider,
     operations::*,
     provider::Provider,
+    rootstock::RootstockProvider,
     signer::Signer,
     tokens_cache::TokensCache,
     types::{AccountInfo, BlockStatus, NFT},
@@ -161,7 +161,7 @@ where
     /// Creates an `RootstockProvider` to interact with the Rootstock network.
     ///
     /// Returns an error if wallet was created without providing an Rootstock private key.
-    pub async fn ethereum(
+    pub async fn rootstock(
         &self,
         web3_addr: impl AsRef<str>,
     ) -> Result<RootstockProvider<S>, ClientError> {

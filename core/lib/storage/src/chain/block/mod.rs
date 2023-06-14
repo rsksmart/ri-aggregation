@@ -359,7 +359,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
         // This query does the following:
         // - joins the `operations` and `eth_tx_hashes` (using the intermediate `eth_ops_binding` table)
         //   tables to collect the data:
-        //   block number, ethereum transaction hash, action type and action creation timestamp;
+        //   block number, rootstock transaction hash, action type and action creation timestamp;
         // - joins the `blocks` table with result of the join twice: once for committed operations
         //   and verified operations;
         // - collects the {limit} blocks in the descending order with the data gathered above.
@@ -423,7 +423,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
         // This query does the following:
         // - joins the `operations` and `eth_tx_hashes` (using the intermediate `eth_ops_binding` table)
         //   tables to collect the data:
-        //   block number, ethereum transaction hash, action type and action creation timestamp;
+        //   block number, rootstock transaction hash, action type and action creation timestamp;
         // - joins the `blocks` table with result of the join twice: once for committed operations
         //   and verified operations;
         // - collects the {limit} blocks in the ascending order with the data gathered above.
@@ -550,7 +550,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
         // This query does the following:
         // - joins the `operations` and `eth_tx_hashes` (using the intermediate `eth_ops_binding` table)
         //   tables to collect the data:
-        //   block number, ethereum transaction hash, action type and action creation timestamp;
+        //   block number, rootstock transaction hash, action type and action creation timestamp;
         // - joins the `blocks` table with result of the join twice: once for committed operations
         //   and verified operations;
         // - takes the only block that satisfies one of the following criteria

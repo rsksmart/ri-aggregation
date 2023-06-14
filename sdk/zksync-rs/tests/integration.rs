@@ -28,8 +28,8 @@ use num::Zero;
 use zksync::operations::SyncTransactionHandle;
 use zksync::{
     error::ClientError,
-    ethereum::{ierc20_contract, PriorityOpHandle},
     provider::Provider,
+    rootstock::{ierc20_contract, PriorityOpHandle},
     types::BlockStatus,
     web3::{
         contract::{Contract, Options},
@@ -146,13 +146,13 @@ async fn transfer_to(
             .unwrap();
 
     let wallet = Wallet::new(provider, credentials).await?;
-    let ethereum = wallet.ethereum(web3_addr()).await?;
-    let hash = ethereum
+    let rootstock = wallet.rootstock(web3_addr()).await?;
+    let hash = rootstock
         .transfer(token_like.into(), amount.into(), to)
         .await
         .unwrap();
 
-    ethereum.wait_for_tx(hash).await?;
+    rootstock.wait_for_tx(hash).await?;
     Ok(())
 }
 
@@ -199,25 +199,25 @@ where
     S: RootstockSigner,
     P: Provider + Clone,
 {
-    let ethereum = deposit_wallet.ethereum(web3_addr()).await?;
+    let rootstock = deposit_wallet.rootstock(web3_addr()).await?;
 
     if !deposit_wallet.tokens.is_eth(token.address.into()) {
-        if !ethereum.is_erc20_deposit_approved(token.address).await? {
-            let tx_approve_deposits = ethereum
+        if !rootstock.is_erc20_deposit_approved(token.address).await? {
+            let tx_approve_deposits = rootstock
                 .limited_approve_erc20_token_deposits(token.address, U256::from(amount))
                 .await?;
-            ethereum.wait_for_tx(tx_approve_deposits).await?;
+            rootstock.wait_for_tx(tx_approve_deposits).await?;
         }
 
         assert!(
-            ethereum
+            rootstock
                 .is_limited_erc20_deposit_approved(token.address, U256::from(amount))
                 .await?,
             "Token should be approved"
         );
     };
 
-    let deposit_tx_hash = ethereum
+    let deposit_tx_hash = rootstock
         .deposit(
             &token.symbol as &str,
             U256::from(amount),
@@ -225,20 +225,22 @@ where
         )
         .await?;
 
-    ethereum.wait_for_tx(deposit_tx_hash).await?;
+    rootstock.wait_for_tx(deposit_tx_hash).await?;
     wait_for_deposit_and_update_account_id(sync_wallet).await;
 
     if !sync_wallet.tokens.is_eth(token.address.into()) {
         // It should not be approved because we have approved only DEPOSIT_AMOUNT, not the maximum possible amount of deposit
         assert!(
-            !ethereum
+            !rootstock
                 .is_limited_erc20_deposit_approved(token.address, U256::from(amount))
                 .await?
         );
         // Unlimited approve for deposit
-        let tx_approve_deposits = ethereum.approve_erc20_token_deposits(token.address).await?;
-        ethereum.wait_for_tx(tx_approve_deposits).await?;
-        assert!(ethereum.is_erc20_deposit_approved(token.address).await?);
+        let tx_approve_deposits = rootstock
+            .approve_erc20_token_deposits(token.address)
+            .await?;
+        rootstock.wait_for_tx(tx_approve_deposits).await?;
+        assert!(rootstock.is_erc20_deposit_approved(token.address).await?);
     }
 
     // To be sure that the deposit is committed, we need to listen to the event `NewPriorityRequest`
@@ -535,13 +537,13 @@ async fn init_account_with_one_ether(
             .unwrap();
 
     let mut wallet = Wallet::new(provider, credentials).await?;
-    let ethereum = wallet.ethereum(web3_addr()).await?;
+    let rootstock = wallet.rootstock(web3_addr()).await?;
 
-    let deposit_tx_hash = ethereum
+    let deposit_tx_hash = rootstock
         .deposit("ETH", one_ether() / 2, wallet.address())
         .await?;
 
-    ethereum.wait_for_tx(deposit_tx_hash).await?;
+    rootstock.wait_for_tx(deposit_tx_hash).await?;
 
     // Update stored wallet ID after we initialized a wallet via deposit.
     wait_for_deposit_and_update_account_id(&mut wallet).await;
@@ -583,7 +585,7 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
     let mut alice_wallet1 = make_wallet(provider.clone(), eth_random_account_credentials()).await?;
     let bob_wallet1 = make_wallet(provider.clone(), eth_random_account_credentials()).await?;
 
-    let ethereum = main_wallet.ethereum(web3_addr()).await?;
+    let rootstock = main_wallet.rootstock(web3_addr()).await?;
 
     let main_contract = {
         let address_response = provider.contract_address().await?;
@@ -593,7 +595,7 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
             &address_response.main_contract
         }
         .parse()?;
-        ethereum
+        rootstock
             .client()
             .main_contract_with_address(contract_address)
     };
@@ -618,11 +620,11 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
     transfer_to("DAI", dai_deposit_amount, sync_depositor_wallet.address()).await?;
 
     assert_eq!(
-        get_ethereum_balance(&ethereum, sync_depositor_wallet.address(), &token_eth).await?,
+        get_ethereum_balance(&rootstock, sync_depositor_wallet.address(), &token_eth).await?,
         eth_deposit_amount
     );
     assert_eq!(
-        get_ethereum_balance(&ethereum, sync_depositor_wallet.address(), &token_dai).await?,
+        get_ethereum_balance(&rootstock, sync_depositor_wallet.address(), &token_dai).await?,
         dai_deposit_amount
     );
 
@@ -630,7 +632,7 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
 
     move_funds(
         &main_contract,
-        &ethereum,
+        &rootstock,
         &sync_depositor_wallet,
         &mut alice_wallet1,
         &bob_wallet1,
@@ -771,7 +773,7 @@ async fn nft_test() -> Result<(), anyhow::Error> {
 #[cfg_attr(not(feature = "integration-tests"), ignore)]
 async fn full_exit_test() -> Result<(), anyhow::Error> {
     let wallet = init_account_with_one_ether().await?;
-    let ethereum = wallet.ethereum(web3_addr()).await?;
+    let rootstock = wallet.rootstock(web3_addr()).await?;
 
     // Mint NFT
     let handle = wallet
@@ -788,10 +790,10 @@ async fn full_exit_test() -> Result<(), anyhow::Error> {
         .await?;
 
     // ETH full exit
-    let full_exit_tx_hash = ethereum
+    let full_exit_tx_hash = rootstock
         .full_exit("ETH", wallet.account_id().unwrap())
         .await?;
-    let receipt = ethereum.wait_for_tx(full_exit_tx_hash).await?;
+    let receipt = rootstock.wait_for_tx(full_exit_tx_hash).await?;
     let mut serial_id = None;
     for log in receipt.logs {
         if let Ok(op) = PriorityOp::try_from(log) {
@@ -817,10 +819,10 @@ async fn full_exit_test() -> Result<(), anyhow::Error> {
         .last()
         .expect("NFT was not minted")
         .id;
-    let full_exit_nft_tx_hash = ethereum
+    let full_exit_nft_tx_hash = rootstock
         .full_exit_nft(token_id, wallet.account_id().unwrap())
         .await?;
-    let receipt = ethereum.wait_for_tx(full_exit_nft_tx_hash).await?;
+    let receipt = rootstock.wait_for_tx(full_exit_nft_tx_hash).await?;
     let mut serial_id = None;
     for log in receipt.logs {
         if let Ok(op) = PriorityOp::try_from(log) {

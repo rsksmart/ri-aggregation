@@ -7,7 +7,7 @@
 // External uses
 use zksync_basic_types::TransactionReceipt;
 // Workspace uses
-use zksync_storage::ethereum::records::ETHStats as StorageETHStats;
+use zksync_storage::rootstock::records::ETHStats as StorageETHStats;
 
 /// Collected statistics of the amount of operations sent to the Rootstock.
 /// This structure represents the count of **operations**, and not transactions.

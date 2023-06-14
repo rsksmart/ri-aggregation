@@ -471,7 +471,7 @@ impl TestServerConfig {
                 .commit_state_update(block_number, &updates, 0)
                 .await?;
 
-            // Store & confirm the operation in the ethereum schema, as it's used for obtaining
+            // Store & confirm the operation in the rootstock schema, as it's used for obtaining
             // commit/verify/execute hashes.
             let aggregated_operation = gen_unique_aggregated_operation_with_txs(
                 block_number,

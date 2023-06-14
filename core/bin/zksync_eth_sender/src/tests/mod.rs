@@ -42,7 +42,7 @@ async fn deadline_block() {
 async fn transaction_state() {
     let mut eth_sender = default_eth_sender().await;
     let current_block = eth_sender
-        .ethereum
+        .rootstock
         .get_mock()
         .unwrap()
         .block_number()
@@ -80,7 +80,7 @@ async fn transaction_state() {
         receipt: None,
     };
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .add_execution(&eth_operations[0].used_tx_hashes[0], &committed_response)
@@ -93,7 +93,7 @@ async fn transaction_state() {
         receipt: None,
     };
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .add_execution(&eth_operations[1].used_tx_hashes[0], &pending_response)
@@ -106,7 +106,7 @@ async fn transaction_state() {
         receipt: Some(Default::default()),
     };
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .add_execution(&eth_operations[2].used_tx_hashes[0], &failed_response)
@@ -119,7 +119,7 @@ async fn transaction_state() {
         receipt: Some(Default::default()),
     };
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .add_execution(
@@ -261,7 +261,7 @@ async fn operation_commitment_workflow() {
         // Now we should see that transaction is stored in the database and sent to the Rootstock.
         let deadline_block = eth_sender.get_deadline_block(
             eth_sender
-                .ethereum
+                .rootstock
                 .get_mock()
                 .unwrap()
                 .block_number()
@@ -282,7 +282,7 @@ async fn operation_commitment_workflow() {
         eth_sender.db.assert_stored(&expected_tx).await;
 
         eth_sender
-            .ethereum
+            .rootstock
             .get_mock()
             .unwrap()
             .assert_sent(&expected_tx.used_tx_hashes[0].as_bytes().to_vec())
@@ -291,7 +291,7 @@ async fn operation_commitment_workflow() {
         // Increment block, make the transaction look successfully executed, and process the
         // operation again.
         eth_sender
-            .ethereum
+            .rootstock
             .get_mut_mock()
             .unwrap()
             .add_successfull_execution(expected_tx.used_tx_hashes[0], WAIT_CONFIRMATIONS)
@@ -331,7 +331,7 @@ async fn stuck_transaction() {
     let nonce = 0;
     let deadline_block = eth_sender.get_deadline_block(
         eth_sender
-            .ethereum
+            .rootstock
             .get_mock()
             .unwrap()
             .block_number()
@@ -350,7 +350,7 @@ async fn stuck_transaction() {
 
     let block_number = U64::from(
         eth_sender
-            .ethereum
+            .rootstock
             .get_mock()
             .unwrap()
             .block_number()
@@ -361,7 +361,7 @@ async fn stuck_transaction() {
     );
     // Skip some blocks and expect sender to send a new tx.
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .set_block_number(block_number)
@@ -374,7 +374,7 @@ async fn stuck_transaction() {
         .create_supplement_tx(
             eth_sender.get_deadline_block(
                 eth_sender
-                    .ethereum
+                    .rootstock
                     .get_mock()
                     .unwrap()
                     .block_number()
@@ -388,7 +388,7 @@ async fn stuck_transaction() {
         .unwrap();
     eth_sender.db.assert_stored(&stuck_tx).await;
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .assert_sent(&expected_sent_tx.hash.as_bytes().to_vec())
@@ -397,7 +397,7 @@ async fn stuck_transaction() {
     // Increment block, make the transaction look successfully executed, and process the
     // operation again.
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .add_successfull_execution(stuck_tx.used_tx_hashes[1], WAIT_CONFIRMATIONS)
@@ -522,7 +522,7 @@ async fn operations_order() {
         // Check that current expected tx is stored.
         eth_sender.db.assert_stored(&tx).await;
         eth_sender
-            .ethereum
+            .rootstock
             .get_mock()
             .unwrap()
             .assert_sent(&current_tx_hash.as_bytes().to_vec())
@@ -530,7 +530,7 @@ async fn operations_order() {
 
         // Mark the tx as successfully
         eth_sender
-            .ethereum
+            .rootstock
             .get_mut_mock()
             .unwrap()
             .add_successfull_execution(current_tx_hash, WAIT_CONFIRMATIONS)
@@ -562,7 +562,7 @@ async fn transaction_failure() {
     let nonce = 0;
     let deadline_block = eth_sender.get_deadline_block(
         eth_sender
-            .ethereum
+            .rootstock
             .get_mock()
             .unwrap()
             .block_number()
@@ -583,7 +583,7 @@ async fn transaction_failure() {
     eth_sender.proceed_next_operations(0).await;
 
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .add_failed_execution(&failing_tx.used_tx_hashes[0], WAIT_CONFIRMATIONS)
@@ -685,7 +685,7 @@ async fn restore_state() {
 
         let deadline_block = eth_sender.get_deadline_block(
             eth_sender
-                .ethereum
+                .rootstock
                 .get_mock()
                 .unwrap()
                 .block_number()
@@ -707,7 +707,7 @@ async fn restore_state() {
         eth_sender.db.assert_stored(&expected_tx).await;
 
         eth_sender
-            .ethereum
+            .rootstock
             .get_mut_mock()
             .unwrap()
             .add_successfull_execution(expected_tx.used_tx_hashes[0], WAIT_CONFIRMATIONS)
@@ -744,7 +744,7 @@ async fn confirmations_independence() {
     let nonce = 0;
     let deadline_block = eth_sender.get_deadline_block(
         eth_sender
-            .ethereum
+            .rootstock
             .get_mock()
             .unwrap()
             .block_number()
@@ -763,7 +763,7 @@ async fn confirmations_independence() {
 
     let block_number = U64::from(
         eth_sender
-            .ethereum
+            .rootstock
             .get_mock()
             .unwrap()
             .block_number()
@@ -773,7 +773,7 @@ async fn confirmations_independence() {
             + EXPECTED_WAIT_TIME_BLOCKS,
     );
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .set_block_number(block_number)
@@ -785,7 +785,7 @@ async fn confirmations_independence() {
         .create_supplement_tx(
             eth_sender.get_deadline_block(
                 eth_sender
-                    .ethereum
+                    .rootstock
                     .get_mock()
                     .unwrap()
                     .block_number()
@@ -799,7 +799,7 @@ async fn confirmations_independence() {
         .unwrap();
     eth_sender.db.assert_stored(&stuck_tx).await;
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .assert_sent(&next_tx.hash.as_bytes().to_vec())
@@ -807,7 +807,7 @@ async fn confirmations_independence() {
 
     // Add a confirmation for a *stuck* transaction.
     eth_sender
-        .ethereum
+        .rootstock
         .get_mut_mock()
         .unwrap()
         .add_successfull_execution(stuck_tx.used_tx_hashes[0], WAIT_CONFIRMATIONS)
@@ -943,7 +943,7 @@ async fn concurrent_operations_order() {
             // Check that current expected tx is stored.
             eth_sender.db.assert_stored(tx).await;
             eth_sender
-                .ethereum
+                .rootstock
                 .get_mock()
                 .unwrap()
                 .assert_sent(&current_tx_hash.as_bytes().to_vec())
@@ -951,7 +951,7 @@ async fn concurrent_operations_order() {
 
             // Mark the tx as successfully
             eth_sender
-                .ethereum
+                .rootstock
                 .get_mut_mock()
                 .unwrap()
                 .add_successfull_execution(current_tx_hash, WAIT_CONFIRMATIONS)

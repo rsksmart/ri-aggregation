@@ -26,11 +26,11 @@ use zksync_crypto::rand::{SeedableRng, XorShiftRng};
 pub(crate) mod chain;
 mod config;
 mod data_restore;
-mod ethereum;
 mod event;
 mod forced_exit_requests;
 mod misc;
 mod prover;
+mod rootstock;
 mod tokens;
 
 pub use db_test_macro::test as db_test;

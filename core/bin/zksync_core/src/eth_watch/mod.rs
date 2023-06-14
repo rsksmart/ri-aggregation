@@ -81,7 +81,7 @@ pub struct EthWatch<W: EthClient> {
     client: W,
     mempool_tx_sender: mpsc::Sender<MempoolTransactionRequest>,
     eth_state: ETHState,
-    /// All ethereum events are accepted after sufficient confirmations to eliminate risk of block reorg.
+    /// All rootstock events are accepted after sufficient confirmations to eliminate risk of block reorg.
     number_of_confirmations_for_event: u64,
     mode: WatcherMode,
 }
@@ -144,7 +144,7 @@ impl<W: EthClient> EthWatch<W> {
 
         // It's assumed that for the current state all priority operations have consecutive ids,
         // i.e. there're no gaps. Thus, there're two opportunities for missing them: either
-        // we're missing last operations from the previous ethereum blocks range or there's a gap
+        // we're missing last operations from the previous rootstock blocks range or there's a gap
         // in the updated state.
 
         // Extend the existing priority operations with the new ones.

@@ -123,7 +123,7 @@ impl StorageInteractor<'_> {
     ///
     /// * `block_events` - Rollup contract block events descriptions
     /// * `tokens` - Tokens that had been added to system
-    /// * `last_watched_eth_block_number` - Last watched ethereum block
+    /// * `last_watched_eth_block_number` - Last watched rootstock block
     ///
     pub async fn save_events_state(
         &mut self,

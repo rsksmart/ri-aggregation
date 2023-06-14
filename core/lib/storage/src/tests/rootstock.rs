@@ -4,14 +4,14 @@ use std::str::FromStr;
 // Workspace imports
 use zksync_types::{
     aggregated_operations::{AggregatedActionType, AggregatedOperation},
-    ethereum::ETHOperation,
+    rootstock::ETHOperation,
     BlockNumber, H256, U256,
 };
 // Local imports
 use crate::test_data::{gen_unique_aggregated_operation, BLOCK_SIZE_CHUNKS};
 use crate::tests::db_test;
 use crate::{
-    chain::operations::OperationsSchema, ethereum::RootstockSchema, QueryResult, StorageProcessor,
+    chain::operations::OperationsSchema, rootstock::RootstockSchema, QueryResult, StorageProcessor,
 };
 use num::BigUint;
 

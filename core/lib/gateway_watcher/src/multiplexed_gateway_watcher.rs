@@ -40,11 +40,11 @@ enum BlockVerificationError {
 }
 
 impl MultiplexedGatewayWatcher {
-    /// Instantiates `MultiplexedGatewayWatcher` for provided multiplexed ethereum gateway.
+    /// Instantiates `MultiplexedGatewayWatcher` for provided multiplexed rootstock gateway.
     ///
     /// # Panics
     ///
-    /// If given ethereum gateway is not `Multiplexed`.
+    /// If given rootstock gateway is not `Multiplexed`.
     pub fn new(
         gateway: RootstockGateway,
         interval: Duration,
@@ -201,11 +201,11 @@ impl MultiplexedGatewayWatcher {
     }
 }
 
-/// Runs `MultiplexedGatewayWatcher` as a tokio task for provided multiplexed ethereum gateway.
+/// Runs `MultiplexedGatewayWatcher` as a tokio task for provided multiplexed rootstock gateway.
 ///
 /// # Panics
 ///
-/// If given ethereum gateway is not `Multiplexed`.
+/// If given rootstock gateway is not `Multiplexed`.
 #[must_use]
 pub fn run_multiplexed_gateway_watcher(
     eth_gateway: RootstockGateway,
@@ -223,7 +223,7 @@ pub fn run_multiplexed_gateway_watcher(
     tokio::spawn(gateway_watcher.run())
 }
 
-/// Runs `MultiplexedGatewayWatcher` as a tokio task for provided ethereum gateway if it's multiplexed.
+/// Runs `MultiplexedGatewayWatcher` as a tokio task for provided rootstock gateway if it's multiplexed.
 #[must_use]
 pub fn run_gateway_watcher_if_multiplexed(
     eth_gateway: RootstockGateway,

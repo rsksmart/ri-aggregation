@@ -21,7 +21,7 @@ use crate::{
         operations::OperationsSchema,
         state::StateSchema,
     },
-    ethereum::RootstockSchema,
+    rootstock::RootstockSchema,
     test_data::{
         dummy_ethereum_tx_hash, dummy_root_hash_for_block, gen_acc_random_updates,
         gen_sample_block, gen_sample_incomplete_block, gen_sample_pending_block,
@@ -265,7 +265,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
             .commit_state_update(block_number, &updates, 0)
             .await?;
 
-        // Store & confirm the operation in the ethereum schema, as it's used for obtaining
+        // Store & confirm the operation in the rootstock schema, as it's used for obtaining
         // commit/verify hashes.
         let eth_tx_hash = dummy_ethereum_tx_hash(id);
 
@@ -310,7 +310,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
                 .unwrap();
             let eth_tx_hash = dummy_ethereum_tx_hash(id);
 
-            // Do not add an ethereum confirmation for the last operation.
+            // Do not add an rootstock confirmation for the last operation.
             if *block_number != n_verified {
                 let response = RootstockSchema(&mut storage)
                     .save_new_eth_tx(
@@ -474,7 +474,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
             .commit_state_update(block_number, &updates, 0)
             .await?;
 
-        // Store & confirm the operation in the ethereum schema, as it's used for obtaining
+        // Store & confirm the operation in the rootstock schema, as it's used for obtaining
         // commit/verify hashes.
         let eth_tx_hash = dummy_ethereum_tx_hash(id);
         let response = RootstockSchema(&mut storage)
@@ -609,7 +609,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
             .commit_state_update(block_number, &updates, 0)
             .await?;
 
-        // Store & confirm the operation in the ethereum schema, as it's used for obtaining
+        // Store & confirm the operation in the rootstock schema, as it's used for obtaining
         // commit/verify hashes.
         let eth_tx_hash = dummy_ethereum_tx_hash(id);
         let response = RootstockSchema(&mut storage)

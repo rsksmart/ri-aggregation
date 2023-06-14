@@ -530,7 +530,7 @@ async fn test_remove_executed_priority_operations(
     Ok(())
 }
 
-/// Checks if ethereum unprocessed aggregated operations are removed correctly.
+/// Checks if rootstock unprocessed aggregated operations are removed correctly.
 #[db_test]
 async fn test_remove_eth_unprocessed_aggregated_ops(
     mut storage: StorageProcessor<'_>,
@@ -550,7 +550,7 @@ async fn test_remove_eth_unprocessed_aggregated_ops(
         .ethereum_schema()
         .restore_unprocessed_operations()
         .await?;
-    // Remove ethereum unprocessed aggregated operations.
+    // Remove rootstock unprocessed aggregated operations.
     OperationsSchema(&mut storage)
         .remove_eth_unprocessed_aggregated_ops()
         .await?;

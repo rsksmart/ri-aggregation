@@ -15,7 +15,7 @@ use self::records::{
 };
 use crate::chain::operations::records::StoredExecutedTransaction;
 use crate::chain::operations_ext::OperationsExtSchema;
-use crate::ethereum::RootstockSchema;
+use crate::rootstock::RootstockSchema;
 use crate::{chain::mempool::MempoolSchema, QueryResult, StorageProcessor};
 
 pub mod records;
@@ -605,7 +605,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
         Ok(aggregated_op)
     }
 
-    // Removes ethereum unprocessed aggregated operations
+    // Removes rootstock unprocessed aggregated operations
     pub async fn remove_eth_unprocessed_aggregated_ops(&mut self) -> QueryResult<()> {
         let start = Instant::now();
         sqlx::query!("TRUNCATE eth_unprocessed_aggregated_ops")

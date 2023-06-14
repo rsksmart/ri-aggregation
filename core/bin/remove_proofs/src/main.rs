@@ -82,7 +82,7 @@ async fn main() -> anyhow::Result<()> {
 
     ensure!(
         *last_proven_block <= opt.last_correct_block,
-        "Some proofs has already been published to ethereum"
+        "Some proofs has already been published to rootstock"
     );
 
     let last_block = BlockNumber(opt.last_correct_block);

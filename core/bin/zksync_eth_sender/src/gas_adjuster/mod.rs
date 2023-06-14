@@ -52,14 +52,14 @@ impl<DB: DatabaseInterface> GasAdjuster<DB> {
 
     async fn get_suggested_price(
         &self,
-        ethereum: &RootstockGateway,
+        rootstock: &RootstockGateway,
         old_tx_gas_price: Option<U256>,
     ) -> anyhow::Result<U256> {
         if let Some(price) = self.statistics.get_average_price() {
             return Ok(price);
         }
 
-        let network_price = ethereum.get_gas_price().await?;
+        let network_price = rootstock.get_gas_price().await?;
         let scaled_price = if let Some(old_price) = old_tx_gas_price {
             // Stuck transaction, scale it up.
             self.scale_up(old_price, network_price)
@@ -74,10 +74,12 @@ impl<DB: DatabaseInterface> GasAdjuster<DB> {
     /// Replacement price is usually suggested to be at least 10% higher, we make it 15% higher.
     pub async fn get_gas_price(
         &mut self,
-        ethereum: &RootstockGateway,
+        rootstock: &RootstockGateway,
         old_tx_gas_price: Option<U256>,
     ) -> anyhow::Result<U256> {
-        let scaled_price = self.get_suggested_price(ethereum, old_tx_gas_price).await?;
+        let scaled_price = self
+            .get_suggested_price(rootstock, old_tx_gas_price)
+            .await?;
         // Now, cut the price if it's too big.
         let price = self.limit_max(scaled_price);
 
@@ -96,10 +98,10 @@ impl<DB: DatabaseInterface> GasAdjuster<DB> {
     /// Performs an actualization routine for `GasAdjuster`:
     /// This method is intended to be invoked periodically, and it updates the
     /// current max gas price limit according to the configurable update interval.
-    pub async fn keep_updated(&mut self, ethereum: &RootstockGateway, db: &DB) {
+    pub async fn keep_updated(&mut self, rootstock: &RootstockGateway, db: &DB) {
         if self.last_sample_added.elapsed() >= parameters::sample_adding_interval() {
             // Report the current price to be gathered by the statistics module.
-            match ethereum.get_gas_price().await {
+            match rootstock.get_gas_price().await {
                 Ok(network_price) => {
                     self.statistics.add_sample(network_price);
 

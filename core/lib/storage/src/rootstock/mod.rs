@@ -7,10 +7,10 @@ use sqlx::types::BigDecimal;
 // Workspace imports
 use zksync_types::{
     aggregated_operations::{AggregatedActionType, AggregatedOperation},
-    ethereum::{ETHOperation, InsertedOperationResponse},
     event::{
         account::AccountStateChangeStatus, block::BlockStatus, transaction::TransactionStatus,
     },
+    rootstock::{ETHOperation, InsertedOperationResponse},
     BlockNumber, H256, U256,
 };
 // Local imports
@@ -117,7 +117,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.load_unconfirmed_operations", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_unconfirmed_operations", start.elapsed());
         Ok(ops)
     }
 
@@ -143,7 +143,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .await?;
 
         metrics::histogram!(
-            "sql.ethereum.restore_unprocessed_operations",
+            "sql.rootstock.restore_unprocessed_operations",
             start.elapsed()
         );
 
@@ -187,7 +187,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
             }
         }
 
-        metrics::histogram!("sql.ethereum.load_unprocessed_operations", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_unprocessed_operations", start.elapsed());
         Ok(operations)
     }
 
@@ -207,7 +207,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .await?;
 
         metrics::histogram!(
-            "sql.ethereum.remove_unprocessed_operations",
+            "sql.rootstock.remove_unprocessed_operations",
             start.elapsed()
         );
         Ok(())
@@ -270,7 +270,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.save_new_eth_tx", start.elapsed());
+        metrics::histogram!("sql.rootstock.save_new_eth_tx", start.elapsed());
         Ok(response)
     }
 
@@ -288,7 +288,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .map(|op| op.confirmed)
         .unwrap_or(false);
 
-        metrics::histogram!("sql.ethereum.is_aggregated_op_confirmed", start.elapsed());
+        metrics::histogram!("sql.rootstock.is_aggregated_op_confirmed", start.elapsed());
         Ok(confirmed)
     }
 
@@ -303,7 +303,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .fetch_one(self.0.conn())
         .await?;
 
-        metrics::histogram!("sql.ethereum.get_eth_op_id", start.elapsed());
+        metrics::histogram!("sql.rootstock.get_eth_op_id", start.elapsed());
         Ok(hash_entry.eth_op_id)
     }
 
@@ -318,7 +318,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         )
         .execute(self.0.conn())
         .await?;
-        metrics::histogram!("sql.ethereum.add_hash_entry", start.elapsed());
+        metrics::histogram!("sql.rootstock.add_hash_entry", start.elapsed());
         Ok(())
     }
 
@@ -344,7 +344,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .execute(self.0.conn())
         .await?;
 
-        metrics::histogram!("sql.ethereum.update_eth_tx", start.elapsed());
+        metrics::histogram!("sql.rootstock.update_eth_tx", start.elapsed());
         Ok(())
     }
 
@@ -411,7 +411,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.report_created_operation", start.elapsed());
+        metrics::histogram!("sql.rootstock.report_created_operation", start.elapsed());
         Ok(())
     }
 
@@ -441,7 +441,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .execute(self.0.conn())
         .await?;
 
-        metrics::histogram!("sql.ethereum.update_gas_price", start.elapsed());
+        metrics::histogram!("sql.rootstock.update_gas_price", start.elapsed());
         Ok(())
     }
 
@@ -452,7 +452,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         let gas_price_limit =
             U256::try_from(params.gas_price_limit).expect("Negative gas limit value stored in DB");
 
-        metrics::histogram!("sql.ethereum.load_gas_price_limit", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_gas_price_limit", start.elapsed());
         Ok(gas_price_limit)
     }
 
@@ -464,7 +464,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
             .average_gas_price
             .map(|price| U256::try_from(price).expect("Negative average gas price stored in DB"));
 
-        metrics::histogram!("sql.ethereum.load_average_gas_price", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_average_gas_price", start.elapsed());
         Ok(average_gas_price)
     }
 
@@ -473,7 +473,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         let start = Instant::now();
         let params = self.load_eth_params().await?;
 
-        metrics::histogram!("sql.ethereum.load_stats", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_stats", start.elapsed());
         Ok(params.into())
     }
 
@@ -482,7 +482,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         let params = sqlx::query_as!(ETHParams, "SELECT * FROM eth_parameters WHERE id = true",)
             .fetch_one(self.0.conn())
             .await?;
-        metrics::histogram!("sql.ethereum.load_eth_params", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_eth_params", start.elapsed());
         Ok(params)
     }
 
@@ -578,7 +578,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.confirm_eth_tx", start.elapsed());
+        metrics::histogram!("sql.rootstock.confirm_eth_tx", start.elapsed());
         Ok(())
     }
 
@@ -610,7 +610,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.get_next_nonce", start.elapsed());
+        metrics::histogram!("sql.rootstock.get_next_nonce", start.elapsed());
         Ok(old_nonce_value)
     }
 
@@ -652,7 +652,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
             .await?;
         }
 
-        metrics::histogram!("sql.ethereum.initialize_eth_data", start.elapsed());
+        metrics::histogram!("sql.rootstock.initialize_eth_data", start.elapsed());
         Ok(())
     }
 
@@ -669,7 +669,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .await?
         .created_at;
         metrics::histogram!(
-            "sql.ethereum.get_eth_operation_creation_time",
+            "sql.rootstock.get_eth_operation_creation_time",
             start.elapsed()
         );
         Ok(created_at)
@@ -720,7 +720,7 @@ impl<'a, 'c> RootstockSchema<'a, 'c> {
         .await?;
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.update_eth_parameters", start.elapsed());
+        metrics::histogram!("sql.rootstock.update_eth_parameters", start.elapsed());
         Ok(())
     }
 }

@@ -57,7 +57,7 @@ impl PackedEthSignature {
         Ok(PackedEthSignature(ETHSignature::from(bytes_array)))
     }
 
-    /// Signs message using ethereum private key, results are identical to signature created
+    /// Signs message using rootstock private key, results are identical to signature created
     /// using `geth`, `ethecore/lib/types/src/gas_counter.rsrs.js`, etc. No hashing and prefixes required.
     pub fn sign(
         private_key: &H256,
@@ -77,7 +77,7 @@ impl PackedEthSignature {
         bytes.keccak256().into()
     }
 
-    /// Checks signature and returns ethereum address of the signer.
+    /// Checks signature and returns rootstock address of the signer.
     /// message should be the same message that was passed to `eth.sign`(or similar) method
     /// as argument. No hashing and prefixes required.
     pub fn signature_recover_signer(&self, msg: &[u8]) -> Result<Address, PackedETHSignatureError> {

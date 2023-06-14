@@ -23,7 +23,7 @@ pub struct EventsState {
     pub committed_events: Vec<BlockEvent>,
     /// Verified operations blocks events
     pub verified_events: Vec<BlockEvent>,
-    /// Last watched ethereum block number
+    /// Last watched rootstock block number
     pub last_watched_eth_block_number: u64,
     /// Priority operations data parsed from logs
     /// emitted by the zkSync contract. Required for
@@ -76,7 +76,7 @@ impl EventsState {
         self.priority_op_data = priority_op_data;
     }
 
-    /// Update past events state from last watched ethereum block with delta between last eth block and last watched block.
+    /// Update past events state from last watched rootstock block with delta between last eth block and last watched block.
     /// Returns new verified committed blocks evens, added tokens events and the last watched eth block number
     ///
     /// # Arguments
@@ -146,7 +146,7 @@ impl EventsState {
         ))
     }
 
-    /// Returns a last watched ethereum block number
+    /// Returns a last watched rootstock block number
     ///
     /// # Arguments
     ///
@@ -359,8 +359,8 @@ impl EventsState {
     ///
     /// * `web3` - Web3 provider url
     /// * `contract` - Governance contract
-    /// * `from` - From ethereum block number
-    /// * `to` - To ethereum block number
+    /// * `from` - From rootstock block number
+    /// * `to` - To rootstock block number
     ///
     async fn get_token_added_logs<T: Transport>(
         web3: &Web3<T>,
@@ -397,8 +397,8 @@ impl EventsState {
     ///
     /// * `web3` - Web3 provider url
     /// * `contract` - Specified contract
-    /// * `from_block_number` - Start ethereum block number
-    /// * `to_block_number` - End ethereum block number
+    /// * `from_block_number` - Start rootstock block number
+    /// * `to_block_number` - End rootstock block number
     ///
     async fn get_block_logs<T: Transport>(
         web3: &Web3<T>,

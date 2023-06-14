@@ -67,9 +67,9 @@ pub struct DataRestoreDriver<T: Transport> {
     pub events_state: EventsState,
     /// Rollup accounts state
     pub tree_state: TreeState,
-    /// The step distance of viewing events in the ethereum blocks
+    /// The step distance of viewing events in the rootstock blocks
     pub eth_blocks_step: u64,
-    /// The distance to the last ethereum block
+    /// The distance to the last rootstock block
     pub end_eth_blocks_offset: u64,
     /// Finite mode flag. In finite mode, driver will only work until
     /// amount of restored blocks will become equal to amount of known
@@ -92,8 +92,8 @@ impl<T: Transport> DataRestoreDriver<T> {
     /// * `governance_contract_eth_addr` - Governance contract address
     /// * `upgrade_eth_blocks` - Rootstock blocks that include correct UpgradeComplete events
     /// * `init_contract_version` - The initial version of the deployed zkSync contract
-    /// * `eth_blocks_step` - The step distance of viewing events in the ethereum blocks
-    /// * `end_eth_blocks_offset` - The distance to the last ethereum block
+    /// * `eth_blocks_step` - The step distance of viewing events in the rootstock blocks
+    /// * `end_eth_blocks_offset` - The distance to the last rootstock block
     /// * `finite_mode` - Finite mode flag.
     /// * `final_hash` - Hash of the last block which we want to restore
     /// * `zksync_contract` - Current deployed zksync contract
@@ -342,7 +342,7 @@ impl<T: Transport> DataRestoreDriver<T> {
         let mut last_watched_block: u64 = self.events_state.last_watched_eth_block_number;
         let mut final_hash_was_found = false;
         loop {
-            vlog::info!("Last watched ethereum block: {:?}", last_watched_block);
+            vlog::info!("Last watched rootstock block: {:?}", last_watched_block);
 
             // Update events
             if self.update_events_state(interactor).await {
