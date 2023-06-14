@@ -83,7 +83,7 @@ async fn get_rootstock_balance<S: RootstockSigner>(
     address: Address,
     token: &Token,
 ) -> Result<U256, anyhow::Error> {
-    if token.symbol == "ETH" {
+    if token.symbol == "RBTC" {
         return eth_provider
             .client()
             .eth_balance(address)
@@ -175,7 +175,7 @@ where
     let handle = sync_wallet
         .start_transfer()
         .to(zksync_depositor_wallet.address())
-        .token("ETH")?
+        .token("RBTC")?
         .amount(1_000_000u64)
         .send()
         .await;
@@ -526,7 +526,7 @@ async fn init_account_with_one_ether(
 
     // Transfer funds from "rich" account to a randomly created one (so we won't reuse the same
     // account in subsequent test runs).
-    transfer_to("ETH", one_ether(), eth_address).await?;
+    transfer_to("RBTC", one_ether(), eth_address).await?;
 
     let provider = RpcProvider::new(Network::Localhost);
 
@@ -540,7 +540,7 @@ async fn init_account_with_one_ether(
     let rootstock = wallet.rootstock(web3_addr()).await?;
 
     let deposit_tx_hash = rootstock
-        .deposit("ETH", one_ether() / 2, wallet.address())
+        .deposit("RBTC", one_ether() / 2, wallet.address())
         .await?;
 
     rootstock.wait_for_tx(deposit_tx_hash).await?;
@@ -551,7 +551,7 @@ async fn init_account_with_one_ether(
     if !wallet.is_signing_key_set().await? {
         let handle = wallet
             .start_change_pubkey()
-            .fee_token("ETH")?
+            .fee_token("RBTC")?
             .send()
             .await?;
 
@@ -602,7 +602,7 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
 
     let token_eth = sync_depositor_wallet
         .tokens
-        .resolve("ETH".into())
+        .resolve("RBTC".into())
         .ok_or_else(|| anyhow::anyhow!("Error resolve token"))?;
     let token_dai = sync_depositor_wallet
         .tokens
@@ -613,9 +613,9 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
 
     // Move ETH to wallets so they will have some funds for L1 transactions.
     let eth_deposit_amount = U256::from(10).pow(17.into()); // 0.1 ETH
-    transfer_to("ETH", eth_deposit_amount, sync_depositor_wallet.address()).await?;
-    transfer_to("ETH", eth_deposit_amount, alice_wallet1.address()).await?;
-    transfer_to("ETH", eth_deposit_amount, bob_wallet1.address()).await?;
+    transfer_to("RBTC", eth_deposit_amount, sync_depositor_wallet.address()).await?;
+    transfer_to("RBTC", eth_deposit_amount, alice_wallet1.address()).await?;
+    transfer_to("RBTC", eth_deposit_amount, bob_wallet1.address()).await?;
 
     transfer_to("DAI", dai_deposit_amount, sync_depositor_wallet.address()).await?;
 
@@ -654,7 +654,7 @@ async fn simple_transfer() -> Result<(), anyhow::Error> {
     let handle = wallet
         .start_transfer()
         .to(wallet.signer.address)
-        .token("ETH")?
+        .token("RBTC")?
         .amount(1_000_000u64)
         .send()
         .await?;
@@ -673,13 +673,13 @@ async fn nft_test() -> Result<(), anyhow::Error> {
     let alice = init_account_with_one_ether().await?;
     let bob = init_account_with_one_ether().await?;
 
-    let alice_balance_before = alice.get_balance(BlockStatus::Committed, "ETH").await?;
-    let bob_balance_before = bob.get_balance(BlockStatus::Committed, "ETH").await?;
+    let alice_balance_before = alice.get_balance(BlockStatus::Committed, "RBTC").await?;
+    let bob_balance_before = bob.get_balance(BlockStatus::Committed, "RBTC").await?;
 
     // Perform a mint nft transaction.
     let fee = alice
         .provider
-        .get_tx_fee(TxFeeTypes::MintNFT, alice.address(), "ETH")
+        .get_tx_fee(TxFeeTypes::MintNFT, alice.address(), "RBTC")
         .await?
         .total_fee;
 
@@ -687,7 +687,7 @@ async fn nft_test() -> Result<(), anyhow::Error> {
         .start_mint_nft()
         .recipient(alice.signer.address)
         .content_hash(H256::zero())
-        .fee_token("ETH")?
+        .fee_token("RBTC")?
         .fee(fee.clone())
         .send()
         .await?;
@@ -706,7 +706,7 @@ async fn nft_test() -> Result<(), anyhow::Error> {
         .last()
         .expect("NFT was not minted")
         .clone();
-    let alice_balance_after_mint = alice.get_balance(BlockStatus::Committed, "ETH").await?;
+    let alice_balance_after_mint = alice.get_balance(BlockStatus::Committed, "RBTC").await?;
     assert_eq!(fee + alice_balance_after_mint.clone(), alice_balance_before);
 
     // Perform a transfer nft transaction.
@@ -715,14 +715,14 @@ async fn nft_test() -> Result<(), anyhow::Error> {
         .get_txs_batch_fee(
             vec![TxFeeTypes::Transfer, TxFeeTypes::Transfer],
             vec![bob.address(), bob.address()],
-            "ETH",
+            "RBTC",
         )
         .await?;
     let handles = alice
         .start_transfer_nft()
         .to(bob.signer.address)
         .nft(nft.clone())
-        .fee_token("ETH")?
+        .fee_token("RBTC")?
         .fee(fee.clone())
         .send()
         .await?;
@@ -734,7 +734,7 @@ async fn nft_test() -> Result<(), anyhow::Error> {
             .await?;
     }
 
-    let alice_balance_after_transfer = alice.get_balance(BlockStatus::Committed, "ETH").await?;
+    let alice_balance_after_transfer = alice.get_balance(BlockStatus::Committed, "RBTC").await?;
     let alice_nft_balance = alice.get_nft(BlockStatus::Committed, nft.id).await?;
     let bob_nft_balance = bob.get_nft(BlockStatus::Committed, nft.id).await?;
     assert_eq!(fee + alice_balance_after_transfer, alice_balance_after_mint);
@@ -744,7 +744,7 @@ async fn nft_test() -> Result<(), anyhow::Error> {
     //Perform a withdraw nft transaction.
     let fee = alice
         .provider
-        .get_tx_fee(TxFeeTypes::WithdrawNFT, bob.address(), "ETH")
+        .get_tx_fee(TxFeeTypes::WithdrawNFT, bob.address(), "RBTC")
         .await?
         .total_fee;
 
@@ -752,7 +752,7 @@ async fn nft_test() -> Result<(), anyhow::Error> {
         .start_withdraw_nft()
         .to(bob.signer.address)
         .token(nft.id)?
-        .fee_token("ETH")?
+        .fee_token("RBTC")?
         .fee(fee.clone())
         .send()
         .await?;
@@ -761,7 +761,7 @@ async fn nft_test() -> Result<(), anyhow::Error> {
         .commit_timeout(Duration::from_secs(180))
         .wait_for_commit()
         .await?;
-    let bob_balance_after_withdraw = bob.get_balance(BlockStatus::Committed, "ETH").await?;
+    let bob_balance_after_withdraw = bob.get_balance(BlockStatus::Committed, "RBTC").await?;
     let bob_nft_balance = bob.get_nft(BlockStatus::Committed, nft.id).await?;
     assert_eq!(fee + bob_balance_after_withdraw, bob_balance_before);
     assert!(bob_nft_balance.is_none());
@@ -780,7 +780,7 @@ async fn full_exit_test() -> Result<(), anyhow::Error> {
         .start_mint_nft()
         .recipient(wallet.signer.address)
         .content_hash(H256::zero())
-        .fee_token("ETH")?
+        .fee_token("RBTC")?
         .send()
         .await?;
 
@@ -791,7 +791,7 @@ async fn full_exit_test() -> Result<(), anyhow::Error> {
 
     // ETH full exit
     let full_exit_tx_hash = rootstock
-        .full_exit("ETH", wallet.account_id().unwrap())
+        .full_exit("RBTC", wallet.account_id().unwrap())
         .await?;
     let receipt = rootstock.wait_for_tx(full_exit_tx_hash).await?;
     let mut serial_id = None;
@@ -806,7 +806,7 @@ async fn full_exit_test() -> Result<(), anyhow::Error> {
         .wait_for_commit()
         .await?;
 
-    let balance = wallet.get_balance(BlockStatus::Committed, "ETH").await?;
+    let balance = wallet.get_balance(BlockStatus::Committed, "RBTC").await?;
     assert!(balance.is_zero());
 
     // NFT full exit
@@ -849,7 +849,7 @@ async fn batch_transfer() -> Result<(), anyhow::Error> {
     const RECIPIENT_COUNT: usize = 4;
     let recipients = vec![eth_random_account_credentials().0; RECIPIENT_COUNT];
 
-    let token_like = TokenLike::Symbol("ETH".to_owned());
+    let token_like = TokenLike::Symbol("RBTC".to_owned());
     let token = wallet
         .tokens
         .resolve(token_like.clone())

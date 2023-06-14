@@ -25,7 +25,7 @@ pub enum TokenLike {
     Id(TokenId),
     /// Address of the token in the L1.
     Address(Address),
-    /// Symbol associated with token, e.g. "ETH".
+    /// Symbol associated with token, e.g. "RBTC".
     Symbol(String),
 }
 
@@ -113,11 +113,11 @@ impl TokenLike {
 pub struct Token {
     /// id is used for tx signature and serialization
     pub id: TokenId,
-    /// Contract address of ERC20 token or Address::zero() for "ETH"
+    /// Contract address of ERC20 token or Address::zero() for "RBTC"
     pub address: Address,
-    /// Token symbol (e.g. "ETH" or "USDC")
+    /// Token symbol (e.g. "RBTC" or "USDC")
     pub symbol: String,
-    /// Token precision (e.g. 18 for "ETH" so "1.0" ETH = 10e18 as U256 number)
+    /// Token precision (e.g. 18 for "RBTC" so "1.0" ETH = 10e18 as U256 number)
     pub decimals: u8,
     pub kind: TokenKind,
     pub is_nft: bool,
@@ -390,7 +390,7 @@ mod tests {
         let tokens = vec![
             TokenLike::Address(Address::zero()),
             TokenLike::Id(TokenId(0)),
-            TokenLike::Symbol("ETH".into()),
+            TokenLike::Symbol("RBTC".into()),
             TokenLike::Symbol("eth".into()),
         ];
 
@@ -402,7 +402,7 @@ mod tests {
     #[test]
     fn token_like_to_case_insensitive() {
         assert_eq!(
-            TokenLike::Symbol("ETH".into()).to_lowercase(),
+            TokenLike::Symbol("RBTC".into()).to_lowercase(),
             TokenLike::Symbol("eth".into())
         );
     }

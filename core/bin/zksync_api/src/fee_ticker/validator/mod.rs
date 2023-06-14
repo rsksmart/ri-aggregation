@@ -198,7 +198,7 @@ mod tests {
         let phnx_token = Token::new(TokenId(2), phnx_token_address, "PHNX", 18, TokenKind::ERC20);
 
         let eth_address = Address::from_str("0000000000000000000000000000000000000000").unwrap();
-        let eth_token = Token::new(TokenId(2), eth_address, "ETH", 18, TokenKind::ERC20);
+        let eth_token = Token::new(TokenId(2), eth_address, "RBTC", 18, TokenKind::ERC20);
         let all_tokens = vec![dai_token.clone(), phnx_token.clone()];
 
         let mut market = HashMap::new();

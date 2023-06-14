@@ -77,7 +77,7 @@ impl ApiV01 {
         // But ETH is always allowed to pay fee, and in all cases it should be on the list.
 
         if tokens.get(&TokenId(0)).is_none() {
-            let eth = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
+            let eth = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
             tokens.insert(eth.id, eth);
         }
 

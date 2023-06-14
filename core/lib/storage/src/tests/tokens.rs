@@ -35,7 +35,7 @@ async fn tokens_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
     let eth_token = Token {
         id: TokenId(0),
         address: "0000000000000000000000000000000000000000".parse().unwrap(),
-        symbol: "ETH".into(),
+        symbol: "RBTC".into(),
         decimals: 18,
         kind: TokenKind::ERC20,
         is_nft: false,

@@ -165,7 +165,7 @@ mod tests {
         let ticker_url = parse_env("FEE_TICKER_COINGECKO_BASE_URL");
         let client = reqwest::Client::new();
         let api = CoinGeckoAPI::new(client, ticker_url).await.unwrap();
-        let token = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
+        let token = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
         api.get_price(&token)
             .await
             .expect("Failed to get data from ticker");

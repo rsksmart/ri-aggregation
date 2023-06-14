@@ -186,7 +186,7 @@ impl TestServerConfig {
             let tx = from
                 .sign_transfer(
                     TokenId(0),
-                    "ETH",
+                    "RBTC",
                     closest_packable_token_amount(&10_u64.into()),
                     closest_packable_fee_amount(&fee.into()),
                     &to.address,
@@ -294,7 +294,7 @@ impl TestServerConfig {
             let tx = from
                 .sign_mint_nft(
                     TokenId(0),
-                    "ETH",
+                    "RBTC",
                     H256::random(),
                     closest_packable_fee_amount(&fee.into()),
                     &to.address,

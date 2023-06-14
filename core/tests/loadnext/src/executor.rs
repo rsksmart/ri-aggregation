@@ -237,7 +237,7 @@ impl Executor {
             // We don't actually care whether transactions will be successful or not; at worst we will not use
             // priority operations in test.
             let _ = rootstock
-                .transfer("ETH", eth_to_distribute, target_address)
+                .transfer("RBTC", eth_to_distribute, target_address)
                 .await;
 
             // And then we will prepare an L2 transaction.

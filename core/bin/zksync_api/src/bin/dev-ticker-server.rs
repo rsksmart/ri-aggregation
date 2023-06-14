@@ -56,7 +56,7 @@ async fn handle_coinmarketcap_token_price_query(
 ) -> Result<HttpResponse> {
     let symbol = query.symbol.clone();
     let base_price = match symbol.as_str() {
-        "ETH" => BigDecimal::from(200),
+        "RBTC" => BigDecimal::from(200),
         "wBTC" => BigDecimal::from(9000),
         "BAT" => BigDecimal::try_from(0.2).unwrap(),
         // Even though these tokens have their base price equal to

@@ -320,7 +320,7 @@ mod tests {
         let mut tokens = HashMap::new();
         tokens.insert(
             TokenLike::Id(TokenId(0)),
-            Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20),
+            Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20),
         );
         let mut market = HashMap::new();
         market.insert(
@@ -366,7 +366,7 @@ mod tests {
         assert_eq!(tx.hash(), tx_hash);
 
         let TestTransactions { acc, txs } = TestServerConfig::gen_zk_txs(1_00);
-        let eth = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
+        let eth = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
         let (good_batch, expected_tx_hashes): (Vec<_>, Vec<_>) = txs
             .into_iter()
             .map(|(tx, _op)| {
