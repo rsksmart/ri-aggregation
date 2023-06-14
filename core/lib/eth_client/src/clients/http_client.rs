@@ -299,7 +299,8 @@ impl<S: EthereumSigner> ETHDirectClient<S> {
                 {
                     let revert_code = e.message.clone();
                     let mut revert_reason = e.message;
-                    let last_symbol_num = std::cmp::min(REVERT_REASON_START_INDEX, revert_reason.len());
+                    let last_symbol_num =
+                        std::cmp::min(REVERT_REASON_START_INDEX, revert_reason.len());
                     revert_reason.replace_range(0..last_symbol_num, "");
                     (revert_code, revert_reason)
                 } else {
