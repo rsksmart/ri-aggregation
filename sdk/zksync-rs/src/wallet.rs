@@ -166,7 +166,7 @@ where
         web3_addr: impl AsRef<str>,
     ) -> Result<RootstockProvider<S>, ClientError> {
         if let Some(eth_signer) = &self.signer.eth_signer {
-            let ethereum_provider = RootstockProvider::new(
+            let rootstock_provider = RootstockProvider::new(
                 &self.provider,
                 self.tokens.clone(),
                 web3_addr,
@@ -175,7 +175,7 @@ where
             )
             .await?;
 
-            Ok(ethereum_provider)
+            Ok(rootstock_provider)
         } else {
             Err(ClientError::NoRootstockPrivateKey)
         }

@@ -4,7 +4,7 @@
 
 use web3::{contract::Options, types::Address};
 use zksync_contracts::eip1271_contract;
-use zksync_eth_client::ethereum_gateway::RootstockGateway;
+use zksync_eth_client::rootstock_gateway::RootstockGateway;
 use zksync_types::{
     tx::EIP1271Signature,
     {Nonce, PubKeyHash},
@@ -95,7 +95,7 @@ mod tests {
     use std::str::FromStr;
     use zksync_config::test_config::TestConfig;
     use zksync_contracts::zksync_contract;
-    use zksync_eth_client::ethereum_gateway::RootstockGateway;
+    use zksync_eth_client::rootstock_gateway::RootstockGateway;
     use zksync_eth_client::ETHDirectClient;
     use zksync_eth_signer::PrivateKeySigner;
     use zksync_types::{

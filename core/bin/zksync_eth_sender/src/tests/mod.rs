@@ -5,7 +5,7 @@ use self::mock::{
 };
 use super::{transactions::TxCheckOutcome, ETHSender, TxCheckMode};
 use web3::types::U64;
-use zksync_eth_client::ethereum_gateway::ExecutedTxStatus;
+use zksync_eth_client::rootstock_gateway::ExecutedTxStatus;
 
 const EXPECTED_WAIT_TIME_BLOCKS: u64 = 30;
 const WAIT_CONFIRMATIONS: u64 = 3;

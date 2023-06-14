@@ -217,7 +217,7 @@ impl<'a> StorageProcessor<'a> {
     }
 
     /// Gains access to the `Rootstock` schema.
-    pub fn ethereum_schema(&mut self) -> rootstock::RootstockSchema<'_, 'a> {
+    pub fn rootstock_schema(&mut self) -> rootstock::RootstockSchema<'_, 'a> {
         rootstock::RootstockSchema(self)
     }
 

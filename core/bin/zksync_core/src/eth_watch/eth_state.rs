@@ -17,12 +17,12 @@ use super::received_ops::ReceivedPriorityOp;
 #[derive(Debug, Default, Clone)]
 pub struct ETHState {
     /// The last block of the Rootstock network known to the Rootstock watcher.
-    last_ethereum_block: u64,
+    last_rootstock_block: u64,
     /// The previous Rootstock block successfully processed by the watcher.
     /// Keeping track of it is required to be able to poll the node for
     /// the same range multiple times, e.g. in case it didn't return all
     /// priority operations received by the contract.
-    last_ethereum_block_backup: u64,
+    last_rootstock_block_backup: u64,
     /// Serial id of the next priority operation Rootstock watcher should process.
     next_priority_op_id: SerialId,
     /// Queue of priority operations that are accepted by Rootstock network,
@@ -43,15 +43,15 @@ pub struct ETHState {
 
 impl ETHState {
     pub fn new(
-        last_ethereum_block: u64,
-        last_ethereum_block_backup: u64,
+        last_rootstock_block: u64,
+        last_rootstock_block_backup: u64,
         unconfirmed_queue: Vec<PriorityOp>,
         priority_queue: HashMap<SerialId, ReceivedPriorityOp>,
         new_tokens: Vec<NewTokenEvent>,
         register_nft_factory_events: Vec<RegisterNFTFactoryEvent>,
     ) -> Self {
         assert!(
-            last_ethereum_block_backup <= last_ethereum_block,
+            last_rootstock_block_backup <= last_rootstock_block,
             "Backup block cannot be greater than last known block"
         );
         let next_priority_op_id = priority_queue
@@ -60,8 +60,8 @@ impl ETHState {
             .map(|serial_id| *serial_id + 1)
             .unwrap_or(0);
         Self {
-            last_ethereum_block,
-            last_ethereum_block_backup,
+            last_rootstock_block,
+            last_rootstock_block_backup,
             next_priority_op_id,
             unconfirmed_queue,
             priority_queue,
@@ -70,8 +70,8 @@ impl ETHState {
         }
     }
 
-    pub fn last_ethereum_block(&self) -> u64 {
-        self.last_ethereum_block
+    pub fn last_rootstock_block(&self) -> u64 {
+        self.last_rootstock_block
     }
 
     pub fn priority_queue(&self) -> &HashMap<u64, ReceivedPriorityOp> {
@@ -94,12 +94,12 @@ impl ETHState {
         self.next_priority_op_id
     }
 
-    pub fn reset_last_ethereum_block(&mut self) {
-        self.last_ethereum_block = self.last_ethereum_block_backup;
+    pub fn reset_last_rootstock_block(&mut self) {
+        self.last_rootstock_block = self.last_rootstock_block_backup;
     }
 
     #[cfg(test)]
-    pub(crate) fn last_ethereum_block_backup(&self) -> u64 {
-        self.last_ethereum_block_backup
+    pub(crate) fn last_rootstock_block_backup(&self) -> u64 {
+        self.last_rootstock_block_backup
     }
 }

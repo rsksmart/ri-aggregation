@@ -3,7 +3,7 @@ use web3::types::Transaction;
 use zksync_crypto::params::{INPUT_DATA_ADDRESS_BYTES_WIDTH, INPUT_DATA_ROOT_HASH_BYTES_WIDTH};
 use zksync_types::Account;
 
-use crate::eth_tx_helpers::get_input_data_from_ethereum_transaction;
+use crate::eth_tx_helpers::get_input_data_from_rootstock_transaction;
 
 /// Returns Rollup genesis (fees) account from the input of the Rollup contract creation transaction
 ///
@@ -15,7 +15,7 @@ pub fn get_genesis_account(genesis_transaction: &Transaction) -> Result<Account,
     const ENCODED_INIT_PARAMETERS_WIDTH: usize =
         6 * INPUT_DATA_ADDRESS_BYTES_WIDTH + INPUT_DATA_ROOT_HASH_BYTES_WIDTH;
 
-    let input_data = get_input_data_from_ethereum_transaction(genesis_transaction)?;
+    let input_data = get_input_data_from_rootstock_transaction(genesis_transaction)?;
 
     // Input for contract constructor contains the bytecode of the contract and
     // encoded arguments after it.

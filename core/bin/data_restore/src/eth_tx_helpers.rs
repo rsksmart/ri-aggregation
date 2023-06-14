@@ -12,7 +12,7 @@ pub const FUNC_NAME_HASH_LENGTH: usize = 4;
 ///
 /// * `transaction` - Rootstock transaction description
 ///
-pub fn get_input_data_from_ethereum_transaction(
+pub fn get_input_data_from_rootstock_transaction(
     transaction: &Transaction,
 ) -> Result<Vec<u8>, anyhow::Error> {
     let input_data = transaction.clone().input.0;
@@ -29,7 +29,7 @@ pub fn get_input_data_from_ethereum_transaction(
 ///
 /// * `transaction` - Rootstock transaction description
 ///
-pub fn get_block_number_from_ethereum_transaction(
+pub fn get_block_number_from_rootstock_transaction(
     transaction: &Transaction,
 ) -> Result<u64, anyhow::Error> {
     Ok(transaction
@@ -46,7 +46,7 @@ pub fn get_block_number_from_ethereum_transaction(
 /// * `web3` - Web3 provider url
 /// * `transaction_hash` - The identifier of the particular Rootstock transaction
 ///
-pub async fn get_ethereum_transaction<T: Transport>(
+pub async fn get_rootstock_transaction<T: Transport>(
     web3: &Web3<T>,
     transaction_hash: &H256,
 ) -> Result<Transaction, anyhow::Error> {

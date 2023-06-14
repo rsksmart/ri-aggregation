@@ -23,7 +23,7 @@ use web3::types::BlockNumber;
 
 use zksync_config::{ContractsConfig, ETHWatchConfig};
 use zksync_crypto::params::PRIORITY_EXPIRATION;
-use zksync_eth_client::ethereum_gateway::RootstockGateway;
+use zksync_eth_client::rootstock_gateway::RootstockGateway;
 use zksync_mempool::MempoolTransactionRequest;
 use zksync_types::{NewTokenEvent, PriorityOp, RegisterNFTFactoryEvent, SerialId};
 
@@ -108,7 +108,7 @@ impl<W: EthClient> EthWatch<W> {
 
     async fn get_unconfirmed_ops(
         &mut self,
-        current_ethereum_block: u64,
+        current_rootstock_block: u64,
     ) -> anyhow::Result<Vec<PriorityOp>> {
         // We want to scan the interval of blocks from the latest one up to the oldest one which may
         // have unconfirmed priority ops.
@@ -116,7 +116,7 @@ impl<W: EthClient> EthWatch<W> {
         // which has operations that must be processed. So, for the unconfirmed operations, we must
         // start from the block next to it.
         let block_from_number =
-            current_ethereum_block.saturating_sub(self.number_of_confirmations_for_event) + 1;
+            current_rootstock_block.saturating_sub(self.number_of_confirmations_for_event) + 1;
         let block_from = BlockNumber::Number(block_from_number.into());
         let block_to = BlockNumber::Latest;
 
@@ -125,9 +125,9 @@ impl<W: EthClient> EthWatch<W> {
             .await
     }
 
-    async fn process_new_blocks(&mut self, last_ethereum_block: u64) -> anyhow::Result<()> {
-        debug_assert!(self.eth_state.last_ethereum_block() < last_ethereum_block);
-        debug_assert!(self.eth_state.last_ethereum_block() < last_ethereum_block);
+    async fn process_new_blocks(&mut self, last_rootstock_block: u64) -> anyhow::Result<()> {
+        debug_assert!(self.eth_state.last_rootstock_block() < last_rootstock_block);
+        debug_assert!(self.eth_state.last_rootstock_block() < last_rootstock_block);
 
         // We have to process every block between the current and previous known values.
         // This is crucial since `eth_watch` may enter the backoff mode in which it will skip many blocks.
@@ -135,11 +135,11 @@ impl<W: EthClient> EthWatch<W> {
         // care of it on its own. Here we calculate "how many blocks should we watch", and the offsets with respect
         // to the `number_of_confirmations_for_event` are calculated by `update_eth_state`.
         let mut next_priority_op_id = self.eth_state.next_priority_op_id();
-        let previous_ethereum_block = self.eth_state.last_ethereum_block();
-        let block_difference = last_ethereum_block.saturating_sub(previous_ethereum_block);
+        let previous_rootstock_block = self.eth_state.last_rootstock_block();
+        let block_difference = last_rootstock_block.saturating_sub(previous_rootstock_block);
 
         let updated_state = self
-            .update_eth_state(last_ethereum_block, block_difference)
+            .update_eth_state(last_rootstock_block, block_difference)
             .await?;
 
         // It's assumed that for the current state all priority operations have consecutive ids,
@@ -159,9 +159,9 @@ impl<W: EthClient> EthWatch<W> {
             if *serial_id > next_priority_op_id {
                 // Updated state misses some logs for new priority operations.
                 // We have to revert the block range back. This will only move the watcher
-                // backwards for a single time since `last_ethereum_block` and its backup will
+                // backwards for a single time since `last_rootstock_block` and its backup will
                 // be equal.
-                self.eth_state.reset_last_ethereum_block();
+                self.eth_state.reset_last_rootstock_block();
                 return Err(anyhow::Error::from(MissingPriorityOpError(
                     next_priority_op_id,
                     *serial_id,
@@ -192,8 +192,8 @@ impl<W: EthClient> EthWatch<W> {
         register_nft_factory_events.dedup_by_key(|factory_event| factory_event.creator_address);
 
         let new_state = ETHState::new(
-            last_ethereum_block,
-            previous_ethereum_block,
+            last_rootstock_block,
+            previous_rootstock_block,
             updated_state.unconfirmed_queue().to_vec(),
             priority_queue,
             new_tokens,
@@ -203,9 +203,9 @@ impl<W: EthClient> EthWatch<W> {
         Ok(())
     }
 
-    async fn restore_state_from_eth(&mut self, last_ethereum_block: u64) -> anyhow::Result<()> {
+    async fn restore_state_from_eth(&mut self, last_rootstock_block: u64) -> anyhow::Result<()> {
         let new_state = self
-            .update_eth_state(last_ethereum_block, PRIORITY_EXPIRATION)
+            .update_eth_state(last_rootstock_block, PRIORITY_EXPIRATION)
             .await?;
 
         self.set_new_state(new_state);
@@ -216,15 +216,15 @@ impl<W: EthClient> EthWatch<W> {
 
     async fn update_eth_state(
         &mut self,
-        current_ethereum_block: u64,
+        current_rootstock_block: u64,
         unprocessed_blocks_amount: u64,
     ) -> anyhow::Result<ETHState> {
         let new_block_with_accepted_events =
-            current_ethereum_block.saturating_sub(self.number_of_confirmations_for_event);
+            current_rootstock_block.saturating_sub(self.number_of_confirmations_for_event);
         let previous_block_with_accepted_events =
             new_block_with_accepted_events.saturating_sub(unprocessed_blocks_amount);
 
-        let unconfirmed_queue = self.get_unconfirmed_ops(current_ethereum_block).await?;
+        let unconfirmed_queue = self.get_unconfirmed_ops(current_rootstock_block).await?;
         let priority_queue = self
             .client
             .get_priority_op_events(
@@ -289,8 +289,8 @@ impl<W: EthClient> EthWatch<W> {
         receiver.await.expect("Mempool actor was dropped")?;
         // The backup block number is not used.
         let state = ETHState::new(
-            current_ethereum_block,
-            current_ethereum_block,
+            current_rootstock_block,
+            current_rootstock_block,
             unconfirmed_queue,
             priority_queue_map,
             new_tokens,
@@ -333,7 +333,7 @@ impl<W: EthClient> EthWatch<W> {
         let start = Instant::now();
         let last_block_number = self.client.block_number().await?;
 
-        if last_block_number > self.eth_state.last_ethereum_block() {
+        if last_block_number > self.eth_state.last_rootstock_block() {
             self.process_new_blocks(last_block_number).await?;
         }
 

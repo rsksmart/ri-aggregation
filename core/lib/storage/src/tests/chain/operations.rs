@@ -547,7 +547,7 @@ async fn test_remove_eth_unprocessed_aggregated_ops(
         .await?;
     // Add this operation to eth_unprocessed_aggregated_ops table.
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .restore_unprocessed_operations()
         .await?;
     // Remove rootstock unprocessed aggregated operations.
@@ -555,7 +555,7 @@ async fn test_remove_eth_unprocessed_aggregated_ops(
         .remove_eth_unprocessed_aggregated_ops()
         .await?;
     let unprocessed_op_count = storage
-        .ethereum_schema()
+        .rootstock_schema()
         .load_unconfirmed_operations()
         .await?
         .len();

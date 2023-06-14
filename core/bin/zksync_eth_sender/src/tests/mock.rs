@@ -168,10 +168,10 @@ impl DatabaseInterface for MockDatabase {
             let is_operation_in_queue = unprocessed_operations
                 .iter()
                 .any(|unprocessed_operation| unprocessed_operation.0 == operation.0);
-            let is_operation_send_to_ethereum = eth_operations
-                .iter()
-                .any(|ethereum_operation| ethereum_operation.op.as_ref().unwrap().0 == operation.0);
-            if !is_operation_in_queue && !is_operation_send_to_ethereum {
+            let is_operation_send_to_rootstock = eth_operations.iter().any(|rootstock_operation| {
+                rootstock_operation.op.as_ref().unwrap().0 == operation.0
+            });
+            if !is_operation_in_queue && !is_operation_send_to_rootstock {
                 new_unprocessed_operations.push(operation.clone());
             }
         }

@@ -1,5 +1,5 @@
 pub mod clients;
-pub mod ethereum_gateway;
+pub mod rootstock_gateway;
 pub use clients::http_client::ETHDirectClient;
 pub use clients::multiplexer::MultiplexerRootstockClient;
-pub use ethereum_gateway::{RootstockGateway, SignedCallResult};
+pub use rootstock_gateway::{RootstockGateway, SignedCallResult};

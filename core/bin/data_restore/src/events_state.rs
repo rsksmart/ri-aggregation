@@ -13,7 +13,7 @@ use zksync_contracts::upgrade_gatekeeper;
 use zksync_types::{Address, BlockNumber, NewTokenEvent, PriorityOp, SerialId};
 // Local deps
 use crate::contract::{ZkSyncContractVersion, ZkSyncDeployedContract};
-use crate::eth_tx_helpers::get_block_number_from_ethereum_transaction;
+use crate::eth_tx_helpers::get_block_number_from_rootstock_transaction;
 use crate::events::{BlockEvent, EventType};
 
 /// Rollup contract events states description
@@ -56,7 +56,8 @@ impl EventsState {
         &mut self,
         genesis_transaction: &Transaction,
     ) -> Result<u64, anyhow::Error> {
-        let genesis_block_number = get_block_number_from_ethereum_transaction(genesis_transaction)?;
+        let genesis_block_number =
+            get_block_number_from_rootstock_transaction(genesis_transaction)?;
         self.last_watched_eth_block_number = genesis_block_number;
         Ok(genesis_block_number)
     }

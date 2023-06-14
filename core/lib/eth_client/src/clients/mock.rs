@@ -12,7 +12,7 @@ use web3::types::{BlockId, Filter, Log, Transaction, U64};
 use zksync_types::{TransactionReceipt, H160, H256, U256};
 
 use crate::{
-    ethereum_gateway::{ExecutedTxStatus, FailureInfo},
+    rootstock_gateway::{ExecutedTxStatus, FailureInfo},
     SignedCallResult,
 };
 

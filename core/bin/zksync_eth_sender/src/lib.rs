@@ -38,7 +38,7 @@ mod tx_queue;
 #[cfg(test)]
 mod tests;
 
-/// Wait this amount of time if we hit rate limit on infura https://infura.io/docs/ethereum/json-rpc/ratelimits
+/// Wait this amount of time if we hit rate limit on infura https://infura.io/docs/rootstock/json-rpc/ratelimits
 const RATE_LIMIT_BACKOFF_PERIOD: Duration = Duration::from_secs(30);
 /// Rate limit error will contain this response code
 const RATE_LIMIT_HTTP_CODE: &str = "429";

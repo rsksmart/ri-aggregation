@@ -212,7 +212,7 @@ async fn test_operation_queues() {
 
     let mut watcher = create_watcher(client, sender);
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 4);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 4);
 
     let priority_queues = watcher.eth_state.priority_queue();
     let unconfirmed_queue = watcher.eth_state.unconfirmed_queue();
@@ -295,7 +295,7 @@ async fn test_operation_queues_time_lag() {
         .await;
     let mut watcher = create_watcher(client, sender);
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 110);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 110);
 
     let priority_queues = watcher.eth_state.priority_queue();
     let unconfirmed_queue = watcher.eth_state.unconfirmed_queue();
@@ -387,7 +387,7 @@ async fn test_restore_and_poll() {
         ])
         .await;
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 5);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 5);
     let priority_queues = watcher.eth_state.priority_queue();
     let unconfirmed_queue = watcher.eth_state.unconfirmed_queue();
     assert_eq!(priority_queues.len(), 2);
@@ -441,7 +441,7 @@ async fn test_restore_and_poll_time_lag() {
 
     let mut watcher = create_watcher(client.clone(), sender);
     watcher.restore_state_from_eth(101).await.unwrap();
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 101);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 101);
     let priority_queues = watcher.eth_state.priority_queue();
     assert_eq!(priority_queues.len(), 2);
     priority_queues.get(&0).unwrap();
@@ -485,7 +485,7 @@ async fn test_serial_id_gaps() {
     let mut watcher = create_watcher(client.clone(), sender);
     // Restore the valid (empty) state.
     watcher.restore_state_from_eth(0).await.unwrap();
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 0);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 0);
     assert!(watcher.eth_state.priority_queue().is_empty());
     assert_eq!(watcher.eth_state.next_priority_op_id(), 0);
 
@@ -493,8 +493,8 @@ async fn test_serial_id_gaps() {
     client.set_last_block_number(2).await;
     watcher.poll_eth_node().await.unwrap();
     assert_eq!(watcher.eth_state.next_priority_op_id(), 2);
-    assert_eq!(watcher.eth_state.last_ethereum_block_backup(), 0);
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 2);
+    assert_eq!(watcher.eth_state.last_rootstock_block_backup(), 0);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 2);
 
     // Add a gap.
     client
@@ -526,8 +526,8 @@ async fn test_serial_id_gaps() {
     // for the serial_id = 2 even though it was present.
     assert_eq!(watcher.eth_state.next_priority_op_id(), 2);
     // The range got reset.
-    assert_eq!(watcher.eth_state.last_ethereum_block_backup(), 0);
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 0);
+    assert_eq!(watcher.eth_state.last_rootstock_block_backup(), 0);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 0);
 
     // Add a missing operations to the processed range.
     client
@@ -543,6 +543,6 @@ async fn test_serial_id_gaps() {
     watcher.poll_eth_node().await.unwrap();
     assert_eq!(watcher.eth_state.next_priority_op_id(), 5);
     assert_eq!(watcher.eth_state.priority_queue().len(), 5);
-    assert_eq!(watcher.eth_state.last_ethereum_block_backup(), 0);
-    assert_eq!(watcher.eth_state.last_ethereum_block(), 3);
+    assert_eq!(watcher.eth_state.last_rootstock_block_backup(), 0);
+    assert_eq!(watcher.eth_state.last_rootstock_block(), 3);
 }

@@ -13,7 +13,7 @@ use zksync_types::{
 use super::{chain::apply_random_updates, create_rng, db_test, ACCOUNT_MUTEX};
 use crate::{
     test_data::{
-        dummy_ethereum_tx_hash, gen_sample_block, gen_unique_aggregated_operation,
+        dummy_rootstock_tx_hash, gen_sample_block, gen_unique_aggregated_operation,
         BLOCK_SIZE_CHUNKS,
     },
     QueryResult, StorageProcessor,
@@ -64,9 +64,9 @@ async fn store_operation(
         .get_aggregated_op_that_affects_block(action_type, block_number)
         .await?
         .unwrap();
-    let eth_tx_hash = dummy_ethereum_tx_hash(id);
+    let eth_tx_hash = dummy_rootstock_tx_hash(id);
     let response = storage
-        .ethereum_schema()
+        .rootstock_schema()
         .save_new_eth_tx(
             action_type,
             Some((id, op)),
@@ -76,11 +76,11 @@ async fn store_operation(
         )
         .await?;
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .add_hash_entry(response.id, &eth_tx_hash)
         .await?;
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .confirm_eth_tx(&eth_tx_hash)
         .await?;
 
@@ -116,7 +116,7 @@ async fn test_block_events(mut storage: StorageProcessor<'_>) -> QueryResult<()>
         "database should be empty"
     );
 
-    storage.ethereum_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_eth_data().await?;
     const FROM_BLOCK: u32 = 1;
     const TO_BLOCK: u32 = 3;
 
@@ -234,7 +234,7 @@ async fn test_account_events(mut storage: StorageProcessor<'_>) -> QueryResult<(
         "database should be empty"
     );
 
-    storage.ethereum_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_eth_data().await?;
 
     let mut rng = create_rng();
     let (accounts_block_1, updates_block_1) = apply_random_updates(AccountMap::default(), &mut rng);

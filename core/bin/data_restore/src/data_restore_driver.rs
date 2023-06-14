@@ -19,7 +19,7 @@ use zksync_types::{
 // Local deps
 use crate::{
     contract::{get_genesis_account, ZkSyncDeployedContract},
-    eth_tx_helpers::get_ethereum_transaction,
+    eth_tx_helpers::get_rootstock_transaction,
     events_state::EventsState,
     rollup_ops::RollupOpsBlock,
     storage_interactor::StorageInteractor,
@@ -150,7 +150,7 @@ impl<T: Transport> DataRestoreDriver<T> {
         interactor: &mut StorageInteractor<'_>,
         genesis_tx_hash: H256,
     ) {
-        let genesis_transaction = get_ethereum_transaction(&self.web3, &genesis_tx_hash)
+        let genesis_transaction = get_rootstock_transaction(&self.web3, &genesis_tx_hash)
             .await
             .expect("Cant get zkSync genesis transaction");
 

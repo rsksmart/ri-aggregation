@@ -11,7 +11,7 @@ use web3::{
 };
 
 use zksync_contracts::{governance_contract, zksync_contract};
-use zksync_eth_client::ethereum_gateway::RootstockGateway;
+use zksync_eth_client::rootstock_gateway::RootstockGateway;
 use zksync_types::{
     Address, NewTokenEvent, Nonce, PriorityOp, RegisterNFTFactoryEvent, H160, U256,
 };

@@ -20,7 +20,7 @@ use crate::{
     chain::operations::OperationsSchema,
     chain::operations_ext::SearchDirection,
     test_data::{
-        dummy_ethereum_tx_hash, gen_sample_block, gen_unique_aggregated_operation,
+        dummy_rootstock_tx_hash, gen_sample_block, gen_unique_aggregated_operation,
         BLOCK_SIZE_CHUNKS,
     },
     tests::{db_test, ACCOUNT_MUTEX},
@@ -107,17 +107,17 @@ async fn confirm_eth_op(
     op: (i64, AggregatedOperation),
     op_type: AggregatedActionType,
 ) -> QueryResult<()> {
-    let eth_tx_hash = dummy_ethereum_tx_hash(op.0);
+    let eth_tx_hash = dummy_rootstock_tx_hash(op.0);
     let response = storage
-        .ethereum_schema()
+        .rootstock_schema()
         .save_new_eth_tx(op_type, Some(op), 100, 100u32.into(), Default::default())
         .await?;
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .add_hash_entry(response.id, &eth_tx_hash)
         .await?;
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .confirm_eth_tx(&eth_tx_hash)
         .await?;
 
@@ -129,7 +129,7 @@ pub async fn commit_block(
     block_number: BlockNumber,
 ) -> QueryResult<()> {
     // Required since we use `RootstockSchema` in this test.
-    storage.ethereum_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_eth_data().await?;
     BlockSchema(storage)
         .save_full_block(gen_sample_block(
             block_number,

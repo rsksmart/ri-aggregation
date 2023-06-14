@@ -78,7 +78,7 @@ fn one_ether() -> U256 {
 }
 
 /// Auxiliary function that returns the balance of the account on Rootstock.
-async fn get_ethereum_balance<S: RootstockSigner>(
+async fn get_rootstock_balance<S: RootstockSigner>(
     eth_provider: &RootstockProvider<S>,
     address: Address,
     token: &Token,
@@ -397,7 +397,7 @@ where
         .get_balance(BlockStatus::Committed, &token.symbol as &str)
         .await?;
     let onchain_balance_before =
-        get_ethereum_balance(eth_provider, withdraw_to.address(), token).await?;
+        get_rootstock_balance(eth_provider, withdraw_to.address(), token).await?;
     let pending_to_be_onchain_balance_before: U256 = {
         let query = main_contract.query(
             "getPendingBalance",
@@ -429,7 +429,7 @@ where
         .get_balance(BlockStatus::Committed, &token.symbol as &str)
         .await?;
     let onchain_balance_after =
-        get_ethereum_balance(eth_provider, withdraw_to.address(), token).await?;
+        get_rootstock_balance(eth_provider, withdraw_to.address(), token).await?;
 
     let pending_to_be_onchain_balance_after: U256 = {
         let query = main_contract.query(
@@ -620,11 +620,11 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
     transfer_to("DAI", dai_deposit_amount, sync_depositor_wallet.address()).await?;
 
     assert_eq!(
-        get_ethereum_balance(&rootstock, sync_depositor_wallet.address(), &token_eth).await?,
+        get_rootstock_balance(&rootstock, sync_depositor_wallet.address(), &token_eth).await?,
         eth_deposit_amount
     );
     assert_eq!(
-        get_ethereum_balance(&rootstock, sync_depositor_wallet.address(), &token_dai).await?,
+        get_rootstock_balance(&rootstock, sync_depositor_wallet.address(), &token_dai).await?,
         dai_deposit_amount
     );
 

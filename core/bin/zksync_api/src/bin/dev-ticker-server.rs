@@ -116,7 +116,7 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<TokenData> {
             .map(|token| {
                 let symbol = token.symbol.to_lowercase();
                 let mut platforms = HashMap::new();
-                platforms.insert(String::from("ethereum"), token.address);
+                platforms.insert(String::from("rootstock"), token.address);
                 let id = match symbol.as_str() {
                     "wbtc" => String::from("wrapped-bitcoin"),
                     "bat" => String::from("basic-attention-token"),

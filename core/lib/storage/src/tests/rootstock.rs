@@ -63,7 +63,7 @@ impl RootstockTxParams {
 
 /// Verifies that on a fresh database no bogus operations are loaded.
 #[db_test]
-async fn ethereum_empty_load(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+async fn rootstock_empty_load(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
     let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
@@ -81,7 +81,7 @@ async fn ethereum_empty_load(mut storage: StorageProcessor<'_>) -> QueryResult<(
 /// - Make the operation as completed.
 /// - Check that now txs aren't loaded.
 #[db_test]
-async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
     RootstockSchema(&mut storage).initialize_eth_data().await?;
 
     for expected_next_nonce in 0..5 {
@@ -203,7 +203,7 @@ async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> 
 /// If there is an `ETHOperation` and it's not confirmed, it must be returned by `load_unconfirmed_operations`
 /// and **not** returned by `load_unprocessed_operations`.
 #[db_test]
-async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
     RootstockSchema(&mut storage).initialize_eth_data().await?;
 
     let unconfirmed_operations = RootstockSchema(&mut storage)
@@ -360,20 +360,20 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
 
 /// Simple test for store/load of (average) gas price.
 #[db_test]
-async fn ethereum_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    storage.ethereum_schema().initialize_eth_data().await?;
-    let old_price_limit = storage.ethereum_schema().load_gas_price_limit().await?;
-    let old_average_price = storage.ethereum_schema().load_average_gas_price().await?;
+async fn rootstock_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+    storage.rootstock_schema().initialize_eth_data().await?;
+    let old_price_limit = storage.rootstock_schema().load_gas_price_limit().await?;
+    let old_average_price = storage.rootstock_schema().load_average_gas_price().await?;
     // This parameter is not set in `initialize_eth_data()`
     assert!(old_average_price.is_none());
     // Update these values.
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .update_gas_price(old_price_limit + 1i32, old_price_limit - 1i32)
         .await?;
     // Load new ones.
-    let new_price_limit = storage.ethereum_schema().load_gas_price_limit().await?;
-    let new_average_price = storage.ethereum_schema().load_average_gas_price().await?;
+    let new_price_limit = storage.rootstock_schema().load_gas_price_limit().await?;
+    let new_average_price = storage.rootstock_schema().load_average_gas_price().await?;
 
     assert_eq!(new_price_limit, old_price_limit + 1i32);
     assert_eq!(new_average_price, Some(old_price_limit - 1i32));
@@ -384,15 +384,15 @@ async fn ethereum_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<(
 /// Check update eth parameters
 #[db_test]
 async fn test_update_eth_parameters(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    storage.ethereum_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_eth_data().await?;
 
     // Updates eth parameters and checks if they were really saved.
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .update_eth_parameters(BlockNumber(5))
         .await?;
 
-    let stats = storage.ethereum_schema().load_stats().await?;
+    let stats = storage.rootstock_schema().load_stats().await?;
     assert_eq!(stats.last_committed_block, 5);
     assert_eq!(stats.last_verified_block, 0);
     assert_eq!(stats.last_executed_block, 0);

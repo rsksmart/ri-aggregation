@@ -111,7 +111,7 @@ async fn revert_blocks_in_storage(
     println!("`prover_job_queue` table is cleaned");
 
     transaction
-        .ethereum_schema()
+        .rootstock_schema()
         .update_eth_parameters(last_block)
         .await?;
     println!("`eth_parameters` table is updated");
@@ -166,7 +166,7 @@ async fn revert_blocks_on_contract(
         .await
         .map_err(|e| format_err!("Revert blocks send err: {}", e))?;
     let receipt = send_raw_tx_and_wait_confirmation(client, signed_tx.raw_tx).await?;
-    storage.ethereum_schema().get_next_nonce().await
+    storage.rootstock_schema().get_next_nonce().await
         .expect("Rootstock tx has been sent but updating operator nonce in storage has failed. You need to update it manually");
     if receipt.status != Some(U64::from(1)) {
         let reason = client.failure_reason(signed_tx.hash).await?;

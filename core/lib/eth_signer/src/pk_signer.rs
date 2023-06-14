@@ -1,4 +1,4 @@
-use crate::raw_ethereum_tx::{RawTransaction, Transaction};
+use crate::raw_rootstock_tx::{RawTransaction, Transaction};
 use crate::{RootstockSigner, SignerError};
 
 use secp256k1::SecretKey;

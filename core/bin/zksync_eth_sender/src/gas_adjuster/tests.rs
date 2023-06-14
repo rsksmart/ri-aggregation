@@ -8,7 +8,7 @@ use crate::{
     DatabaseInterface, GasAdjuster,
 };
 
-use zksync_eth_client::ethereum_gateway::RootstockGateway;
+use zksync_eth_client::rootstock_gateway::RootstockGateway;
 
 /// Creates `Rootstock` and `Database` instances for the `GasAdjuster` tests.
 async fn eth_and_db_clients() -> (RootstockGateway, MockDatabase) {
@@ -161,11 +161,11 @@ async fn average_gas_price_stored_correctly() {
     assert_eq!(initial_db_price, 0u64.into()); // Check just in case.
 
     // Set the low gas price in Rootstock.
-    let ethereum_price = U256::from(1u64);
+    let rootstock_price = U256::from(1u64);
     rootstock
         .get_mut_mock()
         .unwrap()
-        .set_gas_price(ethereum_price)
+        .set_gas_price(rootstock_price)
         .await
         .unwrap();
 
@@ -183,7 +183,7 @@ async fn average_gas_price_stored_correctly() {
 
     // Finally, the stored price should become equal to the network price.
     let current_db_price = db.average_gas_price().await;
-    assert_eq!(current_db_price, ethereum_price);
+    assert_eq!(current_db_price, rootstock_price);
 }
 
 /// Checks the gas price limit scaling algorithm:

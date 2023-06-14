@@ -23,7 +23,7 @@ use crate::{
     },
     rootstock::RootstockSchema,
     test_data::{
-        dummy_ethereum_tx_hash, dummy_root_hash_for_block, gen_acc_random_updates,
+        dummy_root_hash_for_block, dummy_rootstock_tx_hash, gen_acc_random_updates,
         gen_sample_block, gen_sample_incomplete_block, gen_sample_pending_block,
         gen_unique_aggregated_operation, BLOCK_SIZE_CHUNKS,
     },
@@ -267,7 +267,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
 
         // Store & confirm the operation in the rootstock schema, as it's used for obtaining
         // commit/verify hashes.
-        let eth_tx_hash = dummy_ethereum_tx_hash(id);
+        let eth_tx_hash = dummy_rootstock_tx_hash(id);
 
         let response = RootstockSchema(&mut storage)
             .save_new_eth_tx(
@@ -308,7 +308,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
                 )
                 .await?
                 .unwrap();
-            let eth_tx_hash = dummy_ethereum_tx_hash(id);
+            let eth_tx_hash = dummy_rootstock_tx_hash(id);
 
             // Do not add an rootstock confirmation for the last operation.
             if *block_number != n_verified {
@@ -476,7 +476,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
 
         // Store & confirm the operation in the rootstock schema, as it's used for obtaining
         // commit/verify hashes.
-        let eth_tx_hash = dummy_ethereum_tx_hash(id);
+        let eth_tx_hash = dummy_rootstock_tx_hash(id);
         let response = RootstockSchema(&mut storage)
             .save_new_eth_tx(
                 AggregatedActionType::CommitBlocks,
@@ -509,7 +509,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
                 )
                 .await?
                 .unwrap();
-            let eth_tx_hash = dummy_ethereum_tx_hash(id);
+            let eth_tx_hash = dummy_rootstock_tx_hash(id);
             let response = RootstockSchema(&mut storage)
                 .save_new_eth_tx(
                     AggregatedActionType::ExecuteBlocks,
@@ -611,7 +611,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
 
         // Store & confirm the operation in the rootstock schema, as it's used for obtaining
         // commit/verify hashes.
-        let eth_tx_hash = dummy_ethereum_tx_hash(id);
+        let eth_tx_hash = dummy_rootstock_tx_hash(id);
         let response = RootstockSchema(&mut storage)
             .save_new_eth_tx(
                 AggregatedActionType::CommitBlocks,
@@ -648,7 +648,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
                 .await?
                 .unwrap();
 
-            let eth_tx_hash = dummy_ethereum_tx_hash(id);
+            let eth_tx_hash = dummy_rootstock_tx_hash(id);
             let response = RootstockSchema(&mut storage)
                 .save_new_eth_tx(
                     AggregatedActionType::ExecuteBlocks,
