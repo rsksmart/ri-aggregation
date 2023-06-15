@@ -15,8 +15,8 @@ use zksync_crypto::{
         utils::{append_be_fixed_width, eth_address_to_fr, le_bit_vector_into_field_element},
     },
     params::{
-        account_tree_depth, ACCOUNT_ID_BIT_WIDTH, CHUNK_BIT_WIDTH, RSK_ADDRESS_BIT_WIDTH,
-        FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH, NFT_STORAGE_ACCOUNT_ID, SERIAL_ID_WIDTH,
+        account_tree_depth, ACCOUNT_ID_BIT_WIDTH, CHUNK_BIT_WIDTH, FEE_EXPONENT_BIT_WIDTH,
+        FEE_MANTISSA_BIT_WIDTH, NFT_STORAGE_ACCOUNT_ID, RSK_ADDRESS_BIT_WIDTH, SERIAL_ID_WIDTH,
         TOKEN_BIT_WIDTH, TX_TYPE_BIT_WIDTH,
     },
     primitives::FloatConversions,

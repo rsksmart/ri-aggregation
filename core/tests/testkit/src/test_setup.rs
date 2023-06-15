@@ -1,5 +1,5 @@
-use crate::rsk_account::{get_executed_tx_fee, RSKExecResult, RootstockAccount};
 use crate::external_commands::Contracts;
+use crate::rsk_account::{get_executed_tx_fee, RSKExecResult, RootstockAccount};
 use anyhow::bail;
 use futures::{
     channel::{mpsc, oneshot},

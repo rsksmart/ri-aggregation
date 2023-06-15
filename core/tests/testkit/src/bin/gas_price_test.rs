@@ -8,8 +8,8 @@
 //! * It is useful to calculate cost of the "griefing" attack.
 //! We don't take fees for deposit and full exit, but we must process them, so it is possible to spam us and force us to spend money.
 
-use crate::rsk_account::RootstockAccount;
 use crate::external_commands::{deploy_contracts, get_test_accounts};
+use crate::rsk_account::RootstockAccount;
 use crate::zksync_account::ZkSyncAccount;
 use num::{rational::Ratio, traits::Pow, BigInt, BigUint};
 use std::ops::Mul;

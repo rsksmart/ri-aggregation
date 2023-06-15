@@ -8,8 +8,8 @@
 //! + Check exit with garbage proof.
 //! + Check exit with correct proof for other account, correct proof for this account but other token, correct proof but wrong amount.
 
-use crate::rsk_account::{parse_rbtc, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts};
+use crate::rsk_account::{parse_rbtc, RootstockAccount};
 use crate::zksync_account::ZkSyncAccount;
 use num::BigUint;
 use std::time::Instant;

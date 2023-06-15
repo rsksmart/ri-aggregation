@@ -11,8 +11,8 @@ use zksync_crypto::circuit::CircuitAccountTree;
 use zksync_crypto::params::account_tree_depth;
 use zksync_prover_utils::aggregated_proofs::{gen_aggregate_proof, prepare_proof_data};
 use zksync_prover_utils::{PlonkVerificationKey, SetupForStepByStepProver};
-use zksync_testkit::rsk_account::RootstockAccount;
 use zksync_testkit::external_commands::{deploy_contracts, get_test_accounts};
+use zksync_testkit::rsk_account::RootstockAccount;
 use zksync_testkit::zksync_account::{ZkSyncAccount, ZkSyncRSKAccountData};
 use zksync_testkit::{
     genesis_state, spawn_state_keeper, AccountSet, RSKAccountId, TestSetup, TestkitConfig, Token,

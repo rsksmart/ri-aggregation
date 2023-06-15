@@ -2,7 +2,7 @@ use num::{BigUint, FromPrimitive, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use zksync_crypto::params::{
     ACCOUNT_ID_BIT_WIDTH, ADDRESS_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BYTES, CONTENT_HASH_WIDTH,
-    RSK_ADDRESS_BIT_WIDTH, LEGACY_CHUNK_BYTES, LEGACY_TOKEN_BIT_WIDTH, TOKEN_BIT_WIDTH,
+    LEGACY_CHUNK_BYTES, LEGACY_TOKEN_BIT_WIDTH, RSK_ADDRESS_BIT_WIDTH, TOKEN_BIT_WIDTH,
 };
 use zksync_crypto::primitives::FromBytes;
 use zksync_utils::BigUintSerdeWrapper;

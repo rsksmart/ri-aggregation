@@ -9,8 +9,8 @@ use crate::{
 use futures::{channel::mpsc, future};
 use tokio::task::JoinHandle;
 use zksync_config::{ChainConfig, ZkSyncConfig};
-use zksync_rsk_client::RootstockGateway;
 use zksync_mempool::{run_mempool_block_handler, run_mempool_tx_handler};
+use zksync_rsk_client::RootstockGateway;
 use zksync_storage::ConnectionPool;
 use zksync_types::{tokens::get_genesis_token_list, Token, TokenId, TokenKind};
 

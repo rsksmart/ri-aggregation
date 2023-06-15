@@ -10,8 +10,8 @@ use zksync_types::{Nonce, TokenId};
 
 use crate::{
     data_restore::verify_restore,
-    rsk_account::{parse_rbtc, RootstockAccount},
     external_commands::{deploy_contracts, get_test_accounts},
+    rsk_account::{parse_rbtc, RootstockAccount},
     state_keeper_utils::spawn_state_keeper,
     zksync_account::ZkSyncAccount,
 };

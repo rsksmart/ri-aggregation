@@ -23,16 +23,16 @@ use web3::types::BlockNumber;
 
 use zksync_config::{ContractsConfig, RSKWatchConfig};
 use zksync_crypto::params::PRIORITY_EXPIRATION;
-use zksync_rsk_client::rootstock_gateway::RootstockGateway;
 use zksync_mempool::MempoolTransactionRequest;
+use zksync_rsk_client::rootstock_gateway::RootstockGateway;
 use zksync_types::{NewTokenEvent, PriorityOp, RegisterNFTFactoryEvent, SerialId};
 
 // Local deps
-use self::{client::RSKClient, rsk_state::RSKState, received_ops::sift_outdated_ops};
+use self::{client::RSKClient, received_ops::sift_outdated_ops, rsk_state::RSKState};
 
 mod client;
-mod rsk_state;
 mod received_ops;
+mod rsk_state;
 
 #[cfg(test)]
 mod tests;

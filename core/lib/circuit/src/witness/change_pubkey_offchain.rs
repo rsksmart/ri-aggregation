@@ -14,8 +14,8 @@ use zksync_crypto::{
         rescue::RescueEngine,
     },
     params::{
-        account_tree_depth, ACCOUNT_ID_BIT_WIDTH, CHUNK_BIT_WIDTH, RSK_ADDRESS_BIT_WIDTH,
-        FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH, NEW_PUBKEY_HASH_WIDTH, NONCE_BIT_WIDTH,
+        account_tree_depth, ACCOUNT_ID_BIT_WIDTH, CHUNK_BIT_WIDTH, FEE_EXPONENT_BIT_WIDTH,
+        FEE_MANTISSA_BIT_WIDTH, NEW_PUBKEY_HASH_WIDTH, NONCE_BIT_WIDTH, RSK_ADDRESS_BIT_WIDTH,
         TOKEN_BIT_WIDTH, TX_TYPE_BIT_WIDTH,
     },
     primitives::FloatConversions,

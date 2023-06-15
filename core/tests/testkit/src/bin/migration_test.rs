@@ -1,5 +1,5 @@
-use crate::rsk_account::{parse_rbtc, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts, run_upgrade_franklin};
+use crate::rsk_account::{parse_rbtc, RootstockAccount};
 use crate::zksync_account::ZkSyncAccount;
 use std::time::Instant;
 use web3::transports::Http;

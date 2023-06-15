@@ -12,8 +12,8 @@ use zksync_testkit::{
 use zksync_types::{BlockNumber, Nonce, TokenId};
 
 use crate::{
-    rsk_account::{parse_rbtc, RootstockAccount},
     external_commands::{deploy_contracts, get_test_accounts, Contracts},
+    rsk_account::{parse_rbtc, RootstockAccount},
     zksync_account::ZkSyncAccount,
 };
 

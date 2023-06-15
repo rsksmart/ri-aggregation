@@ -9,8 +9,8 @@ use web3::contract::Options;
 use web3::transports::Http;
 use web3::types::{TransactionReceipt, H160, H256, U256};
 
-use zksync_rsk_signer::RootstockSigner;
 use zksync_rsk_client::RSKDirectClient;
+use zksync_rsk_signer::RootstockSigner;
 use zksync_types::{AccountId, Address, PriorityOp, PriorityOpId, TokenId, TokenLike};
 
 use crate::{
