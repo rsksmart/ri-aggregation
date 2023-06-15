@@ -1,4 +1,4 @@
-use crate::raw_ethereum_tx::{RawTransaction, Transaction};
+use crate::raw_rootstock_tx::{RawTransaction, Transaction};
 use crate::{EthereumSigner, SignerError};
 
 use secp256k1::SecretKey;
@@ -25,7 +25,7 @@ impl PrivateKeySigner {
 
 #[async_trait::async_trait]
 impl EthereumSigner for PrivateKeySigner {
-    /// Get Ethereum address that matches the private key.
+    /// Get Rootstock address that matches the private key.
     async fn get_address(&self) -> Result<Address, SignerError> {
         PackedEthSignature::address_from_private_key(&self.private_key)
             .map_err(|_| SignerError::DefineAddress)

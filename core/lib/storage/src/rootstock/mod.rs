@@ -7,10 +7,10 @@ use sqlx::types::BigDecimal;
 // Workspace imports
 use zksync_types::{
     aggregated_operations::{AggregatedActionType, AggregatedOperation},
-    ethereum::{ETHOperation, InsertedOperationResponse},
     event::{
         account::AccountStateChangeStatus, block::BlockStatus, transaction::TransactionStatus,
     },
+    rootstock::{ETHOperation, InsertedOperationResponse},
     BlockNumber, H256, U256,
 };
 // Local imports
@@ -20,22 +20,22 @@ use chrono::{DateTime, Utc};
 
 pub mod records;
 
-/// Ethereum schema is capable of storing the information about the
-/// interaction with the Ethereum blockchain (mainly the list of sent
-/// Ethereum transactions).
+/// Rootstock schema is capable of storing the information about the
+/// interaction with the Rootstock blockchain (mainly the list of sent
+/// Rootstock transactions).
 #[derive(Debug)]
-pub struct EthereumSchema<'a, 'c>(pub &'a mut StorageProcessor<'c>);
+pub struct RootstockSchema<'a, 'c>(pub &'a mut StorageProcessor<'c>);
 
-impl<'a, 'c> EthereumSchema<'a, 'c> {
-    /// Loads the list of operations that were not confirmed on Ethereum,
-    /// each operation has a list of sent Ethereum transactions.
+impl<'a, 'c> RootstockSchema<'a, 'c> {
+    /// Loads the list of operations that were not confirmed on Rootstock,
+    /// each operation has a list of sent Rootstock transactions.
     pub async fn load_unconfirmed_operations(&mut self) -> QueryResult<VecDeque<ETHOperation>> {
         let start = Instant::now();
-        // Load the operations with the associated Ethereum transactions
+        // Load the operations with the associated Rootstock transactions
         // from the database.
         // Here we obtain a sequence of one-to-one mappings (ETH tx) -> (operation ID).
-        // Each Ethereum transaction can have no more than one associated operation, and each
-        // operation is associated with exactly one Ethereum transaction. Note that there may
+        // Each Rootstock transaction can have no more than one associated operation, and each
+        // operation is associated with exactly one Rootstock transaction. Note that there may
         // be ETH transactions without an operation (e.g. `completeWithdrawals` call), but for
         // every operation always there is an ETH transaction.
 
@@ -77,7 +77,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
             .await?;
             assert!(
                 !eth_tx_hashes.is_empty(),
-                "No hashes stored for the Ethereum operation"
+                "No hashes stored for the Rootstock operation"
             );
 
             // If there is an operation, convert it to the `AggregatedOperation` type.
@@ -117,11 +117,11 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.load_unconfirmed_operations", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_unconfirmed_operations", start.elapsed());
         Ok(ops)
     }
 
-    /// Load all the aggregated operations that have no confirmation yet and have not yet been sent to Ethereum.
+    /// Load all the aggregated operations that have no confirmation yet and have not yet been sent to Rootstock.
     /// Should be used after server restart only.
     pub async fn restore_unprocessed_operations(&mut self) -> QueryResult<()> {
         let start = Instant::now();
@@ -143,7 +143,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .await?;
 
         metrics::histogram!(
-            "sql.ethereum.restore_unprocessed_operations",
+            "sql.rootstock.restore_unprocessed_operations",
             start.elapsed()
         );
 
@@ -176,7 +176,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         let mut operations = Vec::new();
 
         for raw_op in raw_ops {
-            // We filtered operations that don't have Ethereum binding right in the SQL query,
+            // We filtered operations that don't have Rootstock binding right in the SQL query,
             // so now we only have to convert stored operations into `Operation`.
             let op = raw_op.into_aggregated_op();
             if !matches!(
@@ -187,7 +187,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
             }
         }
 
-        metrics::histogram!("sql.ethereum.load_unprocessed_operations", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_unprocessed_operations", start.elapsed());
         Ok(operations)
     }
 
@@ -207,13 +207,13 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .await?;
 
         metrics::histogram!(
-            "sql.ethereum.remove_unprocessed_operations",
+            "sql.rootstock.remove_unprocessed_operations",
             start.elapsed()
         );
         Ok(())
     }
 
-    /// Stores the sent (but not confirmed yet) Ethereum transaction in the database.
+    /// Stores the sent (but not confirmed yet) Rootstock transaction in the database.
     /// Returns the `ETHOperation` object containing the assigned nonce and operation ID.
     pub async fn save_new_eth_tx(
         &mut self,
@@ -228,7 +228,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
 
         // It's important to assign nonce within the same db transaction
         // as saving the operation to avoid the state divergence.
-        let nonce = EthereumSchema(&mut transaction).get_next_nonce().await?;
+        let nonce = RootstockSchema(&mut transaction).get_next_nonce().await?;
 
         // Create and insert the operation.
 
@@ -257,7 +257,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
             .await?;
 
             // Update the stored stats.
-            EthereumSchema(&mut transaction)
+            RootstockSchema(&mut transaction)
                 .report_created_operation(op)
                 .await?;
         }
@@ -270,7 +270,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.save_new_eth_tx", start.elapsed());
+        metrics::histogram!("sql.rootstock.save_new_eth_tx", start.elapsed());
         Ok(response)
     }
 
@@ -288,11 +288,11 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .map(|op| op.confirmed)
         .unwrap_or(false);
 
-        metrics::histogram!("sql.ethereum.is_aggregated_op_confirmed", start.elapsed());
+        metrics::histogram!("sql.rootstock.is_aggregated_op_confirmed", start.elapsed());
         Ok(confirmed)
     }
 
-    /// Retrieves the Ethereum operation ID given the tx hash.
+    /// Retrieves the Rootstock operation ID given the tx hash.
     async fn get_eth_op_id(&mut self, hash: &H256) -> QueryResult<i64> {
         let start = Instant::now();
         let hash_entry = sqlx::query_as!(
@@ -303,11 +303,11 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .fetch_one(self.0.conn())
         .await?;
 
-        metrics::histogram!("sql.ethereum.get_eth_op_id", start.elapsed());
+        metrics::histogram!("sql.rootstock.get_eth_op_id", start.elapsed());
         Ok(hash_entry.eth_op_id)
     }
 
-    /// Adds a tx hash entry associated with some Ethereum operation to the database.
+    /// Adds a tx hash entry associated with some Rootstock operation to the database.
     pub async fn add_hash_entry(&mut self, eth_op_id: i64, hash: &H256) -> QueryResult<()> {
         let start = Instant::now();
         // Insert the new hash entry.
@@ -318,11 +318,11 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         )
         .execute(self.0.conn())
         .await?;
-        metrics::histogram!("sql.ethereum.add_hash_entry", start.elapsed());
+        metrics::histogram!("sql.rootstock.add_hash_entry", start.elapsed());
         Ok(())
     }
 
-    /// Updates the Ethereum operation by adding a new tx data.
+    /// Updates the Rootstock operation by adding a new tx data.
     /// The new deadline block / gas value are placed instead of old values to the main entry.
     pub async fn update_eth_tx(
         &mut self,
@@ -344,7 +344,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .execute(self.0.conn())
         .await?;
 
-        metrics::histogram!("sql.ethereum.update_eth_tx", start.elapsed());
+        metrics::histogram!("sql.rootstock.update_eth_tx", start.elapsed());
         Ok(())
     }
 
@@ -363,7 +363,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         let start = Instant::now();
         let mut transaction = self.0.start_transaction().await?;
 
-        let mut current_stats = EthereumSchema(&mut transaction).load_eth_params().await?;
+        let mut current_stats = RootstockSchema(&mut transaction).load_eth_params().await?;
         let (first_block, last_block) = {
             let block_range = operation.get_block_range();
             (i64::from(*block_range.0), i64::from(*block_range.1))
@@ -411,7 +411,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.report_created_operation", start.elapsed());
+        metrics::histogram!("sql.rootstock.report_created_operation", start.elapsed());
         Ok(())
     }
 
@@ -441,7 +441,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .execute(self.0.conn())
         .await?;
 
-        metrics::histogram!("sql.ethereum.update_gas_price", start.elapsed());
+        metrics::histogram!("sql.rootstock.update_gas_price", start.elapsed());
         Ok(())
     }
 
@@ -452,7 +452,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         let gas_price_limit =
             U256::try_from(params.gas_price_limit).expect("Negative gas limit value stored in DB");
 
-        metrics::histogram!("sql.ethereum.load_gas_price_limit", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_gas_price_limit", start.elapsed());
         Ok(gas_price_limit)
     }
 
@@ -464,16 +464,16 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
             .average_gas_price
             .map(|price| U256::try_from(price).expect("Negative average gas price stored in DB"));
 
-        metrics::histogram!("sql.ethereum.load_average_gas_price", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_average_gas_price", start.elapsed());
         Ok(average_gas_price)
     }
 
-    /// Loads the stored Ethereum operations stats.
+    /// Loads the stored Rootstock operations stats.
     pub async fn load_stats(&mut self) -> QueryResult<ETHStats> {
         let start = Instant::now();
         let params = self.load_eth_params().await?;
 
-        metrics::histogram!("sql.ethereum.load_stats", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_stats", start.elapsed());
         Ok(params.into())
     }
 
@@ -482,17 +482,19 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         let params = sqlx::query_as!(ETHParams, "SELECT * FROM eth_parameters WHERE id = true",)
             .fetch_one(self.0.conn())
             .await?;
-        metrics::histogram!("sql.ethereum.load_eth_params", start.elapsed());
+        metrics::histogram!("sql.rootstock.load_eth_params", start.elapsed());
         Ok(params)
     }
 
-    /// Marks the stored Ethereum transaction as confirmed (and thus the associated `Operation`
+    /// Marks the stored Rootstock transaction as confirmed (and thus the associated `Operation`
     /// is marked as confirmed as well).
     pub async fn confirm_eth_tx(&mut self, hash: &H256) -> QueryResult<()> {
         let start = Instant::now();
         let mut transaction = self.0.start_transaction().await?;
 
-        let eth_op_id = EthereumSchema(&mut transaction).get_eth_op_id(hash).await?;
+        let eth_op_id = RootstockSchema(&mut transaction)
+            .get_eth_op_id(hash)
+            .await?;
 
         // Set the `confirmed` and `final_hash` field of the entry.
         sqlx::query!(
@@ -565,7 +567,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
                     .await?;
             }
         }
-        let created_at_time = EthereumSchema(&mut transaction)
+        let created_at_time = RootstockSchema(&mut transaction)
             .get_eth_operation_creation_time(eth_op_id)
             .await?;
         if let Some(time) = created_at_time {
@@ -576,7 +578,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.confirm_eth_tx", start.elapsed());
+        metrics::histogram!("sql.rootstock.confirm_eth_tx", start.elapsed());
         Ok(())
     }
 
@@ -591,7 +593,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         let start = Instant::now();
         let mut transaction = self.0.start_transaction().await?;
 
-        let old_nonce: ETHParams = EthereumSchema(&mut transaction).load_eth_params().await?;
+        let old_nonce: ETHParams = RootstockSchema(&mut transaction).load_eth_params().await?;
 
         let new_nonce_value = old_nonce.nonce + 1;
 
@@ -608,7 +610,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
 
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.get_next_nonce", start.elapsed());
+        metrics::histogram!("sql.rootstock.get_next_nonce", start.elapsed());
         Ok(old_nonce_value)
     }
 
@@ -650,7 +652,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
             .await?;
         }
 
-        metrics::histogram!("sql.ethereum.initialize_eth_data", start.elapsed());
+        metrics::histogram!("sql.rootstock.initialize_eth_data", start.elapsed());
         Ok(())
     }
 
@@ -667,7 +669,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .await?
         .created_at;
         metrics::histogram!(
-            "sql.ethereum.get_eth_operation_creation_time",
+            "sql.rootstock.get_eth_operation_creation_time",
             start.elapsed()
         );
         Ok(created_at)
@@ -717,7 +719,7 @@ impl<'a, 'c> EthereumSchema<'a, 'c> {
         .await?;
         transaction.commit().await?;
 
-        metrics::histogram!("sql.ethereum.update_eth_parameters", start.elapsed());
+        metrics::histogram!("sql.rootstock.update_eth_parameters", start.elapsed());
         Ok(())
     }
 }

@@ -433,7 +433,7 @@ export abstract class AbstractWallet {
     // *************
     // L1 operations
     //
-    // Priority operations, ones that sent through Ethereum.
+    // Priority operations, ones that sent through Rootstock.
     //
 
     async approveERC20TokenDeposits(
@@ -683,7 +683,7 @@ export abstract class AbstractWallet {
             const ethNetwork = await this.ethSigner().provider.getNetwork();
             if (l1ChainId(this.provider.network) !== ethNetwork.chainId) {
                 throw new Error(
-                    `ETH network ${ethNetwork.name} and ZkSync network ${this.provider.network} don't match`
+                    `RSK network ${ethNetwork.name} and ZkSync network ${this.provider.network} don't match`
                 );
             }
         }
@@ -700,7 +700,7 @@ export abstract class AbstractWallet {
             ];
             if (!correct_errors.includes(error.code)) {
                 // This is an error which we don't expect
-                error.message = `Ethereum smart wallet JSON RPC server returned the following error while executing an operation: "${error.message}". Please contact your smart wallet support for help.`;
+                error.message = `Rootstock smart wallet JSON RPC server returned the following error while executing an operation: "${error.message}". Please contact your smart wallet support for help.`;
             }
         }
 

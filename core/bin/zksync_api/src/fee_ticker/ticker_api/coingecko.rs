@@ -33,7 +33,7 @@ impl CoinGeckoAPI {
 
         let mut token_ids = HashMap::new();
         for token in token_list.0 {
-            if let Some(address_value) = token.platforms.get("ethereum") {
+            if let Some(address_value) = token.platforms.get("rootstock") {
                 if let Some(address_str) = address_value.as_str() {
                     let address_str = remove_prefix(address_str);
                     if let Ok(address) = Address::from_str(address_str) {
@@ -44,7 +44,7 @@ impl CoinGeckoAPI {
         }
 
         // Add ETH manually because coingecko API doesn't return address for it.
-        token_ids.insert(Address::default(), String::from("ethereum"));
+        token_ids.insert(Address::default(), String::from("rootstock"));
 
         Ok(Self {
             base_url,

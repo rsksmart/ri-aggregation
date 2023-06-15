@@ -6,6 +6,6 @@ pub enum LogParseError {
     PubdataLengthMismatch,
     #[error("Unsupported priority op type")]
     UnsupportedPriorityOpType,
-    #[error("Ethereum ABI error: {0}")]
+    #[error("Rootstock ABI error: {0}")]
     AbiError(#[from] ethabi::Error),
 }

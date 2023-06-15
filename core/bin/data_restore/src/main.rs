@@ -38,7 +38,7 @@ struct Opt {
     #[structopt(long)]
     final_hash: Option<String>,
 
-    /// Sets the web3 API to be used to interact with the Ethereum blockchain
+    /// Sets the web3 API to be used to interact with the Rootstock blockchain
     #[structopt(long = "web3", name = "web3")]
     web3_url: Option<String>,
 
@@ -127,7 +127,7 @@ async fn main() {
     // If genesis is argument is present - there will be fetching contracts creation transactions to get first eth block and genesis acc address
     if opt.genesis {
         // We have to load pre-defined tokens into the database before restoring state,
-        // since these tokens do not have a corresponding Ethereum events.
+        // since these tokens do not have a corresponding Rootstock events.
         add_tokens_to_storage(&mut interactor, &config.eth_network.to_string()).await;
 
         driver

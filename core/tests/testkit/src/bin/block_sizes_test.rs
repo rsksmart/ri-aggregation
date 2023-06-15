@@ -11,7 +11,7 @@ use zksync_crypto::circuit::CircuitAccountTree;
 use zksync_crypto::params::account_tree_depth;
 use zksync_prover_utils::aggregated_proofs::{gen_aggregate_proof, prepare_proof_data};
 use zksync_prover_utils::{PlonkVerificationKey, SetupForStepByStepProver};
-use zksync_testkit::eth_account::EthereumAccount;
+use zksync_testkit::eth_account::RootstockAccount;
 use zksync_testkit::external_commands::{deploy_contracts, get_test_accounts};
 use zksync_testkit::zksync_account::{ZkSyncAccount, ZkSyncETHAccountData};
 use zksync_testkit::{
@@ -107,7 +107,7 @@ async fn main() {
 
     let transport = Http::new(&testkit_config.web3_url).expect("http transport start");
     let (test_accounts_info, commit_account_info) = get_test_accounts();
-    let commit_account = EthereumAccount::new(
+    let commit_account = RootstockAccount::new(
         commit_account_info.private_key,
         commit_account_info.address,
         transport.clone(),
@@ -118,7 +118,7 @@ async fn main() {
     let eth_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
-            EthereumAccount::new(
+            RootstockAccount::new(
                 test_eth_account.private_key,
                 test_eth_account.address,
                 transport.clone(),

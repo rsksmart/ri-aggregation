@@ -8,7 +8,7 @@ pub enum ChangePubKeyOpError {
     AccountNotFound,
     #[error("Account address is incorrect")]
     InvalidAccountAddress,
-    #[error("ChangePubKey Ethereum auth data is incorrect")]
+    #[error("ChangePubKey Rootstock auth data is incorrect")]
     InvalidAuthData,
     #[error("ChangePubKey zkSync signature is incorrect")]
     InvalidZksyncSignature,

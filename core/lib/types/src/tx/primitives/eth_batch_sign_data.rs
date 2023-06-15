@@ -94,7 +94,7 @@ impl EthBatchSignData {
         }
     }
 
-    /// Returns an old-format message that should be signed by Ethereum account key.
+    /// Returns an old-format message that should be signed by Rootstock account key.
     /// Needed for backwards compatibility.
     pub fn get_old_ethereum_batch_message<'a, I>(txs: I) -> Vec<u8>
     where

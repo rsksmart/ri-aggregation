@@ -1,5 +1,5 @@
 //! This module provides utilities for estimating the gas costs for
-//! the transactions that server sends to the Ethereum network.
+//! the transactions that server sends to the Rootstock network.
 //! Server uses this module to ensure that generated transactions
 //! won't run out of the gas and won't trespass the block gas limit.
 // Workspace deps

@@ -84,7 +84,7 @@ describe(`No2FA tests`, () => {
     step('Test No2FA with wrong PubKeyHash', async () => {
         hildaWithEthSigner = hilda;
 
-        // Making sure that the wallet has no Ethereum private key
+        // Making sure that the wallet has no Rootstock private key
         // but has wrong l2 private key
         hilda = await Wallet.fromSyncSigner(
             new No2FAWalletSigner(hilda.address(), hilda.ethSigner().provider),

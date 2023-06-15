@@ -43,7 +43,7 @@ impl LoadtestRng {
     }
 
     pub fn derive(&self, eth_pk: H256) -> Self {
-        // We chain the current seed bytes and the Ethereum private key together,
+        // We chain the current seed bytes and the Rootstock private key together,
         // and then calculate the hash of this data.
         // This way we obtain a derived seed, unique for each wallet, which will result in
         // an uniques set of operations for each account.

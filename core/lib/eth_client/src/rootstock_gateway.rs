@@ -21,7 +21,7 @@ pub struct SignedCallResult {
     pub hash: H256,
 }
 
-/// State of the executed Ethereum transaction.
+/// State of the executed Rootstock transaction.
 #[derive(Debug, Clone)]
 pub struct ExecutedTxStatus {
     /// Amount of confirmations for a block containing the transaction.
@@ -42,13 +42,13 @@ pub struct FailureInfo {
 }
 
 #[derive(Debug, Clone)]
-pub enum EthereumGateway {
+pub enum RootstockGateway {
     Direct(ETHDirectClient<PrivateKeySigner>),
     Multiplexed(MultiplexerEthereumClient),
     Mock(MockEthereum),
 }
 
-impl EthereumGateway {
+impl RootstockGateway {
     pub fn from_config(
         eth_client_config: &ETHClientConfig,
         eth_sender_config: &ETHSenderConfig,
@@ -57,7 +57,7 @@ impl EthereumGateway {
         if eth_client_config.web3_url.len() == 1 {
             let transport = web3::transports::Http::new(&eth_client_config.web3_url()).unwrap();
 
-            EthereumGateway::Direct(ETHDirectClient::new(
+            RootstockGateway::Direct(ETHDirectClient::new(
                 transport,
                 zksync_contract(),
                 eth_sender_config.sender.operator_commit_eth_addr,
@@ -85,7 +85,7 @@ impl EthereumGateway {
                     ),
                 );
             }
-            EthereumGateway::Multiplexed(client)
+            RootstockGateway::Multiplexed(client)
         }
     }
 }
@@ -100,7 +100,7 @@ macro_rules! delegate_call {
     }
 }
 
-impl EthereumGateway {
+impl RootstockGateway {
     /// Returns the next *expected* nonce with respect to the transactions
     /// in the mempool.
     ///
@@ -152,13 +152,13 @@ impl EthereumGateway {
         delegate_call!(self.sign_prepared_tx_for_addr(data, contract_addr, options))
     }
 
-    /// Sends the transaction to the Ethereum blockchain.
+    /// Sends the transaction to the Rootstock blockchain.
     /// Transaction is expected to be encoded as the byte sequence.
     pub async fn send_raw_tx(&self, tx: Vec<u8>) -> Result<H256, anyhow::Error> {
         delegate_call!(self.send_raw_tx(tx))
     }
 
-    /// Gets the Ethereum transaction receipt.
+    /// Gets the Rootstock transaction receipt.
     pub async fn tx_receipt(
         &self,
         tx_hash: H256,
@@ -173,7 +173,7 @@ impl EthereumGateway {
         delegate_call!(self.failure_reason(tx_hash))
     }
 
-    /// Auxiliary function that returns the balance of the account on Ethereum.
+    /// Auxiliary function that returns the balance of the account on Rootstock.
     pub async fn eth_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
         delegate_call!(self.eth_balance(address))
     }
@@ -247,17 +247,17 @@ impl EthereumGateway {
 
     pub fn encode_tx_data<P: Tokenize + Clone>(&self, func: &str, params: P) -> Vec<u8> {
         match self {
-            EthereumGateway::Multiplexed(c) => c.encode_tx_data(func, params),
-            EthereumGateway::Direct(c) => c.encode_tx_data(func, params),
-            EthereumGateway::Mock(c) => c.encode_tx_data(func, params),
+            RootstockGateway::Multiplexed(c) => c.encode_tx_data(func, params),
+            RootstockGateway::Direct(c) => c.encode_tx_data(func, params),
+            RootstockGateway::Mock(c) => c.encode_tx_data(func, params),
         }
     }
 
     pub fn create_contract(&self, address: Address, contract: ethabi::Contract) -> Contract<Http> {
         match self {
-            EthereumGateway::Multiplexed(c) => c.create_contract(address, contract),
-            EthereumGateway::Direct(c) => c.create_contract(address, contract),
-            EthereumGateway::Mock(c) => c.create_contract(address, contract),
+            RootstockGateway::Multiplexed(c) => c.create_contract(address, contract),
+            RootstockGateway::Direct(c) => c.create_contract(address, contract),
+            RootstockGateway::Mock(c) => c.create_contract(address, contract),
         }
     }
 
@@ -266,19 +266,19 @@ impl EthereumGateway {
     }
 
     pub fn is_multiplexed(&self) -> bool {
-        matches!(self, EthereumGateway::Multiplexed(_))
+        matches!(self, RootstockGateway::Multiplexed(_))
     }
 
     pub fn get_mut_mock(&mut self) -> Option<&mut MockEthereum> {
         match self {
-            EthereumGateway::Mock(ref mut m) => Some(m),
+            RootstockGateway::Mock(ref mut m) => Some(m),
             _ => None,
         }
     }
 
     pub fn get_mock(&self) -> Option<&MockEthereum> {
         match self {
-            EthereumGateway::Mock(m) => Some(m),
+            RootstockGateway::Mock(m) => Some(m),
             _ => None,
         }
     }

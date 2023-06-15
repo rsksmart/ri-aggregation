@@ -23,7 +23,7 @@ use zksync_crypto::params::MIN_NFT_TOKEN_ID;
 /// Verifies the token save & load mechanism.
 #[db_test]
 async fn tokens_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    // There should be only Ethereum main token by default.
+    // There should be only Rootstock main token by default.
     assert_eq!(storage.tokens_schema().get_count().await?, 1);
     assert_eq!(storage.tokens_schema().get_max_token_id().await?, 0);
     assert_eq!(storage.tokens_schema().get_max_erc20_token_id().await?, 0);

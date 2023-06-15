@@ -760,7 +760,7 @@ impl TxSender {
                 return Err(SubmitError::TxAdd(TxAddError::TxBatchFeeTooLow));
             }
         } else {
-            // Calculate required fee for ethereum token
+            // Calculate required fee for rootstock token
             let required_eth_fee = self
                 .ticker
                 .get_batch_from_ticker_in_wei(eth_token.clone(), transaction_types)

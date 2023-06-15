@@ -6,26 +6,26 @@ use zksync_types::{NewTokenEvent, PriorityOp, RegisterNFTFactoryEvent, SerialId}
 // Local deps
 use super::received_ops::ReceivedPriorityOp;
 
-/// Gathered state of the Ethereum network.
+/// Gathered state of the Rootstock network.
 /// Contains information about the known token types and incoming
 /// priority operations (such as `Deposit` and `FullExit`).
 ///
 /// All the data held is intentionally made private: as it represents the
-/// observed state of the contract on Ethereum, it should never be
+/// observed state of the contract on Rootstock, it should never be
 /// "partially updated". The state is either updated completely, or not
 /// updated at all.
 #[derive(Debug, Default, Clone)]
 pub struct ETHState {
-    /// The last block of the Ethereum network known to the Ethereum watcher.
+    /// The last block of the Rootstock network known to the Rootstock watcher.
     last_ethereum_block: u64,
-    /// The previous Ethereum block successfully processed by the watcher.
+    /// The previous Rootstock block successfully processed by the watcher.
     /// Keeping track of it is required to be able to poll the node for
     /// the same range multiple times, e.g. in case it didn't return all
     /// priority operations received by the contract.
     last_ethereum_block_backup: u64,
-    /// Serial id of the next priority operation Ethereum watcher should process.
+    /// Serial id of the next priority operation Rootstock watcher should process.
     next_priority_op_id: SerialId,
-    /// Queue of priority operations that are accepted by Ethereum network,
+    /// Queue of priority operations that are accepted by Rootstock network,
     /// but not yet have enough confirmations to be processed by zkSync.
     ///
     /// Note that since these operations do not have enough confirmations,

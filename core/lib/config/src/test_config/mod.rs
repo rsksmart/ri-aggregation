@@ -53,10 +53,10 @@ impl EIP1271Config {
     }
 }
 
-/// Common Ethereum parameters.
+/// Common Rootstock parameters.
 #[derive(Debug, Deserialize)]
 pub struct EthConfig {
-    /// Set of 12 words for connecting to an Ethereum wallet.
+    /// Set of 12 words for connecting to an Rootstock wallet.
     pub test_mnemonic: String,
 }
 

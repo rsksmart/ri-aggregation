@@ -23,7 +23,7 @@ use zksync_utils::ZeroPrefixHexSerde;
 /// 2) When we serialize/create this structure we add 27 to v in `ETHSignature`.
 ///
 /// This way when we have methods that consumes &self we can be sure that ETHSignature::recover_signer works
-/// And we can be sure that we are compatible with Ethereum clients.
+/// And we can be sure that we are compatible with Rootstock clients.
 ///
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PackedEthSignature(ETHSignature);
@@ -57,7 +57,7 @@ impl PackedEthSignature {
         Ok(PackedEthSignature(ETHSignature::from(bytes_array)))
     }
 
-    /// Signs message using ethereum private key, results are identical to signature created
+    /// Signs message using rootstock private key, results are identical to signature created
     /// using `geth`, `ethecore/lib/types/src/gas_counter.rsrs.js`, etc. No hashing and prefixes required.
     pub fn sign(
         private_key: &H256,
@@ -77,7 +77,7 @@ impl PackedEthSignature {
         bytes.keccak256().into()
     }
 
-    /// Checks signature and returns ethereum address of the signer.
+    /// Checks signature and returns rootstock address of the signer.
     /// message should be the same message that was passed to `eth.sign`(or similar) method
     /// as argument. No hashing and prefixes required.
     pub fn signature_recover_signer(&self, msg: &[u8]) -> Result<Address, PackedETHSignatureError> {
@@ -86,7 +86,7 @@ impl PackedEthSignature {
         Ok(public_to_address(&public_key))
     }
 
-    /// Get Ethereum address from private key.
+    /// Get Rootstock address from private key.
     pub fn address_from_private_key(
         private_key: &H256,
     ) -> Result<Address, PackedETHSignatureError> {

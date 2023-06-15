@@ -55,4 +55,4 @@ export const command = new Command('insert').description('insert pre-defined dat
 
 command.command('contract').description('insert contract addresses').action(contract);
 command.command('token <id> <address> <symbol> <precision>').description('insert token information').action(token);
-command.command('eth-data').description('insert info about Ethereum blockchain').action(ethData);
+command.command('eth-data').description('insert info about Rootstock blockchain').action(ethData);

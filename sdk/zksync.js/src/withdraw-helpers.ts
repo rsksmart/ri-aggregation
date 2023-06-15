@@ -23,7 +23,7 @@ interface MulticallParams {
 
 function checkEthProvider(ethersWallet: ethers.Signer) {
     if (!ethersWallet.provider) {
-        throw new Error('The Ethereum Wallet must be connected to a provider');
+        throw new Error('The Rootstock Wallet must be connected to a provider');
     }
 }
 

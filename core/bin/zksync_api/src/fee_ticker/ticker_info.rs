@@ -224,7 +224,7 @@ impl FeeTickerInfo for TickerInfo {
             .await
             .map_err(|e| format_err!("Can't access storage: {}", e))?;
         let average_gas_price = storage
-            .ethereum_schema()
+            .rootstock_schema()
             .load_average_gas_price()
             .await?
             .unwrap_or_default()

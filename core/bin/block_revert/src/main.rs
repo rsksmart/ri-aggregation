@@ -8,7 +8,7 @@ use web3::{
     types::{TransactionReceipt, U256, U64},
 };
 use zksync_config::{ContractsConfig, ETHClientConfig, ETHSenderConfig};
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 use zksync_storage::StorageProcessor;
 use zksync_types::{aggregated_operations::stored_block_info, block::Block, BlockNumber, H256};
 
@@ -111,7 +111,7 @@ async fn revert_blocks_in_storage(
     println!("`prover_job_queue` table is cleaned");
 
     transaction
-        .ethereum_schema()
+        .rootstock_schema()
         .update_eth_parameters(last_block)
         .await?;
     println!("`eth_parameters` table is updated");
@@ -124,7 +124,7 @@ async fn revert_blocks_in_storage(
 
 // TODO: don't use anyhow (ZKS-588)
 async fn send_raw_tx_and_wait_confirmation(
-    client: &EthereumGateway,
+    client: &RootstockGateway,
     raw_tx: Vec<u8>,
 ) -> Result<TransactionReceipt, anyhow::Error> {
     let tx_hash = client
@@ -155,7 +155,7 @@ async fn send_raw_tx_and_wait_confirmation(
 // TODO: don't use anyhow (ZKS-588)
 async fn revert_blocks_on_contract(
     storage: &mut StorageProcessor<'_>,
-    client: &EthereumGateway,
+    client: &RootstockGateway,
     blocks: &[Block],
 ) -> anyhow::Result<()> {
     let tx_arg = Token::Array(blocks.iter().map(stored_block_info).collect());
@@ -166,8 +166,8 @@ async fn revert_blocks_on_contract(
         .await
         .map_err(|e| format_err!("Revert blocks send err: {}", e))?;
     let receipt = send_raw_tx_and_wait_confirmation(client, signed_tx.raw_tx).await?;
-    storage.ethereum_schema().get_next_nonce().await
-        .expect("Ethereum tx has been sent but updating operator nonce in storage has failed. You need to update it manually");
+    storage.rootstock_schema().get_next_nonce().await
+        .expect("Rootstock tx has been sent but updating operator nonce in storage has failed. You need to update it manually");
     if receipt.status != Some(U64::from(1)) {
         let reason = client.failure_reason(signed_tx.hash).await?;
         anyhow::bail!("Tx to contract failed {:?}", reason);
@@ -240,7 +240,7 @@ async fn main() -> anyhow::Result<()> {
         H256::from_str(key_without_prefix).expect("Cannot deserialize private key");
 
     let mut storage = StorageProcessor::establish_connection().await?;
-    let client = EthereumGateway::from_config(
+    let client = RootstockGateway::from_config(
         &eth_client_config,
         &eth_sender_config,
         contracts.contract_addr,

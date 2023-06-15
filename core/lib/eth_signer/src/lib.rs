@@ -8,12 +8,12 @@ use zksync_types::Address;
 
 pub use json_rpc_signer::JsonRpcSigner;
 pub use pk_signer::PrivateKeySigner;
-pub use raw_ethereum_tx::RawTransaction;
+pub use raw_rootstock_tx::RawTransaction;
 
 pub mod error;
 pub mod json_rpc_signer;
 pub mod pk_signer;
-pub mod raw_ethereum_tx;
+pub mod raw_rootstock_tx;
 
 #[async_trait]
 pub trait EthereumSigner: Send + Sync + Clone {

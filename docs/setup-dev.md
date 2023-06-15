@@ -182,7 +182,7 @@ For mac you can install it as follows:
 ```bash
 brew update
 brew upgrade
-brew tap ethereum/ethereum
+brew tap rootstock/rootstock
 brew install solidity@5
 ```
 

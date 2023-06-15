@@ -146,10 +146,10 @@ pub struct ChangePubKey {
     #[serde(default)]
     pub signature: TxSignature,
     /// Transaction Ethereum signature. It may be `None` if `ChangePubKey` operation is authorized
-    /// onchain, otherwise the message must be signed by the Ethereum private key corresponding
+    /// onchain, otherwise the message must be signed by the Rootstock private key corresponding
     /// to the account address.
     pub eth_signature: Option<PackedEthSignature>,
-    /// Data needed to check if Ethereum address authorized ChangePubKey operation
+    /// Data needed to check if Rootstock address authorized ChangePubKey operation
     pub eth_auth_data: Option<ChangePubKeyEthAuthData>,
     /// Time range when the transaction is valid
     /// This fields must be Option<...> because of backward compatibility with first version of ZkSync
@@ -294,7 +294,7 @@ impl ChangePubKey {
         out
     }
 
-    /// Provides a message to be signed with the Ethereum private key.
+    /// Provides a message to be signed with the Rootstock private key.
     pub fn get_eth_signed_data(&self) -> Result<Vec<u8>, ChangePubkeySignedDataError> {
         // Fee data is not included into ETH signature input, since it would require
         // to either have more chunks in pubdata (if fee amount is unpacked), unpack
@@ -326,7 +326,7 @@ impl ChangePubKey {
         Ok(eth_signed_msg)
     }
 
-    /// Provides an old message to be signed with the Ethereum private key.
+    /// Provides an old message to be signed with the Rootstock private key.
     pub fn get_old_eth_signed_data(&self) -> Result<Vec<u8>, ChangePubkeySignedDataError> {
         // Fee data is not included into ETH signature input, since it would require
         // to either have more chunks in pubdata (if fee amount is unpacked), unpack
@@ -365,7 +365,7 @@ impl ChangePubKey {
     pub fn is_eth_auth_data_valid(&self) -> bool {
         if let Some(eth_auth_data) = &self.eth_auth_data {
             match eth_auth_data {
-                ChangePubKeyEthAuthData::Onchain => true, // Should query Ethereum to check it
+                ChangePubKeyEthAuthData::Onchain => true, // Should query Rootstock to check it
                 ChangePubKeyEthAuthData::ECDSA(ChangePubKeyECDSAData { eth_signature, .. }) => {
                     let recovered_address = self
                         .get_eth_signed_data()
@@ -405,7 +405,7 @@ impl ChangePubKey {
         }
     }
 
-    /// Get part of the message that should be signed with Ethereum account key for the batch of transactions.
+    /// Get part of the message that should be signed with Rootstock account key for the batch of transactions.
     /// The message for single `ChangePubKey` transaction is defined differently. The pattern is:
     ///
     /// Set signing key: {pubKeyHash}

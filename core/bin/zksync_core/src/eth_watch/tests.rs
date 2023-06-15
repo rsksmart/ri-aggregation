@@ -238,7 +238,7 @@ async fn test_operation_queues() {
     assert_eq!(op.tx_hash(), priority_ops[2].tx_hash());
 }
 
-/// This test simulates the situation when eth watch module did not poll Ethereum node for some time
+/// This test simulates the situation when eth watch module did not poll Rootstock node for some time
 /// (e.g. because of rate limit) and skipped more blocks than `number_of_confirmations_for_event`.
 #[tokio::test]
 async fn test_operation_queues_time_lag() {

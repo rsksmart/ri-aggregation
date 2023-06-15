@@ -1,4 +1,4 @@
-FROM ethereum/client-go
+FROM rootstock/client-go
 
 RUN mkdir -p /seed/keystore
 COPY password.sec /seed/
