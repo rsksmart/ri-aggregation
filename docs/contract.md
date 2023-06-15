@@ -112,9 +112,9 @@ it will be stored in the mapping (operation type and expiration block) strictly 
 - `serialId` - serial id of this priority request
 - `opType` - operation type
 - `pubData` - request data
-- `expirationBlock` - the number of Ethereum block when request becomes expired `expirationBlock` is calculated as
+- `expirationBlock` - the number of Rootstock block when request becomes expired `expirationBlock` is calculated as
   follows: `expirationBlock = block.number + 250` - about 1 hour for the transaction to expire, `block.number` - current
-  Ethereum block number.
+  Rootstock block number.
 
 When corresponding transactions are found in the commited block, their count must be recorded. If the block is verified,
 this count of the satisfied **priority requests** is removed from mapping.
@@ -147,7 +147,7 @@ by the increasing probability of entering the **Exodus Mode** (described below).
 
 If the **Requests Queue** is being processed too slow, it will trigger the **Exodus mode** in **ZKSync** contract. This
 moment is determined by the first (oldest) **priority request** with oldest `expirationBlock` value . If
-`current ethereum block number >= oldest expiration block number` the **Exodus Mode** will be entered.
+`current rootstock block number >= oldest expiration block number` the **Exodus Mode** will be entered.
 
 In the **Exodus mode**, the contract freezes all block processing, and all users must exit. All existing block
 commitments will be reverted.

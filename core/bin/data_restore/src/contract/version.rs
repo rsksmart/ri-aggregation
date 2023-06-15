@@ -69,7 +69,7 @@ impl ZkSyncContractVersion {
     }
 
     /// Attempts to restore block operations from the public data
-    /// committed on the Ethereum smart contract.
+    /// committed on the Rootstock smart contract.
     ///
     /// # Arguments
     ///

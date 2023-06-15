@@ -1,4 +1,4 @@
-//! Common primitives for the Ethereum network interaction.
+//! Common primitives for the Rootstock network interaction.
 // Built-in deps
 // External uses
 use thiserror::Error;
@@ -6,17 +6,17 @@ use thiserror::Error;
 use crate::aggregated_operations::{AggregatedActionType, AggregatedOperation};
 use zksync_basic_types::{H256, U256};
 
-/// Numerical identifier of the Ethereum operation.
+/// Numerical identifier of the Rootstock operation.
 pub type EthOpId = i64;
 
-/// Stored Ethereum operation.
+/// Stored Rootstock operation.
 #[derive(Debug, Clone)]
 pub struct ETHOperation {
     // Numeric ID of the operation.
     pub id: i64,
     /// Type of the operation.
     pub op_type: AggregatedActionType,
-    /// Optional ZKSync operation associated with Ethereum operation.
+    /// Optional ZKSync operation associated with Rootstock operation.
     pub op: Option<(i64, AggregatedOperation)>,
     /// Used nonce (fixed for all the sent transactions).
     pub nonce: U256,
@@ -29,9 +29,9 @@ pub struct ETHOperation {
     /// Tx payload (not signed).
     pub encoded_tx_data: Vec<u8>,
     /// Flag showing if the operation was completed and
-    /// confirmed on the Ethereum blockchain.
+    /// confirmed on the Rootstock blockchain.
     pub confirmed: bool,
-    /// Hash of the accepted Ethereum transaction (if operation
+    /// Hash of the accepted Rootstock transaction (if operation
     /// is confirmed).
     pub final_hash: Option<H256>,
 }
@@ -67,14 +67,14 @@ impl PartialEq for ETHOperation {
     }
 }
 
-/// Structure representing the result of the insertion of the Ethereum
+/// Structure representing the result of the insertion of the Rootstock
 /// operation into the database.
 /// Contains the assigned nonce and ID for the operation.
 pub struct InsertedOperationResponse {
-    /// Unique numeric identifier of the Ethereum operation.
+    /// Unique numeric identifier of the Rootstock operation.
     pub id: i64,
-    /// Nonce assigned for the Ethereum operation. Meant to be used for all the
-    /// transactions sent within one particular Ethereum operation.
+    /// Nonce assigned for the Rootstock operation. Meant to be used for all the
+    /// transactions sent within one particular Rootstock operation.
     pub nonce: U256,
 }
 

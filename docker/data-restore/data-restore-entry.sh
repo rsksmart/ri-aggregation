@@ -49,7 +49,7 @@ case $NETWORK in
   mainnet | rinkeby | ropsten)
     ;;
   *)
-      echo "Unknown Ethereum network"
+      echo "Unknown Rootstock network"
       exit 1
     ;;
 esac

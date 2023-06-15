@@ -26,7 +26,7 @@ contract DeployFactory is TokenDeployInit {
     // information as a part of a transaction, since this transaction can be used for restoring the tree
     // state. By including this address to the list of arguments, we're making ourselves able to restore
     // genesis state, as the very first account in tree is a fee account, and we need its address before
-    // we're able to start recovering the data from the Ethereum blockchain.
+    // we're able to start recovering the data from the Rootstock blockchain.
     constructor(
         Governance _govTarget,
         Verifier _verifierTarget,

@@ -16,7 +16,7 @@ account_tree_depth=32
 balance_tree_depth=32
 
 [chain.eth]
-# Name of the used Ethereum network
+# Name of the used Rootstock network
 network="localhost"
 
 [chain.state_keeper]

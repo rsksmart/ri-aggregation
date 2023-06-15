@@ -6,11 +6,11 @@ use web3::{Transport, Web3};
 
 pub const FUNC_NAME_HASH_LENGTH: usize = 4;
 
-/// Returns Ethereum transaction input data
+/// Returns Rootstock transaction input data
 ///
 /// # Arguments
 ///
-/// * `transaction` - Ethereum transaction description
+/// * `transaction` - Rootstock transaction description
 ///
 pub fn get_input_data_from_ethereum_transaction(
     transaction: &Transaction,
@@ -23,11 +23,11 @@ pub fn get_input_data_from_ethereum_transaction(
     Ok(input_data[FUNC_NAME_HASH_LENGTH..].to_vec())
 }
 
-/// Returns Ethereum transaction block number
+/// Returns Rootstock transaction block number
 ///
 /// # Arguments
 ///
-/// * `transaction` - Ethereum transaction description
+/// * `transaction` - Rootstock transaction description
 ///
 pub fn get_block_number_from_ethereum_transaction(
     transaction: &Transaction,
@@ -39,12 +39,12 @@ pub fn get_block_number_from_ethereum_transaction(
         .as_u64())
 }
 
-/// Return Ethereum transaction description
+/// Return Rootstock transaction description
 ///
 /// # Arguments
 ///
 /// * `web3` - Web3 provider url
-/// * `transaction_hash` - The identifier of the particular Ethereum transaction
+/// * `transaction_hash` - The identifier of the particular Rootstock transaction
 ///
 pub async fn get_ethereum_transaction<T: Transport>(
     web3: &Web3<T>,

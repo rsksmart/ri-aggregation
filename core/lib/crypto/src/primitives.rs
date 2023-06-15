@@ -49,9 +49,9 @@ impl<Fr: PrimeField> GetBitsFixed for Fr {
     }
 }
 
-pub struct EthereumSerializer;
+pub struct RootstockSerializer;
 
-impl EthereumSerializer {
+impl RootstockSerializer {
     pub fn serialize_g1(point: &<Bn256 as Engine>::G1Affine) -> (U256, U256) {
         if point.is_zero() {
             return (U256::zero(), U256::zero());
@@ -61,7 +61,7 @@ impl EthereumSerializer {
         let uncompressed_slice = uncompressed.as_ref();
 
         // bellman serializes points as big endian and in the form x, y
-        // ethereum expects the same order in memory
+        // rootstock expects the same order in memory
         let x = U256::from_big_endian(&uncompressed_slice[0..32]);
         let y = U256::from_big_endian(&uncompressed_slice[32..64]);
 
@@ -74,7 +74,7 @@ impl EthereumSerializer {
         let uncompressed_slice = uncompressed.as_ref();
 
         // bellman serializes points as big endian and in the form x1*u, x0, y1*u, y0
-        // ethereum expects the same order in memory
+        // rootstock expects the same order in memory
         let x_1 = U256::from_big_endian(&uncompressed_slice[0..32]);
         let x_0 = U256::from_big_endian(&uncompressed_slice[32..64]);
         let y_1 = U256::from_big_endian(&uncompressed_slice[64..96]);

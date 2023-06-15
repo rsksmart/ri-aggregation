@@ -112,12 +112,12 @@ pub struct AccountTxReceiptResponse {
     ///
     /// May only exists for unsuccessful transactions.
     pub fail_reason: Option<String>,
-    /// The raw hash bytes of the corresponding "COMMIT" Ethereum operation for block with
+    /// The raw hash bytes of the corresponding "COMMIT" Rootstock operation for block with
     /// given transaction.
     ///
     /// May only exists for successful transactions.
     pub commit_tx_hash: Option<Vec<u8>>,
-    /// The raw hash bytes of the corresponding "VERIFY" Ethereum operation for block with
+    /// The raw hash bytes of the corresponding "VERIFY" Rootstock operation for block with
     /// given transaction.
     ///
     /// May only exists for successful transactions.
@@ -135,10 +135,10 @@ pub struct AccountOpReceiptResponse {
     pub block_index: i32,
     /// Raw operation hash bytes.
     pub eth_hash: Vec<u8>,
-    /// The raw hash bytes of the corresponding "COMMIT" Ethereum operation for block with
+    /// The raw hash bytes of the corresponding "COMMIT" Rootstock operation for block with
     /// given priority operation.
     pub commit_tx_hash: Option<Vec<u8>>,
-    /// The raw hash bytes of the corresponding "VERIFY" Ethereum operation for block with
+    /// The raw hash bytes of the corresponding "VERIFY" Rootstock operation for block with
     /// given priority operation.
     pub verify_tx_hash: Option<Vec<u8>>,
 }

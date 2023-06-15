@@ -92,7 +92,7 @@ export async function getDefaultProvider(
             return await Provider.newHttpProvider('https://api.zksync.io/jsrpc', pollIntervalMilliSecs, network);
         }
     } else {
-        throw new Error(`Ethereum network ${network} is not supported`);
+        throw new Error(`Rootstock network ${network} is not supported`);
     }
 }
 

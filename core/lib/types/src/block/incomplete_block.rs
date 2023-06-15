@@ -27,9 +27,9 @@ pub struct IncompleteBlock {
     /// supported size values.
     pub block_chunks_size: usize,
 
-    /// Gas limit to be set for the Commit Ethereum transaction.
+    /// Gas limit to be set for the Commit Rootstock transaction.
     pub commit_gas_limit: U256,
-    /// Gas limit to be set for the Verify Ethereum transaction.
+    /// Gas limit to be set for the Verify Rootstock transaction.
     pub verify_gas_limit: U256,
     /// Timestamp
     pub timestamp: u64,

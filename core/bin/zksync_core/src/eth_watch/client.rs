@@ -11,7 +11,7 @@ use web3::{
 };
 
 use zksync_contracts::{governance_contract, zksync_contract};
-use zksync_eth_client::ethereum_gateway::EthereumGateway;
+use zksync_eth_client::rootstock_gateway::RootstockGateway;
 use zksync_types::{
     Address, NewTokenEvent, Nonce, PriorityOp, RegisterNFTFactoryEvent, H160, U256,
 };
@@ -65,7 +65,7 @@ pub trait EthClient {
 }
 
 pub struct EthHttpClient {
-    client: EthereumGateway,
+    client: RootstockGateway,
     topics: ContractTopics,
     zksync_contract_addr: H160,
     governance_contract_addr: H160,
@@ -73,7 +73,7 @@ pub struct EthHttpClient {
 
 impl EthHttpClient {
     pub fn new(
-        client: EthereumGateway,
+        client: RootstockGateway,
         zksync_contract_addr: H160,
         governance_contract_addr: H160,
     ) -> Self {

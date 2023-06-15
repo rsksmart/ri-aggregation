@@ -31,7 +31,7 @@ mod tx_command_executor;
 pub struct AccountLifespan {
     /// Wallet used to perform the test.
     pub wallet: Wallet<PrivateKeySigner, RpcProvider>,
-    /// Ethereum private key of the used wallet.
+    /// Rootstock private key of the used wallet.
     /// zkSync private key can be obtained from it using `private_key_from_seed` function.
     eth_pk: H256,
     /// Rng unique to the account.

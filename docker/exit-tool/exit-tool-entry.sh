@@ -59,7 +59,7 @@ case $NETWORK in
     export KEY_DIR=keys/contracts-4
     ;;
   *)
-      echo "Unknown Ethereum network"
+      echo "Unknown Rootstock network"
       echo "$USAGE"
       exit 1
     ;;

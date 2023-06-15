@@ -1,4 +1,4 @@
-# Configuration for the Ethereum sender crate
+# Configuration for the Rootstock sender crate
 
 [eth_sender]
 
@@ -12,7 +12,7 @@ wait_confirmations=0
 expected_wait_time_block=30
 # Node polling period in seconds.
 tx_poll_period=1
-# The maximum amount of simultaneously sent Ethereum transactions.
+# The maximum amount of simultaneously sent Rootstock transactions.
 # in the upstream repo: max_txs_in_flight=30
 max_txs_in_flight=1
 # Whether sender should interact with L1 or not.

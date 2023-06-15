@@ -1,4 +1,4 @@
-//! Watcher for `EthereumGateway`'s `Multiplexed` variant which checks clients gateways
+//! Watcher for `RootstockGateway`'s `Multiplexed` variant which checks clients gateways
 //! and prioritizes the one with longest chain, most frequent hash and lowest latency.
 
 mod multiplexed_gateway_watcher;

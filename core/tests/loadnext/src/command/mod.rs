@@ -79,7 +79,7 @@ impl Command {
                 {
                     // Zero fee modifier is kinda weird for batches, since the summary fee may be enough to cover
                     // cost of one tx with zero fee. Thus in that case we set zero fee modifier to all the transactions.
-                    // Note that behavior in the statement above is not a bug: to live in the volatile world of Ethereum,
+                    // Note that behavior in the statement above is not a bug: to live in the volatile world of Rootstock,
                     // server may accept batches with the fee slightly below that what has been reported to user via API.
                     for command in batch_command.iter_mut() {
                         command.modifier = IncorrectnessModifier::ZeroFee;

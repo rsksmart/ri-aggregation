@@ -263,7 +263,7 @@ where
     fn handle_infura_error(&mut self, error: anyhow::Error) {
         if self.is_backoff_requested(&error) {
             vlog::warn!(
-                "Rate limit was reached, as reported by Ethereum node. \
+                "Rate limit was reached, as reported by Rootstock node. \
                 Entering the backoff mode"
             );
             self.enter_backoff_mode();
@@ -619,7 +619,7 @@ mod test {
         watcher
             .restore_state_from_eth(TEST_FIRST_CURRENT_BLOCK)
             .await
-            .expect("Failed to restore state from ethereum");
+            .expect("Failed to restore state from rootstock");
 
         assert_eq!(
             watcher.last_viewed_block,
@@ -644,7 +644,7 @@ mod test {
         watcher
             .restore_state_from_eth(TEST_FIRST_CURRENT_BLOCK)
             .await
-            .expect("Failed to restore state from ethereum");
+            .expect("Failed to restore state from rootstock");
 
         assert_eq!(
             watcher.last_viewed_block,
@@ -669,7 +669,7 @@ mod test {
         watcher
             .restore_state_from_eth(TEST_FIRST_CURRENT_BLOCK)
             .await
-            .expect("Failed to restore state from ethereum");
+            .expect("Failed to restore state from rootstock");
 
         assert!(watcher.last_viewed_block < TEST_FIRST_CURRENT_BLOCK - confirmations_time);
     }

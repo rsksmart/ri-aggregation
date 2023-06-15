@@ -54,7 +54,7 @@ impl<'a> DatabaseStorageInteractor<'a> {
         self.storage.commit().await.unwrap();
     }
 
-    /// Returns last watched ethereum block number from storage
+    /// Returns last watched rootstock block number from storage
     pub async fn get_last_watched_block_number_from_storage(&mut self) -> u64 {
         let last_watched_block_number_string = self
             .storage

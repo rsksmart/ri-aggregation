@@ -127,14 +127,14 @@ impl ExecutedOperations {
         }
     }
 
-    /// Returns the public data required for the Ethereum smart contract to commit the operation.
+    /// Returns the public data required for the Rootstock smart contract to commit the operation.
     pub fn get_eth_public_data(&self) -> Vec<u8> {
         self.get_executed_op()
             .map(ZkSyncOp::public_data)
             .unwrap_or_default()
     }
 
-    /// Gets the witness required for the Ethereum smart contract.
+    /// Gets the witness required for the Rootstock smart contract.
     /// Unlike public data, some operations may not have a witness.
     pub fn get_eth_witness_bytes(&self) -> Option<Vec<u8>> {
         self.get_executed_op()
@@ -189,9 +189,9 @@ pub struct Block {
     /// supported size values.
     pub block_chunks_size: usize,
 
-    /// Gas limit to be set for the Commit Ethereum transaction.
+    /// Gas limit to be set for the Commit Rootstock transaction.
     pub commit_gas_limit: U256,
-    /// Gas limit to be set for the Verify Ethereum transaction.
+    /// Gas limit to be set for the Verify Rootstock transaction.
     pub verify_gas_limit: U256,
     /// Commitment
     pub block_commitment: H256,
@@ -234,7 +234,7 @@ impl Block {
         previous_block_root_hash: Fr,
         new_root_hash: Fr,
     ) -> Self {
-        // Encode previous block root to the Ethereum format.
+        // Encode previous block root to the Rootstock format.
         let previous_block_root_hash = Self::encode_fr_for_eth(previous_block_root_hash);
 
         let mut block = Self {
@@ -317,12 +317,12 @@ impl Block {
         H256::from(be_bytes)
     }
 
-    /// Returns the new state root hash encoded for the Ethereum smart contract.
+    /// Returns the new state root hash encoded for the Rootstock smart contract.
     pub fn get_eth_encoded_root(&self) -> H256 {
         Self::encode_fr_for_eth(self.new_root_hash)
     }
 
-    /// Returns the public data for the Ethereum Commit operation.
+    /// Returns the public data for the Rootstock Commit operation.
     pub fn get_eth_public_data(&self) -> Vec<u8> {
         let mut executed_tx_pub_data = self
             .block_transactions
@@ -387,7 +387,7 @@ impl Block {
         withdrawals_count
     }
 
-    /// Returns the data about withdrawals required for the Ethereum smart contract.
+    /// Returns the data about withdrawals required for the Rootstock smart contract.
     pub fn get_withdrawals_data(&self) -> Vec<u8> {
         let mut withdrawals_data = Vec::new();
 
@@ -437,7 +437,7 @@ impl Block {
         (onchain_ops, H256::from(processable_ops_hash), priority_ops)
     }
 
-    /// Returns the public data for the Ethereum Commit operation.
+    /// Returns the public data for the Rootstock Commit operation.
     pub fn get_onchain_op_commitment(&self) -> Vec<u8> {
         let mut res = vec![0u8; self.block_chunks_size];
         for op in self.get_onchain_operations_block_info().0 {

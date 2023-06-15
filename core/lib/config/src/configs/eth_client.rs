@@ -3,7 +3,7 @@ use serde::Deserialize;
 // Local uses
 use crate::envy_load;
 
-/// Configuration for the Ethereum gateways.
+/// Configuration for the Rootstock gateways.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct ETHClientConfig {
     /// Numeric identifier of the L1 network (e.g. `9` for localhost).
@@ -12,7 +12,7 @@ pub struct ETHClientConfig {
     /// Normally it's 1, we use the network-provided price (and limit it with the gas adjuster in eth sender).
     /// However, it can be increased to speed up the transaction mining time.
     pub gas_price_factor: f64,
-    /// Address of the Ethereum node API.
+    /// Address of the Rootstock node API.
     pub web3_url: Vec<String>,
 }
 

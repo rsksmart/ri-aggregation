@@ -24,7 +24,7 @@ impl<S: EthereumSigner> WalletCredentials<S> {
     ///
     /// ## Arguments
     ///
-    /// - `eth_address`: Address of the corresponding Ethereum wallet.
+    /// - `eth_address`: Address of the corresponding Rootstock wallet.
     /// - `eth_signer`: Abstract signer that signs messages and transactions.
     /// - `network`: Network this wallet is used on.
     pub async fn from_eth_signer(
@@ -83,7 +83,7 @@ impl<S: EthereumSigner> WalletCredentials<S> {
     ///
     /// ## Arguments
     ///
-    /// - `eth_address`: Address of the corresponding Ethereum wallet.
+    /// - `eth_address`: Address of the corresponding Rootstock wallet.
     /// - `seed`: A random bytearray to generate private key from. Must be at least 32 bytes long.
     pub fn from_seed(eth_address: Address, seed: &[u8]) -> Result<Self, ClientError> {
         let zksync_pk = private_key_from_seed(seed)?;
@@ -99,9 +99,9 @@ impl<S: EthereumSigner> WalletCredentials<S> {
     ///
     /// ## Arguments
     ///
-    /// - `eth_address`: Address of the corresponding Ethereum wallet.
+    /// - `eth_address`: Address of the corresponding Rootstock wallet.
     /// - `private_key`: Private key of a zkSync account.
-    /// - `eth_private_key`: Private key of a corresponding Ethereum wallet. If not set, on-chain operations won't be allowed for Wallet.
+    /// - `eth_private_key`: Private key of a corresponding Rootstock wallet. If not set, on-chain operations won't be allowed for Wallet.
     pub fn from_pk(
         eth_address: Address,
         private_key: PrivateKey,

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::TryInto;
 
 /// Defines time range `[valid_from, valid_until]` for which transaction is valid,
-/// time format is the same as Ethereum (UNIX timestamp in seconds)
+/// time format is the same as Rootstock (UNIX timestamp in seconds)
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TimeRange {

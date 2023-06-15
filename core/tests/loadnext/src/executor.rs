@@ -2,8 +2,8 @@ use futures::{channel::mpsc, future::join_all};
 
 use tokio::task::JoinHandle;
 use zksync::{
-    error::ClientError, ethereum::PriorityOpHolder, operations::SyncTransactionHandle,
-    provider::Provider, types::TransactionInfo,
+    error::ClientError, operations::SyncTransactionHandle, provider::Provider,
+    rootstock::PriorityOpHolder, types::TransactionInfo,
 };
 use zksync_types::{tx::TxHash, TransactionReceipt, TxFeeTypes, U256};
 
@@ -66,9 +66,9 @@ impl Executor {
     async fn check_onchain_balance(&mut self) -> anyhow::Result<()> {
         vlog::info!("Master Account: Checking onchain balance...");
         let master_wallet = &mut self.pool.master_wallet;
-        let ethereum = master_wallet.ethereum(&self.config.web3_url).await?;
+        let rootstock = master_wallet.rootstock(&self.config.web3_url).await?;
 
-        let eth_balance = ethereum.balance().await?;
+        let eth_balance = rootstock.balance().await?;
         if eth_balance < 2u64.pow(17).into() {
             anyhow::bail!(
                 "ETH balance is too low to safely perform the loadtest: {}",
@@ -86,12 +86,12 @@ impl Executor {
         let deposit_amount = self.amount_to_deposit();
 
         let master_wallet = &self.pool.master_wallet;
-        let mut ethereum = master_wallet.ethereum(&self.config.web3_url).await?;
-        ethereum.set_confirmation_timeout(ETH_CONFIRMATION_TIMEOUT);
+        let mut rootstock = master_wallet.rootstock(&self.config.web3_url).await?;
+        rootstock.set_confirmation_timeout(ETH_CONFIRMATION_TIMEOUT);
 
         let token = self.config.main_token.as_str();
 
-        let balance = ethereum
+        let balance = rootstock
             .erc20_balance(master_wallet.address(), token)
             .await?;
         if balance.as_u128() > deposit_amount {
@@ -99,14 +99,14 @@ impl Executor {
             return Ok(());
         }
 
-        let mint_tx_hash = ethereum
+        let mint_tx_hash = rootstock
             .mint_erc20(token, U256::from(deposit_amount), master_wallet.address())
             .await?;
 
-        let receipt = ethereum.wait_for_tx(mint_tx_hash).await?;
+        let receipt = rootstock.wait_for_tx(mint_tx_hash).await?;
         self.assert_eth_tx_success(&receipt).await;
 
-        let erc20_balance = ethereum
+        let erc20_balance = rootstock
             .erc20_balance(master_wallet.address(), token)
             .await?;
         assert!(
@@ -122,23 +122,23 @@ impl Executor {
     async fn deposit_to_master(&mut self) -> anyhow::Result<()> {
         vlog::info!("Master Account: Performing a deposit to master");
         let deposit_amount = self.amount_to_deposit();
-        let mut ethereum = self
+        let mut rootstock = self
             .pool
             .master_wallet
-            .ethereum(&self.config.web3_url)
+            .rootstock(&self.config.web3_url)
             .await?;
-        ethereum.set_confirmation_timeout(ETH_CONFIRMATION_TIMEOUT);
+        rootstock.set_confirmation_timeout(ETH_CONFIRMATION_TIMEOUT);
 
         // Approve ERC20 deposits.
         let main_token = self.config.main_token.as_str();
-        let approve_tx_hash = ethereum.approve_erc20_token_deposits(main_token).await?;
-        let receipt = ethereum.wait_for_tx(approve_tx_hash).await?;
+        let approve_tx_hash = rootstock.approve_erc20_token_deposits(main_token).await?;
+        let receipt = rootstock.wait_for_tx(approve_tx_hash).await?;
         self.assert_eth_tx_success(&receipt).await;
 
         vlog::info!("Approved ERC20 deposits");
 
         // Perform the deposit itself.
-        let deposit_tx_hash = ethereum
+        let deposit_tx_hash = rootstock
             .deposit(
                 main_token,
                 U256::from(deposit_amount),
@@ -147,7 +147,7 @@ impl Executor {
             .await?;
 
         // Wait for the corresponding priority operation to be committed in zkSync.
-        let receipt = ethereum.wait_for_tx(deposit_tx_hash).await?;
+        let receipt = rootstock.wait_for_tx(deposit_tx_hash).await?;
         self.assert_eth_tx_success(&receipt).await;
         let mut priority_op_handle = receipt
             .priority_op_handle(self.pool.master_wallet.provider.clone())
@@ -215,10 +215,10 @@ impl Executor {
 
         let transfer_amount = self.transfer_amount();
 
-        let ethereum = master_wallet
-            .ethereum(&self.config.web3_url)
+        let rootstock = master_wallet
+            .rootstock(&self.config.web3_url)
             .await
-            .expect("Can't get Ethereum client");
+            .expect("Can't get Rootstock client");
 
         // We request nonce each time, so that if one iteration was failed, it will be repeated on the next iteration.
         let mut nonce = master_wallet.account_info().await?.committed.nonce;
@@ -236,7 +236,7 @@ impl Executor {
             // to be able to perform priority operations.
             // We don't actually care whether transactions will be successful or not; at worst we will not use
             // priority operations in test.
-            let _ = ethereum
+            let _ = rootstock
                 .transfer("ETH", eth_to_distribute, target_address)
                 .await;
 
@@ -417,15 +417,15 @@ impl Executor {
     /// Calculates amount of ETH to be distributed per account in order to make them
     /// able to perform priority operations.
     async fn eth_amount_to_distribute(&self) -> anyhow::Result<U256> {
-        let ethereum = self
+        let rootstock = self
             .pool
             .master_wallet
-            .ethereum(&self.config.web3_url)
+            .rootstock(&self.config.web3_url)
             .await
-            .expect("Can't get Ethereum client");
+            .expect("Can't get Rootstock client");
 
         // Assuming that gas prices on testnets are somewhat stable, we will consider it a constant.
-        let average_gas_price = ethereum.client().get_gas_price().await?;
+        let average_gas_price = rootstock.client().get_gas_price().await?;
 
         // Amount of gas required per priority operation at max.
         let gas_per_priority_op = 120_000u64;
@@ -451,21 +451,21 @@ impl Executor {
         u128::max_value() >> 32
     }
 
-    /// Ensures that Ethereum transaction was successfully executed.
+    /// Ensures that Rootstock transaction was successfully executed.
     async fn assert_eth_tx_success(&self, receipt: &TransactionReceipt) {
         if receipt.status != Some(1u64.into()) {
             let master_wallet = &self.pool.master_wallet;
-            let ethereum = master_wallet
-                .ethereum(&self.config.web3_url)
+            let rootstock = master_wallet
+                .rootstock(&self.config.web3_url)
                 .await
-                .expect("Can't get Ethereum client");
-            let failure_reason = ethereum
+                .expect("Can't get Rootstock client");
+            let failure_reason = rootstock
                 .client()
                 .failure_reason(receipt.transaction_hash)
                 .await
-                .expect("Can't connect to the Ethereum node");
+                .expect("Can't connect to the Rootstock node");
             panic!(
-                "Ethereum transaction unexpectedly failed.\nReceipt: {:#?}\nFailure reason: {:#?}",
+                "Rootstock transaction unexpectedly failed.\nReceipt: {:#?}\nFailure reason: {:#?}",
                 receipt, failure_reason
             );
         }

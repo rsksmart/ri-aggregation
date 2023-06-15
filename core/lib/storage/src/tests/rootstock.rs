@@ -4,20 +4,20 @@ use std::str::FromStr;
 // Workspace imports
 use zksync_types::{
     aggregated_operations::{AggregatedActionType, AggregatedOperation},
-    ethereum::ETHOperation,
+    rootstock::ETHOperation,
     BlockNumber, H256, U256,
 };
 // Local imports
 use crate::test_data::{gen_unique_aggregated_operation, BLOCK_SIZE_CHUNKS};
 use crate::tests::db_test;
 use crate::{
-    chain::operations::OperationsSchema, ethereum::EthereumSchema, QueryResult, StorageProcessor,
+    chain::operations::OperationsSchema, rootstock::RootstockSchema, QueryResult, StorageProcessor,
 };
 use num::BigUint;
 
-/// Parameters for `EthereumSchema::save_operation_eth_tx` method.
+/// Parameters for `RootstockSchema::save_operation_eth_tx` method.
 #[derive(Debug)]
-pub struct EthereumTxParams {
+pub struct RootstockTxParams {
     op_type: String,
     op: Option<(i64, AggregatedOperation)>,
     hash: H256,
@@ -26,7 +26,7 @@ pub struct EthereumTxParams {
     raw_tx: Vec<u8>,
 }
 
-impl EthereumTxParams {
+impl RootstockTxParams {
     pub fn new(op_type: String, op: Option<(i64, AggregatedOperation)>) -> Self {
         let op_id = op.clone().map(|(id, _)| id).unwrap_or_default();
 
@@ -63,8 +63,8 @@ impl EthereumTxParams {
 
 /// Verifies that on a fresh database no bogus operations are loaded.
 #[db_test]
-async fn ethereum_empty_load(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+async fn rootstock_empty_load(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert!(unconfirmed_operations.is_empty());
@@ -72,25 +72,25 @@ async fn ethereum_empty_load(mut storage: StorageProcessor<'_>) -> QueryResult<(
     Ok(())
 }
 
-/// Checks the basic Ethereum storage workflow:
+/// Checks the basic Rootstock storage workflow:
 /// - Store the operations in the block schema.
-/// - Save the Ethereum tx.
+/// - Save the Rootstock tx.
 /// - Check that saved tx can be loaded.
-/// - Save another Ethereum tx for the same operation.
+/// - Save another Rootstock tx for the same operation.
 /// - Check that both txs can be loaded.
 /// - Make the operation as completed.
 /// - Check that now txs aren't loaded.
 #[db_test]
-async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    EthereumSchema(&mut storage).initialize_eth_data().await?;
+async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+    RootstockSchema(&mut storage).initialize_eth_data().await?;
 
     for expected_next_nonce in 0..5 {
-        let actual_next_nonce = EthereumSchema(&mut storage).get_next_nonce().await?;
+        let actual_next_nonce = RootstockSchema(&mut storage).get_next_nonce().await?;
 
         assert_eq!(actual_next_nonce, expected_next_nonce);
     }
 
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert!(unconfirmed_operations.is_empty());
@@ -108,9 +108,9 @@ async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> 
         .get_aggregated_op_that_affects_block(AggregatedActionType::CommitBlocks, block_number)
         .await?;
 
-    // Store the Ethereum transaction.
-    let params = EthereumTxParams::new("CommitBlocks".into(), op);
-    let response = EthereumSchema(&mut storage)
+    // Store the Rootstock transaction.
+    let params = RootstockTxParams::new("CommitBlocks".into(), op);
+    let response = RootstockSchema(&mut storage)
         .save_new_eth_tx(
             AggregatedActionType::CommitBlocks,
             params.op.clone(),
@@ -119,12 +119,12 @@ async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> 
             params.raw_tx.clone(),
         )
         .await?;
-    EthereumSchema(&mut storage)
+    RootstockSchema(&mut storage)
         .add_hash_entry(response.id, &params.hash)
         .await?;
 
     // Check that it can be loaded.
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     let eth_op = unconfirmed_operations[0].clone();
@@ -148,9 +148,9 @@ async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> 
         .get_aggregated_op_that_affects_block(AggregatedActionType::CreateProofBlocks, block_number)
         .await?;
 
-    // Create one more Ethereum transaction.
-    let params_2 = EthereumTxParams::new("CommitBlocks".into(), op);
-    let response_2 = EthereumSchema(&mut storage)
+    // Create one more Rootstock transaction.
+    let params_2 = RootstockTxParams::new("CommitBlocks".into(), op);
+    let response_2 = RootstockSchema(&mut storage)
         .save_new_eth_tx(
             AggregatedActionType::CreateProofBlocks,
             params_2.op.clone(),
@@ -159,12 +159,12 @@ async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> 
             params_2.raw_tx.clone(),
         )
         .await?;
-    EthereumSchema(&mut storage)
+    RootstockSchema(&mut storage)
         .add_hash_entry(response_2.id, &params_2.hash)
         .await?;
 
     // Check that we now can load two operations.
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert_eq!(unconfirmed_operations.len(), 2);
@@ -176,18 +176,18 @@ async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> 
     );
 
     // Make the transaction as completed.
-    EthereumSchema(&mut storage)
+    RootstockSchema(&mut storage)
         .confirm_eth_tx(&params_2.hash)
         .await?;
 
     // Now there should be only one unconfirmed operation.
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert_eq!(unconfirmed_operations.len(), 1);
 
     // Check that stats are updated as well.
-    let updated_stats = EthereumSchema(&mut storage).load_stats().await?;
+    let updated_stats = RootstockSchema(&mut storage).load_stats().await?;
 
     assert_eq!(updated_stats.last_committed_block, 1);
     assert_eq!(updated_stats.last_verified_block, 0);
@@ -203,15 +203,15 @@ async fn ethereum_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> 
 /// If there is an `ETHOperation` and it's not confirmed, it must be returned by `load_unconfirmed_operations`
 /// and **not** returned by `load_unprocessed_operations`.
 #[db_test]
-async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    EthereumSchema(&mut storage).initialize_eth_data().await?;
+async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+    RootstockSchema(&mut storage).initialize_eth_data().await?;
 
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert!(unconfirmed_operations.is_empty());
 
-    let unprocessed_operations = EthereumSchema(&mut storage)
+    let unprocessed_operations = RootstockSchema(&mut storage)
         .load_unprocessed_operations()
         .await?;
     assert!(unprocessed_operations.is_empty());
@@ -243,7 +243,7 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
         .await?;
 
     // Now there must be one unprocessed operation.
-    let unprocessed_operations = EthereumSchema(&mut storage)
+    let unprocessed_operations = RootstockSchema(&mut storage)
         .load_unprocessed_operations()
         .await?;
     assert_eq!(unprocessed_operations.len(), 2);
@@ -257,14 +257,14 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
     );
 
     // Check that it's not currently returned by `load_unconfirmed_operations`.
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert!(unconfirmed_operations.is_empty());
 
-    // Store the Ethereum transaction.
-    let params = EthereumTxParams::new("CommitBlocks".into(), commit_operation.clone());
-    let response = EthereumSchema(&mut storage)
+    // Store the Rootstock transaction.
+    let params = RootstockTxParams::new("CommitBlocks".into(), commit_operation.clone());
+    let response = RootstockSchema(&mut storage)
         .save_new_eth_tx(
             AggregatedActionType::CommitBlocks,
             params.op.clone(),
@@ -273,12 +273,12 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
             params.raw_tx.clone(),
         )
         .await?;
-    EthereumSchema(&mut storage)
+    RootstockSchema(&mut storage)
         .add_hash_entry(response.id, &params.hash)
         .await?;
 
     // Check that it can be loaded.
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert_eq!(unconfirmed_operations.len(), 1);
@@ -291,7 +291,7 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
     );
 
     // After we created an ETHOperation for the operation, the number of unprocessed operations should not change.
-    let unprocessed_operations = EthereumSchema(&mut storage)
+    let unprocessed_operations = RootstockSchema(&mut storage)
         .load_unprocessed_operations()
         .await?;
     assert_eq!(unprocessed_operations.len(), 2);
@@ -310,19 +310,19 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
         .iter()
         .map(|(id, _)| *id)
         .collect::<Vec<_>>();
-    EthereumSchema(&mut storage)
+    RootstockSchema(&mut storage)
         .remove_unprocessed_operations(operations_id)
         .await?;
 
     // Check that unprocessed operations have been deleted.
-    let unprocessed_operations = EthereumSchema(&mut storage)
+    let unprocessed_operations = RootstockSchema(&mut storage)
         .load_unprocessed_operations()
         .await?;
     assert_eq!(unprocessed_operations.len(), 0);
 
     let verify_params =
-        EthereumTxParams::new("PublishProofBlocksOnchain".into(), verify_operation.clone());
-    let response = EthereumSchema(&mut storage)
+        RootstockTxParams::new("PublishProofBlocksOnchain".into(), verify_operation.clone());
+    let response = RootstockSchema(&mut storage)
         .save_new_eth_tx(
             AggregatedActionType::PublishProofBlocksOnchain,
             verify_params.op,
@@ -331,26 +331,26 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
             verify_params.raw_tx.clone(),
         )
         .await?;
-    EthereumSchema(&mut storage)
+    RootstockSchema(&mut storage)
         .add_hash_entry(response.id, &verify_params.hash)
         .await?;
 
-    let unprocessed_operations = EthereumSchema(&mut storage)
+    let unprocessed_operations = RootstockSchema(&mut storage)
         .load_unprocessed_operations()
         .await?;
     assert!(unprocessed_operations.is_empty());
 
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert_eq!(unconfirmed_operations.len(), 2);
 
     // Confirm first tx and check that it isn't returned by `unconfirmed` method anymore.
-    EthereumSchema(&mut storage)
+    RootstockSchema(&mut storage)
         .confirm_eth_tx(&params.hash)
         .await?;
 
-    let unconfirmed_operations = EthereumSchema(&mut storage)
+    let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
     assert_eq!(unconfirmed_operations.len(), 1);
@@ -360,20 +360,20 @@ async fn ethereum_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<
 
 /// Simple test for store/load of (average) gas price.
 #[db_test]
-async fn ethereum_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    storage.ethereum_schema().initialize_eth_data().await?;
-    let old_price_limit = storage.ethereum_schema().load_gas_price_limit().await?;
-    let old_average_price = storage.ethereum_schema().load_average_gas_price().await?;
+async fn rootstock_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
+    storage.rootstock_schema().initialize_eth_data().await?;
+    let old_price_limit = storage.rootstock_schema().load_gas_price_limit().await?;
+    let old_average_price = storage.rootstock_schema().load_average_gas_price().await?;
     // This parameter is not set in `initialize_eth_data()`
     assert!(old_average_price.is_none());
     // Update these values.
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .update_gas_price(old_price_limit + 1i32, old_price_limit - 1i32)
         .await?;
     // Load new ones.
-    let new_price_limit = storage.ethereum_schema().load_gas_price_limit().await?;
-    let new_average_price = storage.ethereum_schema().load_average_gas_price().await?;
+    let new_price_limit = storage.rootstock_schema().load_gas_price_limit().await?;
+    let new_average_price = storage.rootstock_schema().load_average_gas_price().await?;
 
     assert_eq!(new_price_limit, old_price_limit + 1i32);
     assert_eq!(new_average_price, Some(old_price_limit - 1i32));
@@ -384,15 +384,15 @@ async fn ethereum_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<(
 /// Check update eth parameters
 #[db_test]
 async fn test_update_eth_parameters(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    storage.ethereum_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_eth_data().await?;
 
     // Updates eth parameters and checks if they were really saved.
     storage
-        .ethereum_schema()
+        .rootstock_schema()
         .update_eth_parameters(BlockNumber(5))
         .await?;
 
-    let stats = storage.ethereum_schema().load_stats().await?;
+    let stats = storage.rootstock_schema().load_stats().await?;
     assert_eq!(stats.last_committed_block, 5);
     assert_eq!(stats.last_verified_block, 0);
     assert_eq!(stats.last_executed_block, 0);

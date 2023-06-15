@@ -8,7 +8,7 @@
 //! + Check exit with garbage proof.
 //! + Check exit with correct proof for other account, correct proof for this account but other token, correct proof but wrong amount.
 
-use crate::eth_account::{parse_ether, EthereumAccount};
+use crate::eth_account::{parse_ether, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts};
 use crate::zksync_account::ZkSyncAccount;
 use num::BigUint;
@@ -428,7 +428,7 @@ async fn exit_test() {
 
     let (test_accounts_info, commit_account_info) = get_test_accounts();
     let test_accounts_info = test_accounts_info[0..2].to_vec();
-    let commit_account = EthereumAccount::new(
+    let commit_account = RootstockAccount::new(
         commit_account_info.private_key,
         commit_account_info.address,
         transport.clone(),
@@ -439,7 +439,7 @@ async fn exit_test() {
     let eth_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
-            EthereumAccount::new(
+            RootstockAccount::new(
                 test_eth_account.private_key,
                 test_eth_account.address,
                 transport.clone(),

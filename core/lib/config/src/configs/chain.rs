@@ -70,7 +70,7 @@ impl Circuit {
 
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct Eth {
-    /// Name of the used Ethereum network, e.g. `localhost` or `rinkeby`.
+    /// Name of the used Rootstock network, e.g. `localhost` or `rinkeby`.
     pub network: Network,
 }
 

@@ -6,7 +6,7 @@ use anyhow::format_err;
 use crate::tx_queue::TxData;
 use zksync_types::BlockNumber;
 
-/// Ethereum Transaction queue is basically a queue which
+/// Rootstock Transaction queue is basically a queue which
 /// contains `TxData` and tracks the last popped block number.
 ///
 /// Must receive operations in ascending order of affected blocks.

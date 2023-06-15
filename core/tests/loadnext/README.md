@@ -34,7 +34,7 @@ RUST_BACKTRACE=1 RUST_LOG=info cargo run --bin loadnext
 
 Without any configuration supplied, the test will fallback to the dev defaults:
 
-- Use one of the "rich" accounts in the private local Ethereum chain.
+- Use one of the "rich" accounts in the private local Rootstock chain.
 - Use mintable "DAI" token.
 - Connect to the localhost zkSync node and use localhost web3 API.
 
@@ -54,11 +54,11 @@ The following variables are required:
 ```sh
 # Address of the zkSync node.
 ZKSYNC_RPC_ADDR
-# Address of the Ethereum web3 API.
+# Address of the Rootstock web3 API.
 WEB3_URL
-# Used Ethereum network (e.g. `rinkeby` or `localhost`).
+# Used Rootstock network (e.g. `rinkeby` or `localhost`).
 ETH_NETWORK
-# Ethereum private key of the wallet that has funds to perform a test (without `0x` prefix).
+# Rootstock private key of the wallet that has funds to perform a test (without `0x` prefix).
 MASTER_WALLET_PK
 # Amount of accounts to be used in test.
 # This option configures the "width" of the test:

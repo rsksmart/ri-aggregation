@@ -5,13 +5,13 @@ use serde::Deserialize;
 // Local uses
 use crate::envy_load;
 
-/// Configuration for the Ethereum sender crate.
+/// Configuration for the Rootstock sender crate.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct ETHWatchConfig {
     /// Amount of confirmations for the priority operation to be processed.
     /// In production this should be a non-zero value because of block reverts.
     pub confirmations_for_eth_event: u64,
-    /// How often we want to poll the Ethereum node.
+    /// How often we want to poll the Rootstock node.
     /// Value in milliseconds.
     pub eth_node_poll_interval: u64,
 }

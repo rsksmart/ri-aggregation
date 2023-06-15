@@ -82,7 +82,7 @@ pub mod h256_as_vec {
     }
 }
 
-/// Construct the first part of the message that should be signed by Ethereum key.
+/// Construct the first part of the message that should be signed by Rootstock key.
 /// The pattern is as follows:
 ///
 /// [{Transfer/Withdraw} {amount} {token} to: {to_address}]

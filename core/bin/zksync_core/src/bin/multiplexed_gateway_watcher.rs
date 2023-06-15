@@ -1,5 +1,5 @@
 use zksync_config::{ContractsConfig, ETHClientConfig, ETHSenderConfig, GatewayWatcherConfig};
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 use zksync_gateway_watcher::MultiplexedGatewayWatcher;
 
 #[tokio::main]
@@ -11,7 +11,7 @@ async fn main() {
     let eth_watcher_config = GatewayWatcherConfig::from_env();
 
     MultiplexedGatewayWatcher::new(
-        EthereumGateway::from_config(
+        RootstockGateway::from_config(
             &eth_client_config,
             &eth_sender_config,
             contracts.contract_addr,

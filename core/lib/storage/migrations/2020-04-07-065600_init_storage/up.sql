@@ -243,7 +243,7 @@ CREATE TABLE server_config (
 -- ETH section --
 -- ----------- --
 
--- Stored Ethereum anchoring operations.
+-- Stored Rootstock anchoring operations.
 CREATE TABLE eth_operations (
     id bigserial PRIMARY KEY,
     nonce BIGINT NOT NULL,
@@ -255,11 +255,11 @@ CREATE TABLE eth_operations (
     last_used_gas_price NUMERIC NOT NULL
 );
 
--- Data related to the interaction with the Ethereum network.
+-- Data related to the interaction with the Rootstock network.
 CREATE TABLE eth_parameters (
     -- enforce single record
     id bool PRIMARY KEY NOT NULL DEFAULT true,
-    -- Locally stored Ethereum nonce
+    -- Locally stored Rootstock nonce
     nonce BIGINT NOT NULL,
     -- Last gas price limit used by GasAdjuster
     gas_price_limit BIGINT NOT NULL,
@@ -270,14 +270,14 @@ CREATE TABLE eth_parameters (
 );
 
 -- Table connection `eth_operations` and `operations` table.
--- Each entry provides a mapping between the Ethereum transaction and the ZK Sync operation.
+-- Each entry provides a mapping between the Rootstock transaction and the ZK Sync operation.
 CREATE TABLE eth_ops_binding (
     id bigserial PRIMARY KEY,
     op_id bigserial NOT NULL REFERENCES operations(id),
     eth_op_id bigserial NOT NULL REFERENCES eth_operations(id)
 );
 
--- Table storing all the sent Ethereum transaction hashes.
+-- Table storing all the sent Rootstock transaction hashes.
 CREATE TABLE eth_tx_hashes (
     id bigserial PRIMARY KEY,
     eth_op_id bigserial NOT NULL REFERENCES eth_operations(id),
