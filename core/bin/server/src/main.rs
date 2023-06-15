@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use zksync_api::fee_ticker::{run_updaters, FeeTicker, TickerInfo};
 use zksync_core::{genesis_init, run_core, wait_for_tasks};
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 use zksync_forced_exit_requests::run_forced_exit_requests_actors;
 use zksync_gateway_watcher::run_gateway_watcher_if_multiplexed;
 use zksync_witness_generator::run_prover_server;
@@ -373,11 +373,11 @@ pub fn run_witness_generator(connection_pool: ConnectionPool) -> JoinHandle<()> 
 }
 
 pub fn run_eth_sender(connection_pool: ConnectionPool) -> JoinHandle<()> {
-    vlog::info!("Starting the Ethereum sender actors");
+    vlog::info!("Starting the Rootstock sender actors");
     let eth_client_config = ETHClientConfig::from_env();
     let eth_sender_config = ETHSenderConfig::from_env();
     let contracts = ContractsConfig::from_env();
-    let eth_gateway = EthereumGateway::from_config(
+    let eth_gateway = RootstockGateway::from_config(
         &eth_client_config,
         &eth_sender_config,
         contracts.contract_addr,
@@ -391,11 +391,11 @@ pub fn run_price_updaters(connection_pool: ConnectionPool) -> Vec<JoinHandle<()>
     run_updaters(connection_pool, &ticker_config)
 }
 
-pub fn create_eth_gateway() -> EthereumGateway {
+pub fn create_eth_gateway() -> RootstockGateway {
     let eth_client_config = ETHClientConfig::from_env();
     let eth_sender_config = ETHSenderConfig::from_env();
     let contracts = ContractsConfig::from_env();
-    EthereumGateway::from_config(
+    RootstockGateway::from_config(
         &eth_client_config,
         &eth_sender_config,
         contracts.contract_addr,

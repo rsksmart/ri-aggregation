@@ -21,7 +21,7 @@ ADDITIONAL_ZKSYNC_ADDR="0x7fbaD9d9C9a1204F45FA38CcbF732B0930F8B582"
 # setting correct available block chunk sizes.
 init_contract_version=6
 
-# Ethereum blocks that include UpgradeComplete events emitted by
+# Rootstock blocks that include UpgradeComplete events emitted by
 # the upgrade gatekeeper contract. We have to provide them from
 # config since obtaining them from Web3 node is not reliable.
 # (e.g. hot-fix upgrades, multiple contract version upgrades in

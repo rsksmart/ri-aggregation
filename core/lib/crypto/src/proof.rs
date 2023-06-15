@@ -6,7 +6,7 @@ use crate::{
             keys::{Proof as OldProof, VerificationKey as SingleVk},
         },
     },
-    primitives::EthereumSerializer,
+    primitives::RootstockSerializer,
     serialization::{
         serialize_new_proof, serialize_single_proof, AggregatedProofSerde, SingleProofSerde,
         VecFrSerde,
@@ -95,12 +95,12 @@ impl AggregatedProof {
         let subproof_limbs = self
             .aggr_limbs
             .iter()
-            .map(EthereumSerializer::serialize_fe)
+            .map(RootstockSerializer::serialize_fe)
             .collect();
         let individual_vk_inputs = self
             .individual_vk_inputs
             .iter()
-            .map(EthereumSerializer::serialize_fe)
+            .map(RootstockSerializer::serialize_fe)
             .collect();
         let individual_vk_idxs = self
             .individual_vk_idxs

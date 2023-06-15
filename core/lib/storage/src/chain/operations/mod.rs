@@ -15,7 +15,7 @@ use self::records::{
 };
 use crate::chain::operations::records::StoredExecutedTransaction;
 use crate::chain::operations_ext::OperationsExtSchema;
-use crate::ethereum::EthereumSchema;
+use crate::rootstock::RootstockSchema;
 use crate::{chain::mempool::MempoolSchema, QueryResult, StorageProcessor};
 
 pub mod records;
@@ -461,7 +461,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
             return Ok(None);
         };
 
-        let withdrawal_hash = EthereumSchema(self.0)
+        let withdrawal_hash = RootstockSchema(self.0)
             .aggregated_op_final_hash(block_number)
             .await?;
 
@@ -472,7 +472,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
         Ok(withdrawal_hash)
     }
 
-    /// Returns the hash of the Ethereum transaction in which the
+    /// Returns the hash of the Rootstock transaction in which the
     /// funds were withdrawn corresponding to the withdraw operation on L2.
     pub async fn eth_tx_for_withdrawal(
         &mut self,
@@ -605,7 +605,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
         Ok(aggregated_op)
     }
 
-    // Removes ethereum unprocessed aggregated operations
+    // Removes rootstock unprocessed aggregated operations
     pub async fn remove_eth_unprocessed_aggregated_ops(&mut self) -> QueryResult<()> {
         let start = Instant::now();
         sqlx::query!("TRUNCATE eth_unprocessed_aggregated_ops")

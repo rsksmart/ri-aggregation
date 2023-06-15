@@ -17,7 +17,7 @@ mod withdraw_nft;
 
 /// TxHandler trait encapsulates the logic of each individual transaction
 /// handling. By transactions we assume both zkSync network transactions,
-/// and priority operations (initiated by invoking the Ethereum smart contract
+/// and priority operations (initiated by invoking the Rootstock smart contract
 /// methods).
 ///
 /// Template parameter `Tx` represents a type of transaction being handled.

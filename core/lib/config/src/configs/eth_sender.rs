@@ -7,10 +7,10 @@ use zksync_types::{Address, H256};
 // Local uses
 use crate::envy_load;
 
-/// Configuration for the Ethereum sender crate.
+/// Configuration for the Rootstock sender crate.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
 pub struct ETHSenderConfig {
-    /// Options related to the Ethereum sender directly.
+    /// Options related to the Rootstock sender directly.
     pub sender: Sender,
     /// Options related to the `gas_adjuster` submodule.
     pub gas_price_limit: GasLimit,
@@ -40,7 +40,7 @@ pub struct Sender {
     pub expected_wait_time_block: u64,
     /// Node polling period in seconds.
     pub tx_poll_period: u64,
-    /// The maximum amount of simultaneously sent Ethereum transactions.
+    /// The maximum amount of simultaneously sent Rootstock transactions.
     pub max_txs_in_flight: u64,
     /// Whether sender should interact with L1 or not.
     pub is_enabled: bool,
@@ -59,7 +59,7 @@ pub struct GasLimit {
     pub default: u64,
     /// Interval between updates of the gas price limit (used by GasAdjuster) in seconds.
     pub update_interval: u64,
-    /// Interval between adding the Ethereum node gas price to the GasAdjuster in seconds.
+    /// Interval between adding the Rootstock node gas price to the GasAdjuster in seconds.
     pub sample_interval: u64,
     /// Scale factor for gas price limit (used by GasAdjuster).
     pub scale_factor: f64,

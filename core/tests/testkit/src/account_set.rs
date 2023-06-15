@@ -1,4 +1,4 @@
-use crate::eth_account::EthereumAccount;
+use crate::eth_account::RootstockAccount;
 use crate::zksync_account::ZkSyncAccount;
 use num::BigUint;
 use web3::types::{TransactionReceipt, H256, U64};
@@ -12,7 +12,7 @@ use crate::types::*;
 /// in a convenient way
 #[derive(Clone)]
 pub struct AccountSet {
-    pub eth_accounts: Vec<EthereumAccount>,
+    pub eth_accounts: Vec<RootstockAccount>,
     pub zksync_accounts: Vec<ZkSyncAccount>,
     pub fee_account_id: ZKSyncAccountId,
 }

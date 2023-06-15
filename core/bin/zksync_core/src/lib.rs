@@ -9,7 +9,7 @@ use crate::{
 use futures::{channel::mpsc, future};
 use tokio::task::JoinHandle;
 use zksync_config::{ChainConfig, ZkSyncConfig};
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 use zksync_mempool::{run_mempool_block_handler, run_mempool_tx_handler};
 use zksync_storage::ConnectionPool;
 use zksync_types::{tokens::get_genesis_token_list, Token, TokenId, TokenKind};
@@ -81,7 +81,7 @@ pub async fn genesis_init(config: &ChainConfig) {
 
 /// Starts the core application, which has the following sub-modules:
 ///
-/// - Ethereum Watcher, module to monitor on-chain operations.
+/// - Rootstock Watcher, module to monitor on-chain operations.
 /// - zkSync state keeper, module to execute and seal blocks.
 /// - mempool, module to organize incoming transactions.
 /// - block proposer, module to create block proposals for state keeper.
@@ -91,7 +91,7 @@ pub async fn run_core(
     connection_pool: ConnectionPool,
     read_only_connection_pool: ConnectionPool,
     config: &ZkSyncConfig,
-    eth_gateway: EthereumGateway,
+    eth_gateway: RootstockGateway,
 ) -> anyhow::Result<Vec<JoinHandle<()>>> {
     let (proposed_blocks_sender, proposed_blocks_receiver) =
         mpsc::channel(DEFAULT_CHANNEL_CAPACITY);
@@ -118,7 +118,7 @@ pub async fn run_core(
         config.api.private.clone(),
     );
 
-    // Start Ethereum Watcher.
+    // Start Rootstock Watcher.
     let eth_watch_task = start_eth_watch(
         eth_watch_req_sender.clone(),
         eth_watch_req_receiver,

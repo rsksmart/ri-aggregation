@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use crate::tx::{EIP1271Signature, PackedEthSignature};
 
 /// Representation of the signature secured by L1.
-/// May be either a signature generated via Ethereum private key
+/// May be either a signature generated via Rootstock private key
 /// corresponding to the account address,
 /// or on-chain signature via EIP-1271.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

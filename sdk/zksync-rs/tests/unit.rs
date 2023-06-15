@@ -767,7 +767,7 @@ mod wallet_tests {
     #[tokio::test]
     async fn test_wallet_ethereum() {
         let wallet = get_test_wallet(&[50; 32], Network::Mainnet).await;
-        let eth_provider = wallet.ethereum("http://some.random.url").await.unwrap();
+        let eth_provider = wallet.rootstock("http://some.random.url").await.unwrap();
         let expected_address: Vec<_> = (0..20).collect();
         assert_eq!(eth_provider.contract_address().as_bytes(), expected_address);
     }

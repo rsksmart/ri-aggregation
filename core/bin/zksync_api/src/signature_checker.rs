@@ -16,13 +16,13 @@ use futures::{
 use tokio::task::JoinHandle;
 
 // Workspace uses
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 use zksync_types::{
     tx::{error::TxAddError, EthBatchSignData, EthSignData, TxEthSignature},
     Address, Order, SignedZkSyncTx, Token, ZkSyncTx,
 };
 // Local uses
-use crate::eth_checker::EthereumChecker;
+use crate::eth_checker::RootstockChecker;
 use zksync_types::tx::TransactionError;
 
 /// `TxVariant` is used to form a verify request. It is possible to wrap
@@ -49,7 +49,7 @@ impl VerifiedTx {
     /// Ethereum signature (if required) and `ZKSync` signature.
     pub async fn verify(
         request_data: RequestData,
-        eth_checker: &EthereumChecker,
+        eth_checker: &RootstockChecker,
     ) -> Result<Self, TxAddError> {
         verify_eth_signature(&request_data, eth_checker).await?;
         let mut tx_variant = request_data.get_tx_variant();
@@ -88,7 +88,7 @@ impl VerifiedTx {
 /// Verifies the Ethereum signature of the (batch of) transaction(s).
 async fn verify_eth_signature(
     request_data: &RequestData,
-    eth_checker: &EthereumChecker,
+    eth_checker: &RootstockChecker,
 ) -> Result<(), TxAddError> {
     match request_data {
         RequestData::Tx(request) => {
@@ -154,7 +154,7 @@ async fn verify_ethereum_signature(
     eth_signature: &TxEthSignature,
     message: &[u8],
     sender_address: Address,
-    eth_checker: &EthereumChecker,
+    eth_checker: &RootstockChecker,
 ) -> bool {
     let signer_account = match eth_signature {
         TxEthSignature::EthereumSignature(packed_signature) => {
@@ -177,7 +177,7 @@ async fn verify_eth_signature_single_tx(
     tx: &SignedZkSyncTx,
     sender_address: Address,
     token: Token,
-    eth_checker: &EthereumChecker,
+    eth_checker: &RootstockChecker,
 ) -> Result<(), TxAddError> {
     let start = Instant::now();
     // Check if the tx is a `ChangePubKey` operation without an Ethereum signature.
@@ -233,7 +233,7 @@ async fn verify_eth_signature_txs_batch(
     txs: &[SignedZkSyncTx],
     senders: &[Address],
     batch_sign_data: &EthBatchSignData,
-    eth_checker: &EthereumChecker,
+    eth_checker: &RootstockChecker,
 ) -> Result<(), TxAddError> {
     let start = Instant::now();
     // Cache for verified senders.
@@ -378,16 +378,16 @@ impl RequestData {
 /// Main routine of the concurrent signature checker.
 /// See the module documentation for details.
 pub fn start_sign_checker(
-    client: EthereumGateway,
+    client: RootstockGateway,
     input: mpsc::Receiver<VerifySignatureRequest>,
 ) -> JoinHandle<()> {
-    let eth_checker = EthereumChecker::new(client);
+    let eth_checker = RootstockChecker::new(client);
 
     /// Basically it receives the requests through the channel and verifies signatures,
     /// notifying the request sender about the check result.
     async fn checker_routine(
         mut input: mpsc::Receiver<VerifySignatureRequest>,
-        eth_checker: EthereumChecker,
+        eth_checker: RootstockChecker,
     ) {
         while let Some(VerifySignatureRequest { data, response }) = input.next().await {
             let eth_checker = eth_checker.clone();

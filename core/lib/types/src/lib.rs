@@ -39,7 +39,6 @@
 pub mod account;
 pub mod aggregated_operations;
 pub mod block;
-pub mod ethereum;
 pub mod event;
 pub mod fee;
 pub mod forced_exit_requests;
@@ -51,6 +50,7 @@ pub mod operations;
 pub mod priority_ops;
 pub mod prover;
 pub mod register_factory;
+pub mod rootstock;
 pub mod tokens;
 pub mod tx;
 mod utils;

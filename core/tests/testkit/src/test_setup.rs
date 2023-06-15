@@ -1,4 +1,4 @@
-use crate::eth_account::{get_executed_tx_fee, ETHExecResult, EthereumAccount};
+use crate::eth_account::{get_executed_tx_fee, ETHExecResult, RootstockAccount};
 use crate::external_commands::Contracts;
 use anyhow::bail;
 use futures::{
@@ -52,7 +52,7 @@ pub struct TestSetup {
 
     pub expected_changes_for_current_block: ExpectedAccountState,
 
-    pub commit_account: EthereumAccount,
+    pub commit_account: RootstockAccount,
     pub current_state_root: Option<Fr>,
 
     pub last_committed_block: Block,
@@ -82,7 +82,7 @@ impl TestSetup {
         sk_channels: StateKeeperChannels,
         accounts: AccountSet,
         deployed_contracts: &Contracts,
-        commit_account: EthereumAccount,
+        commit_account: RootstockAccount,
         initial_root: Fr,
         last_block: Option<Block>,
     ) -> Self {

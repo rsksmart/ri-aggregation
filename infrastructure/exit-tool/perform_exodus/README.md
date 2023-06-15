@@ -11,5 +11,5 @@ Usage:
 ```
 yarn
 yarn build
-yarn start -pk <your private key> -t <zkSync contract address> -n <Ethereum network> -p <path to input JSON file>
+yarn start -pk <your private key> -t <zkSync contract address> -n <Rootstock network> -p <path to input JSON file>
 ```

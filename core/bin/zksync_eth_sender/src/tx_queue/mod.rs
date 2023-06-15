@@ -72,7 +72,7 @@ impl TxQueueBuilder {
         }
     }
 
-    /// Sets the amount of transactions sent to the Ethereum blockchain, but not confirmed yet.
+    /// Sets the amount of transactions sent to the Rootstock blockchain, but not confirmed yet.
     pub fn with_sent_pending_txs(self, sent_pending_txs: usize) -> Self {
         Self {
             sent_pending_txs,
@@ -214,7 +214,7 @@ impl TxQueue {
             }
             AggregatedActionType::CreateProofBlocks => {
                 return Err(format_err!(
-                    "Proof creation should never be sent to Ethereum"
+                    "Proof creation should never be sent to Rootstock"
                 ));
             }
         }
@@ -265,7 +265,7 @@ impl TxQueue {
         self.commit_operations.pop_front()
     }
 
-    /// Notifies the queue about the transaction being confirmed on the Ethereum blockchain.
+    /// Notifies the queue about the transaction being confirmed on the Rootstock blockchain.
     /// Decrements the amount of transactions "in the fly".
     pub fn report_commitment(&mut self) {
         assert!(

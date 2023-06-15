@@ -6,7 +6,7 @@ use num::BigUint;
 use zksync_basic_types::{H256, U256};
 // Workspace uses
 use zksync_storage::{ConnectionPool, StorageProcessor};
-use zksync_types::ethereum::{ETHOperation, EthOpId, InsertedOperationResponse};
+use zksync_types::rootstock::{ETHOperation, EthOpId, InsertedOperationResponse};
 // Local uses
 use super::transactions::ETHStats;
 use zksync_types::aggregated_operations::{AggregatedActionType, AggregatedOperation};
@@ -19,14 +19,14 @@ pub(super) trait DatabaseInterface {
     async fn acquire_connection(&self) -> anyhow::Result<StorageProcessor<'_>>;
 
     /// Loads the unconfirmed and unprocessed operations from the database.
-    /// Unconfirmed operations are Ethereum operations that were started, but not confirmed yet.
+    /// Unconfirmed operations are Rootstock operations that were started, but not confirmed yet.
     /// Unprocessed operations are zkSync operations that were not started at all.
     async fn load_unconfirmed_operations(
         &self,
         connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<VecDeque<ETHOperation>>;
 
-    /// Load all the aggregated operations that have no confirmation yet and have not yet been sent to Ethereum.
+    /// Load all the aggregated operations that have no confirmation yet and have not yet been sent to Rootstock.
     /// Should be used after server restart only.
     async fn restore_unprocessed_operations(
         &self,
@@ -58,7 +58,7 @@ pub(super) trait DatabaseInterface {
         raw_tx: Vec<u8>,
     ) -> anyhow::Result<InsertedOperationResponse>;
 
-    /// Adds a tx hash entry associated with some Ethereum operation to the database.
+    /// Adds a tx hash entry associated with some Rootstock operation to the database.
     async fn add_hash_entry(
         &self,
         connection: &mut StorageProcessor<'_>,
@@ -66,7 +66,7 @@ pub(super) trait DatabaseInterface {
         hash: &H256,
     ) -> anyhow::Result<()>;
 
-    /// Adds a new tx info to the previously started Ethereum operation.
+    /// Adds a new tx info to the previously started Rootstock operation.
     async fn update_eth_tx(
         &self,
         connection: &mut StorageProcessor<'_>,
@@ -83,7 +83,7 @@ pub(super) trait DatabaseInterface {
         op: &ETHOperation,
     ) -> anyhow::Result<()>;
 
-    /// Loads the stored Ethereum operations stats.
+    /// Loads the stored Rootstock operations stats.
     async fn load_stats(&self, connection: &mut StorageProcessor<'_>) -> anyhow::Result<ETHStats>;
 
     /// Loads the stored gas price limit.
@@ -134,7 +134,7 @@ impl DatabaseInterface for Database {
         connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<VecDeque<ETHOperation>> {
         let unconfirmed_ops = connection
-            .ethereum_schema()
+            .rootstock_schema()
             .load_unconfirmed_operations()
             .await?;
 
@@ -146,7 +146,7 @@ impl DatabaseInterface for Database {
         connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<()> {
         connection
-            .ethereum_schema()
+            .rootstock_schema()
             .restore_unprocessed_operations()
             .await?;
 
@@ -158,7 +158,7 @@ impl DatabaseInterface for Database {
         connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<Vec<(i64, AggregatedOperation)>> {
         let unprocessed_ops = connection
-            .ethereum_schema()
+            .rootstock_schema()
             .load_unprocessed_operations()
             .await?;
         Ok(unprocessed_ops)
@@ -170,7 +170,7 @@ impl DatabaseInterface for Database {
         operations_id: Vec<i64>,
     ) -> anyhow::Result<()> {
         connection
-            .ethereum_schema()
+            .rootstock_schema()
             .remove_unprocessed_operations(operations_id)
             .await?;
 
@@ -187,7 +187,7 @@ impl DatabaseInterface for Database {
         raw_tx: Vec<u8>,
     ) -> anyhow::Result<InsertedOperationResponse> {
         let result = connection
-            .ethereum_schema()
+            .rootstock_schema()
             .save_new_eth_tx(
                 op_type,
                 op,
@@ -207,7 +207,7 @@ impl DatabaseInterface for Database {
         hash: &H256,
     ) -> anyhow::Result<()> {
         Ok(connection
-            .ethereum_schema()
+            .rootstock_schema()
             .add_hash_entry(eth_op_id, hash)
             .await?)
     }
@@ -220,7 +220,7 @@ impl DatabaseInterface for Database {
         new_gas_value: U256,
     ) -> anyhow::Result<()> {
         Ok(connection
-            .ethereum_schema()
+            .rootstock_schema()
             .update_eth_tx(
                 eth_op_id,
                 new_deadline_block,
@@ -240,11 +240,11 @@ impl DatabaseInterface for Database {
             return Ok(true);
         }
 
-        // Since the operations are sent to the Ethereum one by one,
+        // Since the operations are sent to the Rootstock one by one,
         // we simply consider the operation with ID less by one.
         let previous_op = op.id - 1;
         let confirmed = connection
-            .ethereum_schema()
+            .rootstock_schema()
             .is_aggregated_op_confirmed(previous_op)
             .await?;
 
@@ -312,14 +312,14 @@ impl DatabaseInterface for Database {
             _ => {}
         }
 
-        transaction.ethereum_schema().confirm_eth_tx(hash).await?;
+        transaction.rootstock_schema().confirm_eth_tx(hash).await?;
         transaction.commit().await?;
 
         Ok(())
     }
 
     async fn load_stats(&self, connection: &mut StorageProcessor<'_>) -> anyhow::Result<ETHStats> {
-        let stats = connection.ethereum_schema().load_stats().await?;
+        let stats = connection.rootstock_schema().load_stats().await?;
         Ok(stats.into())
     }
 
@@ -327,7 +327,7 @@ impl DatabaseInterface for Database {
         &self,
         connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<U256> {
-        let limit = connection.ethereum_schema().load_gas_price_limit().await?;
+        let limit = connection.rootstock_schema().load_gas_price_limit().await?;
         Ok(limit)
     }
 
@@ -338,7 +338,7 @@ impl DatabaseInterface for Database {
         average_gas_price: U256,
     ) -> anyhow::Result<()> {
         connection
-            .ethereum_schema()
+            .rootstock_schema()
             .update_gas_price(gas_price_limit, average_gas_price)
             .await?;
         Ok(())

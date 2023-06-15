@@ -367,8 +367,8 @@ impl TestServerConfig {
         // Below lies the initialization of the data for the test.
         let mut rng = XorShiftRng::from_seed([0, 1, 2, 3]);
 
-        // Required since we use `EthereumSchema` in this test.
-        storage.ethereum_schema().initialize_eth_data().await?;
+        // Required since we use `RootstockSchema` in this test.
+        storage.rootstock_schema().initialize_eth_data().await?;
 
         // Insert PHNX token
         storage
@@ -471,7 +471,7 @@ impl TestServerConfig {
                 .commit_state_update(block_number, &updates, 0)
                 .await?;
 
-            // Store & confirm the operation in the ethereum schema, as it's used for obtaining
+            // Store & confirm the operation in the rootstock schema, as it's used for obtaining
             // commit/verify/execute hashes.
             let aggregated_operation = gen_unique_aggregated_operation_with_txs(
                 block_number,
@@ -490,10 +490,10 @@ impl TestServerConfig {
                 .await?
                 .unwrap();
 
-            // Store the Ethereum transaction.
+            // Store the Rootstock transaction.
             let eth_tx_hash = dummy_ethereum_tx_hash(id);
             let response = storage
-                .ethereum_schema()
+                .rootstock_schema()
                 .save_new_eth_tx(
                     AggregatedActionType::CommitBlocks,
                     Some((id, op)),
@@ -503,11 +503,11 @@ impl TestServerConfig {
                 )
                 .await?;
             storage
-                .ethereum_schema()
+                .rootstock_schema()
                 .add_hash_entry(response.id, &eth_tx_hash)
                 .await?;
             storage
-                .ethereum_schema()
+                .rootstock_schema()
                 .confirm_eth_tx(&eth_tx_hash)
                 .await?;
 
@@ -579,7 +579,7 @@ impl TestServerConfig {
                     .unwrap();
 
                 let response = storage
-                    .ethereum_schema()
+                    .rootstock_schema()
                     .save_new_eth_tx(
                         AggregatedActionType::PublishProofBlocksOnchain,
                         Some((id, op)),
@@ -590,11 +590,11 @@ impl TestServerConfig {
                     .await?;
                 let eth_tx_hash = dummy_ethereum_tx_hash(id);
                 storage
-                    .ethereum_schema()
+                    .rootstock_schema()
                     .add_hash_entry(response.id, &eth_tx_hash)
                     .await?;
                 storage
-                    .ethereum_schema()
+                    .rootstock_schema()
                     .confirm_eth_tx(&eth_tx_hash)
                     .await?;
             }
@@ -617,10 +617,10 @@ impl TestServerConfig {
                     .await?
                     .unwrap();
 
-                // Store the Ethereum transaction.
+                // Store the Rootstock transaction.
                 let eth_tx_hash = dummy_ethereum_tx_hash(id);
                 let response = storage
-                    .ethereum_schema()
+                    .rootstock_schema()
                     .save_new_eth_tx(
                         AggregatedActionType::ExecuteBlocks,
                         Some((id, op)),
@@ -630,11 +630,11 @@ impl TestServerConfig {
                     )
                     .await?;
                 storage
-                    .ethereum_schema()
+                    .rootstock_schema()
                     .add_hash_entry(response.id, &eth_tx_hash)
                     .await?;
                 storage
-                    .ethereum_schema()
+                    .rootstock_schema()
                     .confirm_eth_tx(&eth_tx_hash)
                     .await?;
                 storage

@@ -25,13 +25,13 @@ use zksync_types::{
 use crate::eth_watch::EthWatchRequest;
 use web3::contract::Options;
 use zksync_contracts::erc20_contract;
-use zksync_eth_client::EthereumGateway;
+use zksync_eth_client::RootstockGateway;
 
 struct TokenHandler {
     connection_pool: ConnectionPool,
     poll_interval: std::time::Duration,
     eth_watcher_req: mpsc::Sender<EthWatchRequest>,
-    eth_client: EthereumGateway,
+    eth_client: RootstockGateway,
     token_list: HashMap<Address, TokenInfo>,
     last_eth_block: Option<u64>,
     notifier: Option<Notifier>,
@@ -41,7 +41,7 @@ impl TokenHandler {
     fn new(
         connection_pool: ConnectionPool,
         eth_watcher_req: mpsc::Sender<EthWatchRequest>,
-        eth_client: EthereumGateway,
+        eth_client: RootstockGateway,
         config: TokenHandlerConfig,
     ) -> Self {
         let poll_interval = config.poll_interval();
@@ -60,7 +60,7 @@ impl TokenHandler {
             token_list,
             poll_interval,
             notifier,
-            last_eth_block: None, // TODO: Maybe load last viewed Ethereum block number for TokenHandler from DB (ZKS-518).
+            last_eth_block: None, // TODO: Maybe load last viewed Rootstock block number for TokenHandler from DB (ZKS-518).
             eth_watcher_req,
         }
     }
@@ -240,7 +240,7 @@ impl TokenHandler {
 #[must_use]
 pub fn run_token_handler(
     db_pool: ConnectionPool,
-    eth_client: EthereumGateway,
+    eth_client: RootstockGateway,
     config: &TokenHandlerConfig,
     eth_watcher_req: mpsc::Sender<EthWatchRequest>,
 ) -> JoinHandle<()> {

@@ -45,10 +45,10 @@ pub fn ierc20_contract() -> ethabi::Contract {
     load_contract(IERC20_INTERFACE)
 }
 
-/// `EthereumProvider` gains access to on-chain operations, such as deposits and full exits.
-/// Methods to interact with Ethereum return corresponding Ethereum transaction hash.
-/// In order to monitor transaction execution, an Ethereum node `web3` API is exposed
-/// via `EthereumProvider::web3` method.
+/// `RootstockProvider` gains access to on-chain operations, such as deposits and full exits.
+/// Methods to interact with Rootstock return corresponding Rootstock transaction hash.
+/// In order to monitor transaction execution, an Rootstock node `web3` API is exposed
+/// via `RootstockProvider::web3` method.
 #[derive(Debug)]
 pub struct EthereumProvider<S: EthereumSigner> {
     tokens_cache: TokensCache,
@@ -58,8 +58,8 @@ pub struct EthereumProvider<S: EthereumSigner> {
     poll_time: Duration,
 }
 
-impl<S: EthereumSigner> EthereumProvider<S> {
-    /// Creates a new Ethereum provider.
+impl<S: EthereumSigner> RootstockProvider<S> {
+    /// Creates a new Rootstock provider.
     pub async fn new<P: Provider>(
         provider: &P,
         tokens_cache: TokensCache,
@@ -102,7 +102,7 @@ impl<S: EthereumSigner> EthereumProvider<S> {
         })
     }
 
-    /// Exposes Ethereum node `web3` API.
+    /// Exposes Rootstock node `web3` API.
     pub fn client(&self) -> &ETHDirectClient<S> {
         &self.eth_client
     }
@@ -112,7 +112,7 @@ impl<S: EthereumSigner> EthereumProvider<S> {
         self.client().contract_addr()
     }
 
-    /// Returns the Ethereum account balance.
+    /// Returns the Rootstock account balance.
     pub async fn balance(&self) -> Result<BigUint, ClientError> {
         self.client()
             .sender_eth_balance()
@@ -148,7 +148,7 @@ impl<S: EthereumSigner> EthereumProvider<S> {
         Ok(res)
     }
 
-    /// Returns the pending nonce for the Ethereum account.
+    /// Returns the pending nonce for the Rootstock account.
     pub async fn nonce(&self) -> Result<U256, ClientError> {
         self.client()
             .pending_nonce()
@@ -239,8 +239,8 @@ impl<S: EthereumSigner> EthereumProvider<S> {
         Ok(transaction_hash)
     }
 
-    /// Performs a transfer of funds from one Ethereum account to another.
-    /// Note: This operation is performed on Ethereum, and not related to zkSync directly.
+    /// Performs a transfer of funds from one Rootstock account to another.
+    /// Note: This operation is performed on Rootstock, and not related to zkSync directly.
     pub async fn transfer(
         &self,
         token: impl Into<TokenLike>,
@@ -346,7 +346,7 @@ impl<S: EthereumSigner> EthereumProvider<S> {
     }
 
     /// Performs a deposit in zkSync network.
-    /// For ERC20 tokens, a deposit must be approved beforehand via the `EthereumProvider::approve_erc20_token_deposits` method.
+    /// For ERC20 tokens, a deposit must be approved beforehand via the `RootstockProvider::approve_erc20_token_deposits` method.
     pub async fn deposit(
         &self,
         token: impl Into<TokenLike>,
@@ -476,19 +476,19 @@ impl<S: EthereumSigner> EthereumProvider<S> {
         Ok(transaction_hash)
     }
 
-    /// Sets the timeout to wait for transactions to appear in the Ethereum network.
+    /// Sets the timeout to wait for transactions to appear in the Rootstock network.
     /// By default it is set to 30 seconds.
     pub fn set_confirmation_timeout(&mut self, timeout: Duration) {
         self.confirmation_timeout = timeout;
     }
 
-    /// Sets the time to poll for transactions to appear in the Ethereum network.
+    /// Sets the time to poll for transactions to appear in the Rootstock network.
     /// By default it is set to 1 second.
     pub fn set_poll_time(&mut self, time: Duration) {
         self.poll_time = time;
     }
 
-    /// Waits until the transaction is confirmed by the Ethereum blockchain.
+    /// Waits until the transaction is confirmed by the Rootstock blockchain.
     pub async fn wait_for_tx(&self, tx_hash: H256) -> Result<TransactionReceipt, ClientError> {
         let mut poller = tokio::time::interval(self.poll_time);
 

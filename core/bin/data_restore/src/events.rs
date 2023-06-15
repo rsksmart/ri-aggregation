@@ -19,7 +19,7 @@ pub enum EventType {
 pub struct BlockEvent {
     /// Rollup block number
     pub block_num: BlockNumber,
-    /// Ethereum transaction type
+    /// Rootstock transaction type
     pub transaction_hash: H256,
     /// Rollup block type
     pub block_type: EventType,

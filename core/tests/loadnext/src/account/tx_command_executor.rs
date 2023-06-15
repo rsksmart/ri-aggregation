@@ -2,8 +2,8 @@ use std::convert::TryInto;
 
 use num::{BigUint, Zero};
 use zksync::{
-    error::ClientError, ethereum::PriorityOpHolder, operations::SyncTransactionHandle,
-    provider::Provider,
+    error::ClientError, operations::SyncTransactionHandle, provider::Provider,
+    rootstock::PriorityOpHolder,
 };
 use zksync_types::{tokens::ETH_TOKEN_ID, tx::PackedEthSignature, Nonce, ZkSyncTx, H256};
 
@@ -63,9 +63,9 @@ impl AccountLifespan {
     /// This function is used to check whether the L1 operation can be performed or should be
     /// skipped.
     async fn l1_balances(&self) -> Result<(BigUint, BigUint), ClientError> {
-        let ethereum = self.wallet.ethereum(&self.config.web3_url).await?;
-        let eth_balance = ethereum.balance().await?;
-        let erc20_balance = ethereum
+        let rootstock = self.wallet.rootstock(&self.config.web3_url).await?;
+        let eth_balance = rootstock.balance().await?;
+        let erc20_balance = rootstock
             .erc20_balance(self.wallet.address(), self.main_token.id)
             .await?;
 
@@ -82,18 +82,18 @@ impl AccountLifespan {
             return Ok(ReportLabel::skipped("No L1 balance"));
         }
 
-        let ethereum = self.wallet.ethereum(&self.config.web3_url).await?;
+        let rootstock = self.wallet.rootstock(&self.config.web3_url).await?;
 
         // We should check whether we've previously approved ERC-20 deposits.
-        let deposits_allowed = ethereum
+        let deposits_allowed = rootstock
             .is_erc20_deposit_approved(self.main_token.id)
             .await?;
         if !deposits_allowed {
-            let approve_tx_hash = ethereum
+            let approve_tx_hash = rootstock
                 .approve_erc20_token_deposits(self.main_token.id)
                 .await?;
             // Before submitting the deposit, wait for the approve transaction confirmation.
-            match ethereum.wait_for_tx(approve_tx_hash).await {
+            match rootstock.wait_for_tx(approve_tx_hash).await {
                 Ok(receipt) => {
                     if receipt.status != Some(1.into()) {
                         return Ok(ReportLabel::skipped("Approve transaction failed"));
@@ -111,7 +111,7 @@ impl AccountLifespan {
             .try_into()
             .unwrap_or_else(|_| u128::max_value())
             .into();
-        let eth_tx_hash = match ethereum
+        let eth_tx_hash = match rootstock
             .deposit(self.main_token.id, amount, self.wallet.address())
             .await
         {
@@ -144,8 +144,8 @@ impl AccountLifespan {
             }
         };
 
-        let ethereum = self.wallet.ethereum(&self.config.web3_url).await?;
-        let eth_tx_hash = match ethereum.full_exit(exit_token_id, account_id).await {
+        let rootstock = self.wallet.rootstock(&self.config.web3_url).await?;
+        let eth_tx_hash = match rootstock.full_exit(exit_token_id, account_id).await {
             Ok(hash) => hash,
             Err(_err) => {
                 // Most likely we don't have enough ETH to perform operations.
@@ -158,8 +158,8 @@ impl AccountLifespan {
     }
 
     async fn handle_priority_op(&self, eth_tx_hash: H256) -> Result<ReportLabel, ClientError> {
-        let ethereum = self.wallet.ethereum(&self.config.web3_url).await?;
-        let receipt = ethereum.wait_for_tx(eth_tx_hash).await?;
+        let rootstock = self.wallet.rootstock(&self.config.web3_url).await?;
+        let receipt = rootstock.wait_for_tx(eth_tx_hash).await?;
 
         let mut priority_op_handle = match receipt.priority_op_handle(self.wallet.provider.clone())
         {
@@ -167,7 +167,7 @@ impl AccountLifespan {
             None => {
                 // Probably we did something wrong, no big deal.
                 return Ok(ReportLabel::skipped(
-                    "Ethereum transaction for deposit failed",
+                    "Rootstock transaction for deposit failed",
                 ));
             }
         };

@@ -5,7 +5,7 @@ ALTER TABLE pending_block
     ADD timestamp bigint,
     ADD previous_root_hash BYTEA NOT NULL default '\x0000000000000000000000000000000000000000000000000000000000000000';
 
--- commit blocks, execute blocks, proof blocks, verify blocks on ethereum
+-- commit blocks, execute blocks, proof blocks, verify blocks on rootstock
 CREATE TABLE aggregate_operations
 (
     id          bigserial PRIMARY KEY,

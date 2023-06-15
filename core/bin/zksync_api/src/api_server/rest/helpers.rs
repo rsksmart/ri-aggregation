@@ -12,7 +12,7 @@ use zksync_types::{PriorityOp, Token, TokenId, ZkSyncPriorityOp};
 
 /// Checks if block is finalized, meaning that
 /// both Verify operation is performed for it, and this
-/// operation is anchored on the Ethereum blockchain.
+/// operation is anchored on the Rootstock blockchain.
 pub fn block_verified(block: &StorageBlockDetails) -> bool {
     // We assume that it's not possible to have block that is
     // verified and not committed.
@@ -22,7 +22,7 @@ pub fn block_verified(block: &StorageBlockDetails) -> bool {
 /// Converts a non-executed priority operation into a
 /// `TxByHashResponse` so the user can track its status in explorer.
 /// It also adds new field `tx.eth_block_number`, which is normally not there,
-/// which is the block number of Ethereum tx of the priority operation,
+/// which is the block number of Rootstock tx of the priority operation,
 /// it enables tracking the number of blocks (confirmations) user needs to wait
 /// before the priority op is included into zkSync block.
 /// Currently returns Some(TxByHashResponse) if PriorityOp is Deposit, and None in other cases.

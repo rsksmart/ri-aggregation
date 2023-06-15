@@ -102,7 +102,7 @@ library PairingsBn254 {
     }
 
     function P2() internal pure returns (G2Point memory) {
-        // for some reason ethereum expects to have c1*v + c0 form
+        // for some reason rootstock expects to have c1*v + c0 form
 
         return
             G2Point(

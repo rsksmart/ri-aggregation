@@ -146,9 +146,9 @@ pub fn dummy_root_hash_for_block(block_number: BlockNumber) -> Fr {
     Fr::from_str(&block_number.to_string()).unwrap()
 }
 
-/// Creates a dummy ethereum operation hash based on its number.
-pub fn dummy_ethereum_tx_hash(ethereum_op_id: i64) -> H256 {
-    H256::from_low_u64_ne(ethereum_op_id as u64)
+/// Creates a dummy rootstock operation hash based on its number.
+pub fn dummy_ethereum_tx_hash(rootstock_op_id: i64) -> H256 {
+    H256::from_low_u64_ne(rootstock_op_id as u64)
 }
 
 /// Generates dummy operation with the unique `new_root_hash` in the block.

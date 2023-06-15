@@ -5,9 +5,9 @@ use zksync_types::{AccountId, Address, TokenId, TokenLike};
 use crate::{
     credentials::WalletCredentials,
     error::ClientError,
-    ethereum::EthereumProvider,
     operations::*,
     provider::Provider,
+    rootstock::RootstockProvider,
     signer::Signer,
     tokens_cache::TokensCache,
     types::{AccountInfo, BlockStatus, NFT},
@@ -158,15 +158,15 @@ where
         WithdrawNFTBuilder::new(self)
     }
 
-    /// Creates an `EthereumProvider` to interact with the Ethereum network.
+    /// Creates an `RootstockProvider` to interact with the Rootstock network.
     ///
-    /// Returns an error if wallet was created without providing an Ethereum private key.
-    pub async fn ethereum(
+    /// Returns an error if wallet was created without providing an Rootstock private key.
+    pub async fn rootstock(
         &self,
         web3_addr: impl AsRef<str>,
-    ) -> Result<EthereumProvider<S>, ClientError> {
+    ) -> Result<RootstockProvider<S>, ClientError> {
         if let Some(eth_signer) = &self.signer.eth_signer {
-            let ethereum_provider = EthereumProvider::new(
+            let rootstock_provider = RootstockProvider::new(
                 &self.provider,
                 self.tokens.clone(),
                 web3_addr,
@@ -175,7 +175,7 @@ where
             )
             .await?;
 
-            Ok(ethereum_provider)
+            Ok(rootstock_provider)
         } else {
             Err(ClientError::NoEthereumPrivateKey)
         }

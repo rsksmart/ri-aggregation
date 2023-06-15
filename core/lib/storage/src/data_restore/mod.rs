@@ -25,7 +25,7 @@ use crate::{QueryResult, StorageProcessor};
 pub mod records;
 
 /// Data restore schema provides a convenient interface to restore the
-/// sidechain state from the Ethereum contract.
+/// sidechain state from the Rootstock contract.
 ///
 /// This schema is used exclusively by the `data_restore` crate.
 #[derive(Debug)]
@@ -126,7 +126,7 @@ impl<'a, 'c> DataRestoreSchema<'a, 'c> {
         Ok(stored_blocks)
     }
 
-    /// Stores the last seen Ethereum block number.
+    /// Stores the last seen Rootstock block number.
     pub(crate) async fn update_last_watched_block_number(
         &mut self,
         block_number: &str,
@@ -152,7 +152,7 @@ impl<'a, 'c> DataRestoreSchema<'a, 'c> {
         Ok(())
     }
 
-    /// Loads the last seen Ethereum block number.
+    /// Loads the last seen Rootstock block number.
     pub async fn load_last_watched_block_number(
         &mut self,
     ) -> QueryResult<StoredLastWatchedEthBlockNumber> {
@@ -368,7 +368,7 @@ impl<'a, 'c> DataRestoreSchema<'a, 'c> {
 
     /// Method that initializes the `eth_stats` table.
     /// Since `eth_sender` module uses this table to identify the expected next block numbers
-    /// for sending operations to the Ethereum, we must initialize it with actual values.
+    /// for sending operations to the Rootstock, we must initialize it with actual values.
     pub async fn initialize_eth_stats(
         &mut self,
         last_committed_block: BlockNumber,

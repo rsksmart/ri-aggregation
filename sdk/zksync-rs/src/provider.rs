@@ -64,16 +64,16 @@ pub trait Provider {
         token: impl Into<TokenLike> + Send + 'async_trait,
     ) -> ResponseResult<BigUint>;
 
-    /// Requests and returns information about an Ethereum operation given its `serial_id`.
+    /// Requests and returns information about an Rootstock operation given its `serial_id`.
     async fn ethop_info(&self, serial_id: u32) -> ResponseResult<EthOpInfo>;
 
-    /// Requests and returns Ethereum withdrawal transaction hash for some offchain withdrawal.
+    /// Requests and returns Rootstock withdrawal transaction hash for some offchain withdrawal.
     async fn get_eth_tx_for_withdrawal(
         &self,
         withdrawal_hash: TxHash,
     ) -> ResponseResult<Option<String>>;
 
-    /// Requests and returns a smart contract address (for Ethereum network associated with network specified in `Provider`).
+    /// Requests and returns a smart contract address (for Rootstock network associated with network specified in `Provider`).
     async fn contract_address(&self) -> ResponseResult<ContractAddress>;
 
     /// Submits a transaction to the zkSync network.
@@ -225,7 +225,7 @@ impl RpcProvider {
         self.send_and_deserialize(&msg).await
     }
 
-    /// Requests and returns information about an Ethereum operation given its `serial_id`.
+    /// Requests and returns information about an Rootstock operation given its `serial_id`.
     pub async fn ethop_info(&self, serial_id: u32) -> Result<EthOpInfo, ClientError> {
         let msg = JsonRpcRequest::ethop_info(serial_id);
         self.send_and_deserialize(&msg).await

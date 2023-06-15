@@ -38,9 +38,9 @@ impl AddressPool {
 /// Currently we support only EOA accounts.
 #[derive(Debug, Clone)]
 pub struct AccountCredentials {
-    /// Ethereum private key.
+    /// Rootstock private key.
     pub eth_pk: H256,
-    /// Ethereum address derived from the private key.
+    /// Rootstock address derived from the private key.
     pub address: Address,
 }
 
@@ -57,11 +57,11 @@ impl Random for AccountCredentials {
 pub struct TestWallet {
     /// Pre-initialized wallet object.
     pub wallet: Wallet<PrivateKeySigner, RpcProvider>,
-    /// Ethereum private key of the wallet.
+    /// Rootstock private key of the wallet.
     /// We have to collect private keys, since `Wallet` doesn't expose it, and we may need it to resign transactions
     /// (for example, if we want to create a corrupted transaction: `zksync` library won't allow us to do it, thus
     /// we will have to sign such a transaction manually).
-    /// zkSync private key can be restored from the Ethereum one using `private_key_from_seed` function.
+    /// zkSync private key can be restored from the Rootstock one using `private_key_from_seed` function.
     pub eth_pk: H256,
     /// RNG object derived from a common loadtest seed and the wallet private key.
     pub rng: LoadtestRng,
@@ -73,7 +73,7 @@ pub struct TestWallet {
 pub struct AccountPool {
     /// Main wallet that will be used to initialize all the test wallets.
     pub master_wallet: Wallet<PrivateKeySigner, RpcProvider>,
-    /// Collection of test wallets and their Ethereum private keys.
+    /// Collection of test wallets and their Rootstock private keys.
     pub accounts: VecDeque<TestWallet>,
     /// Pool of addresses of the test accounts.
     pub addresses: AddressPool,

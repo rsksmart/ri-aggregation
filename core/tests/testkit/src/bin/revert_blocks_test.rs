@@ -12,7 +12,7 @@ use zksync_testkit::{
 use zksync_types::{BlockNumber, Nonce, TokenId};
 
 use crate::{
-    eth_account::{parse_ether, EthereumAccount},
+    eth_account::{parse_ether, RootstockAccount},
     external_commands::{deploy_contracts, get_test_accounts, Contracts},
     zksync_account::ZkSyncAccount,
 };
@@ -21,10 +21,10 @@ fn create_test_setup_state(
     testkit_config: &TestkitConfig,
     contracts: &Contracts,
     fee_account: &ZkSyncAccount,
-) -> (EthereumAccount, AccountSet) {
+) -> (RootstockAccount, AccountSet) {
     let transport = Http::new(&testkit_config.web3_url).expect("http transport start");
     let (test_accounts_info, commit_account_info) = get_test_accounts();
-    let commit_account = EthereumAccount::new(
+    let commit_account = RootstockAccount::new(
         commit_account_info.private_key,
         commit_account_info.address,
         transport.clone(),
@@ -35,7 +35,7 @@ fn create_test_setup_state(
     let eth_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
-            EthereumAccount::new(
+            RootstockAccount::new(
                 test_eth_account.private_key,
                 test_eth_account.address,
                 transport.clone(),

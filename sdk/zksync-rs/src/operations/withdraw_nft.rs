@@ -154,7 +154,7 @@ where
         Ok(self)
     }
 
-    /// Sets the address of Ethereum wallet to withdraw nft to.
+    /// Sets the address of Rootstock wallet to withdraw nft to.
     pub fn to(mut self, to: Address) -> Self {
         self.to = Some(to);
         self

@@ -20,7 +20,7 @@ use web3::{
 };
 
 // Workspace uses
-use zksync_eth_signer::{raw_ethereum_tx::RawTransaction, EthereumSigner};
+use zksync_eth_signer::{raw_rootstock_tx::RawTransaction, EthereumSigner};
 
 use crate::ethereum_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
 use sha3::Digest;

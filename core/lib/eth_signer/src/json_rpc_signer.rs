@@ -153,7 +153,7 @@ impl JsonRpcSigner {
         Ok(signer)
     }
 
-    /// Get Ethereum address.
+    /// Get Rootstock address.
     pub fn address(&self) -> Result<Address, SignerError> {
         self.address.ok_or(SignerError::DefineAddress)
     }

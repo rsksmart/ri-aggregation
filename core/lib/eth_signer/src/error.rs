@@ -13,7 +13,7 @@ pub enum RpcSignerError {
 
 #[derive(Debug, Error, PartialEq)]
 pub enum SignerError {
-    #[error("Ethereum private key required to perform an operation")]
+    #[error("Rootstock private key required to perform an operation")]
     MissingEthPrivateKey,
     #[error("EthereumSigner required to perform an operation")]
     MissingEthSigner,

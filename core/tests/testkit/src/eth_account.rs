@@ -44,7 +44,7 @@ pub fn parse_ether(eth_value: &str) -> Result<BigUint, anyhow::Error> {
 
 /// Used to sign and post ETH transactions for the zkSync contracts.
 #[derive(Debug, Clone)]
-pub struct EthereumAccount {
+pub struct RootstockAccount {
     pub private_key: H256,
     pub address: Address,
     pub main_contract_eth_client: ETHDirectClient<PrivateKeySigner>,
@@ -65,7 +65,7 @@ fn priority_op_from_tx_logs(receipt: &TransactionReceipt) -> Option<PriorityOp> 
         .find_map(|op| PriorityOp::try_from(op.clone()).ok())
 }
 
-impl EthereumAccount {
+impl RootstockAccount {
     pub fn new(
         private_key: H256,
         address: Address,

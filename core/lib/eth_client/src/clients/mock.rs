@@ -12,7 +12,7 @@ use web3::types::{BlockId, Filter, Log, Transaction, U64};
 use zksync_types::{TransactionReceipt, H160, H256, U256};
 
 use crate::{
-    ethereum_gateway::{ExecutedTxStatus, FailureInfo},
+    rootstock_gateway::{ExecutedTxStatus, FailureInfo},
     SignedCallResult,
 };
 
@@ -24,7 +24,7 @@ struct MockEthereumInner {
     sent_txs: Arc<RwLock<HashSet<Vec<u8>>>>,
 }
 
-/// Mock Ethereum client is capable of recording all the incoming requests for the further analysis.
+/// Mock Rootstock client is capable of recording all the incoming requests for the further analysis.
 #[derive(Debug, Default, Clone)]
 pub struct MockEthereum {
     inner: Arc<MockEthereumInner>,

@@ -77,13 +77,13 @@ async function main() {
     program
         .version('0.1.0')
         .name('verify-contract')
-        .description('Checking deployed Ethereum contract with locally deployed version');
+        .description('Checking deployed Rootstock contract with locally deployed version');
 
     program
         .option('-g, --localGeth <localGeth>')
         .option('-c, --contract <contract>')
         .option('-a, --contractAddress <contractAddress>')
-        .description('Checking deployed Ethereum contract with locally deployed version')
+        .description('Checking deployed Rootstock contract with locally deployed version')
         .action(async (cmd: Command) => {
             await verify(cmd.localGeth, cmd.contractAddress, cmd.contract);
         });

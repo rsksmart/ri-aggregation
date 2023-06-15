@@ -1,5 +1,5 @@
 //! `eth_sender` module is capable of synchronizing the operations
-//! occurring in `ZKSync` with the Ethereum blockchain by creating
+//! occurring in `ZKSync` with the Rootstock blockchain by creating
 //! transactions from the operations, sending them and ensuring that
 //! every transaction is executed successfully and confirmed.
 
@@ -17,7 +17,7 @@ use web3::{
 use zksync_config::ETHSenderConfig;
 use zksync_eth_client::{EthereumGateway, SignedCallResult};
 use zksync_storage::ConnectionPool;
-use zksync_types::ethereum::ETHOperation;
+use zksync_types::rootstock::ETHOperation;
 // Local uses
 use self::{
     database::{Database, DatabaseInterface},
@@ -45,7 +45,7 @@ const RATE_LIMIT_HTTP_CODE: &str = "429";
 
 /// `TxCheckMode` enum determines the policy on the obtaining the tx status.
 /// The latest sent transaction can be pending (we're still waiting for it),
-/// but if there is more than one tx for some Ethereum operation, it means that we
+/// but if there is more than one tx for some Rootstock operation, it means that we
 /// already know that these transactions were considered stuck. Thus, lack of
 /// response (either successful or unsuccessful) for any of the old txs means
 /// that this transaction is still stuck.
@@ -58,13 +58,13 @@ enum TxCheckMode {
 }
 
 /// `ETHSender` is a structure capable of anchoring
-/// the ZKSync operations to the Ethereum blockchain.
+/// the ZKSync operations to the Rootstock blockchain.
 ///
 /// # Description
 ///
 /// The essential part of this structure is an event loop (which is supposed to be run
 /// in a separate thread), which obtains the operations to commit through the channel,
-/// and then commits them to the Ethereum, ensuring that all the transactions are
+/// and then commits them to the Rootstock, ensuring that all the transactions are
 /// successfully included in blocks and executed.
 ///
 /// Also `ETHSender` preserves the order of operations: it guarantees that operations
@@ -90,7 +90,7 @@ enum TxCheckMode {
 ///
 /// # Concurrent transaction sending
 ///
-/// `ETHSender` supports sending multiple transaction to the Ethereum at the same time.
+/// `ETHSender` supports sending multiple transaction to the Rootstock at the same time.
 /// This can be configured by the constructor `max_txs_in_flight` parameter. The order of
 /// transaction is still guaranteed to be preserved, since every sent tx has the assigned nonce
 /// which makes it impossible to get sent transactions committed out of order.
@@ -113,8 +113,8 @@ struct ETHSender<DB: DatabaseInterface> {
     ongoing_ops: VecDeque<ETHOperation>,
     /// Connection to the database.
     db: DB,
-    /// Ethereum intermediator.
-    ethereum: EthereumGateway,
+    /// Rootstock intermediator.
+    rootstock: RootstockGateway,
     /// Queue for ordered transaction processing.
     tx_queue: TxQueue,
     /// Utility for managing the gas price for transactions.
@@ -124,7 +124,7 @@ struct ETHSender<DB: DatabaseInterface> {
 }
 
 impl<DB: DatabaseInterface> ETHSender<DB> {
-    pub async fn new(options: ETHSenderConfig, db: DB, ethereum: EthereumGateway) -> Self {
+    pub async fn new(options: ETHSenderConfig, db: DB, rootstock: RootstockGateway) -> Self {
         let mut connection = db
             .acquire_connection()
             .await
@@ -175,7 +175,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         Self {
             ongoing_ops,
             db,
-            ethereum,
+            rootstock,
             tx_queue,
             gas_adjuster,
             options,
@@ -201,7 +201,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
                 last_used_block = self.proceed_next_operations(last_used_block).await;
                 // Update the gas adjuster to maintain the up-to-date max gas price limit.
                 self.gas_adjuster
-                    .keep_updated(&self.ethereum, &self.db)
+                    .keep_updated(&self.rootstock, &self.db)
                     .await;
             }
         }
@@ -246,11 +246,11 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     /// 2. Sifts all the ongoing operations, filtering the completed ones and
     ///   managing the rest (e.g. by sending a supplement txs for stuck operations).
     ///
-    /// It returns ethereum block number for which these things were done.
+    /// It returns rootstock block number for which these things were done.
     async fn proceed_next_operations(&mut self, last_used_block: u64) -> u64 {
         let start = Instant::now();
 
-        let current_block = match self.ethereum.block_number().await {
+        let current_block = match self.rootstock.block_number().await {
             Ok(current_block) => current_block.as_u64(),
             Err(e) => {
                 Self::process_error(e).await;
@@ -340,7 +340,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         let deadline_block = self.get_deadline_block(current_block);
         let gas_price = self
             .gas_adjuster
-            .get_gas_price(&self.ethereum, None)
+            .get_gas_price(&self.rootstock, None)
             .await?;
         //TODO RSK: let gas_price = U256::from("1000000000");
         let mut connection = self.db.acquire_connection().await?;
@@ -376,7 +376,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
             };
 
             // Sign the transaction.
-            let signed_tx = Self::sign_new_tx(&self.ethereum, &new_op).await?;
+            let signed_tx = Self::sign_new_tx(&self.rootstock, &new_op).await?;
 
             // With signed tx, update the hash in the operation entry and in the db.
             new_op.used_tx_hashes.push(signed_tx.hash);
@@ -396,7 +396,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
             "Sending new tx: [ETH Operation <id: {}, type: {:?}>. ETH tx: {}. ZKSync operation: {}]",
             new_op.id, new_op.op_type, self.eth_tx_description(&signed_tx), self.zksync_operation_description(&new_op),
         );
-        if let Err(e) = self.ethereum.send_raw_tx(signed_tx.raw_tx).await {
+        if let Err(e) = self.rootstock.send_raw_tx(signed_tx.raw_tx).await {
             // Sending tx error is not critical: this will result in transaction being considered stuck,
             // and resent. We can't do anything about this failure either, since it's most probably is not
             // related to the node logic, so we just log this error and pretend to have this operation
@@ -409,7 +409,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         Ok(())
     }
 
-    /// Helper method to obtain the string representation of the Ethereum transaction.
+    /// Helper method to obtain the string representation of the Rootstock transaction.
     /// Intended to be used for log entries.
     fn eth_tx_description(&self, tx: &SignedCallResult) -> String {
         // Gas price in gwei (wei / 10^9).
@@ -481,10 +481,10 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
                     // operation was confirmed.
                     //
                     // Consider the following scenario:
-                    // 1. Two Verify operations are sent to the Ethereum and included into one block.
+                    // 1. Two Verify operations are sent to the Rootstock and included into one block.
                     // 2. We start checking sent operations in a loop.
                     // 3. First operation is considered pending, due to not having enough confirmations.
-                    // 4. After check, a new Ethereum block is created.
+                    // 4. After check, a new Rootstock block is created.
                     // 5. Later in the loop we check the second Verify operation, and it's considered committed.
                     // 6. State is updated according to operation Verify#2.
                     // 7. On the next round, Verify#1 is also considered confirmed.
@@ -556,7 +556,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
             op.id,
             self.eth_tx_description(&new_tx),
         );
-        self.ethereum.send_raw_tx(new_tx.raw_tx).await?;
+        self.rootstock.send_raw_tx(new_tx.raw_tx).await?;
         transaction.commit().await?;
 
         metrics::histogram!("eth_sender.perform_commitment_step", start.elapsed());
@@ -567,13 +567,17 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     /// and terminating the node.
     async fn failure_handler(&self, receipt: &TransactionReceipt) -> ! {
         vlog::error!(
-            "Ethereum transaction unexpectedly failed. Receipt: {:#?}",
+            "Rootstock transaction unexpectedly failed. Receipt: {:#?}",
             receipt
         );
-        if let Ok(Some(reason)) = self.ethereum.failure_reason(receipt.transaction_hash).await {
-            vlog::error!("Failure reason for Ethereum tx: {:#?}", reason);
+        if let Ok(Some(reason)) = self
+            .rootstock
+            .failure_reason(receipt.transaction_hash)
+            .await
+        {
+            vlog::error!("Failure reason for Rootstock tx: {:#?}", reason);
         } else {
-            vlog::error!("Unable to receive failure reason for Ethereum tx");
+            vlog::error!("Unable to receive failure reason for Rootstock tx");
         }
         panic!("Cannot operate after unexpected TX failure");
     }
@@ -583,7 +587,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         current_block + self.options.sender.expected_wait_time_block
     }
 
-    /// Looks up for a transaction state on the Ethereum chain
+    /// Looks up for a transaction state on the Rootstock chain
     /// and reduces it to the simpler `TxCheckOutcome` report.
     async fn check_transaction_state(
         &self,
@@ -593,7 +597,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         current_block: u64,
     ) -> anyhow::Result<TxCheckOutcome> {
         let status = self
-            .ethereum
+            .rootstock
             .get_tx_status(tx_hash, Some(current_block))
             .await?;
 
@@ -634,9 +638,9 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         Ok(outcome)
     }
 
-    /// Creates a new Ethereum operation.
+    /// Creates a new Rootstock operation.
     async fn sign_new_tx(
-        ethereum: &EthereumGateway,
+        rootstock: &RootstockGateway,
         op: &ETHOperation,
     ) -> anyhow::Result<SignedCallResult> {
         let tx_options = {
@@ -666,7 +670,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
             }
         };
 
-        let signed_tx = ethereum
+        let signed_tx = rootstock
             .sign_prepared_tx(op.encoded_tx_data.clone(), tx_options)
             .await?;
 
@@ -695,7 +699,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         }
     }
 
-    /// Creates a new transaction for the existing Ethereum operation.
+    /// Creates a new transaction for the existing Rootstock operation.
     /// This method is used to create supplement transactions instead of the stuck one.
     async fn create_supplement_tx(
         &mut self,
@@ -705,7 +709,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         let tx_options = self.tx_options_from_stuck_tx(stuck_tx).await?;
 
         let raw_tx = stuck_tx.encoded_tx_data.clone();
-        let signed_tx = self.ethereum.sign_prepared_tx(raw_tx, tx_options).await?;
+        let signed_tx = self.rootstock.sign_prepared_tx(raw_tx, tx_options).await?;
 
         stuck_tx.last_deadline_block = deadline_block;
         stuck_tx.last_used_gas_price = signed_tx.gas_price;
@@ -724,7 +728,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
 
         let new_gas_price = self
             .gas_adjuster
-            .get_gas_price(&self.ethereum, Some(old_tx_gas_price))
+            .get_gas_price(&self.rootstock, Some(old_tx_gas_price))
             .await?;
         let nonce = stuck_tx.nonce;
         let gas_limit = Self::gas_limit_for_op(stuck_tx);
@@ -756,7 +760,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         match op {
             AggregatedOperation::CommitBlocks(operation) => {
                 let args = operation.get_eth_tx_args();
-                self.ethereum
+                self.rootstock
                     .encode_tx_data("commitBlocks", args.as_slice())
             }
             AggregatedOperation::CreateProofBlocks(..) => {
@@ -764,11 +768,12 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
             } // not for eth sender
             AggregatedOperation::PublishProofBlocksOnchain(operation) => {
                 let args = operation.get_eth_tx_args();
-                self.ethereum.encode_tx_data("proveBlocks", args.as_slice())
+                self.rootstock
+                    .encode_tx_data("proveBlocks", args.as_slice())
             }
             AggregatedOperation::ExecuteBlocks(operation) => {
                 let args = operation.get_eth_tx_args();
-                self.ethereum
+                self.rootstock
                     .encode_tx_data("executeBlocks", args.as_slice())
             }
         }
@@ -799,7 +804,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
 #[must_use]
 pub fn run_eth_sender(
     pool: ConnectionPool,
-    eth_gateway: EthereumGateway,
+    eth_gateway: RootstockGateway,
     options: ETHSenderConfig,
 ) -> JoinHandle<()> {
     let db = Database::new(pool);

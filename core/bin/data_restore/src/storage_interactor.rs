@@ -98,7 +98,7 @@ impl StorageInteractor<'_> {
     ///
     /// Ids of operations with no corresponding block in storage yet.
     /// These should not be removed from the events state until the next
-    /// Ethereum block range.
+    /// Rootstock block range.
     ///
     pub async fn apply_priority_op_data(
         &mut self,
@@ -123,7 +123,7 @@ impl StorageInteractor<'_> {
     ///
     /// * `block_events` - Rollup contract block events descriptions
     /// * `tokens` - Tokens that had been added to system
-    /// * `last_watched_eth_block_number` - Last watched ethereum block
+    /// * `last_watched_eth_block_number` - Last watched rootstock block
     ///
     pub async fn save_events_state(
         &mut self,

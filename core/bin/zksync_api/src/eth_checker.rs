@@ -4,7 +4,7 @@
 
 use web3::{contract::Options, types::Address};
 use zksync_contracts::eip1271_contract;
-use zksync_eth_client::ethereum_gateway::EthereumGateway;
+use zksync_eth_client::rootstock_gateway::RootstockGateway;
 use zksync_types::{
     tx::EIP1271Signature,
     {Nonce, PubKeyHash},
@@ -15,12 +15,12 @@ use zksync_types::{
 pub const EIP1271_SUCCESS_RETURN_VALUE: [u8; 4] = [0x16, 0x26, 0xba, 0x7e];
 
 #[derive(Clone)]
-pub struct EthereumChecker {
-    client: EthereumGateway,
+pub struct RootstockChecker {
+    client: RootstockGateway,
 }
 
-impl EthereumChecker {
-    pub fn new(client: EthereumGateway) -> Self {
+impl RootstockChecker {
+    pub fn new(client: RootstockGateway) -> Self {
         Self { client }
     }
 
@@ -91,11 +91,11 @@ impl EthereumChecker {
 
 #[cfg(test)]
 mod tests {
-    use super::EthereumChecker;
+    use super::RootstockChecker;
     use std::str::FromStr;
     use zksync_config::test_config::TestConfig;
     use zksync_contracts::zksync_contract;
-    use zksync_eth_client::ethereum_gateway::EthereumGateway;
+    use zksync_eth_client::rootstock_gateway::RootstockGateway;
     use zksync_eth_client::ETHDirectClient;
     use zksync_eth_signer::PrivateKeySigner;
     use zksync_types::{
@@ -120,7 +120,7 @@ mod tests {
         let transport =
             web3::transports::Http::new(web3_urls.first().expect("At least one should exist"))
                 .unwrap();
-        let client = EthereumGateway::Direct(ETHDirectClient::new(
+        let client = RootstockGateway::Direct(ETHDirectClient::new(
             transport,
             zksync_contract(),
             Default::default(),
@@ -130,7 +130,7 @@ mod tests {
             1.0,
         ));
 
-        let eth_checker = EthereumChecker::new(client);
+        let eth_checker = RootstockChecker::new(client);
 
         let result = eth_checker
             .is_eip1271_signature_correct(

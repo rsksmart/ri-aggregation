@@ -32,7 +32,7 @@ pub enum ClientError {
     #[error("Missing required field for a transaction: {0}")]
     MissingRequiredField(String),
 
-    #[error("Ethereum private key was not provided for this wallet")]
+    #[error("Rootstock private key was not provided for this wallet")]
     NoEthereumPrivateKey,
 
     #[error("Provided value is not packable")]

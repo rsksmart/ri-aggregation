@@ -200,7 +200,7 @@ export const command = new Command('run')
     .addCommand(dataRestore.command)
     .addCommand(eventListener.command);
 
-command.command('test-accounts').description('print ethereum test accounts').action(testAccounts);
+command.command('test-accounts').description('print rootstock test accounts').action(testAccounts);
 command.command('explorer').description('run zksync explorer locally').action(explorer);
 command.command('yarn').description('install all JS dependencies').action(yarn);
 command.command('test-upgrade <main_contract> <gatekeeper_contract>').action(testUpgrade);
@@ -278,7 +278,7 @@ command
 
 command
     .command('revert-reason <tx_hash> [web3_url]')
-    .description('get the revert reason for ethereum transaction')
+    .description('get the revert reason for rootstock transaction')
     .action(revertReason);
 
 command

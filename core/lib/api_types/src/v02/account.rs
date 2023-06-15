@@ -51,7 +51,7 @@ pub enum EthAccountType {
 ///
 /// Please note that since this response is based on the events that are
 /// currently awaiting confirmations, this information is approximate:
-/// blocks on Ethereum can be reverted, and final list of executed deposits
+/// blocks on Rootstock can be reverted, and final list of executed deposits
 /// can differ from this estimation.
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]

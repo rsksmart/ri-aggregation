@@ -116,9 +116,9 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<TokenData> {
             .map(|token| {
                 let symbol = token.symbol.to_lowercase();
                 let mut platforms = HashMap::new();
-                platforms.insert(String::from("ethereum"), token.address);
+                platforms.insert(String::from("rootstock"), token.address);
                 let id = match symbol.as_str() {
-                    "eth" => String::from("ethereum"),
+                    "eth" => String::from("rootstock"),
                     "wbtc" => String::from("wrapped-bitcoin"),
                     "bat" => String::from("basic-attention-token"),
                     "RBTC" => String::from("RSK-smart-bitcoin"),
@@ -153,7 +153,7 @@ async fn handle_coingecko_token_price_query(
 ) -> Result<HttpResponse> {
     let coin_id = req.match_info().get("coin_id");
     let base_price = match coin_id {
-        Some("ethereum") => BigDecimal::from(200),
+        Some("rootstock") => BigDecimal::from(200),
         Some("wrapped-bitcoin") => BigDecimal::from(9000),
         Some("basic-attention-token") => BigDecimal::try_from(0.2).unwrap(),
         Some("RSK-smart-bitcoin") => BigDecimal::from(18000),

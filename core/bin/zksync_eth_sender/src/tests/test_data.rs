@@ -72,7 +72,7 @@ fn gen_aggregated_operation(
             })
         }
         AggregatedActionType::CreateProofBlocks => {
-            panic!("Proof creation should never be sent to Ethereum");
+            panic!("Proof creation should never be sent to Rootstock");
         }
         AggregatedActionType::PublishProofBlocksOnchain => {
             AggregatedOperation::PublishProofBlocksOnchain(BlocksProofOperation {

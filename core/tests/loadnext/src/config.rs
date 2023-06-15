@@ -12,12 +12,12 @@ use serde::Deserialize;
 pub struct LoadtestConfig {
     /// Address of the zkSync node.
     pub zksync_rpc_addr: String,
-    /// Address of the Ethereum web3 API.
+    /// Address of the Rootstock web3 API.
     pub web3_url: String,
-    /// Used Ethereum network (e.g. `rinkeby` or `localhost`).
+    /// Used Rootstock network (e.g. `rinkeby` or `localhost`).
     pub eth_network: String,
 
-    /// Ethereum private key of the wallet that has funds to perform a test.
+    /// Rootstock private key of the wallet that has funds to perform a test.
     pub master_wallet_pk: String,
 
     /// Amount of accounts to be used in test.

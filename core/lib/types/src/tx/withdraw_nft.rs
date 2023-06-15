@@ -150,7 +150,7 @@ impl WithdrawNFT {
         }
     }
 
-    /// Get the first part of the message we expect to be signed by Ethereum account key.
+    /// Get the first part of the message we expect to be signed by Rootstock account key.
     /// The only difference is the missing `nonce` since it's added at the end of the transactions
     /// batch message.
     pub fn get_ethereum_sign_message_part(&self, fee_token_symbol: &str, decimals: u8) -> String {
@@ -175,7 +175,7 @@ impl WithdrawNFT {
         message
     }
 
-    /// Get message that should be signed by Ethereum keys of the account for 2-Factor authentication.
+    /// Get message that should be signed by Rootstock keys of the account for 2-Factor authentication.
     pub fn get_ethereum_sign_message(&self, token_symbol: &str, decimals: u8) -> String {
         let mut message = self.get_ethereum_sign_message_part(token_symbol, decimals);
         if !message.is_empty() {
