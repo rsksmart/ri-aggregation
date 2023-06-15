@@ -20,14 +20,14 @@ pub enum RegisterNFTFactoryEventParseError {
 pub struct RegisterNFTFactoryEvent {
     pub factory_address: Address,
     pub creator_address: Address,
-    pub eth_block: u64,
+    pub rsk_block: u64,
 }
 
 impl TryFrom<Log> for RegisterNFTFactoryEvent {
     type Error = RegisterNFTFactoryEventParseError;
 
     fn try_from(event: Log) -> Result<Self, Self::Error> {
-        let eth_block = match event.block_number {
+        let rsk_block = match event.block_number {
             Some(block_number) => block_number.as_u64(),
             None => return Err(RegisterNFTFactoryEventParseError::ParseLogError(event)),
         };
@@ -44,7 +44,7 @@ impl TryFrom<Log> for RegisterNFTFactoryEvent {
         Ok(Self {
             factory_address,
             creator_address,
-            eth_block,
+            rsk_block,
         })
     }
 }

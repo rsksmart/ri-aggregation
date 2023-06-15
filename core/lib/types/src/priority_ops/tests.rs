@@ -15,7 +15,7 @@ mod backward_compatibility {
         data: ZkSyncPriorityOp,
         deadline_block: u64,
         eth_hash: Vec<u8>,
-        eth_block: u64,
+        rsk_block: u64,
         eth_block_index: u64,
     }
 
@@ -31,7 +31,7 @@ mod backward_compatibility {
             data: ZkSyncPriorityOp::FullExit(operation),
             deadline_block: 100,
             eth_hash: vec![2; 32],
-            eth_block: 0,
+            rsk_block: 0,
             eth_block_index: 0,
         }
     }
@@ -45,7 +45,7 @@ mod backward_compatibility {
         assert_eq!(old_value.serial_id, new_value.serial_id);
         assert_eq!(old_value.deadline_block, new_value.deadline_block);
         assert_eq!(old_value.eth_hash, new_value.eth_hash.as_bytes().to_vec());
-        assert_eq!(old_value.eth_block, new_value.eth_block);
+        assert_eq!(old_value.rsk_block, new_value.rsk_block);
     }
 
     #[test]
@@ -70,7 +70,7 @@ mod backward_compatibility {
         assert_eq!(new_value_restored.serial_id, new_value.serial_id);
         assert_eq!(new_value_restored.deadline_block, new_value.deadline_block);
         assert_eq!(new_value_restored.eth_hash, new_value.eth_hash);
-        assert_eq!(new_value_restored.eth_block, new_value.eth_block);
+        assert_eq!(new_value_restored.rsk_block, new_value.rsk_block);
     }
 
     #[test]

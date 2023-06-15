@@ -16,16 +16,16 @@ use zksync_types::{
 };
 
 #[derive(Debug, Clone)]
-pub enum ZkSyncETHAccountData {
+pub enum ZkSyncRSKAccountData {
     /// Externally Owned Account that have private key
     EOA { eth_private_key: H256 },
     /// Smart contract accounts that can be created with CREATE2
     Create2(ChangePubKeyCREATE2Data),
 }
 
-impl ZkSyncETHAccountData {
+impl ZkSyncRSKAccountData {
     pub fn is_eoa(&self) -> bool {
-        matches!(self, ZkSyncETHAccountData::EOA { .. })
+        matches!(self, ZkSyncRSKAccountData::EOA { .. })
     }
 
     pub fn unwrap_eoa_pk(&self) -> H256 {
@@ -36,7 +36,7 @@ impl ZkSyncETHAccountData {
     }
 
     pub fn is_create2(&self) -> bool {
-        matches!(self, ZkSyncETHAccountData::Create2(..))
+        matches!(self, ZkSyncRSKAccountData::Create2(..))
     }
 }
 
@@ -45,7 +45,7 @@ pub struct ZkSyncAccount {
     pub private_key: PrivateKey,
     pub pubkey_hash: PubKeyHash,
     pub address: Address,
-    pub eth_account_data: ZkSyncETHAccountData,
+    pub rsk_account_data: ZkSyncRSKAccountData,
     account_id: Mutex<Option<AccountId>>,
     nonce: Mutex<Nonce>,
 }
@@ -56,7 +56,7 @@ impl Clone for ZkSyncAccount {
             private_key: priv_key_from_fs(self.private_key.0),
             pubkey_hash: self.pubkey_hash,
             address: self.address,
-            eth_account_data: self.eth_account_data.clone(),
+            rsk_account_data: self.rsk_account_data.clone(),
             account_id: Mutex::new(*self.account_id.lock().unwrap()),
             nonce: Mutex::new(*self.nonce.lock().unwrap()),
         }
@@ -75,7 +75,7 @@ impl fmt::Debug for ZkSyncAccount {
             .field("private_key", &pk_contents)
             .field("pubkey_hash", &self.pubkey_hash)
             .field("address", &self.address)
-            .field("eth_account_data", &self.eth_account_data)
+            .field("rsk_account_data", &self.rsk_account_data)
             .field("nonce", &self.nonce)
             .finish()
     }
@@ -110,7 +110,7 @@ impl ZkSyncAccount {
             pk,
             Nonce(0),
             eth_address,
-            ZkSyncETHAccountData::EOA { eth_private_key },
+            ZkSyncRSKAccountData::EOA { eth_private_key },
         )
     }
 
@@ -118,10 +118,10 @@ impl ZkSyncAccount {
         private_key: PrivateKey,
         nonce: Nonce,
         address: Address,
-        eth_account_data: ZkSyncETHAccountData,
+        rsk_account_data: ZkSyncRSKAccountData,
     ) -> Self {
         let pubkey_hash = PubKeyHash::from_privkey(&private_key);
-        if let ZkSyncETHAccountData::EOA { eth_private_key } = &eth_account_data {
+        if let ZkSyncRSKAccountData::EOA { eth_private_key } = &rsk_account_data {
             assert_eq!(
                 address,
                 PackedEthSignature::address_from_private_key(eth_private_key)
@@ -134,7 +134,7 @@ impl ZkSyncAccount {
             address,
             private_key,
             pubkey_hash,
-            eth_account_data,
+            rsk_account_data,
             nonce: Mutex::new(nonce),
         }
     }
@@ -188,7 +188,7 @@ impl ZkSyncAccount {
         }
 
         let eth_signature =
-            if let ZkSyncETHAccountData::EOA { eth_private_key } = &self.eth_account_data {
+            if let ZkSyncRSKAccountData::EOA { eth_private_key } = &self.rsk_account_data {
                 let message = mint_nft.get_ethereum_sign_message(token_symbol, 18);
                 Some(
                     PackedEthSignature::sign(eth_private_key, message.as_bytes())
@@ -234,7 +234,7 @@ impl ZkSyncAccount {
         }
 
         let eth_signature =
-            if let ZkSyncETHAccountData::EOA { eth_private_key } = &self.eth_account_data {
+            if let ZkSyncRSKAccountData::EOA { eth_private_key } = &self.rsk_account_data {
                 let message = withdraw_nft.get_ethereum_sign_message(token_symbol, 18);
                 Some(
                     PackedEthSignature::sign(eth_private_key, message.as_bytes())
@@ -311,7 +311,7 @@ impl ZkSyncAccount {
         }
 
         let eth_signature =
-            if let ZkSyncETHAccountData::EOA { eth_private_key } = &self.eth_account_data {
+            if let ZkSyncRSKAccountData::EOA { eth_private_key } = &self.rsk_account_data {
                 let message = swap.get_ethereum_sign_message(fee_token_symbol, 18);
                 Some(
                     PackedEthSignature::sign(eth_private_key, message.as_bytes())
@@ -357,7 +357,7 @@ impl ZkSyncAccount {
         }
 
         let eth_signature =
-            if let ZkSyncETHAccountData::EOA { eth_private_key } = &self.eth_account_data {
+            if let ZkSyncRSKAccountData::EOA { eth_private_key } = &self.rsk_account_data {
                 let message = transfer.get_ethereum_sign_message(token_symbol, 18);
                 Some(
                     PackedEthSignature::sign(eth_private_key, message.as_bytes())
@@ -434,7 +434,7 @@ impl ZkSyncAccount {
         }
 
         let eth_signature =
-            if let ZkSyncETHAccountData::EOA { eth_private_key } = &self.eth_account_data {
+            if let ZkSyncRSKAccountData::EOA { eth_private_key } = &self.rsk_account_data {
                 let message = withdraw.get_ethereum_sign_message(token_symbol, 18);
                 Some(
                     PackedEthSignature::sign(eth_private_key, message.as_bytes())
@@ -495,7 +495,7 @@ impl ZkSyncAccount {
         let eth_auth_data = match auth_type {
             ChangePubKeyType::Onchain => ChangePubKeyEthAuthData::Onchain,
             ChangePubKeyType::ECDSA => {
-                if let ZkSyncETHAccountData::EOA { eth_private_key } = &self.eth_account_data {
+                if let ZkSyncRSKAccountData::EOA { eth_private_key } = &self.rsk_account_data {
                     let sign_bytes = change_pubkey
                         .get_eth_signed_data()
                         .expect("Failed to construct change pubkey signed message.");
@@ -510,7 +510,7 @@ impl ZkSyncAccount {
                 }
             }
             ChangePubKeyType::CREATE2 => {
-                if let ZkSyncETHAccountData::Create2(create2_data) = &self.eth_account_data {
+                if let ZkSyncRSKAccountData::Create2(create2_data) = &self.rsk_account_data {
                     ChangePubKeyEthAuthData::CREATE2(create2_data.clone())
                 } else {
                     panic!("CREATE2 ChangePubKey can only be executed for CREATE2 account");
@@ -532,7 +532,7 @@ impl ZkSyncAccount {
     }
 
     pub fn try_get_eth_private_key(&self) -> Option<&H256> {
-        if let ZkSyncETHAccountData::EOA { eth_private_key } = &self.eth_account_data {
+        if let ZkSyncRSKAccountData::EOA { eth_private_key } = &self.rsk_account_data {
             Some(eth_private_key)
         } else {
             None

@@ -19,9 +19,9 @@ impl TestkitConfig {
     pub fn from_env() -> Self {
         let config = ZkSyncConfig::from_env();
         TestkitConfig {
-            chain_id: config.eth_client.chain_id,
-            gas_price_factor: config.eth_client.gas_price_factor,
-            web3_url: config.eth_client.web3_url(),
+            chain_id: config.rsk_client.chain_id,
+            gas_price_factor: config.rsk_client.gas_price_factor,
+            web3_url: config.rsk_client.web3_url(),
             contract_upgrade_eth_blocks: config.contracts.upgrade_eth_blocks,
             init_contract_version: config.contracts.init_contract_version,
         }
@@ -29,7 +29,7 @@ impl TestkitConfig {
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
-pub struct ETHAccountId(pub usize);
+pub struct RSKAccountId(pub usize);
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct ZKSyncAccountId(pub usize);
@@ -70,7 +70,7 @@ impl BlockExecutionResult {
 // Struct used to keep expected balance changes after transactions execution.
 #[derive(Default, Debug)]
 pub struct ExpectedAccountState {
-    pub eth_accounts_state: HashMap<(ETHAccountId, TokenId), BigUint>,
+    pub eth_accounts_state: HashMap<(RSKAccountId, TokenId), BigUint>,
     pub sync_accounts_state: HashMap<(ZKSyncAccountId, TokenId), BigUint>,
 
     // Amount of withdraw operations performed in block.

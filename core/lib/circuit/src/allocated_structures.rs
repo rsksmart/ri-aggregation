@@ -131,7 +131,7 @@ impl<E: RescueEngine> AllocatedOperationData<E> {
     pub fn empty_from_zero(zero_element: AllocatedNum<E>) -> Result<Self, SynthesisError> {
         let eth_address = CircuitElement::unsafe_empty_of_some_length(
             zero_element.clone(),
-            franklin_constants::ETH_ADDRESS_BIT_WIDTH,
+            franklin_constants::RSK_ADDRESS_BIT_WIDTH,
         );
 
         let full_amount = CircuitElement::unsafe_empty_of_some_length(
@@ -315,7 +315,7 @@ impl<E: RescueEngine> AllocatedOperationData<E> {
         let eth_address = CircuitElement::from_fe_with_known_length(
             cs.namespace(|| "eth_address"),
             || op.args.eth_address.grab(),
-            franklin_constants::ETH_ADDRESS_BIT_WIDTH,
+            franklin_constants::RSK_ADDRESS_BIT_WIDTH,
         )?;
 
         parse_circuit_elements!(special_content_hash, 1);
@@ -325,7 +325,7 @@ impl<E: RescueEngine> AllocatedOperationData<E> {
         parse_circuit_elements!(special_prices, franklin_constants::PRICE_BIT_WIDTH);
         parse_circuit_elements!(
             special_eth_addresses,
-            franklin_constants::ETH_ADDRESS_BIT_WIDTH
+            franklin_constants::RSK_ADDRESS_BIT_WIDTH
         );
 
         let special_serial_id = CircuitElement::from_fe_with_known_length(

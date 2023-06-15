@@ -283,16 +283,16 @@ impl<'a, 'c> DataRestoreSchema<'a, 'c> {
             let serial_id = priority_op.serial_id;
             let tx_hash = priority_op.tx_hash().as_ref().to_vec();
             let eth_hash = priority_op.eth_hash.as_bytes().to_vec();
-            let eth_block = priority_op.eth_block as i64;
+            let rsk_block = priority_op.rsk_block as i64;
             let eth_block_index = priority_op.eth_block_index.map(|i| i as i64);
 
             let result = sqlx::query!(
                 "UPDATE executed_priority_operations 
-                SET tx_hash = $1, eth_hash = $2, eth_block = $3, eth_block_index = $4
+                SET tx_hash = $1, eth_hash = $2, rsk_block = $3, eth_block_index = $4
                 WHERE priority_op_serialid = $5",
                 tx_hash,
                 eth_hash,
-                eth_block,
+                rsk_block,
                 eth_block_index,
                 serial_id as i64
             )
@@ -378,7 +378,7 @@ impl<'a, 'c> DataRestoreSchema<'a, 'c> {
         let start = Instant::now();
 
         sqlx::query!(
-            "UPDATE eth_parameters
+            "UPDATE rsk_parameters
             SET last_committed_block = $1, last_verified_block = $2, last_executed_block = $3
             WHERE id = true",
             *last_committed_block as i64,

@@ -5,16 +5,16 @@ import * as chalk from 'chalk';
 const warning = chalk.bold.yellow;
 
 export function web3Url() {
-    return process.env.ETH_CLIENT_WEB3_URL.split(',')[0] as string;
+    return process.env.RSK_CLIENT_WEB3_URL.split(',')[0] as string;
 }
 
 export function web3CustomProvider(url: string) {
     const provider = new ethers.providers.JsonRpcProvider(url);
 
-    // Check that `CHAIN_ETH_NETWORK` variable is set. If not, it's most likely because
+    // Check that `CHAIN_RSK_NETWORK` variable is set. If not, it's most likely because
     // the variable was renamed. As this affects the time to deploy contracts in localhost
     // scenario, it surely deserves a warning.
-    const network = process.env.CHAIN_ETH_NETWORK;
+    const network = process.env.CHAIN_RSK_NETWORK;
     if (!network) {
         console.log(warning('Network variable is not set. Check if contracts/scripts/utils.ts is correct'));
     }

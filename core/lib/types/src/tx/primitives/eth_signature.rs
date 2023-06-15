@@ -9,7 +9,8 @@ use crate::tx::{EIP1271Signature, PackedEthSignature};
 /// or on-chain signature via EIP-1271.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type", content = "signature")]
-pub enum TxEthSignature {
+pub enum 
+TxEthSignature {
     EthereumSignature(PackedEthSignature),
     EIP1271Signature(EIP1271Signature),
 }

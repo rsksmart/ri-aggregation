@@ -8,7 +8,7 @@
 //! * It is useful to calculate cost of the "griefing" attack.
 //! We don't take fees for deposit and full exit, but we must process them, so it is possible to spam us and force us to spend money.
 
-use crate::eth_account::RootstockAccount;
+use crate::rsk_account::RootstockAccount;
 use crate::external_commands::{deploy_contracts, get_test_accounts};
 use crate::zksync_account::ZkSyncAccount;
 use num::{rational::Ratio, traits::Pow, BigInt, BigUint};
@@ -22,7 +22,7 @@ use zksync_crypto::params::{
 };
 use zksync_crypto::rand::{Rng, SeedableRng, XorShiftRng};
 use zksync_crypto::{priv_key_from_fs, rand};
-use zksync_testkit::zksync_account::ZkSyncETHAccountData;
+use zksync_testkit::zksync_account::ZkSyncRSKAccountData;
 use zksync_testkit::*;
 use zksync_types::{
     helpers::{pack_fee_amount, pack_token_amount, unpack_fee_amount, unpack_token_amount},
@@ -220,7 +220,7 @@ async fn gas_price_test() {
         testkit_config.chain_id,
         testkit_config.gas_price_factor,
     );
-    let eth_accounts = test_accounts_info
+    let rsk_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
             RootstockAccount::new(
@@ -236,14 +236,14 @@ async fn gas_price_test() {
 
     let zksync_accounts = {
         let mut zksync_accounts = vec![fee_account];
-        zksync_accounts.extend(eth_accounts.iter().map(|eth_account| {
+        zksync_accounts.extend(rsk_accounts.iter().map(|rsk_account| {
             let rng_zksync_key = ZkSyncAccount::rand().private_key;
             ZkSyncAccount::new(
                 rng_zksync_key,
                 Nonce(0),
-                eth_account.address,
-                ZkSyncETHAccountData::EOA {
-                    eth_private_key: eth_account.private_key,
+                rsk_account.address,
+                ZkSyncRSKAccountData::EOA {
+                    eth_private_key: rsk_account.private_key,
                 },
             )
         }));
@@ -251,7 +251,7 @@ async fn gas_price_test() {
     };
 
     let accounts = AccountSet {
-        eth_accounts,
+        rsk_accounts,
         zksync_accounts,
         fee_account_id: ZKSyncAccountId(0),
     };
@@ -375,7 +375,7 @@ async fn commit_cost_of_mint_nft(
     test_setup.start_block();
     test_setup
         .deposit(
-            ETHAccountId(1),
+            RSKAccountId(1),
             ZKSyncAccountId(1),
             Token(TokenId(0)),
             deposit_amount,
@@ -384,7 +384,7 @@ async fn commit_cost_of_mint_nft(
     // create account 2
     test_setup
         .deposit(
-            ETHAccountId(2),
+            RSKAccountId(2),
             ZKSyncAccountId(2),
             Token(TokenId(0)),
             BigUint::from(1u32),
@@ -447,7 +447,7 @@ async fn commit_cost_of_transfers(
     test_setup.start_block();
     test_setup
         .deposit(
-            ETHAccountId(1),
+            RSKAccountId(1),
             ZKSyncAccountId(1),
             Token(TokenId(0)),
             deposit_amount,
@@ -456,7 +456,7 @@ async fn commit_cost_of_transfers(
     // create account 2
     test_setup
         .deposit(
-            ETHAccountId(2),
+            RSKAccountId(2),
             ZKSyncAccountId(2),
             Token(TokenId(0)),
             BigUint::from(1u32),
@@ -524,7 +524,7 @@ async fn commit_cost_of_swaps(
     test_setup.start_block();
     test_setup
         .deposit(
-            ETHAccountId(1),
+            RSKAccountId(1),
             ZKSyncAccountId(1),
             Token(TokenId(0)),
             deposit_amount_0,
@@ -533,7 +533,7 @@ async fn commit_cost_of_swaps(
     test_setup.start_block();
     test_setup
         .deposit(
-            ETHAccountId(2),
+            RSKAccountId(2),
             ZKSyncAccountId(2),
             Token(TokenId(1)),
             deposit_amount_1,
@@ -541,7 +541,7 @@ async fn commit_cost_of_swaps(
         .await;
     test_setup
         .deposit(
-            ETHAccountId(3),
+            RSKAccountId(3),
             ZKSyncAccountId(3),
             Token(TokenId(1)),
             fee_amount,
@@ -549,7 +549,7 @@ async fn commit_cost_of_swaps(
         .await;
     test_setup
         .deposit(
-            ETHAccountId(1),
+            RSKAccountId(1),
             ZKSyncAccountId(4),
             Token(TokenId(0)),
             1u32.into(),
@@ -557,7 +557,7 @@ async fn commit_cost_of_swaps(
         .await;
     test_setup
         .deposit(
-            ETHAccountId(1),
+            RSKAccountId(1),
             ZKSyncAccountId(5),
             Token(TokenId(0)),
             1u32.into(),
@@ -628,7 +628,7 @@ async fn commit_cost_of_transfers_to_new(
     test_setup.start_block();
     test_setup
         .deposit(
-            ETHAccountId(1),
+            RSKAccountId(1),
             ZKSyncAccountId(1),
             Token(TokenId(0)),
             deposit_amount,
@@ -688,7 +688,7 @@ async fn commit_cost_of_withdrawals_nft(
     test_setup.start_block();
     test_setup
         .deposit(
-            ETHAccountId(1),
+            RSKAccountId(1),
             ZKSyncAccountId(1),
             Token(TokenId(0)),
             deposit_amount.clone(),
@@ -696,7 +696,7 @@ async fn commit_cost_of_withdrawals_nft(
         .await;
     test_setup
         .deposit(
-            ETHAccountId(2),
+            RSKAccountId(2),
             ZKSyncAccountId(2),
             Token(TokenId(0)),
             deposit_amount,
@@ -775,7 +775,7 @@ async fn commit_cost_of_withdrawals(
 
     test_setup.start_block();
     test_setup
-        .deposit(ETHAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
+        .deposit(RSKAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
         .await;
     test_setup
         .change_pubkey_with_tx(ZKSyncAccountId(1), token, 0u32.into())
@@ -824,7 +824,7 @@ async fn commit_cost_of_deposits(
     test_setup.start_block();
     for amount in amounts.into_iter() {
         let deposit_tx_receipt = test_setup
-            .deposit_to_random(ETHAccountId(4), token, amount.clone(), rng)
+            .deposit_to_random(RSKAccountId(4), token, amount.clone(), rng)
             .await
             .last()
             .cloned()
@@ -853,7 +853,7 @@ async fn commit_cost_of_full_exits(
     test_setup.start_block();
     test_setup
         .deposit(
-            ETHAccountId(3),
+            RSKAccountId(3),
             ZKSyncAccountId(4),
             token,
             BigUint::from(1u32),
@@ -867,7 +867,7 @@ async fn commit_cost_of_full_exits(
     test_setup.start_block();
     for _ in 0..n_full_exits {
         let (full_exit_tx_receipt, _) = test_setup
-            .full_exit(ETHAccountId(3), ZKSyncAccountId(4), token)
+            .full_exit(RSKAccountId(3), ZKSyncAccountId(4), token)
             .await;
         user_gas_cost += full_exit_tx_receipt.gas_used.expect("full exit gas used");
     }
@@ -932,7 +932,7 @@ async fn commit_cost_of_change_pubkey(
 
     test_setup.start_block();
     test_setup
-        .deposit(ETHAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
+        .deposit(RSKAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
         .await;
     test_setup
         .change_pubkey_with_tx(ZKSyncAccountId(1), token, 0u32.into())
@@ -974,7 +974,7 @@ async fn commit_cost_of_onchain_change_pubkey(
 
     test_setup.start_block();
     test_setup
-        .deposit(ETHAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
+        .deposit(RSKAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
         .await;
     test_setup
         .change_pubkey_with_tx(ZKSyncAccountId(1), token, 0u32.into())
@@ -988,7 +988,7 @@ async fn commit_cost_of_onchain_change_pubkey(
     for _ in 0..n_change_pubkeys {
         test_setup
             .change_pubkey_with_onchain_auth(
-                ETHAccountId(0),
+                RSKAccountId(0),
                 ZKSyncAccountId(1),
                 token,
                 0u32.into(),
@@ -1024,7 +1024,7 @@ async fn commit_cost_of_create2_change_pubkey(
 
     test_setup.start_block();
     test_setup
-        .deposit(ETHAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
+        .deposit(RSKAccountId(1), ZKSyncAccountId(1), token, deposit_amount)
         .await;
     test_setup
         .change_pubkey_with_tx(ZKSyncAccountId(1), token, 0u32.into())
@@ -1042,7 +1042,7 @@ async fn commit_cost_of_create2_change_pubkey(
             pk,
             Nonce(0),
             address,
-            ZkSyncETHAccountData::Create2(create2_data),
+            ZkSyncRSKAccountData::Create2(create2_data),
         );
         test_setup
             .accounts

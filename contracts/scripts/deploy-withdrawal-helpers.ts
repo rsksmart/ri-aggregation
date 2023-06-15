@@ -14,7 +14,7 @@ const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, {
 
 async function main() {
     try {
-        if (!['test', 'localhost'].includes(process.env.CHAIN_ETH_NETWORK)) {
+        if (!['test', 'localhost'].includes(process.env.CHAIN_RSK_NETWORK)) {
             console.error('This deploy script is only for localhost-test network');
             process.exit(1);
         }

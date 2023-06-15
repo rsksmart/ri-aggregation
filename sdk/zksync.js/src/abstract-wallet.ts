@@ -23,7 +23,7 @@ import {
     ERC20_APPROVE_TRESHOLD,
     ERC20_DEPOSIT_GAS_LIMIT,
     ERC20_RECOMMENDED_DEPOSIT_GAS_LIMIT,
-    ETH_RECOMMENDED_DEPOSIT_GAS_LIMIT,
+    RSK_RECOMMENDED_DEPOSIT_GAS_LIMIT,
     getRootstockBalance,
     IERC20_INTERFACE,
     isTokenETH,
@@ -470,7 +470,7 @@ export abstract class AbstractWallet {
             try {
                 ethTransaction = await mainZkSyncContract.depositETH(deposit.depositTo, {
                     value: BigNumber.from(deposit.amount),
-                    gasLimit: BigNumber.from(ETH_RECOMMENDED_DEPOSIT_GAS_LIMIT),
+                    gasLimit: BigNumber.from(RSK_RECOMMENDED_DEPOSIT_GAS_LIMIT),
                     gasPrice,
                     ...deposit.ethTxOptions
                 });

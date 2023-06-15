@@ -20,7 +20,7 @@ use zksync_utils::panic_notify::{spawn_panic_handler, ThreadPanicNotify};
 use crate::fee_ticker::FeeTicker;
 use crate::{
     api_server::event_notify::{start_sub_notifier, EventNotifierRequest, EventSubscribeRequest},
-    api_server::rpc_server::types::{ETHOpInfoResp, ResponseAccountState, TransactionInfoResp},
+    api_server::rpc_server::types::{RSKOpInfoResp, ResponseAccountState, TransactionInfoResp},
     signature_checker::VerifySignatureRequest,
 };
 
@@ -44,7 +44,7 @@ pub trait RpcPubSub {
     ) -> Result<bool>;
 
     #[pubsub(
-        subscription = "eth_op",
+        subscription = "rsk_op",
         subscribe,
         name = "ethop_subscribe",
         alias("ethop_sub")
@@ -52,11 +52,11 @@ pub trait RpcPubSub {
     fn subscribe_ethop(
         &self,
         meta: Self::Metadata,
-        subscriber: Subscriber<ETHOpInfoResp>,
+        subscriber: Subscriber<RSKOpInfoResp>,
         serial_id: u64,
         action_type: ActionType,
     );
-    #[pubsub(subscription = "eth_op", unsubscribe, name = "ethop_unsubscribe")]
+    #[pubsub(subscription = "rsk_op", unsubscribe, name = "ethop_unsubscribe")]
     fn unsubscribe_ethop(
         &self,
         meta: Option<Self::Metadata>,
@@ -119,7 +119,7 @@ impl RpcPubSub for RpcSubApp {
     fn subscribe_ethop(
         &self,
         _meta: Self::Metadata,
-        subscriber: Subscriber<ETHOpInfoResp>,
+        subscriber: Subscriber<RSKOpInfoResp>,
         serial_id: u64,
         action: ActionType,
     ) {

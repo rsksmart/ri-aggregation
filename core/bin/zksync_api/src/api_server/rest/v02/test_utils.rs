@@ -368,7 +368,7 @@ impl TestServerConfig {
         let mut rng = XorShiftRng::from_seed([0, 1, 2, 3]);
 
         // Required since we use `RootstockSchema` in this test.
-        storage.rootstock_schema().initialize_eth_data().await?;
+        storage.rootstock_schema().initialize_rsk_data().await?;
 
         // Insert PHNX token
         storage
@@ -494,7 +494,7 @@ impl TestServerConfig {
             let eth_tx_hash = dummy_rootstock_tx_hash(id);
             let response = storage
                 .rootstock_schema()
-                .save_new_eth_tx(
+                .save_new_rsk_tx(
                     AggregatedActionType::CommitBlocks,
                     Some((id, op)),
                     100,
@@ -508,7 +508,7 @@ impl TestServerConfig {
                 .await?;
             storage
                 .rootstock_schema()
-                .confirm_eth_tx(&eth_tx_hash)
+                .confirm_rsk_tx(&eth_tx_hash)
                 .await?;
 
             // Add verification for the block if required.
@@ -580,7 +580,7 @@ impl TestServerConfig {
 
                 let response = storage
                     .rootstock_schema()
-                    .save_new_eth_tx(
+                    .save_new_rsk_tx(
                         AggregatedActionType::PublishProofBlocksOnchain,
                         Some((id, op)),
                         100,
@@ -595,7 +595,7 @@ impl TestServerConfig {
                     .await?;
                 storage
                     .rootstock_schema()
-                    .confirm_eth_tx(&eth_tx_hash)
+                    .confirm_rsk_tx(&eth_tx_hash)
                     .await?;
             }
 
@@ -621,7 +621,7 @@ impl TestServerConfig {
                 let eth_tx_hash = dummy_rootstock_tx_hash(id);
                 let response = storage
                     .rootstock_schema()
-                    .save_new_eth_tx(
+                    .save_new_rsk_tx(
                         AggregatedActionType::ExecuteBlocks,
                         Some((id, op)),
                         100,
@@ -635,7 +635,7 @@ impl TestServerConfig {
                     .await?;
                 storage
                     .rootstock_schema()
-                    .confirm_eth_tx(&eth_tx_hash)
+                    .confirm_rsk_tx(&eth_tx_hash)
                     .await?;
                 storage
                     .chain()
@@ -662,7 +662,7 @@ impl TestServerConfig {
                 eth_hash: dummy_rootstock_tx_hash(VERIFIED_OP_SERIAL_ID as i64)
                     .as_bytes()
                     .to_vec(),
-                eth_block: 10,
+                rsk_block: 10,
                 created_at: chrono::Utc::now(),
                 eth_block_index: Some(1),
                 tx_hash: dummy_rootstock_tx_hash(VERIFIED_OP_SERIAL_ID as i64)
@@ -687,7 +687,7 @@ impl TestServerConfig {
                 eth_hash: dummy_rootstock_tx_hash(COMMITTED_OP_SERIAL_ID as i64)
                     .as_bytes()
                     .to_vec(),
-                eth_block: 14,
+                rsk_block: 14,
                 created_at: chrono::Utc::now(),
                 eth_block_index: Some(1),
                 tx_hash: dummy_rootstock_tx_hash(COMMITTED_OP_SERIAL_ID as i64)
@@ -752,7 +752,7 @@ pub fn dummy_deposit_op(
             data: deposit_op.try_get_priority_op().unwrap(),
             deadline_block: 0,
             eth_hash: H256::default(),
-            eth_block: 10,
+            rsk_block: 10,
             eth_block_index: Some(1),
         },
         op: deposit_op,
@@ -788,7 +788,7 @@ pub fn dummy_full_exit_op(
             data: deposit_op.try_get_priority_op().unwrap(),
             deadline_block: 0,
             eth_hash: H256::default(),
-            eth_block: 10,
+            rsk_block: 10,
             eth_block_index: Some(1),
         },
         op: deposit_op,

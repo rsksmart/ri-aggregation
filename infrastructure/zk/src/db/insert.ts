@@ -34,7 +34,7 @@ export async function ethData() {
     const body = {
         jsonrpc: '2.0',
         method: 'eth_getTransactionCount',
-        params: [process.env.ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR as string, 'pending'],
+        params: [process.env.RSK_SENDER_SENDER_OPERATOR_COMMIT_RSK_ADDR as string, 'pending'],
         id: 1
     };
     const reponse = await fetch(web3Url(), {
@@ -47,7 +47,7 @@ export async function ethData() {
     });
     const nonce = parseInt((await reponse.json()).result);
     await utils.exec(`${SQL()} "INSERT INTO eth_parameters (nonce, gas_price_limit, last_committed_block, last_verified_block, last_executed_block)
-                     VALUES ('${nonce}', '${process.env.ETH_SENDER_GAS_PRICE_LIMIT_DEFAULT}', 0, 0, 0)
+                     VALUES ('${nonce}', '${process.env.RSK_SENDER_GAS_PRICE_LIMIT_DEFAULT}', 0, 0, 0)
                      ON CONFLICT (id) DO UPDATE SET (nonce, last_committed_block, last_verified_block, last_executed_block) = ('${nonce}', 0, 0, 0)"`);
 }
 

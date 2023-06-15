@@ -9,20 +9,20 @@ use crate::envy_load;
 
 /// Configuration for the Rootstock sender crate.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
-pub struct ETHSenderConfig {
+pub struct RSKSenderConfig {
     /// Options related to the Rootstock sender directly.
     pub sender: Sender,
     /// Options related to the `gas_adjuster` submodule.
     pub gas_price_limit: GasLimit,
 }
 
-impl ETHSenderConfig {
+impl RSKSenderConfig {
     pub fn from_env() -> Self {
         Self {
-            sender: envy_load!("eth_sender", "ETH_SENDER_SENDER_"),
+            sender: envy_load!("eth_sender", "RSK_SENDER_SENDER_"),
             gas_price_limit: envy_load!(
                 "eth_sender.gas_price_limit",
-                "ETH_SENDER_GAS_PRICE_LIMIT_"
+                "RSK_SENDER_GAS_PRICE_LIMIT_"
             ),
         }
     }
@@ -82,8 +82,8 @@ mod tests {
     use super::*;
     use crate::configs::test_utils::{addr, hash, set_env};
 
-    fn expected_config() -> ETHSenderConfig {
-        ETHSenderConfig {
+    fn expected_config() -> RSKSenderConfig {
+        RSKSenderConfig {
             sender: Sender {
                 wait_confirmations: 1,
                 expected_wait_time_block: 30,
@@ -107,21 +107,21 @@ mod tests {
     #[test]
     fn from_env() {
         let config = r#"
-ETH_SENDER_SENDER_WAIT_CONFIRMATIONS="1"
-ETH_SENDER_SENDER_EXPECTED_WAIT_TIME_BLOCK="30"
-ETH_SENDER_SENDER_TX_POLL_PERIOD="3"
-ETH_SENDER_SENDER_MAX_TXS_IN_FLIGHT="3"
-ETH_SENDER_SENDER_IS_ENABLED="true"
-ETH_SENDER_SENDER_OPERATOR_PRIVATE_KEY="0xc1783a9a8222e47778911c58bb5aac1343eb425159ff140799e0a283bfb8fa16"
-ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR="0xdebe71e1de41fc77c44df4b6db940026e31b0e71"
-ETH_SENDER_GAS_PRICE_LIMIT_DEFAULT="400000000000"
-ETH_SENDER_GAS_PRICE_LIMIT_UPDATE_INTERVAL="150"
-ETH_SENDER_GAS_PRICE_LIMIT_SAMPLE_INTERVAL="15"
-ETH_SENDER_GAS_PRICE_LIMIT_SCALE_FACTOR="1"
+RSK_SENDER_SENDER_WAIT_CONFIRMATIONS="1"
+RSK_SENDER_SENDER_EXPECTED_WAIT_TIME_BLOCK="30"
+RSK_SENDER_SENDER_TX_POLL_PERIOD="3"
+RSK_SENDER_SENDER_MAX_TXS_IN_FLIGHT="3"
+RSK_SENDER_SENDER_IS_ENABLED="true"
+RSK_SENDER_SENDER_OPERATOR_PRIVATE_KEY="0xc1783a9a8222e47778911c58bb5aac1343eb425159ff140799e0a283bfb8fa16"
+RSK_SENDER_SENDER_OPERATOR_COMMIT_RSK_ADDR="0xdebe71e1de41fc77c44df4b6db940026e31b0e71"
+RSK_SENDER_GAS_PRICE_LIMIT_DEFAULT="400000000000"
+RSK_SENDER_GAS_PRICE_LIMIT_UPDATE_INTERVAL="150"
+RSK_SENDER_GAS_PRICE_LIMIT_SAMPLE_INTERVAL="15"
+RSK_SENDER_GAS_PRICE_LIMIT_SCALE_FACTOR="1"
         "#;
         set_env(config);
 
-        let actual = ETHSenderConfig::from_env();
+        let actual = RSKSenderConfig::from_env();
         assert_eq!(actual, expected_config());
     }
 

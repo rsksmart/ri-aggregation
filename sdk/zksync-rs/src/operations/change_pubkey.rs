@@ -1,5 +1,5 @@
 use num::BigUint;
-use zksync_eth_signer::RootstockSigner;
+use zksync_rsk_signer::RootstockSigner;
 use zksync_types::{
     helpers::{closest_packable_fee_amount, is_fee_amount_packable},
     tokens::TxFeeTypes,

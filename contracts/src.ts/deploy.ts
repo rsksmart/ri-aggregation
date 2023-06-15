@@ -253,7 +253,7 @@ export class Deployer {
                 this.addresses.VerifierTarget,
                 this.addresses.ZkSyncTarget,
                 genesis_root,
-                process.env.ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR,
+                process.env.RSK_SENDER_SENDER_OPERATOR_COMMIT_RSK_ADDR,
                 this.governorAddress,
                 process.env.CHAIN_STATE_KEEPER_FEE_ACCOUNT_ADDR
             ],

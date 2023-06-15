@@ -13,7 +13,7 @@ use crate::envy_load;
 pub struct TokenHandlerConfig {
     /// The name of the trusted list of tokens.
     pub token_list_name: String,
-    /// The number of seconds that set the request period to EthWatcher.
+    /// The number of seconds that set the request period to RSKWatcher.
     pub poll_interval: u64,
     /// Link to MatterMost channel for token list notification.
     pub webhook_url: String,

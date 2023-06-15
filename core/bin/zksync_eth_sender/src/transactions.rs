@@ -7,14 +7,14 @@
 // External uses
 use zksync_basic_types::TransactionReceipt;
 // Workspace uses
-use zksync_storage::rootstock::records::ETHStats as StorageETHStats;
+use zksync_storage::rootstock::records::RSKStats as StorageETHStats;
 
 /// Collected statistics of the amount of operations sent to the Rootstock.
 /// This structure represents the count of **operations**, and not transactions.
 /// It means that if for some operation there were N txs sent, it will be counted as
 /// 1 operation anyway.
 #[derive(Debug, Default, Clone, PartialEq)]
-pub struct ETHStats {
+pub struct RSKStats {
     /// Number of the last block for which was committed.
     pub last_committed_block: usize,
     /// Number of the last block for which was verified.
@@ -23,7 +23,7 @@ pub struct ETHStats {
     pub last_executed_block: usize,
 }
 
-impl From<StorageETHStats> for ETHStats {
+impl From<StorageETHStats> for RSKStats {
     fn from(stored: StorageETHStats) -> Self {
         Self {
             last_committed_block: stored.last_committed_block as usize,

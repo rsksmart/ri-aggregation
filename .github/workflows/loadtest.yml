@@ -195,7 +195,7 @@ jobs:
       OPERATIONS_PER_ACCOUNT: 20
       MAIN_TOKEN: "BAT"
       ZKSYNC_RPC_ADDR: "https://rinkeby-beta-api.zksync.io/jsrpc"
-      ETH_NETWORK: "rinkeby"
+      RSK_NETWORK: "rinkeby"
       ALLOWED_PERCENT: 10
       RUST_LOG: loadnext=debug
     steps:

@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use structopt::StructOpt;
 use web3::transports::Http;
-use zksync_config::configs::{ChainConfig, ContractsConfig as EnvContractsConfig, ETHClientConfig};
+use zksync_config::configs::{ChainConfig, ContractsConfig as EnvContractsConfig, RSKClientConfig};
 use zksync_crypto::convert::FeConvert;
 use zksync_storage::ConnectionPool;
 use zksync_types::{Address, H256};
@@ -11,7 +11,7 @@ use zksync_data_restore::contract::ZkSyncDeployedContract;
 use zksync_data_restore::{
     add_tokens_to_storage, data_restore_driver::DataRestoreDriver,
     database_storage_interactor::DatabaseStorageInteractor, storage_interactor::StorageInteractor,
-    END_ETH_BLOCKS_OFFSET, ETH_BLOCKS_STEP,
+    END_RSK_BLOCKS_OFFSET, RSK_BLOCKS_STEP,
 };
 use zksync_types::network::Network;
 
@@ -88,7 +88,7 @@ async fn main() {
     let opt = Opt::from_args();
 
     let web3_url = opt.web3_url.unwrap_or_else(|| {
-        let config_opts = ETHClientConfig::from_env();
+        let config_opts = RSKClientConfig::from_env();
         config_opts.web3_url()
     });
 
@@ -116,8 +116,8 @@ async fn main() {
         config.governance_addr,
         config.upgrade_eth_blocks,
         config.init_contract_version,
-        ETH_BLOCKS_STEP,
-        END_ETH_BLOCKS_OFFSET,
+        RSK_BLOCKS_STEP,
+        END_RSK_BLOCKS_OFFSET,
         finite_mode,
         final_hash,
         contract,

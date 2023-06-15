@@ -13,17 +13,17 @@ use web3::{
 };
 use zksync_contracts::{erc20_contract, zksync_contract};
 use zksync_crypto::proof::EncodedSingleProof;
-use zksync_eth_client::ETHDirectClient;
-use zksync_eth_signer::PrivateKeySigner;
+use zksync_rsk_client::RSKDirectClient;
+use zksync_rsk_signer::PrivateKeySigner;
 use zksync_types::aggregated_operations::{
     stored_block_info, BlocksCommitOperation, BlocksExecuteOperation, BlocksProofOperation,
 };
 use zksync_types::block::Block;
 use zksync_types::{AccountId, Address, Nonce, PriorityOp, PubKeyHash, TokenId, ZkSyncTx};
 
-pub fn parse_ether(eth_value: &str) -> Result<BigUint, anyhow::Error> {
-    let split = eth_value.split('.').collect::<Vec<&str>>();
-    ensure!(split.len() == 1 || split.len() == 2, "Wrong eth value");
+pub fn parse_rbtc(rbtc_value: &str) -> Result<BigUint, anyhow::Error> {
+    let split = rbtc_value.split('.').collect::<Vec<&str>>();
+    ensure!(split.len() == 1 || split.len() == 2, "Wrong rbtc value");
     let string_wei_value = if split.len() == 1 {
         format!("{}000000000000000000", split[0])
     } else if split.len() == 2 {
@@ -31,7 +31,7 @@ pub fn parse_ether(eth_value: &str) -> Result<BigUint, anyhow::Error> {
         let after_dot = split[1];
         ensure!(
             after_dot.len() <= 18,
-            "ETH value can have up to 18 digits after dot."
+            "RBTC value can have up to 18 digits after dot."
         );
         let zeros_to_pad = 18 - after_dot.len();
         format!("{}{}{}", before_dot, after_dot, "0".repeat(zeros_to_pad))
@@ -42,12 +42,12 @@ pub fn parse_ether(eth_value: &str) -> Result<BigUint, anyhow::Error> {
     Ok(BigUint::from_str(&string_wei_value)?)
 }
 
-/// Used to sign and post ETH transactions for the zkSync contracts.
+/// Used to sign and post RSK transactions for the zkSync contracts.
 #[derive(Debug, Clone)]
 pub struct RootstockAccount {
     pub private_key: H256,
     pub address: Address,
-    pub main_contract_eth_client: ETHDirectClient<PrivateKeySigner>,
+    pub main_contract_rsk_client: RSKDirectClient<PrivateKeySigner>,
 }
 
 fn big_dec_to_u256(bd: BigUint) -> U256 {
@@ -74,12 +74,12 @@ impl RootstockAccount {
         chain_id: u64,
         gas_price_factor: f64,
     ) -> Self {
-        let eth_signer = PrivateKeySigner::new(private_key);
-        let main_contract_eth_client = ETHDirectClient::new(
+        let rsk_signer = PrivateKeySigner::new(private_key);
+        let main_contract_rsk_client = RSKDirectClient::new(
             transport,
             zksync_contract(),
             address,
-            eth_signer,
+            rsk_signer,
             contract_address,
             chain_id,
             gas_price_factor,
@@ -88,12 +88,12 @@ impl RootstockAccount {
         Self {
             private_key,
             address,
-            main_contract_eth_client,
+            main_contract_rsk_client,
         }
     }
 
     pub async fn total_blocks_committed(&self) -> Result<u64, anyhow::Error> {
-        let contract = self.main_contract_eth_client.main_contract();
+        let contract = self.main_contract_rsk_client.main_contract();
         contract
             .query("totalBlocksCommitted", (), None, default_tx_options(), None)
             .await
@@ -101,7 +101,7 @@ impl RootstockAccount {
     }
 
     pub async fn total_blocks_verified(&self) -> Result<u64, anyhow::Error> {
-        let contract = self.main_contract_eth_client.main_contract();
+        let contract = self.main_contract_rsk_client.main_contract();
 
         contract
             .query("totalBlocksVerified", (), None, default_tx_options(), None)
@@ -110,7 +110,7 @@ impl RootstockAccount {
     }
 
     pub async fn is_exodus(&self) -> Result<bool, anyhow::Error> {
-        let contract = self.main_contract_eth_client.main_contract();
+        let contract = self.main_contract_rsk_client.main_contract();
 
         contract
             .query("exodusMode", (), None, default_tx_options(), None)
@@ -124,16 +124,16 @@ impl RootstockAccount {
         token_address: Address,
     ) -> Result<(TransactionReceipt, PriorityOp), anyhow::Error> {
         let data = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .encode_tx_data("requestFullExit", (u64::from(*account_id), token_address));
 
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, default_tx_options())
             .await
             .map_err(|e| format_err!("Full exit send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
         ensure!(
             receipt.status == Some(U64::from(1)),
             "Full exit submit fail"
@@ -152,7 +152,7 @@ impl RootstockAccount {
         amount: &BigUint,
         zero_account_address: Address,
         proof: EncodedSingleProof,
-    ) -> Result<ETHExecResult, anyhow::Error> {
+    ) -> Result<RSKExecResult, anyhow::Error> {
         let options = Options {
             gas: Some(3_000_000.into()),
             // `exit` function requires more gas to operate.
@@ -160,7 +160,7 @@ impl RootstockAccount {
         };
 
         let stored_block_info = stored_block_info(last_block);
-        let data = self.main_contract_eth_client.encode_tx_data(
+        let data = self.main_contract_rsk_client.encode_tx_data(
             "performExodus",
             (
                 stored_block_info,
@@ -176,36 +176,36 @@ impl RootstockAccount {
             ),
         );
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, options)
             .await
             .map_err(|e| format_err!("Exit send err: {}", e))?;
 
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
 
-        Ok(ETHExecResult::new(receipt, &self.main_contract_eth_client).await)
+        Ok(RSKExecResult::new(receipt, &self.main_contract_rsk_client).await)
     }
 
     pub async fn cancel_outstanding_deposits_for_exodus_mode(
         &self,
         number: u64,
         priority_op_data: Vec<Vec<u8>>,
-    ) -> Result<ETHExecResult, anyhow::Error> {
-        let data = self.main_contract_eth_client.encode_tx_data(
+    ) -> Result<RSKExecResult, anyhow::Error> {
+        let data = self.main_contract_rsk_client.encode_tx_data(
             "cancelOutstandingDepositsForExodusMode",
             (number, priority_op_data),
         );
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, default_tx_options())
             .await
             .map_err(|e| format_err!("cancelOutstandingDepositsForExodusMode send err: {}", e))?;
 
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
 
-        Ok(ETHExecResult::new(receipt, &self.main_contract_eth_client).await)
+        Ok(RSKExecResult::new(receipt, &self.main_contract_rsk_client).await)
     }
 
     pub async fn change_pubkey_priority_op(
@@ -213,15 +213,15 @@ impl RootstockAccount {
         new_pubkey_hash: &PubKeyHash,
     ) -> Result<PriorityOp, anyhow::Error> {
         let data = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .encode_tx_data("changePubKeyHash", (new_pubkey_hash.data.to_vec(),));
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, default_tx_options())
             .await
             .map_err(|e| format_err!("ChangePubKeyHash send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
         ensure!(
             receipt.status == Some(U64::from(1)),
             "ChangePubKeyHash transaction failed"
@@ -231,17 +231,17 @@ impl RootstockAccount {
     }
 
     /// Returns only one tx receipt. Return type is `Vec` for compatibility with deposit erc20
-    pub async fn deposit_eth(
+    pub async fn deposit_rbtc(
         &self,
         amount: BigUint,
         to: &Address,
         nonce: Option<U256>,
     ) -> Result<(Vec<TransactionReceipt>, PriorityOp), anyhow::Error> {
         let data = self
-            .main_contract_eth_client
-            .encode_tx_data("depositETH", *to);
+            .main_contract_rsk_client
+            .encode_tx_data("depositRBTC", *to);
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(
                 data,
                 Options::with(|opt| {
@@ -251,25 +251,25 @@ impl RootstockAccount {
                 }),
             )
             .await
-            .map_err(|e| format_err!("Deposit eth send err: {}", e))?;
+            .map_err(|e| format_err!("Deposit rbtc send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
-        ensure!(receipt.status == Some(U64::from(1)), "eth deposit fail");
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
+        ensure!(receipt.status == Some(U64::from(1)), "rbtc deposit fail");
         let priority_op =
             priority_op_from_tx_logs(&receipt).expect("no priority op log in deposit");
         Ok((vec![receipt], priority_op))
     }
 
-    pub async fn eth_balance(&self) -> Result<BigUint, anyhow::Error> {
+    pub async fn rbtc_balance(&self) -> Result<BigUint, anyhow::Error> {
         Ok(u256_to_big_dec(
-            self.main_contract_eth_client
-                .eth_balance(self.address)
+            self.main_contract_rsk_client
+                .rbtc_balance(self.address)
                 .await?,
         ))
     }
 
     pub async fn erc20_balance(&self, token_contract: &Address) -> Result<BigUint, anyhow::Error> {
-        self.main_contract_eth_client
+        self.main_contract_rsk_client
             .call_contract_function(
                 "balanceOf",
                 self.address,
@@ -285,7 +285,7 @@ impl RootstockAccount {
     }
 
     pub async fn balances_to_withdraw(&self, token: Address) -> Result<BigUint, anyhow::Error> {
-        let contract = self.main_contract_eth_client.main_contract();
+        let contract = self.main_contract_rsk_client.main_contract();
 
         Ok(contract
             .query(
@@ -305,20 +305,20 @@ impl RootstockAccount {
         token_contract: Address,
         amount: BigUint,
     ) -> Result<TransactionReceipt, anyhow::Error> {
-        let eth_signer = PrivateKeySigner::new(self.private_key);
-        let erc20_client = ETHDirectClient::new(
-            self.main_contract_eth_client.get_web3_transport().clone(),
+        let rsk_signer = PrivateKeySigner::new(self.private_key);
+        let erc20_client = RSKDirectClient::new(
+            self.main_contract_rsk_client.get_web3_transport().clone(),
             erc20_contract(),
             self.address,
-            eth_signer,
+            rsk_signer,
             token_contract,
-            self.main_contract_eth_client.chain_id(),
-            self.main_contract_eth_client.gas_price_factor(),
+            self.main_contract_rsk_client.chain_id(),
+            self.main_contract_rsk_client.gas_price_factor(),
         );
         let data = erc20_client.encode_tx_data(
             "approve",
             (
-                self.main_contract_eth_client.contract_addr(),
+                self.main_contract_rsk_client.contract_addr(),
                 big_dec_to_u256(amount.clone()),
             ),
         );
@@ -328,7 +328,7 @@ impl RootstockAccount {
             .await
             .map_err(|e| format_err!("Approve send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
 
         ensure!(receipt.status == Some(U64::from(1)), "erc20 approve fail");
 
@@ -344,18 +344,18 @@ impl RootstockAccount {
     ) -> Result<(Vec<TransactionReceipt>, PriorityOp), anyhow::Error> {
         let approve_receipt = self.approve_erc20(token_contract, amount.clone()).await?;
 
-        let data = self.main_contract_eth_client.encode_tx_data(
+        let data = self.main_contract_rsk_client.encode_tx_data(
             "depositERC20",
             (token_contract, big_dec_to_u256(amount.clone()), *to),
         );
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, default_tx_options())
             .await
             .map_err(|e| format_err!("Deposit erc20 send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
-        let exec_result = ETHExecResult::new(receipt, &self.main_contract_eth_client).await;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
+        let exec_result = RSKExecResult::new(receipt, &self.main_contract_rsk_client).await;
         let receipt = exec_result.success_result()?;
         let priority_op =
             priority_op_from_tx_logs(&receipt).expect("no priority op log in deposit erc20");
@@ -365,60 +365,60 @@ impl RootstockAccount {
     pub async fn commit_block(
         &self,
         commit_operation: &BlocksCommitOperation,
-    ) -> Result<ETHExecResult, anyhow::Error> {
-        let data = self.main_contract_eth_client.encode_tx_data(
+    ) -> Result<RSKExecResult, anyhow::Error> {
+        let data = self.main_contract_rsk_client.encode_tx_data(
             "commitBlocks",
-            commit_operation.get_eth_tx_args().as_slice(),
+            commit_operation.get_rsk_tx_args().as_slice(),
         );
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, Options::with(|f| f.gas = Some(U256::from(6_800_000))))
             .await
             .map_err(|e| format_err!("Commit block send err: {}", e))?;
 
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
 
-        Ok(ETHExecResult::new(receipt, &self.main_contract_eth_client).await)
+        Ok(RSKExecResult::new(receipt, &self.main_contract_rsk_client).await)
     }
 
     // Verifies block using provided proof or empty proof if None is provided. (`DUMMY_VERIFIER` should be enabled on the contract).
     pub async fn verify_block(
         &self,
         proof_operation: &BlocksProofOperation,
-    ) -> Result<ETHExecResult, anyhow::Error> {
+    ) -> Result<RSKExecResult, anyhow::Error> {
         let data = self
-            .main_contract_eth_client
-            .encode_tx_data("proveBlocks", proof_operation.get_eth_tx_args().as_slice());
+            .main_contract_rsk_client
+            .encode_tx_data("proveBlocks", proof_operation.get_rsk_tx_args().as_slice());
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, Options::with(|f| f.gas = Some(U256::from(6_800_000))))
             .await
             .map_err(|e| format_err!("Verify block send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
-        Ok(ETHExecResult::new(receipt, &self.main_contract_eth_client).await)
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
+        Ok(RSKExecResult::new(receipt, &self.main_contract_rsk_client).await)
     }
 
     // Completes pending withdrawals.
     pub async fn execute_block(
         &self,
         execute_operation: &BlocksExecuteOperation,
-    ) -> Result<ETHExecResult, anyhow::Error> {
-        let data = self.main_contract_eth_client.encode_tx_data(
+    ) -> Result<RSKExecResult, anyhow::Error> {
+        let data = self.main_contract_rsk_client.encode_tx_data(
             "executeBlocks",
-            execute_operation.get_eth_tx_args().as_slice(),
+            execute_operation.get_rsk_tx_args().as_slice(),
         );
 
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, Options::with(|f| f.gas = Some(U256::from(6_800_000))))
             .await
             .map_err(|e| format_err!("Complete withdrawals send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
 
-        Ok(ETHExecResult::new(receipt, &self.main_contract_eth_client).await)
+        Ok(RSKExecResult::new(receipt, &self.main_contract_rsk_client).await)
     }
 
     // Completes pending withdrawals.
@@ -427,7 +427,7 @@ impl RootstockAccount {
         execute_operation: &BlocksExecuteOperation,
         tokens: &HashMap<TokenId, Address>,
         pending_withdrawer_contract: &(Contract, Address),
-    ) -> Result<Option<ETHExecResult>, anyhow::Error> {
+    ) -> Result<Option<RSKExecResult>, anyhow::Error> {
         let ex_ops: Vec<_> = execute_operation
             .blocks
             .iter()
@@ -470,53 +470,53 @@ impl RootstockAccount {
             .encode_input(&tokens)
             .expect("failed to encode parameters");
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx_for_addr(data, pending_withdrawer_contract.1, Options::default())
             .await
             .map_err(|e| format_err!("Complete withdrawals send err: {}", e))?;
 
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
         Ok(Some(
-            ETHExecResult::new(receipt, &self.main_contract_eth_client).await,
+            RSKExecResult::new(receipt, &self.main_contract_rsk_client).await,
         ))
     }
 
-    pub async fn revert_blocks(&self, blocks: &[Block]) -> Result<ETHExecResult, anyhow::Error> {
+    pub async fn revert_blocks(&self, blocks: &[Block]) -> Result<RSKExecResult, anyhow::Error> {
         let tx_arg = Token::Array(blocks.iter().map(stored_block_info).collect());
 
         let data = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .encode_tx_data("revertBlocks", tx_arg);
 
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, Options::with(|f| f.gas = Some(U256::from(6_800_000))))
             .await
             .map_err(|e| format_err!("Revert blocks send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
 
-        Ok(ETHExecResult::new(receipt, &self.main_contract_eth_client).await)
+        Ok(RSKExecResult::new(receipt, &self.main_contract_rsk_client).await)
     }
 
-    pub async fn trigger_exodus_if_needed(&self) -> Result<ETHExecResult, anyhow::Error> {
+    pub async fn trigger_exodus_if_needed(&self) -> Result<RSKExecResult, anyhow::Error> {
         let data = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .encode_tx_data("activateExodusMode", ());
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, default_tx_options())
             .await
             .map_err(|e| format_err!("Trigger exodus if needed send err: {}", e))?;
         let receipt =
-            send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
+            send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await?;
 
-        Ok(ETHExecResult::new(receipt, &self.main_contract_eth_client).await)
+        Ok(RSKExecResult::new(receipt, &self.main_contract_rsk_client).await)
     }
 
-    pub async fn eth_block_number(&self) -> Result<u64, anyhow::Error> {
-        Ok(self.main_contract_eth_client.block_number().await?.as_u64())
+    pub async fn rsk_block_number(&self) -> Result<u64, anyhow::Error> {
+        Ok(self.main_contract_rsk_client.block_number().await?.as_u64())
     }
 
     pub async fn auth_fact(
@@ -525,28 +525,28 @@ impl RootstockAccount {
         nonce: Nonce,
     ) -> Result<TransactionReceipt, anyhow::Error> {
         let data = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .encode_tx_data("setAuthPubkeyHash", (fact.to_vec(), u64::from(*nonce)));
         let signed_tx = self
-            .main_contract_eth_client
+            .main_contract_rsk_client
             .sign_prepared_tx(data, default_tx_options())
             .await
             .map_err(|e| format_err!("AuthFact send err: {}", e))?;
-        send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await
+        send_raw_tx_wait_confirmation(&self.main_contract_rsk_client, signed_tx.raw_tx).await
     }
 }
 
 #[derive(Debug, Clone)]
-pub struct ETHExecResult {
+pub struct RSKExecResult {
     success: bool,
     receipt: TransactionReceipt,
     revert_reason: String,
 }
 
-impl ETHExecResult {
+impl RSKExecResult {
     pub async fn new(
         receipt: TransactionReceipt,
-        client: &ETHDirectClient<PrivateKeySigner>,
+        client: &RSKDirectClient<PrivateKeySigner>,
     ) -> Self {
         let (success, revert_reason) = if receipt.status == Some(U64::from(1)) {
             (true, String::from(""))
@@ -600,7 +600,7 @@ impl ETHExecResult {
 }
 
 async fn send_raw_tx_wait_confirmation(
-    client: &ETHDirectClient<PrivateKeySigner>,
+    client: &RSKDirectClient<PrivateKeySigner>,
     raw_tx: Vec<u8>,
 ) -> Result<TransactionReceipt, anyhow::Error> {
     let tx_hash = client
@@ -611,7 +611,7 @@ async fn send_raw_tx_wait_confirmation(
         if let Some(receipt) = client
             .tx_receipt(tx_hash)
             .await
-            .map_err(|e| format_err!("Failed to get receipt from eth node: {}", e))?
+            .map_err(|e| format_err!("Failed to get receipt from rsk node: {}", e))?
         {
             return Ok(receipt);
         }
@@ -619,7 +619,7 @@ async fn send_raw_tx_wait_confirmation(
 }
 
 fn default_tx_options() -> Options {
-    // Set the gas limit, so `eth_client` won't complain about it.
+    // Set the gas limit, so `rsk_client` won't complain about it.
     Options {
         gas: Some(500_000.into()),
         ..Default::default()
@@ -628,7 +628,7 @@ fn default_tx_options() -> Options {
 
 /// Get fee paid in wei for tx execution
 pub async fn get_executed_tx_fee(
-    client: &ETHDirectClient<PrivateKeySigner>,
+    client: &RSKDirectClient<PrivateKeySigner>,
     receipt: &TransactionReceipt,
 ) -> Result<BigUint, anyhow::Error> {
     let gas_used = receipt.gas_used.ok_or_else(|| {

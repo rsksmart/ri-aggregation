@@ -1,4 +1,4 @@
-use crate::eth_account::{get_executed_tx_fee, ETHExecResult, RootstockAccount};
+use crate::rsk_account::{get_executed_tx_fee, RSKExecResult, RootstockAccount};
 use crate::external_commands::Contracts;
 use anyhow::bail;
 use futures::{
@@ -60,7 +60,7 @@ pub struct TestSetup {
 
 #[derive(Debug)]
 pub struct EthAccountTransfer {
-    pub account_id: ETHAccountId,
+    pub account_id: RSKAccountId,
     pub token_id: TokenId,
     pub amount: BigInt,
 }
@@ -118,7 +118,7 @@ impl TestSetup {
 
     pub async fn get_expected_eth_account_balance(
         &self,
-        account: ETHAccountId,
+        account: RSKAccountId,
         token: TokenId,
     ) -> BigUint {
         match self
@@ -158,7 +158,7 @@ impl TestSetup {
 
     pub async fn deposit(
         &mut self,
-        from: ETHAccountId,
+        from: RSKAccountId,
         to: ZKSyncAccountId,
         token: Token,
         amount: BigUint,
@@ -173,7 +173,7 @@ impl TestSetup {
 
     #[allow(clippy::map_entry)]
     // Due to await function map entry looks really ugly
-    pub async fn setup_basic_l1_balances(&mut self, eth_account_id: ETHAccountId, token: Token) {
+    pub async fn setup_basic_l1_balances(&mut self, eth_account_id: RSKAccountId, token: Token) {
         if !self
             .expected_changes_for_current_block
             .eth_accounts_state
@@ -265,7 +265,7 @@ impl TestSetup {
 
     pub async fn create_deposit(
         &mut self,
-        from: ETHAccountId,
+        from: RSKAccountId,
         to: ZKSyncAccountId,
         token: Token,
         amount: BigUint,
@@ -299,7 +299,7 @@ impl TestSetup {
         let mut gas_fee = BigUint::from(0u32);
 
         for r in &receipts {
-            let current_fee = get_executed_tx_fee(&self.commit_account.main_contract_eth_client, r)
+            let current_fee = get_executed_tx_fee(&self.commit_account.main_contract_rsk_client, r)
                 .await
                 .expect("Failed to get transaction fee");
 
@@ -336,7 +336,7 @@ impl TestSetup {
 
     pub async fn deposit_to_random(
         &mut self,
-        from: ETHAccountId,
+        from: RSKAccountId,
         token: Token,
         amount: BigUint,
         rng: &mut impl Rng,
@@ -351,7 +351,7 @@ impl TestSetup {
 
     pub async fn create_deposit_to_random(
         &mut self,
-        from: ETHAccountId,
+        from: RSKAccountId,
         token: Token,
         amount: BigUint,
         rng: &mut impl Rng,
@@ -381,7 +381,7 @@ impl TestSetup {
         let mut gas_fee = BigUint::from(0u32);
 
         for r in &receipts {
-            let current_fee = get_executed_tx_fee(&self.commit_account.main_contract_eth_client, r)
+            let current_fee = get_executed_tx_fee(&self.commit_account.main_contract_rsk_client, r)
                 .await
                 .expect("Failed to get transaction fee");
 
@@ -417,15 +417,15 @@ impl TestSetup {
 
     pub async fn exit(
         &mut self,
-        sending_account: ETHAccountId,
+        sending_account: RSKAccountId,
         account_id: AccountId,
         token_id: Token,
         amount: &BigUint,
         zero_account_address: Address,
         proof: EncodedSingleProof,
-    ) -> ETHExecResult {
+    ) -> RSKExecResult {
         let last_block = &self.last_committed_block;
-        self.accounts.eth_accounts[sending_account.0]
+        self.accounts.rsk_accounts[sending_account.0]
             .exit(
                 last_block,
                 account_id,
@@ -440,7 +440,7 @@ impl TestSetup {
 
     pub async fn full_exit(
         &mut self,
-        post_by: ETHAccountId,
+        post_by: RSKAccountId,
         from: ZKSyncAccountId,
         token: Token,
     ) -> (TransactionReceipt, PriorityOp) {
@@ -453,7 +453,7 @@ impl TestSetup {
 
     pub async fn create_full_exit(
         &mut self,
-        post_by: ETHAccountId,
+        post_by: RSKAccountId,
         from: ZKSyncAccountId,
         token: Token,
     ) -> (TransactionReceipt, PriorityOp, Vec<AccountTransfer>) {
@@ -492,7 +492,7 @@ impl TestSetup {
             .full_exit(post_by, token_address, account_id)
             .await;
 
-        let gas_fee = get_executed_tx_fee(&self.commit_account.main_contract_eth_client, &receipt)
+        let gas_fee = get_executed_tx_fee(&self.commit_account.main_contract_rsk_client, &receipt)
             .await
             .expect("Failed to get transaction fee");
 
@@ -534,7 +534,7 @@ impl TestSetup {
 
     pub async fn change_pubkey_with_onchain_auth(
         &mut self,
-        eth_account: ETHAccountId,
+        rsk_account: RSKAccountId,
         account: ZKSyncAccountId,
         fee_token: Token,
         fee: BigUint,
@@ -569,7 +569,7 @@ impl TestSetup {
         let tx = self
             .accounts
             .change_pubkey_with_onchain_auth(
-                eth_account,
+                rsk_account,
                 account,
                 fee_token.0,
                 fee,
@@ -752,7 +752,7 @@ impl TestSetup {
     pub async fn withdraw(
         &mut self,
         from: ZKSyncAccountId,
-        to: ETHAccountId,
+        to: RSKAccountId,
         token: Token,
         amount: BigUint,
         fee: BigUint,
@@ -860,7 +860,7 @@ impl TestSetup {
         &mut self,
         initiator: ZKSyncAccountId,
         target: ZKSyncAccountId,
-        target_eth_id: ETHAccountId,
+        target_eth_id: RSKAccountId,
         token_id: Token,
         fee: BigUint,
     ) {
@@ -1014,7 +1014,7 @@ impl TestSetup {
         self.await_for_block_commit().await
     }
 
-    pub async fn commit_blocks(&mut self, blocks: &[Block]) -> ETHExecResult {
+    pub async fn commit_blocks(&mut self, blocks: &[Block]) -> RSKExecResult {
         assert!(!blocks.is_empty());
         let block_commit_op = BlocksCommitOperation {
             last_committed_block: self.last_committed_block.clone(),
@@ -1031,7 +1031,7 @@ impl TestSetup {
         &mut self,
         blocks: &[Block],
         proof: Option<EncodedAggregatedProof>,
-    ) -> ETHExecResult {
+    ) -> RSKExecResult {
         let proof = proof.unwrap_or_else(|| {
             let mut default_proof = EncodedAggregatedProof {
                 individual_vk_inputs: Vec::new(),
@@ -1056,7 +1056,7 @@ impl TestSetup {
             .expect("block verify send tx")
     }
 
-    pub async fn execute_blocks_onchain(&mut self, blocks: &[Block]) -> ETHExecResult {
+    pub async fn execute_blocks_onchain(&mut self, blocks: &[Block]) -> RSKExecResult {
         let block_execute_op = BlocksExecuteOperation {
             blocks: blocks.to_vec(),
         };
@@ -1069,7 +1069,7 @@ impl TestSetup {
     pub async fn execute_verify_commitments(
         &mut self,
         proof: BlocksProofOperation,
-    ) -> ETHExecResult {
+    ) -> RSKExecResult {
         self.commit_account
             .verify_block(&proof)
             .await
@@ -1137,12 +1137,12 @@ impl TestSetup {
         let block_chunks = new_block.block_chunks_size;
 
         let mut block_checks_failed = false;
-        for ((eth_account, token), expected_balance) in
+        for ((rsk_account, token), expected_balance) in
             &self.expected_changes_for_current_block.eth_accounts_state
         {
-            let real_balance = self.get_eth_balance(*eth_account, *token).await;
+            let real_balance = self.get_eth_balance(*rsk_account, *token).await;
             if expected_balance != &real_balance {
-                println!("eth acc: {}, token: {}", eth_account.0, token);
+                println!("eth acc: {}, token: {}", rsk_account.0, token);
                 println!("expected: {}", expected_balance);
                 println!("real:     {}", real_balance);
                 block_checks_failed = true;
@@ -1227,11 +1227,11 @@ impl TestSetup {
         result
     }
 
-    pub async fn get_eth_balance(&self, eth_account_id: ETHAccountId, token: TokenId) -> BigUint {
-        let account = &self.accounts.eth_accounts[eth_account_id.0];
+    pub async fn get_eth_balance(&self, eth_account_id: RSKAccountId, token: TokenId) -> BigUint {
+        let account = &self.accounts.rsk_accounts[eth_account_id.0];
         let result = if token == TokenId(0) {
             account
-                .eth_balance()
+                .rbtc_balance()
                 .await
                 .expect("Failed to get eth balance")
         } else {
@@ -1250,10 +1250,10 @@ impl TestSetup {
 
     pub async fn get_balance_to_withdraw(
         &self,
-        eth_account_id: ETHAccountId,
+        eth_account_id: RSKAccountId,
         token: Address,
     ) -> BigUint {
-        self.accounts.eth_accounts[eth_account_id.0]
+        self.accounts.rsk_accounts[eth_account_id.0]
             .balances_to_withdraw(token)
             .await
             .expect("failed to query balance to withdraws")
@@ -1264,11 +1264,11 @@ impl TestSetup {
     }
 
     pub async fn total_blocks_committed(&self) -> Result<u64, anyhow::Error> {
-        self.accounts.eth_accounts[0].total_blocks_committed().await
+        self.accounts.rsk_accounts[0].total_blocks_committed().await
     }
 
     pub async fn total_blocks_verified(&self) -> Result<u64, anyhow::Error> {
-        self.accounts.eth_accounts[0].total_blocks_verified().await
+        self.accounts.rsk_accounts[0].total_blocks_verified().await
     }
 
     pub async fn revert_blocks(&self, blocks: &[Block]) -> Result<(), anyhow::Error> {
@@ -1277,9 +1277,9 @@ impl TestSetup {
         Ok(())
     }
 
-    pub async fn eth_block_number(&self) -> u64 {
+    pub async fn rsk_block_number(&self) -> u64 {
         self.commit_account
-            .eth_block_number()
+            .rsk_block_number()
             .await
             .expect("Block number query")
     }
@@ -1288,8 +1288,8 @@ impl TestSetup {
         self.tokens.iter().map(|(id, _)| Token(*id)).collect()
     }
 
-    pub async fn trigger_exodus_if_needed(&self, eth_account: ETHAccountId) {
-        self.accounts.eth_accounts[eth_account.0]
+    pub async fn trigger_exodus_if_needed(&self, rsk_account: RSKAccountId) {
+        self.accounts.rsk_accounts[rsk_account.0]
             .trigger_exodus_if_needed()
             .await
             .expect("Trigger exodus if needed call");
@@ -1297,11 +1297,11 @@ impl TestSetup {
 
     pub async fn cancel_outstanding_deposits(
         &self,
-        eth_account: ETHAccountId,
+        rsk_account: RSKAccountId,
         number: u64,
         data: Vec<Vec<u8>>,
     ) {
-        self.accounts.eth_accounts[eth_account.0]
+        self.accounts.rsk_accounts[rsk_account.0]
             .cancel_outstanding_deposits_for_exodus_mode(number, data)
             .await
             .expect("Failed to cancel outstanding deposits");

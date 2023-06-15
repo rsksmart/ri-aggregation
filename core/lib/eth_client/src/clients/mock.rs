@@ -65,7 +65,7 @@ impl MockRootstock {
         );
     }
 
-    /// Adds an response for the sent transaction for `ETHSender` to receive.
+    /// Adds an response for the sent transaction for `RSKSender` to receive.
     pub async fn add_execution(&mut self, hash: &H256, status: &ExecutedTxStatus) {
         self.inner
             .tx_statuses
@@ -189,7 +189,7 @@ impl MockRootstock {
         unreachable!()
     }
 
-    pub async fn eth_balance(&self, _address: Address) -> Result<U256, Error> {
+    pub async fn rbtc_balance(&self, _address: Address) -> Result<U256, Error> {
         unreachable!()
     }
 

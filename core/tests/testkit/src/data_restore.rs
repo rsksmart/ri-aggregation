@@ -3,7 +3,7 @@ use web3::{transports::Http, types::Address, Web3};
 use zksync_crypto::Fr;
 use zksync_data_restore::{
     data_restore_driver::DataRestoreDriver, inmemory_storage_interactor::InMemoryStorageInteractor,
-    ETH_BLOCKS_STEP,
+    RSK_BLOCKS_STEP,
 };
 use zksync_types::{Account, AccountId, TokenId};
 
@@ -28,7 +28,7 @@ pub async fn verify_restore(
         contracts.governance,
         testkit_config.contract_upgrade_eth_blocks.clone(),
         testkit_config.init_contract_version,
-        ETH_BLOCKS_STEP,
+        RSK_BLOCKS_STEP,
         0,
         true,
         Default::default(),

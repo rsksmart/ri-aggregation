@@ -22,16 +22,16 @@ use zksync_types::{
     Address, TokenId, TokenKind, U256,
 };
 // Local uses
-use crate::eth_watch::EthWatchRequest;
+use crate::eth_watch::RSKWatchRequest;
 use web3::contract::Options;
 use zksync_contracts::erc20_contract;
-use zksync_eth_client::RootstockGateway;
+use zksync_rsk_client::RootstockGateway;
 
 struct TokenHandler {
     connection_pool: ConnectionPool,
     poll_interval: std::time::Duration,
-    eth_watcher_req: mpsc::Sender<EthWatchRequest>,
-    eth_client: RootstockGateway,
+    eth_watcher_req: mpsc::Sender<RSKWatchRequest>,
+    rsk_client: RootstockGateway,
     token_list: HashMap<Address, TokenInfo>,
     last_eth_block: Option<u64>,
     notifier: Option<Notifier>,
@@ -40,8 +40,8 @@ struct TokenHandler {
 impl TokenHandler {
     fn new(
         connection_pool: ConnectionPool,
-        eth_watcher_req: mpsc::Sender<EthWatchRequest>,
-        eth_client: RootstockGateway,
+        eth_watcher_req: mpsc::Sender<RSKWatchRequest>,
+        rsk_client: RootstockGateway,
         config: TokenHandlerConfig,
     ) -> Self {
         let poll_interval = config.poll_interval();
@@ -56,7 +56,7 @@ impl TokenHandler {
 
         Self {
             connection_pool,
-            eth_client,
+            rsk_client,
             token_list,
             poll_interval,
             notifier,
@@ -69,7 +69,7 @@ impl TokenHandler {
         let (sender, receiver) = oneshot::channel();
         self.eth_watcher_req
             .clone()
-            .send(EthWatchRequest::GetNewTokens {
+            .send(RSKWatchRequest::GetNewTokens {
                 last_eth_block: self.last_eth_block,
                 resp: sender,
             })
@@ -80,7 +80,7 @@ impl TokenHandler {
     }
 
     async fn is_contract_erc20(&self, address: Address) -> bool {
-        self.eth_client
+        self.rsk_client
             .call_contract_function::<U256, _, _, _>(
                 "balanceOf",
                 address,
@@ -207,7 +207,7 @@ impl TokenHandler {
             // Ether is a standard token, so we can assume that at least the last token ID is zero.
             self.last_eth_block = new_tokens_events
                 .iter()
-                .map(|token| token.eth_block_number)
+                .map(|token| token.rsk_block_number)
                 .max()
                 .or(self.last_eth_block);
 
@@ -240,14 +240,14 @@ impl TokenHandler {
 #[must_use]
 pub fn run_token_handler(
     db_pool: ConnectionPool,
-    eth_client: RootstockGateway,
+    rsk_client: RootstockGateway,
     config: &TokenHandlerConfig,
-    eth_watcher_req: mpsc::Sender<EthWatchRequest>,
+    eth_watcher_req: mpsc::Sender<RSKWatchRequest>,
 ) -> JoinHandle<()> {
     let config = config.clone();
     tokio::spawn(async move {
         let mut token_handler =
-            TokenHandler::new(db_pool, eth_watcher_req, eth_client, config.clone());
+            TokenHandler::new(db_pool, eth_watcher_req, rsk_client, config.clone());
 
         token_handler.run().await
     })

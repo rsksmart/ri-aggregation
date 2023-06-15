@@ -53,7 +53,7 @@ impl ContractTopics {
 }
 
 #[async_trait::async_trait]
-pub trait EthClient {
+pub trait RSKClient {
     async fn get_funds_received_events(
         &self,
         from: u64,
@@ -62,13 +62,13 @@ pub trait EthClient {
     async fn block_number(&self) -> anyhow::Result<u64>;
 }
 
-pub struct EthHttpClient {
+pub struct RSKHttpClient {
     web3: Web3<Http>,
     forced_exit_contract: Contract<Http>,
     topics: ContractTopics,
 }
 
-impl EthHttpClient {
+impl RSKHttpClient {
     pub fn new(web3: Web3<Http>, zksync_contract_addr: H160) -> Self {
         let forced_exit_contract =
             Contract::new(web3.eth(), zksync_contract_addr, forced_exit_contract());
@@ -100,7 +100,7 @@ impl EthHttpClient {
 }
 
 #[async_trait::async_trait]
-impl EthClient for EthHttpClient {
+impl RSKClient for RSKHttpClient {
     async fn get_funds_received_events(
         &self,
         from: u64,
@@ -126,12 +126,12 @@ impl EthClient for EthHttpClient {
 struct ForcedExitContractWatcher<Sender, Client, Interactor>
 where
     Sender: ForcedExitSender,
-    Client: EthClient,
+    Client: RSKClient,
     Interactor: CoreInteractionWrapper,
 {
     core_interaction_wrapper: Interactor,
     config: ForcedExitRequestsConfig,
-    eth_client: Client,
+    rsk_client: Client,
     last_viewed_block: u64,
     forced_exit_sender: Sender,
 
@@ -179,20 +179,20 @@ fn lower_bound_block_time(block: u64, current_block: u64) -> DateTime<Utc> {
 impl<Sender, Client, Interactor> ForcedExitContractWatcher<Sender, Client, Interactor>
 where
     Sender: ForcedExitSender,
-    Client: EthClient,
+    Client: RSKClient,
     Interactor: CoreInteractionWrapper,
 {
     pub fn new(
         core_interaction_wrapper: Interactor,
         config: ForcedExitRequestsConfig,
-        eth_client: Client,
+        rsk_client: Client,
         forced_exit_sender: Sender,
         db_cleanup_interval: chrono::Duration,
     ) -> Self {
         Self {
             core_interaction_wrapper,
             config,
-            eth_client,
+            rsk_client,
             forced_exit_sender,
 
             last_viewed_block: 0,
@@ -239,7 +239,7 @@ where
         // This is needed to track how much time is spent in backoff mode
         // and trigger grafana alerts
         metrics::histogram!(
-            "forced_exit_requests.eth_watcher.enter_backoff_mode",
+            "forced_exit_requests.rsk_watcher.enter_backoff_mode",
             RATE_LIMIT_DELAY
         );
     }
@@ -293,7 +293,7 @@ where
             return;
         }
 
-        let last_block = match self.eth_client.block_number().await {
+        let last_block = match self.rsk_client.block_number().await {
             Ok(block) => block,
             Err(error) => {
                 self.handle_infura_error(error);
@@ -312,7 +312,7 @@ where
             .saturating_sub(self.config.blocks_check_amount);
 
         let events = self
-            .eth_client
+            .rsk_client
             .get_funds_received_events(block_to_watch_from, last_confirmed_block)
             .await;
 
@@ -351,7 +351,7 @@ where
         // block number.
         // Normally, however, this loop is not expected to last more than one iteration.
         let block = loop {
-            let block = self.eth_client.block_number().await;
+            let block = self.rsk_client.block_number().await;
 
             match block {
                 Ok(block) => {
@@ -372,7 +372,7 @@ where
         // We don't expect rate limiting to happen again
         self.restore_state_from_eth(block)
             .await
-            .expect("Failed to restore state for ForcedExit eth_watcher");
+            .expect("Failed to restore state for ForcedExit rsk_watcher");
 
         let mut timer = time::interval(self.config.poll_interval());
 
@@ -393,7 +393,7 @@ pub fn run_forced_exit_contract_watcher(
 ) -> JoinHandle<()> {
     let transport = web3::transports::Http::new(&web3_url).unwrap();
     let web3 = web3::Web3::new(transport);
-    let eth_client = EthHttpClient::new(web3, contract);
+    let rsk_client = RSKHttpClient::new(web3, contract);
 
     tokio::spawn(async move {
         // We should not proceed if the feature is disabled
@@ -427,7 +427,7 @@ pub fn run_forced_exit_contract_watcher(
         let contract_watcher = ForcedExitContractWatcher::new(
             core_interaction_wrapper,
             config,
-            eth_client,
+            rsk_client,
             forced_exit_sender,
             chrono::Duration::minutes(5),
         );
@@ -493,7 +493,7 @@ mod test {
     }
 
     #[async_trait::async_trait]
-    impl EthClient for MockEthClient {
+    impl RSKClient for MockEthClient {
         async fn get_funds_received_events(
             &self,
             from: u64,
@@ -541,7 +541,7 @@ mod test {
     fn get_test_forced_exit_contract_watcher() -> TestForcedExitContractWatcher {
         let core_interaction_wrapper = MockCoreInteractionWrapper::default();
         let config = ForcedExitRequestsConfig::from_env();
-        let eth_client = MockEthClient {
+        let rsk_client = MockEthClient {
             events: vec![],
             current_block_number: TEST_FIRST_CURRENT_BLOCK,
         };
@@ -550,7 +550,7 @@ mod test {
         ForcedExitContractWatcher::new(
             core_interaction_wrapper,
             config,
-            eth_client,
+            rsk_client,
             forced_exit_sender,
             chrono::Duration::minutes(5),
         )
@@ -683,7 +683,7 @@ mod test {
         let wait_confirmations = 5;
         watcher.config.wait_confirmations = wait_confirmations;
 
-        watcher.eth_client.events = vec![
+        watcher.rsk_client.events = vec![
             FundsReceivedEvent {
                 // Should be processed
                 amount: BigUint::from_str("1000000001").unwrap(),
@@ -708,7 +708,7 @@ mod test {
             .expect("Failed to restore state from eth");
 
         // Now it seems like a lot of new blocks have been created
-        watcher.eth_client.current_block_number = TEST_FIRST_CURRENT_BLOCK;
+        watcher.rsk_client.current_block_number = TEST_FIRST_CURRENT_BLOCK;
 
         watcher.poll().await;
 

@@ -14,7 +14,7 @@ export async function publishSourceCodeToEtherscan(
     const contractPath = `${contractDirPath}/${contractName}.sol`;
     const sourceCode = await getSolidityInput(contractPath);
 
-    const network = process.env.CHAIN_ETH_NETWORK;
+    const network = process.env.CHAIN_RSK_NETWORK;
     if (SUPPORTED_NETWORKS.find((supportedNetwork) => supportedNetwork === network) == null) {
         throw new Error(
             `Current network ${network} is not supported by etherscan, should be one of the ${SUPPORTED_NETWORKS.toString()}`

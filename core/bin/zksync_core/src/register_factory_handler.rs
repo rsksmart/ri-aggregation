@@ -12,21 +12,21 @@ use zksync_config::TokenHandlerConfig;
 use zksync_storage::{ConnectionPool, StorageProcessor};
 use zksync_types::RegisterNFTFactoryEvent;
 // Local uses
-use crate::eth_watch::EthWatchRequest;
+use crate::eth_watch::RSKWatchRequest;
 
 /// Handle events about registering factories for minting tokens
 #[derive(Debug)]
 struct NFTFactoryHandler {
     connection_pool: ConnectionPool,
     poll_interval: Duration,
-    eth_watch_req: mpsc::Sender<EthWatchRequest>,
+    eth_watch_req: mpsc::Sender<RSKWatchRequest>,
     last_eth_block: Option<u64>,
 }
 
 impl NFTFactoryHandler {
     async fn new(
         connection_pool: ConnectionPool,
-        eth_watch_req: mpsc::Sender<EthWatchRequest>,
+        eth_watch_req: mpsc::Sender<RSKWatchRequest>,
         config: &TokenHandlerConfig,
     ) -> Self {
         let poll_interval = config.poll_interval();
@@ -43,7 +43,7 @@ impl NFTFactoryHandler {
         let (sender, receiver) = oneshot::channel();
         self.eth_watch_req
             .clone()
-            .send(EthWatchRequest::GetRegisterNFTFactoryEvents {
+            .send(RSKWatchRequest::GetRegisterNFTFactoryEvents {
                 last_eth_block: self.last_eth_block,
                 resp: sender,
             })
@@ -103,7 +103,7 @@ impl NFTFactoryHandler {
 
             self.last_eth_block = register_nft_factory_events
                 .iter()
-                .map(|event| event.eth_block)
+                .map(|event| event.rsk_block)
                 .max()
                 .or(self.last_eth_block);
 
@@ -123,7 +123,7 @@ impl NFTFactoryHandler {
 #[must_use]
 pub fn run_register_factory_handler(
     db_pool: ConnectionPool,
-    eth_watch_req: mpsc::Sender<EthWatchRequest>,
+    eth_watch_req: mpsc::Sender<RSKWatchRequest>,
     config: TokenHandlerConfig,
 ) -> JoinHandle<()> {
     tokio::spawn(async move {

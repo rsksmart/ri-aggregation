@@ -20,7 +20,7 @@ use web3::{
 };
 
 // Workspace uses
-use zksync_eth_signer::{raw_rootstock_tx::RawTransaction, RootstockSigner};
+use zksync_rsk_signer::{raw_rootstock_tx::RawTransaction, RootstockSigner};
 
 use crate::rootstock_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
 use sha3::Digest;
@@ -33,7 +33,7 @@ const FALLBACK_GAS_LIMIT: u64 = 3_000_000;
 const REVERT_REASON_START_INDEX: usize = 50;
 
 struct ETHDirectClientInner<S: RootstockSigner> {
-    eth_signer: S,
+    rsk_signer: S,
     sender_account: Address,
     contract_addr: H160,
     contract: ethabi::Contract,
@@ -43,15 +43,15 @@ struct ETHDirectClientInner<S: RootstockSigner> {
 }
 
 #[derive(Clone)]
-pub struct ETHDirectClient<S: RootstockSigner> {
+pub struct RSKDirectClient<S: RootstockSigner> {
     inner: Arc<ETHDirectClientInner<S>>,
 }
 
-impl<S: RootstockSigner> fmt::Debug for ETHDirectClient<S> {
+impl<S: RootstockSigner> fmt::Debug for RSKDirectClient<S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // We do not want to have a private key in the debug representation.
 
-        f.debug_struct("ETHDirectClient")
+        f.debug_struct("RSKDirectClient")
             .field("sender_account", &self.inner.sender_account)
             .field("contract_addr", &self.inner.contract_addr)
             .field("chain_id", &self.inner.chain_id)
@@ -60,12 +60,12 @@ impl<S: RootstockSigner> fmt::Debug for ETHDirectClient<S> {
     }
 }
 
-impl<S: RootstockSigner> ETHDirectClient<S> {
+impl<S: RootstockSigner> RSKDirectClient<S> {
     pub fn new(
         transport: Http,
         contract: ethabi::Contract,
         operator_eth_addr: H160,
-        eth_signer: S,
+        rsk_signer: S,
         contract_eth_addr: H160,
         chain_id: u64,
         gas_price_factor: f64,
@@ -73,7 +73,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
         Self {
             inner: Arc::new(ETHDirectClientInner {
                 sender_account: operator_eth_addr,
-                eth_signer,
+                rsk_signer,
                 contract_addr: contract_eth_addr,
                 chain_id,
                 contract,
@@ -105,7 +105,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             .transaction_count(self.inner.sender_account, Some(BlockNumber::Pending))
             .await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.pending_nonce", start.elapsed());
+        metrics::histogram!("rsk_client.direct.pending_nonce", start.elapsed());
         Ok(count)
     }
 
@@ -119,7 +119,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             .transaction_count(self.inner.sender_account, Some(BlockNumber::Latest))
             .await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.current_nonce", start.elapsed());
+        metrics::histogram!("rsk_client.direct.current_nonce", start.elapsed());
         Ok(nonce)
     }
 
@@ -131,7 +131,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
         let start = Instant::now();
         let block = self.inner.web3.eth().block(id).await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.block", start.elapsed());
+        metrics::histogram!("rsk_client.direct.block", start.elapsed());
         Ok(block)
     }
 
@@ -140,7 +140,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
         let start = Instant::now();
         let block_number = self.inner.web3.eth().block_number().await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.block_number", start.elapsed());
+        metrics::histogram!("rsk_client.direct.block_number", start.elapsed());
         Ok(block_number)
     }
 
@@ -152,7 +152,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             U256::from((self.inner.gas_price_factor * 100.0).round() as u64);
         network_gas_price = (network_gas_price * percent_gas_price_factor) / U256::from(100);
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.get_gas_price", start.elapsed());
+        metrics::histogram!("rsk_client.direct.get_gas_price", start.elapsed());
         Ok(network_gas_price)
     }
 
@@ -215,7 +215,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             max_priority_fee_per_gas: Default::default(),
         };
 
-        let signed_tx = self.inner.eth_signer.sign_transaction(tx).await?;
+        let signed_tx = self.inner.rsk_signer.sign_transaction(tx).await?;
 
         let mut hasher = sha3::Keccak256::default();
         hasher.update(&signed_tx);
@@ -224,7 +224,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
 
         #[cfg(feature = "with-metrics")]
         metrics::histogram!(
-            "eth_client.direct.sign_prepared_tx_for_addr",
+            "rsk_client.direct.sign_prepared_tx_for_addr",
             start.elapsed()
         );
         Ok(SignedCallResult {
@@ -245,7 +245,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             .send_raw_transaction(Bytes(tx))
             .await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.send_raw_tx", start.elapsed());
+        metrics::histogram!("rsk_client.direct.send_raw_tx", start.elapsed());
         Ok(tx)
     }
 
@@ -257,7 +257,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
         let start = Instant::now();
         let receipt = self.inner.web3.eth().transaction_receipt(tx_hash).await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.tx_receipt", start.elapsed());
+        metrics::histogram!("rsk_client.direct.tx_receipt", start.elapsed());
         Ok(receipt)
     }
 
@@ -324,7 +324,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
                 };
 
                 #[cfg(feature = "with-metrics")]
-                metrics::histogram!("eth_client.direct.failure_reason", start.elapsed());
+                metrics::histogram!("rsk_client.direct.failure_reason", start.elapsed());
                 Ok(Some(FailureInfo {
                     revert_code,
                     revert_reason,
@@ -336,17 +336,17 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
         }
     }
 
-    pub async fn eth_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
+    pub async fn rbtc_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
         #[cfg(feature = "with-metrics")]
         let start = Instant::now();
         let balance = self.inner.web3.eth().balance(address, None).await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.eth_balance", start.elapsed());
+        metrics::histogram!("rsk_client.direct.rbtc_balance", start.elapsed());
         Ok(balance)
     }
 
     pub async fn sender_eth_balance(&self) -> Result<U256, anyhow::Error> {
-        self.eth_balance(self.inner.sender_account).await
+        self.rbtc_balance(self.inner.sender_account).await
     }
 
     pub async fn allowance(
@@ -368,7 +368,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             )
             .await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.allowance", start.elapsed());
+        metrics::histogram!("rsk_client.direct.allowance", start.elapsed());
         Ok(res)
     }
 
@@ -420,7 +420,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
         let contract = Contract::new(self.inner.web3.eth(), token_address, erc20_abi);
         let res = contract.query(func, params, from, options, block).await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.call_contract_function", start.elapsed());
+        metrics::histogram!("rsk_client.direct.call_contract_function", start.elapsed());
         Ok(res)
     }
 
@@ -462,7 +462,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             _ => Ok(None),
         };
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.get_tx_status", start.elapsed());
+        metrics::histogram!("rsk_client.direct.get_tx_status", start.elapsed());
         Ok(res?)
     }
 
@@ -471,7 +471,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
         let start = Instant::now();
         let logs = self.inner.web3.eth().logs(filter).await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.logs", start.elapsed());
+        metrics::histogram!("rsk_client.direct.logs", start.elapsed());
         Ok(logs)
     }
 
@@ -515,7 +515,7 @@ impl<S: RootstockSigner> ETHDirectClient<S> {
             .transaction(TransactionId::Hash(hash))
             .await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.get_tx", start.elapsed());
+        metrics::histogram!("rsk_client.direct.get_tx", start.elapsed());
         Ok(tx)
     }
 }

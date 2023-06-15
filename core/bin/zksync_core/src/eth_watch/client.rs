@@ -11,7 +11,7 @@ use web3::{
 };
 
 use zksync_contracts::{governance_contract, zksync_contract};
-use zksync_eth_client::rootstock_gateway::RootstockGateway;
+use zksync_rsk_client::rootstock_gateway::RootstockGateway;
 use zksync_types::{
     Address, NewTokenEvent, Nonce, PriorityOp, RegisterNFTFactoryEvent, H160, U256,
 };
@@ -42,7 +42,7 @@ impl ContractTopics {
 }
 
 #[async_trait::async_trait]
-pub trait EthClient {
+pub trait RSKClient {
     async fn get_priority_op_events(
         &self,
         from: BlockNumber,
@@ -64,14 +64,14 @@ pub trait EthClient {
         -> anyhow::Result<u64>;
 }
 
-pub struct EthHttpClient {
+pub struct RSKHttpClient {
     client: RootstockGateway,
     topics: ContractTopics,
     zksync_contract_addr: H160,
     governance_contract_addr: H160,
 }
 
-impl EthHttpClient {
+impl RSKHttpClient {
     pub fn new(
         client: RootstockGateway,
         zksync_contract_addr: H160,
@@ -127,7 +127,7 @@ impl EthHttpClient {
 }
 
 #[async_trait::async_trait]
-impl EthClient for EthHttpClient {
+impl RSKClient for RSKHttpClient {
     async fn get_priority_op_events(
         &self,
         from: BlockNumber,
@@ -187,7 +187,7 @@ impl EthClient for EthHttpClient {
             }
         }
 
-        metrics::histogram!("eth_watcher.get_priority_op_events", start.elapsed());
+        metrics::histogram!("rsk_watcher.get_priority_op_events", start.elapsed());
         result
     }
 
@@ -202,7 +202,7 @@ impl EthClient for EthHttpClient {
             .get_events(from, to, vec![self.topics.factory_registered])
             .await;
         metrics::histogram!(
-            "eth_watcher.get_new_register_nft_factory_events",
+            "rsk_watcher.get_new_register_nft_factory_events",
             start.elapsed()
         );
         result
@@ -216,7 +216,7 @@ impl EthClient for EthHttpClient {
         let start = Instant::now();
 
         let result = self.get_events(from, to, vec![self.topics.new_token]).await;
-        metrics::histogram!("eth_watcher.get_new_tokens_event", start.elapsed());
+        metrics::histogram!("rsk_watcher.get_new_tokens_event", start.elapsed());
         result
     }
 

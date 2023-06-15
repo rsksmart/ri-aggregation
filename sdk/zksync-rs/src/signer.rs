@@ -4,7 +4,7 @@ use std::fmt;
 use num::BigUint;
 // Workspace uses
 use zksync_crypto::PrivateKey;
-use zksync_eth_signer::{error::SignerError, RootstockSigner};
+use zksync_rsk_signer::{error::SignerError, RootstockSigner};
 use zksync_types::{
     tx::{
         ChangePubKey, ChangePubKeyECDSAData, ChangePubKeyEthAuthData, PackedEthSignature,
@@ -24,7 +24,7 @@ pub struct Signer<S: RootstockSigner> {
     pub pubkey_hash: PubKeyHash,
     pub address: Address,
     pub(crate) private_key: PrivateKey,
-    pub(crate) eth_signer: Option<S>,
+    pub(crate) rsk_signer: Option<S>,
     pub(crate) account_id: Option<AccountId>,
 }
 
@@ -42,14 +42,14 @@ impl<S: RootstockSigner> fmt::Debug for Signer<S> {
 }
 
 impl<S: RootstockSigner> Signer<S> {
-    pub fn new(private_key: PrivateKey, address: Address, eth_signer: Option<S>) -> Self {
+    pub fn new(private_key: PrivateKey, address: Address, rsk_signer: Option<S>) -> Self {
         let pubkey_hash = PubKeyHash::from_privkey(&private_key);
 
         Self {
             private_key,
             pubkey_hash,
             address,
-            eth_signer,
+            rsk_signer,
             account_id: None,
         }
     }
@@ -59,7 +59,7 @@ impl<S: RootstockSigner> Signer<S> {
         Self::new(
             credentials.zksync_private_key,
             credentials.eth_address,
-            credentials.eth_signer,
+            credentials.rsk_signer,
         )
     }
 
@@ -101,15 +101,15 @@ impl<S: RootstockSigner> Signer<S> {
         let eth_auth_data = if auth_onchain {
             ChangePubKeyEthAuthData::Onchain
         } else {
-            let eth_signer = self
-                .eth_signer
+            let rsk_signer = self
+                .rsk_signer
                 .as_ref()
                 .ok_or(SignerError::MissingEthSigner)?;
 
             let sign_bytes = change_pubkey
                 .get_eth_signed_data()
                 .map_err(signing_failed_error)?;
-            let eth_signature = eth_signer
+            let eth_signature = rsk_signer
                 .sign_message(&sign_bytes)
                 .await
                 .map_err(signing_failed_error)?;
@@ -161,7 +161,7 @@ impl<S: RootstockSigner> Signer<S> {
         )
         .map_err(signing_failed_error)?;
 
-        let eth_signature = match &self.eth_signer {
+        let eth_signature = match &self.rsk_signer {
             Some(signer) => {
                 let message = transfer.get_ethereum_sign_message(&token.symbol, token.decimals);
                 let signature = signer.sign_message(message.as_bytes()).await?;
@@ -202,7 +202,7 @@ impl<S: RootstockSigner> Signer<S> {
         )
         .map_err(signing_failed_error)?;
 
-        let eth_signature = match &self.eth_signer {
+        let eth_signature = match &self.rsk_signer {
             Some(signer) => {
                 let message = withdraw.get_ethereum_sign_message(&token.symbol, token.decimals);
                 let signature = signer.sign_message(message.as_bytes()).await?;
@@ -240,7 +240,7 @@ impl<S: RootstockSigner> Signer<S> {
         )
         .map_err(signing_failed_error)?;
 
-        let eth_signature = match &self.eth_signer {
+        let eth_signature = match &self.rsk_signer {
             Some(signer) => {
                 let message = forced_exit.get_ethereum_sign_message(&token.symbol, token.decimals);
                 let signature = signer.sign_message(message.as_bytes()).await?;
@@ -279,7 +279,7 @@ impl<S: RootstockSigner> Signer<S> {
         )
         .map_err(signing_failed_error)?;
 
-        let eth_signature = match &self.eth_signer {
+        let eth_signature = match &self.rsk_signer {
             Some(signer) => {
                 let message =
                     mint_nft.get_ethereum_sign_message(&fee_token.symbol, fee_token.decimals);
@@ -321,7 +321,7 @@ impl<S: RootstockSigner> Signer<S> {
         )
         .map_err(signing_failed_error)?;
 
-        let eth_signature = match &self.eth_signer {
+        let eth_signature = match &self.rsk_signer {
             Some(signer) => {
                 let message =
                     withdraw_nft.get_ethereum_sign_message(&fee_token.symbol, fee_token.decimals);

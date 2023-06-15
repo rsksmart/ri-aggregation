@@ -121,9 +121,9 @@ Tester.prototype.testWrongSignature = async function (
         nonce: await from.getNonce()
     });
 
-    const ETH_SIGNATURE_LENGTH_PREFIXED = 132;
+    const RSK_SIGNATURE_LENGTH_PREFIXED = 132;
     const fakeEthSignature: types.TxEthSignature = {
-        signature: '0x'.padEnd(ETH_SIGNATURE_LENGTH_PREFIXED, '0'),
+        signature: '0x'.padEnd(RSK_SIGNATURE_LENGTH_PREFIXED, '0'),
         type: 'EthereumSignature'
     };
 

@@ -6,7 +6,7 @@ import { ethers, Wallet } from 'ethers';
 import { web3Provider } from './utils';
 
 const DEPOSIT_AMOUNT = ethers.utils.parseEther('10000000000');
-const network = process.env.CHAIN_ETH_NETWORK;
+const network = process.env.CHAIN_RSK_NETWORK;
 
 const provider = web3Provider();
 const testConfigPath = path.join(process.env.ZKSYNC_HOME as string, `etc/test_config/constant`);
@@ -33,7 +33,7 @@ async function main() {
     const deployerWallet = await zksync.Wallet.fromEthSigner(deployerEthWallet, syncProvider);
     const faucetWallet = await zksync.Wallet.fromEthSigner(faucetEthWallet, syncProvider);
 
-    console.log('Faucet ETH_PRIVATE_KEY', faucetEthWallet.privateKey);
+    console.log('Faucet RSK_PRIVATE_KEY', faucetEthWallet.privateKey);
     const TOKEN_ADDRESS = syncProvider.tokenSet.resolveTokenAddress('MLTT');
     const ABI = [
         {
@@ -63,7 +63,7 @@ async function main() {
             type: 'function'
         }
     ];
-    if (process.env.CHAIN_ETH_NETWORK !== 'localhost') {
+    if (process.env.CHAIN_RSK_NETWORK !== 'localhost') {
         const erc20Mintable = new ethers.Contract(TOKEN_ADDRESS, ABI, deployerEthWallet);
         const mintTx = await erc20Mintable.mint(deployerEthWallet.address, DEPOSIT_AMOUNT);
         await mintTx.wait();

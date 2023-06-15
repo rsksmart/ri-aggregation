@@ -130,7 +130,7 @@ pub struct EncodedAggregatedProof {
 }
 
 impl EncodedAggregatedProof {
-    pub fn get_eth_tx_args(&self) -> Token {
+    pub fn get_rsk_tx_args(&self) -> Token {
         let recursive_input = Token::Array(vec![Token::Uint(self.aggregated_input); 1]);
         let proof = Token::Array(
             self.proof

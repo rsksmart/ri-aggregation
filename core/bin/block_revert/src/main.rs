@@ -7,8 +7,8 @@ use web3::{
     contract::Options,
     types::{TransactionReceipt, U256, U64},
 };
-use zksync_config::{ContractsConfig, ETHClientConfig, ETHSenderConfig};
-use zksync_eth_client::RootstockGateway;
+use zksync_config::{ContractsConfig, RSKClientConfig, RSKSenderConfig};
+use zksync_rsk_client::RootstockGateway;
 use zksync_storage::StorageProcessor;
 use zksync_types::{aggregated_operations::stored_block_info, block::Block, BlockNumber, H256};
 
@@ -81,13 +81,13 @@ async fn revert_blocks_in_storage(
         .operations_schema()
         .remove_eth_unprocessed_aggregated_ops()
         .await?;
-    println!("`eth_unprocessed_aggregated_ops` table is cleaned");
+    println!("`rsk_unprocessed_aggregated_ops` table is cleaned");
     transaction
         .chain()
         .operations_schema()
         .remove_aggregate_operations_and_bindings(last_block)
         .await?;
-    println!("`aggregate_operations`, `eth_aggregated_ops_binding`, `eth_tx_hashes`, `eth_operations` tables are cleaned");
+    println!("`aggregate_operations`, `rsk_aggregated_ops_binding`, `rsk_tx_hashes`, `rsk_operations` tables are cleaned");
 
     transaction
         .prover_schema()
@@ -112,9 +112,9 @@ async fn revert_blocks_in_storage(
 
     transaction
         .rootstock_schema()
-        .update_eth_parameters(last_block)
+        .update_rsk_parameters(last_block)
         .await?;
-    println!("`eth_parameters` table is updated");
+    println!("`rsk_parameters` table is updated");
 
     transaction.commit().await?;
 
@@ -218,7 +218,7 @@ struct Opt {
     #[structopt(subcommand)]
     command: Command,
     /// Private key of operator which will call the contract function.
-    #[structopt(long = "key", env = "ETH_SENDER_SENDER_OPERATOR_PRIVATE_KEY")]
+    #[structopt(long = "key", env = "RSK_SENDER_SENDER_OPERATOR_PRIVATE_KEY")]
     operator_private_key: String,
 }
 
@@ -233,8 +233,8 @@ async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|| opt.operator_private_key.as_str());
 
     let contracts = ContractsConfig::from_env();
-    let eth_client_config = ETHClientConfig::from_env();
-    let mut eth_sender_config = ETHSenderConfig::from_env();
+    let eth_client_config = RSKClientConfig::from_env();
+    let mut eth_sender_config = RSKSenderConfig::from_env();
 
     eth_sender_config.sender.operator_private_key =
         H256::from_str(key_without_prefix).expect("Cannot deserialize private key");

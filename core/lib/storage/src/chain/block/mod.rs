@@ -357,7 +357,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
     ) -> QueryResult<Vec<StorageBlockDetails>> {
         let start = Instant::now();
         // This query does the following:
-        // - joins the `operations` and `eth_tx_hashes` (using the intermediate `eth_ops_binding` table)
+        // - joins the `operations` and `rsk_tx_hashes` (using the intermediate `eth_ops_binding` table)
         //   tables to collect the data:
         //   block number, rootstock transaction hash, action type and action creation timestamp;
         // - joins the `blocks` table with result of the join twice: once for committed operations
@@ -369,23 +369,23 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
             WITH aggr_comm AS (
                 SELECT 
                     aggregate_operations.created_at, 
-                    eth_operations.final_hash, 
+                    rsk_operations.final_hash, 
                     commit_aggregated_blocks_binding.block_number 
                 FROM aggregate_operations
                     INNER JOIN commit_aggregated_blocks_binding ON aggregate_operations.id = commit_aggregated_blocks_binding.op_id
-                    INNER JOIN eth_aggregated_ops_binding ON aggregate_operations.id = eth_aggregated_ops_binding.op_id
-                    INNER JOIN eth_operations ON eth_operations.id = eth_aggregated_ops_binding.eth_op_id
+                    INNER JOIN rsk_aggregated_ops_binding ON aggregate_operations.id = rsk_aggregated_ops_binding.op_id
+                    INNER JOIN rsk_operations ON rsk_operations.id = rsk_aggregated_ops_binding.rsk_op_id
                 WHERE aggregate_operations.confirmed = true 
             ),
             aggr_exec as (
                  SELECT 
                     aggregate_operations.created_at, 
-                    eth_operations.final_hash, 
+                    rsk_operations.final_hash, 
                     execute_aggregated_blocks_binding.block_number 
                 FROM aggregate_operations
                     INNER JOIN execute_aggregated_blocks_binding ON aggregate_operations.id = execute_aggregated_blocks_binding.op_id
-                    INNER JOIN eth_aggregated_ops_binding ON aggregate_operations.id = eth_aggregated_ops_binding.op_id
-                    INNER JOIN eth_operations ON eth_operations.id = eth_aggregated_ops_binding.eth_op_id
+                    INNER JOIN rsk_aggregated_ops_binding ON aggregate_operations.id = rsk_aggregated_ops_binding.op_id
+                    INNER JOIN rsk_operations ON rsk_operations.id = rsk_aggregated_ops_binding.rsk_op_id
                 WHERE aggregate_operations.confirmed = true 
             )
             SELECT
@@ -421,7 +421,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
     ) -> QueryResult<Vec<StorageBlockDetails>> {
         let start = Instant::now();
         // This query does the following:
-        // - joins the `operations` and `eth_tx_hashes` (using the intermediate `eth_ops_binding` table)
+        // - joins the `operations` and `rsk_tx_hashes` (using the intermediate `eth_ops_binding` table)
         //   tables to collect the data:
         //   block number, rootstock transaction hash, action type and action creation timestamp;
         // - joins the `blocks` table with result of the join twice: once for committed operations
@@ -433,23 +433,23 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
             WITH aggr_comm AS (
                 SELECT 
                     aggregate_operations.created_at, 
-                    eth_operations.final_hash, 
+                    rsk_operations.final_hash, 
                     commit_aggregated_blocks_binding.block_number 
                 FROM aggregate_operations
                     INNER JOIN commit_aggregated_blocks_binding ON aggregate_operations.id = commit_aggregated_blocks_binding.op_id
-                    INNER JOIN eth_aggregated_ops_binding ON aggregate_operations.id = eth_aggregated_ops_binding.op_id
-                    INNER JOIN eth_operations ON eth_operations.id = eth_aggregated_ops_binding.eth_op_id
+                    INNER JOIN rsk_aggregated_ops_binding ON aggregate_operations.id = rsk_aggregated_ops_binding.op_id
+                    INNER JOIN rsk_operations ON rsk_operations.id = rsk_aggregated_ops_binding.rsk_op_id
                 WHERE aggregate_operations.confirmed = true 
             ),
             aggr_exec as (
                  SELECT 
                     aggregate_operations.created_at, 
-                    eth_operations.final_hash, 
+                    rsk_operations.final_hash, 
                     execute_aggregated_blocks_binding.block_number 
                 FROM aggregate_operations
                     INNER JOIN execute_aggregated_blocks_binding ON aggregate_operations.id = execute_aggregated_blocks_binding.op_id
-                    INNER JOIN eth_aggregated_ops_binding ON aggregate_operations.id = eth_aggregated_ops_binding.op_id
-                    INNER JOIN eth_operations ON eth_operations.id = eth_aggregated_ops_binding.eth_op_id
+                    INNER JOIN rsk_aggregated_ops_binding ON aggregate_operations.id = rsk_aggregated_ops_binding.op_id
+                    INNER JOIN rsk_operations ON rsk_operations.id = rsk_aggregated_ops_binding.rsk_op_id
                 WHERE aggregate_operations.confirmed = true 
             )
             SELECT
@@ -548,7 +548,7 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
         }
 
         // This query does the following:
-        // - joins the `operations` and `eth_tx_hashes` (using the intermediate `eth_ops_binding` table)
+        // - joins the `operations` and `rsk_tx_hashes` (using the intermediate `eth_ops_binding` table)
         //   tables to collect the data:
         //   block number, rootstock transaction hash, action type and action creation timestamp;
         // - joins the `blocks` table with result of the join twice: once for committed operations
@@ -564,23 +564,23 @@ impl<'a, 'c> BlockSchema<'a, 'c> {
             WITH aggr_comm AS (
                 SELECT 
                     aggregate_operations.created_at, 
-                    eth_operations.final_hash, 
+                    rsk_operations.final_hash, 
                     commit_aggregated_blocks_binding.block_number 
                 FROM aggregate_operations
                     INNER JOIN commit_aggregated_blocks_binding ON aggregate_operations.id = commit_aggregated_blocks_binding.op_id
-                    INNER JOIN eth_aggregated_ops_binding ON aggregate_operations.id = eth_aggregated_ops_binding.op_id
-                    INNER JOIN eth_operations ON eth_operations.id = eth_aggregated_ops_binding.eth_op_id
+                    INNER JOIN rsk_aggregated_ops_binding ON aggregate_operations.id = rsk_aggregated_ops_binding.op_id
+                    INNER JOIN rsk_operations ON rsk_operations.id = rsk_aggregated_ops_binding.rsk_op_id
                 WHERE aggregate_operations.confirmed = true 
             ),
             aggr_exec as (
                  SELECT 
                     aggregate_operations.created_at, 
-                    eth_operations.final_hash, 
+                    rsk_operations.final_hash, 
                     execute_aggregated_blocks_binding.block_number 
                 FROM aggregate_operations
                     INNER JOIN execute_aggregated_blocks_binding ON aggregate_operations.id = execute_aggregated_blocks_binding.op_id
-                    INNER JOIN eth_aggregated_ops_binding ON aggregate_operations.id = eth_aggregated_ops_binding.op_id
-                    INNER JOIN eth_operations ON eth_operations.id = eth_aggregated_ops_binding.eth_op_id
+                    INNER JOIN rsk_aggregated_ops_binding ON aggregate_operations.id = rsk_aggregated_ops_binding.op_id
+                    INNER JOIN rsk_operations ON rsk_operations.id = rsk_aggregated_ops_binding.rsk_op_id
                 WHERE aggregate_operations.confirmed = true 
             )
             SELECT

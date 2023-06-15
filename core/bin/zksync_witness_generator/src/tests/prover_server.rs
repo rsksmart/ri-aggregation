@@ -187,7 +187,7 @@ pub async fn get_test_block() -> Block {
                 data: deposit_priority_op,
                 deadline_block: 2,
                 eth_hash: H256::zero(),
-                eth_block: 10,
+                rsk_block: 10,
                 eth_block_index: Some(1),
             },
             block_index: 1,

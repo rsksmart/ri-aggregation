@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::{TryFrom, TryInto};
 use zksync_basic_types::{Address, Log, H256, U256};
 use zksync_crypto::params::{
-    ACCOUNT_ID_BIT_WIDTH, BALANCE_BIT_WIDTH, CONTENT_HASH_WIDTH, ETH_ADDRESS_BIT_WIDTH,
+    ACCOUNT_ID_BIT_WIDTH, BALANCE_BIT_WIDTH, CONTENT_HASH_WIDTH, RSK_ADDRESS_BIT_WIDTH,
     FR_ADDRESS_LEN, LEGACY_TOKEN_BIT_WIDTH, SERIAL_ID_WIDTH, TOKEN_BIT_WIDTH, TX_TYPE_BIT_WIDTH,
 };
 use zksync_utils::BigUintSerdeAsRadix10Str;
@@ -193,10 +193,10 @@ impl ZkSyncPriorityOp {
 
                 // owner
                 let (eth_address, pub_data_left) = {
-                    if pub_data_left.len() < ETH_ADDRESS_BIT_WIDTH / 8 {
+                    if pub_data_left.len() < RSK_ADDRESS_BIT_WIDTH / 8 {
                         return Err(LogParseError::PubdataLengthMismatch);
                     }
-                    let (eth_address, left) = pub_data_left.split_at(ETH_ADDRESS_BIT_WIDTH / 8);
+                    let (eth_address, left) = pub_data_left.split_at(RSK_ADDRESS_BIT_WIDTH / 8);
                     (Address::from_slice(eth_address), left)
                 };
 
@@ -303,10 +303,10 @@ impl ZkSyncPriorityOp {
 
                 // owner
                 let (eth_address, pub_data_left) = {
-                    if pub_data_left.len() < ETH_ADDRESS_BIT_WIDTH / 8 {
+                    if pub_data_left.len() < RSK_ADDRESS_BIT_WIDTH / 8 {
                         return Err(LogParseError::PubdataLengthMismatch);
                     }
-                    let (eth_address, left) = pub_data_left.split_at(ETH_ADDRESS_BIT_WIDTH / 8);
+                    let (eth_address, left) = pub_data_left.split_at(RSK_ADDRESS_BIT_WIDTH / 8);
                     (Address::from_slice(eth_address), left)
                 };
 
@@ -329,7 +329,7 @@ impl ZkSyncPriorityOp {
                 // Creator account ID, creator address, serial id, content hash
                 if pub_data_left.len()
                     != ACCOUNT_ID_BIT_WIDTH / 8
-                        + ETH_ADDRESS_BIT_WIDTH / 8
+                        + RSK_ADDRESS_BIT_WIDTH / 8
                         + SERIAL_ID_WIDTH / 8
                         + CONTENT_HASH_WIDTH / 8
                 {
@@ -398,7 +398,7 @@ pub struct PriorityOp {
     /// Hash of the corresponding Rootstock transaction. Size should be 32 bytes
     pub eth_hash: H256,
     /// Block in which Rootstock transaction was included.
-    pub eth_block: u64,
+    pub rsk_block: u64,
     /// Transaction index in Rootstock block.
     /// This field must be optional because of backward compatibility.
     pub eth_block_index: Option<u64>,
@@ -468,7 +468,7 @@ impl TryFrom<Log> for PriorityOp {
             eth_hash: event
                 .transaction_hash
                 .expect("Event transaction hash is missing"),
-            eth_block: event
+            rsk_block: event
                 .block_number
                 .expect("Event block number is missing")
                 .as_u64(),
@@ -487,7 +487,7 @@ impl PriorityOp {
     pub fn tx_hash(&self) -> TxHash {
         let mut bytes = Vec::with_capacity(56);
         bytes.extend_from_slice(self.eth_hash.as_bytes());
-        bytes.extend_from_slice(&self.eth_block.to_be_bytes());
+        bytes.extend_from_slice(&self.rsk_block.to_be_bytes());
         bytes.extend_from_slice(&self.eth_block_index.unwrap_or(0).to_be_bytes());
         bytes.extend_from_slice(&self.serial_id.to_be_bytes());
 

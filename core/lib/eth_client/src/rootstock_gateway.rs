@@ -4,14 +4,14 @@ use web3::transports::Http;
 use web3::types::{Address, BlockId, Filter, Log, Transaction, U64};
 
 use std::fmt::Debug;
-use zksync_config::{ETHClientConfig, ETHSenderConfig};
+use zksync_config::{RSKClientConfig, RSKSenderConfig};
 use zksync_contracts::zksync_contract;
-use zksync_eth_signer::PrivateKeySigner;
+use zksync_rsk_signer::PrivateKeySigner;
 use zksync_types::{TransactionReceipt, H160, H256, U256};
 
 use crate::clients::mock::MockRootstock;
 use crate::clients::multiplexer::MultiplexerRootstockClient;
-use crate::ETHDirectClient;
+use crate::RSKDirectClient;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct SignedCallResult {
@@ -43,21 +43,21 @@ pub struct FailureInfo {
 
 #[derive(Debug, Clone)]
 pub enum RootstockGateway {
-    Direct(ETHDirectClient<PrivateKeySigner>),
+    Direct(RSKDirectClient<PrivateKeySigner>),
     Multiplexed(MultiplexerRootstockClient),
     Mock(MockRootstock),
 }
 
 impl RootstockGateway {
     pub fn from_config(
-        eth_client_config: &ETHClientConfig,
-        eth_sender_config: &ETHSenderConfig,
+        eth_client_config: &RSKClientConfig,
+        eth_sender_config: &RSKSenderConfig,
         main_contract: Address,
     ) -> Self {
         if eth_client_config.web3_url.len() == 1 {
             let transport = web3::transports::Http::new(&eth_client_config.web3_url()).unwrap();
 
-            RootstockGateway::Direct(ETHDirectClient::new(
+            RootstockGateway::Direct(RSKDirectClient::new(
                 transport,
                 zksync_contract(),
                 eth_sender_config.sender.operator_commit_eth_addr,
@@ -74,7 +74,7 @@ impl RootstockGateway {
                 let transport = web3::transports::Http::new(&web3_url).unwrap();
                 client.add_client(
                     web3_url,
-                    ETHDirectClient::new(
+                    RSKDirectClient::new(
                         transport,
                         contract.clone(),
                         eth_sender_config.sender.operator_commit_eth_addr,
@@ -174,8 +174,8 @@ impl RootstockGateway {
     }
 
     /// Auxiliary function that returns the balance of the account on Rootstock.
-    pub async fn eth_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
-        delegate_call!(self.eth_balance(address))
+    pub async fn rbtc_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
+        delegate_call!(self.rbtc_balance(address))
     }
 
     pub async fn allowance(

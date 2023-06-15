@@ -8,45 +8,45 @@ use tokio::sync::RwLock;
 use web3::contract::Options;
 use zksync_basic_types::{BlockNumber, H256, U256};
 // Workspace uses
-use zksync_config::configs::eth_sender::{ETHSenderConfig, GasLimit, Sender};
-use zksync_eth_client::RootstockGateway;
-use zksync_storage::{rootstock::records::ETHParams, StorageProcessor};
+use zksync_config::configs::eth_sender::{GasLimit, RSKSenderConfig, Sender};
+use zksync_rsk_client::RootstockGateway;
+use zksync_storage::{rootstock::records::RSKParams, StorageProcessor};
 use zksync_types::aggregated_operations::{AggregatedActionType, AggregatedOperation};
-use zksync_types::rootstock::{ETHOperation, EthOpId, InsertedOperationResponse};
+use zksync_types::rootstock::{InsertedOperationResponse, RSKOpId, RSKOperation};
 // Local uses
-use super::ETHSender;
+use super::RSKSender;
 use crate::database::DatabaseInterface;
-use crate::transactions::ETHStats;
-use zksync_eth_client::clients::mock::MockRootstock;
+use crate::transactions::RSKStats;
+use zksync_rsk_client::clients::mock::MockRootstock;
 
 /// Mock database is capable of recording all the incoming requests for the further analysis.
 #[derive(Debug)]
 pub(crate) struct MockDatabase {
-    eth_operations: RwLock<Vec<ETHOperation>>,
+    rsk_operations: RwLock<Vec<RSKOperation>>,
     aggregated_operations: RwLock<Vec<(i64, AggregatedOperation)>>,
     unprocessed_operations: RwLock<Vec<(i64, AggregatedOperation)>>,
-    eth_parameters: RwLock<ETHParams>,
+    rsk_parameters: RwLock<RSKParams>,
 }
 
 impl MockDatabase {
     /// Creates a database with emulation of previously stored uncommitted requests.
     pub fn with_restorable_state(
-        eth_operations: Vec<ETHOperation>,
+        rsk_operations: Vec<RSKOperation>,
         aggregated_operations: Vec<(i64, AggregatedOperation)>,
         unprocessed_operations: Vec<(i64, AggregatedOperation)>,
-        eth_parameters: ETHParams,
+        rsk_parameters: RSKParams,
     ) -> Self {
         Self {
-            eth_operations: RwLock::new(eth_operations),
+            rsk_operations: RwLock::new(rsk_operations),
             aggregated_operations: RwLock::new(aggregated_operations),
             unprocessed_operations: RwLock::new(unprocessed_operations),
-            eth_parameters: RwLock::new(eth_parameters),
+            rsk_parameters: RwLock::new(rsk_parameters),
         }
     }
 
     pub async fn update_gas_price_limit(&self, value: i64) -> anyhow::Result<()> {
-        let mut eth_parameters = self.eth_parameters.write().await;
-        eth_parameters.gas_price_limit = value;
+        let mut rsk_parameters = self.rsk_parameters.write().await;
+        rsk_parameters.gas_price_limit = value;
 
         Ok(())
     }
@@ -69,30 +69,30 @@ impl MockDatabase {
     }
 
     /// Ensures that the provided transaction is stored in the database and not confirmed yet.
-    pub async fn assert_stored(&self, tx: &ETHOperation) {
-        let eth_operations = self.eth_operations.read().await;
-        let is_stored = eth_operations
+    pub async fn assert_stored(&self, tx: &RSKOperation) {
+        let rsk_operations = self.rsk_operations.read().await;
+        let is_stored = rsk_operations
             .iter()
-            .any(|eth_op| eth_op.id == tx.id && !eth_op.confirmed);
+            .any(|rsk_op| rsk_op.id == tx.id && !rsk_op.confirmed);
 
         assert!(is_stored);
     }
 
     /// Ensures that the provided transaction is stored as confirmed.
-    pub async fn assert_confirmed(&self, tx: &ETHOperation) {
-        let eth_operations = self.eth_operations.read().await;
-        let is_confirmed = eth_operations
+    pub async fn assert_confirmed(&self, tx: &RSKOperation) {
+        let rsk_operations = self.rsk_operations.read().await;
+        let is_confirmed = rsk_operations
             .iter()
-            .any(|eth_op| eth_op.id == tx.id && eth_op.confirmed);
+            .any(|rsk_op| rsk_op.id == tx.id && rsk_op.confirmed);
 
         assert!(is_confirmed);
     }
 
     /// Returns the stored average gas price.
     pub async fn average_gas_price(&self) -> U256 {
-        let eth_parameters = self.eth_parameters.read().await;
+        let rsk_parameters = self.rsk_parameters.read().await;
 
-        U256::from(eth_parameters.average_gas_price.unwrap_or_default() as u64)
+        U256::from(rsk_parameters.average_gas_price.unwrap_or_default() as u64)
     }
 }
 
@@ -145,10 +145,10 @@ impl DatabaseInterface for MockDatabase {
         gas_price_limit: U256,
         average_gas_price: U256,
     ) -> anyhow::Result<()> {
-        let mut eth_parameters = self.eth_parameters.write().await;
-        eth_parameters.gas_price_limit =
+        let mut rsk_parameters = self.rsk_parameters.write().await;
+        rsk_parameters.gas_price_limit =
             i64::try_from(gas_price_limit).expect("Can't convert U256 to i64");
-        eth_parameters.average_gas_price =
+        rsk_parameters.average_gas_price =
             Some(i64::try_from(average_gas_price).expect("Can't convert U256 to i64"));
 
         Ok(())
@@ -159,7 +159,7 @@ impl DatabaseInterface for MockDatabase {
         _connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<()> {
         let aggregated_operations = self.aggregated_operations.read().await;
-        let eth_operations = self.eth_operations.read().await;
+        let rsk_operations = self.rsk_operations.read().await;
         let mut unprocessed_operations = self.unprocessed_operations.write().await;
 
         let mut new_unprocessed_operations = Vec::new();
@@ -168,7 +168,7 @@ impl DatabaseInterface for MockDatabase {
             let is_operation_in_queue = unprocessed_operations
                 .iter()
                 .any(|unprocessed_operation| unprocessed_operation.0 == operation.0);
-            let is_operation_send_to_rootstock = eth_operations.iter().any(|rootstock_operation| {
+            let is_operation_send_to_rootstock = rsk_operations.iter().any(|rootstock_operation| {
                 rootstock_operation.op.as_ref().unwrap().0 == operation.0
             });
             if !is_operation_in_queue && !is_operation_send_to_rootstock {
@@ -184,20 +184,20 @@ impl DatabaseInterface for MockDatabase {
     async fn load_unconfirmed_operations(
         &self,
         _connection: &mut StorageProcessor<'_>,
-    ) -> anyhow::Result<VecDeque<ETHOperation>> {
+    ) -> anyhow::Result<VecDeque<RSKOperation>> {
         let unconfirmed_operations = self
-            .eth_operations
+            .rsk_operations
             .read()
             .await
             .iter()
             .cloned()
-            .filter(|eth_op| !eth_op.confirmed)
+            .filter(|rsk_op| !rsk_op.confirmed)
             .collect();
 
         Ok(unconfirmed_operations)
     }
 
-    async fn save_new_eth_tx(
+    async fn save_new_rsk_tx(
         &self,
         _connection: &mut StorageProcessor<'_>,
         op_type: AggregatedActionType,
@@ -206,12 +206,12 @@ impl DatabaseInterface for MockDatabase {
         used_gas_price: U256,
         encoded_tx_data: Vec<u8>,
     ) -> anyhow::Result<InsertedOperationResponse> {
-        let mut eth_operations = self.eth_operations.write().await;
-        let id = eth_operations.len() as i64;
-        let nonce = eth_operations.len();
+        let mut rsk_operations = self.rsk_operations.write().await;
+        let id = rsk_operations.len() as i64;
+        let nonce = rsk_operations.len();
 
         // Store with the assigned ID.
-        let eth_operation = ETHOperation {
+        let rsk_operation = RSKOperation {
             id,
             op_type,
             op,
@@ -224,7 +224,7 @@ impl DatabaseInterface for MockDatabase {
             final_hash: None,
         };
 
-        eth_operations.push(eth_operation);
+        rsk_operations.push(rsk_operation);
 
         let response = InsertedOperationResponse {
             id,
@@ -238,16 +238,16 @@ impl DatabaseInterface for MockDatabase {
     async fn add_hash_entry(
         &self,
         _connection: &mut StorageProcessor<'_>,
-        eth_op_id: i64,
+        rsk_op_id: i64,
         hash: &H256,
     ) -> anyhow::Result<()> {
-        let mut eth_operations = self.eth_operations.write().await;
-        let eth_op = eth_operations
+        let mut rsk_operations = self.rsk_operations.write().await;
+        let rsk_op = rsk_operations
             .iter_mut()
-            .find(|eth_op| eth_op.id == eth_op_id && !eth_op.confirmed);
+            .find(|rsk_op| rsk_op.id == rsk_op_id && !rsk_op.confirmed);
 
-        if let Some(eth_op) = eth_op {
-            eth_op.used_tx_hashes.push(*hash);
+        if let Some(rsk_op) = rsk_op {
+            rsk_op.used_tx_hashes.push(*hash);
         } else {
             panic!("Attempt to update tx that is not unconfirmed");
         }
@@ -255,21 +255,21 @@ impl DatabaseInterface for MockDatabase {
         Ok(())
     }
 
-    async fn update_eth_tx(
+    async fn update_rsk_tx(
         &self,
         _connection: &mut StorageProcessor<'_>,
-        eth_op_id: EthOpId,
+        rsk_op_id: RSKOpId,
         new_deadline_block: i64,
         new_gas_value: U256,
     ) -> anyhow::Result<()> {
-        let mut eth_operations = self.eth_operations.write().await;
-        let eth_op = eth_operations
+        let mut rsk_operations = self.rsk_operations.write().await;
+        let rsk_op = rsk_operations
             .iter_mut()
-            .find(|eth_op| eth_op.id == eth_op_id && !eth_op.confirmed);
+            .find(|rsk_op| rsk_op.id == rsk_op_id && !rsk_op.confirmed);
 
-        if let Some(eth_op) = eth_op {
-            eth_op.last_deadline_block = new_deadline_block as u64;
-            eth_op.last_used_gas_price = new_gas_value;
+        if let Some(rsk_op) = rsk_op {
+            rsk_op.last_deadline_block = new_deadline_block as u64;
+            rsk_op.last_used_gas_price = new_gas_value;
         } else {
             panic!("Attempt to update tx that is not unconfirmed");
         }
@@ -281,11 +281,11 @@ impl DatabaseInterface for MockDatabase {
         &self,
         _connection: &mut StorageProcessor<'_>,
         hash: &H256,
-        _op: &ETHOperation,
+        _op: &RSKOperation,
     ) -> anyhow::Result<()> {
-        let mut eth_operations = self.eth_operations.write().await;
+        let mut rsk_operations = self.rsk_operations.write().await;
         let mut op_idx: Option<i64> = None;
-        for operation in eth_operations.iter_mut() {
+        for operation in rsk_operations.iter_mut() {
             if operation.used_tx_hashes.contains(hash) {
                 operation.confirmed = true;
                 operation.final_hash = Some(*hash);
@@ -306,18 +306,18 @@ impl DatabaseInterface for MockDatabase {
         &self,
         _connection: &mut StorageProcessor<'_>,
     ) -> anyhow::Result<U256> {
-        let eth_parameters = self.eth_parameters.read().await;
-        let gas_price_limit = eth_parameters.gas_price_limit.into();
+        let rsk_parameters = self.rsk_parameters.read().await;
+        let gas_price_limit = rsk_parameters.gas_price_limit.into();
 
         Ok(gas_price_limit)
     }
 
-    async fn load_stats(&self, _connection: &mut StorageProcessor<'_>) -> anyhow::Result<ETHStats> {
-        let eth_parameters = self.eth_parameters.read().await;
-        let eth_stats = ETHStats {
-            last_committed_block: eth_parameters.last_committed_block as usize,
-            last_verified_block: eth_parameters.last_verified_block as usize,
-            last_executed_block: eth_parameters.last_executed_block as usize,
+    async fn load_stats(&self, _connection: &mut StorageProcessor<'_>) -> anyhow::Result<RSKStats> {
+        let rsk_parameters = self.rsk_parameters.read().await;
+        let eth_stats = RSKStats {
+            last_committed_block: rsk_parameters.last_committed_block as usize,
+            last_verified_block: rsk_parameters.last_verified_block as usize,
+            last_executed_block: rsk_parameters.last_executed_block as usize,
         };
 
         Ok(eth_stats)
@@ -326,7 +326,7 @@ impl DatabaseInterface for MockDatabase {
     async fn is_previous_operation_confirmed(
         &self,
         _connection: &mut StorageProcessor<'_>,
-        op: &ETHOperation,
+        op: &RSKOperation,
     ) -> anyhow::Result<bool> {
         let confirmed = {
             let op = op.op.as_ref().unwrap();
@@ -336,11 +336,11 @@ impl DatabaseInterface for MockDatabase {
                 return Ok(true);
             }
 
-            let eth_operations = self.eth_operations.read().await.clone();
+            let rsk_operations = self.rsk_operations.read().await.clone();
 
             // Consider an operation that affects sequential blocks.
-            let maybe_operation = eth_operations.iter().find(|eth_operation| {
-                let op_block_range = eth_operation.op.as_ref().unwrap().1.get_block_range();
+            let maybe_operation = rsk_operations.iter().find(|rsk_operation| {
+                let op_block_range = rsk_operation.op.as_ref().unwrap().1.get_block_range();
 
                 op_block_range.1 == first_block - 1
             });
@@ -357,9 +357,9 @@ impl DatabaseInterface for MockDatabase {
     }
 }
 
-/// Creates a default `ETHParams` for use by mock `ETHSender` .
-pub(crate) fn default_eth_parameters() -> ETHParams {
-    ETHParams {
+/// Creates a default `RSKParams` for use by mock `RSKSender` .
+pub(crate) fn default_eth_parameters() -> RSKParams {
+    RSKParams {
         id: true,
         nonce: 0,
         gas_price_limit: 400000000000,
@@ -370,9 +370,9 @@ pub(crate) fn default_eth_parameters() -> ETHParams {
     }
 }
 
-/// Creates a default `ETHSender` with mock Rootstock connection/database and no operations in DB.
-/// Returns the `ETHSender` itself along with communication channels to interact with it.
-pub(crate) async fn default_eth_sender() -> ETHSender<MockDatabase> {
+/// Creates a default `RSKSender` with mock Rootstock connection/database and no operations in DB.
+/// Returns the `RSKSender` itself along with communication channels to interact with it.
+pub(crate) async fn default_eth_sender() -> RSKSender<MockDatabase> {
     build_eth_sender(
         1,
         Vec::new(),
@@ -383,10 +383,10 @@ pub(crate) async fn default_eth_sender() -> ETHSender<MockDatabase> {
     .await
 }
 
-/// Creates an `ETHSender` with mock Rootstock connection/database and no operations in DB
+/// Creates an `RSKSender` with mock Rootstock connection/database and no operations in DB
 /// which supports multiple transactions in flight.
-/// Returns the `ETHSender` itself along with communication channels to interact with it.
-pub(crate) async fn concurrent_eth_sender(max_txs_in_flight: u64) -> ETHSender<MockDatabase> {
+/// Returns the `RSKSender` itself along with communication channels to interact with it.
+pub(crate) async fn concurrent_eth_sender(max_txs_in_flight: u64) -> RSKSender<MockDatabase> {
     build_eth_sender(
         max_txs_in_flight,
         Vec::new(),
@@ -397,43 +397,43 @@ pub(crate) async fn concurrent_eth_sender(max_txs_in_flight: u64) -> ETHSender<M
     .await
 }
 
-/// Creates an `ETHSender` with mock Rootstock connection/database and restores its state "from DB".
-/// Returns the `ETHSender` itself along with communication channels to interact with it.
+/// Creates an `RSKSender` with mock Rootstock connection/database and restores its state "from DB".
+/// Returns the `RSKSender` itself along with communication channels to interact with it.
 pub(crate) async fn restored_eth_sender(
-    eth_operations: Vec<ETHOperation>,
+    rsk_operations: Vec<RSKOperation>,
     aggregated_operations: Vec<(i64, AggregatedOperation)>,
     unprocessed_operations: Vec<(i64, AggregatedOperation)>,
-    eth_parameters: ETHParams,
-) -> ETHSender<MockDatabase> {
+    rsk_parameters: RSKParams,
+) -> RSKSender<MockDatabase> {
     const MAX_TXS_IN_FLIGHT: u64 = 1;
 
     build_eth_sender(
         MAX_TXS_IN_FLIGHT,
-        eth_operations,
+        rsk_operations,
         aggregated_operations,
         unprocessed_operations,
-        eth_parameters,
+        rsk_parameters,
     )
     .await
 }
 
-/// Helper method for configurable creation of `ETHSender`.
+/// Helper method for configurable creation of `RSKSender`.
 async fn build_eth_sender(
     max_txs_in_flight: u64,
-    eth_operations: Vec<ETHOperation>,
+    rsk_operations: Vec<RSKOperation>,
     aggregated_operations: Vec<(i64, AggregatedOperation)>,
     unprocessed_operations: Vec<(i64, AggregatedOperation)>,
-    eth_parameters: ETHParams,
-) -> ETHSender<MockDatabase> {
+    rsk_parameters: RSKParams,
+) -> RSKSender<MockDatabase> {
     let rootstock = RootstockGateway::Mock(MockRootstock::default());
     let db = MockDatabase::with_restorable_state(
-        eth_operations,
+        rsk_operations,
         aggregated_operations,
         unprocessed_operations,
-        eth_parameters,
+        rsk_parameters,
     );
 
-    let options = ETHSenderConfig {
+    let options = RSKSenderConfig {
         sender: Sender {
             max_txs_in_flight,
             expected_wait_time_block: super::EXPECTED_WAIT_TIME_BLOCKS,
@@ -451,19 +451,19 @@ async fn build_eth_sender(
         },
     };
 
-    ETHSender::new(options, db, rootstock).await
+    RSKSender::new(options, db, rootstock).await
 }
 
-/// Behaves the same as `ETHSender::sign_new_tx`, but does not affect nonce.
+/// Behaves the same as `RSKSender::sign_new_tx`, but does not affect nonce.
 /// This method should be used to create expected tx copies which won't affect
-/// the internal `ETHSender` state.
+/// the internal `RSKSender` state.
 pub(crate) async fn create_signed_tx(
     id: i64,
-    eth_sender: &ETHSender<MockDatabase>,
+    eth_sender: &RSKSender<MockDatabase>,
     aggregated_operation: (i64, AggregatedOperation),
     deadline_block: u64,
     nonce: i64,
-) -> ETHOperation {
+) -> RSKOperation {
     let options = Options {
         nonce: Some(nonce.into()),
         ..Default::default()
@@ -478,7 +478,7 @@ pub(crate) async fn create_signed_tx(
 
     let op_type = aggregated_operation.1.get_action_type();
 
-    ETHOperation {
+    RSKOperation {
         id,
         op_type,
         op: Some(aggregated_operation.clone()),

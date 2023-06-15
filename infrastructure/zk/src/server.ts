@@ -62,7 +62,7 @@ async function prepareForcedExitRequestAccount() {
     const forcedExitAccount = process.env.FORCED_EXIT_REQUESTS_SENDER_ACCOUNT_ADDRESS as string;
 
     // This is the private key of the first test account ()
-    const ethProvider = new ethers.providers.JsonRpcProvider(process.env.ETH_CLIENT_WEB3_URL);
+    const ethProvider = new ethers.providers.JsonRpcProvider(process.env.RSK_CLIENT_WEB3_URL);
     const ethRichWallet = new ethers.Wallet(
         '0x20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323',
         ethProvider

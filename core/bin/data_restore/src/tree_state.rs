@@ -516,7 +516,7 @@ impl TreeState {
                 data: priority_op,
                 deadline_block: 0,
                 eth_hash: H256::zero(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
             block_index,

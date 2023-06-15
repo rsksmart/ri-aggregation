@@ -3,9 +3,9 @@ use self::mock::{
     concurrent_eth_sender, create_signed_tx, default_eth_parameters, default_eth_sender,
     restored_eth_sender,
 };
-use super::{transactions::TxCheckOutcome, ETHSender, TxCheckMode};
+use super::{transactions::TxCheckOutcome, RSKSender, TxCheckMode};
 use web3::types::U64;
-use zksync_eth_client::rootstock_gateway::ExecutedTxStatus;
+use zksync_rsk_client::rootstock_gateway::ExecutedTxStatus;
 
 const EXPECTED_WAIT_TIME_BLOCKS: u64 = 30;
 const WAIT_CONFIRMATIONS: u64 = 3;
@@ -13,7 +13,7 @@ const WAIT_CONFIRMATIONS: u64 = 3;
 pub mod mock;
 mod test_data;
 
-/// Basic test that `ETHSender` creation does not panic and initializes correctly.
+/// Basic test that `RSKSender` creation does not panic and initializes correctly.
 #[tokio::test]
 async fn basic_test() {
     let eth_sender = default_eth_sender().await;
@@ -58,16 +58,16 @@ async fn transaction_state() {
         test_data::commit_blocks_operation(4), // Will be stuck.
         test_data::commit_blocks_operation(5), // Will be pending due no response.
     ];
-    let mut eth_operations = Vec::with_capacity(operations.len());
+    let mut rsk_operations = Vec::with_capacity(operations.len());
 
-    for (eth_op_id, op) in operations.iter().enumerate() {
-        eth_operations.push(
+    for (rsk_op_id, op) in operations.iter().enumerate() {
+        rsk_operations.push(
             create_signed_tx(
-                eth_op_id as i64,
+                rsk_op_id as i64,
                 &eth_sender,
                 op.clone(),
                 deadline_block,
-                eth_op_id as i64,
+                rsk_op_id as i64,
             )
             .await,
         )
@@ -83,7 +83,7 @@ async fn transaction_state() {
         .rootstock
         .get_mut_mock()
         .unwrap()
-        .add_execution(&eth_operations[0].used_tx_hashes[0], &committed_response)
+        .add_execution(&rsk_operations[0].used_tx_hashes[0], &committed_response)
         .await;
 
     // Pending operation.
@@ -96,7 +96,7 @@ async fn transaction_state() {
         .rootstock
         .get_mut_mock()
         .unwrap()
-        .add_execution(&eth_operations[1].used_tx_hashes[0], &pending_response)
+        .add_execution(&rsk_operations[1].used_tx_hashes[0], &pending_response)
         .await;
 
     // Failed operation.
@@ -109,7 +109,7 @@ async fn transaction_state() {
         .rootstock
         .get_mut_mock()
         .unwrap()
-        .add_execution(&eth_operations[2].used_tx_hashes[0], &failed_response)
+        .add_execution(&rsk_operations[2].used_tx_hashes[0], &failed_response)
         .await;
 
     // Pending failed operation.
@@ -123,7 +123,7 @@ async fn transaction_state() {
         .get_mut_mock()
         .unwrap()
         .add_execution(
-            &eth_operations[3].used_tx_hashes[0],
+            &rsk_operations[3].used_tx_hashes[0],
             &pending_failed_response,
         )
         .await;
@@ -133,8 +133,8 @@ async fn transaction_state() {
         eth_sender
             .check_transaction_state(
                 TxCheckMode::Latest,
-                &eth_operations[0],
-                eth_operations[0].used_tx_hashes[0],
+                &rsk_operations[0],
+                rsk_operations[0].used_tx_hashes[0],
                 current_block + committed_response.confirmations,
             )
             .await
@@ -147,8 +147,8 @@ async fn transaction_state() {
         eth_sender
             .check_transaction_state(
                 TxCheckMode::Latest,
-                &eth_operations[1],
-                eth_operations[1].used_tx_hashes[0],
+                &rsk_operations[1],
+                rsk_operations[1].used_tx_hashes[0],
                 current_block + pending_response.confirmations,
             )
             .await
@@ -161,8 +161,8 @@ async fn transaction_state() {
         eth_sender
             .check_transaction_state(
                 TxCheckMode::Latest,
-                &eth_operations[2],
-                eth_operations[2].used_tx_hashes[0],
+                &rsk_operations[2],
+                rsk_operations[2].used_tx_hashes[0],
                 current_block + failed_response.confirmations,
             )
             .await
@@ -175,8 +175,8 @@ async fn transaction_state() {
         eth_sender
             .check_transaction_state(
                 TxCheckMode::Latest,
-                &eth_operations[3],
-                eth_operations[3].used_tx_hashes[0],
+                &rsk_operations[3],
+                rsk_operations[3].used_tx_hashes[0],
                 current_block + pending_failed_response.confirmations,
             )
             .await
@@ -189,8 +189,8 @@ async fn transaction_state() {
         eth_sender
             .check_transaction_state(
                 TxCheckMode::Latest,
-                &eth_operations[4],
-                eth_operations[4].used_tx_hashes[0],
+                &rsk_operations[4],
+                rsk_operations[4].used_tx_hashes[0],
                 current_block + EXPECTED_WAIT_TIME_BLOCKS,
             )
             .await
@@ -203,8 +203,8 @@ async fn transaction_state() {
         eth_sender
             .check_transaction_state(
                 TxCheckMode::Latest,
-                &eth_operations[5],
-                eth_operations[5].used_tx_hashes[0],
+                &rsk_operations[5],
+                rsk_operations[5].used_tx_hashes[0],
                 current_block + EXPECTED_WAIT_TIME_BLOCKS - 1,
             )
             .await
@@ -217,8 +217,8 @@ async fn transaction_state() {
         eth_sender
             .check_transaction_state(
                 TxCheckMode::Old,
-                &eth_operations[5],
-                eth_operations[5].used_tx_hashes[0],
+                &rsk_operations[5],
+                rsk_operations[5].used_tx_hashes[0],
                 current_block + EXPECTED_WAIT_TIME_BLOCKS - 1,
             )
             .await
@@ -227,7 +227,7 @@ async fn transaction_state() {
     );
 }
 
-/// Test for a normal `ETHSender` workflow:
+/// Test for a normal `RSKSender` workflow:
 /// - we send the two sequential operations (commit, verify, execute);
 /// - they are successfully committed to the Rootstock;
 /// - notification is sent after `execute` operation is committed.
@@ -243,10 +243,10 @@ async fn operation_commitment_workflow() {
         test_data::execute_blocks_operations(0),
     ];
 
-    for (eth_op_id, aggregated_operation) in aggregated_operations.iter().enumerate() {
-        let nonce = eth_op_id as i64;
+    for (rsk_op_id, aggregated_operation) in aggregated_operations.iter().enumerate() {
+        let nonce = rsk_op_id as i64;
 
-        // Send an operation to `ETHSender`.
+        // Send an operation to `RSKSender`.
         eth_sender
             .db
             .send_aggregated_operation(aggregated_operation.clone())
@@ -270,14 +270,14 @@ async fn operation_commitment_workflow() {
                 .as_u64(),
         );
         let mut expected_tx = create_signed_tx(
-            eth_op_id as i64,
+            rsk_op_id as i64,
             &eth_sender,
             aggregated_operation.clone(),
             deadline_block,
             nonce,
         )
         .await;
-        expected_tx.id = eth_op_id as i64; // We have to set the ID manually.
+        expected_tx.id = rsk_op_id as i64; // We have to set the ID manually.
 
         eth_sender.db.assert_stored(&expected_tx).await;
 
@@ -309,7 +309,7 @@ async fn operation_commitment_workflow() {
 /// A simple scenario for a stuck transaction:
 /// - A transaction is sent to the Rootstock.
 /// - It is not processed after some blocks.
-/// - `ETHSender` creates a new transaction with increased gas.
+/// - `RSKSender` creates a new transaction with increased gas.
 /// - This transaction is completed successfully.
 #[tokio::test]
 async fn stuck_transaction() {
@@ -317,7 +317,7 @@ async fn stuck_transaction() {
 
     // Workflow for the test is similar to `operation_commitment_workflow`.
     let aggregated_operation = test_data::commit_blocks_operation(0);
-    // Send an operation to `ETHSender`.
+    // Send an operation to `RSKSender`.
     eth_sender
         .db
         .send_aggregated_operation(aggregated_operation.clone())
@@ -327,7 +327,7 @@ async fn stuck_transaction() {
     eth_sender.load_new_operations().await.unwrap();
     eth_sender.proceed_next_operations(0).await;
 
-    let eth_op_id = 0;
+    let rsk_op_id = 0;
     let nonce = 0;
     let deadline_block = eth_sender.get_deadline_block(
         eth_sender
@@ -340,7 +340,7 @@ async fn stuck_transaction() {
             .as_u64(),
     );
     let mut stuck_tx = create_signed_tx(
-        eth_op_id,
+        rsk_op_id,
         &eth_sender,
         aggregated_operation.clone(),
         deadline_block,
@@ -558,7 +558,7 @@ async fn transaction_failure() {
         .await
         .unwrap();
 
-    let eth_op_id = 0;
+    let rsk_op_id = 0;
     let nonce = 0;
     let deadline_block = eth_sender.get_deadline_block(
         eth_sender
@@ -571,7 +571,7 @@ async fn transaction_failure() {
             .as_u64(),
     );
     let failing_tx = create_signed_tx(
-        eth_op_id,
+        rsk_op_id,
         &eth_sender,
         aggregated_operation.clone(),
         deadline_block,
@@ -650,7 +650,7 @@ async fn restore_state() {
             unprocessed_verify_op,
             unprocessed_execute_op.clone(),
         ];
-        // Aggregated operations from the table `eth_unprocessed_aggregated_ops` are deleted after the operation is added to the queue,
+        // Aggregated operations from the table `rsk_unprocessed_aggregated_ops` are deleted after the operation is added to the queue,
         // therefore, after restarting the server, it may contain not all really unprocessed operations.
         let unprocessed_operations = vec![unprocessed_execute_op];
 
@@ -661,23 +661,23 @@ async fn restore_state() {
         )
     };
 
-    let mut eth_parameters = default_eth_parameters();
-    eth_parameters.last_committed_block = 1;
-    eth_parameters.last_verified_block = 1;
-    eth_parameters.last_executed_block = 1;
+    let mut rsk_parameters = default_eth_parameters();
+    rsk_parameters.last_committed_block = 1;
+    rsk_parameters.last_verified_block = 1;
+    rsk_parameters.last_executed_block = 1;
 
     let mut eth_sender = restored_eth_sender(
         stored_eth_operations,
         aggregated_operations.clone(),
         unprocessed_operations,
-        eth_parameters,
+        rsk_parameters,
     )
     .await;
 
     eth_sender.load_new_operations().await.unwrap();
 
-    for (eth_op_id, aggregated_operation) in aggregated_operations.iter().enumerate() {
-        // Note that we DO NOT send an operation to `ETHSender` and neither receive it.
+    for (rsk_op_id, aggregated_operation) in aggregated_operations.iter().enumerate() {
+        // Note that we DO NOT send an operation to `RSKSender` and neither receive it.
 
         // We do process operations restored from the DB though.
         // The rest of this test is the same as in `operation_commitment_workflow`.
@@ -693,16 +693,16 @@ async fn restore_state() {
                 .unwrap()
                 .as_u64(),
         );
-        let nonce = eth_op_id as i64;
+        let nonce = rsk_op_id as i64;
         let mut expected_tx = create_signed_tx(
-            eth_op_id as i64,
+            rsk_op_id as i64,
             &eth_sender,
             aggregated_operation.clone(),
             deadline_block,
             nonce,
         )
         .await;
-        expected_tx.id = eth_op_id as i64;
+        expected_tx.id = rsk_op_id as i64;
 
         eth_sender.db.assert_stored(&expected_tx).await;
 
@@ -740,7 +740,7 @@ async fn confirmations_independence() {
     eth_sender.load_new_operations().await.unwrap();
     eth_sender.proceed_next_operations(0).await;
 
-    let eth_op_id = 0;
+    let rsk_op_id = 0;
     let nonce = 0;
     let deadline_block = eth_sender.get_deadline_block(
         eth_sender
@@ -753,7 +753,7 @@ async fn confirmations_independence() {
             .as_u64(),
     );
     let mut stuck_tx = create_signed_tx(
-        eth_op_id,
+        rsk_op_id,
         &eth_sender,
         aggregated_operation.clone(),
         deadline_block,

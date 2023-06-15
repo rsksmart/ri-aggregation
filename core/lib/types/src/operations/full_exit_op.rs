@@ -2,7 +2,7 @@ use num::{BigUint, FromPrimitive, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use zksync_crypto::params::{
     ACCOUNT_ID_BIT_WIDTH, ADDRESS_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BYTES, CONTENT_HASH_WIDTH,
-    ETH_ADDRESS_BIT_WIDTH, LEGACY_CHUNK_BYTES, LEGACY_TOKEN_BIT_WIDTH, TOKEN_BIT_WIDTH,
+    RSK_ADDRESS_BIT_WIDTH, LEGACY_CHUNK_BYTES, LEGACY_TOKEN_BIT_WIDTH, TOKEN_BIT_WIDTH,
 };
 use zksync_crypto::primitives::FromBytes;
 use zksync_utils::BigUintSerdeWrapper;
@@ -82,7 +82,7 @@ impl FullExitOp {
 
         let account_id_offset = 1;
         let eth_address_offset = account_id_offset + ACCOUNT_ID_BIT_WIDTH / 8;
-        let token_offset = eth_address_offset + ETH_ADDRESS_BIT_WIDTH / 8;
+        let token_offset = eth_address_offset + RSK_ADDRESS_BIT_WIDTH / 8;
         let amount_offset = token_offset + TOKEN_BIT_WIDTH / 8;
         let creator_address = amount_offset + BALANCE_BIT_WIDTH / 8;
         let content_hash_offset = creator_address + ADDRESS_WIDTH / 8;
@@ -126,7 +126,7 @@ impl FullExitOp {
 
         let account_id_offset = 1;
         let eth_address_offset = account_id_offset + ACCOUNT_ID_BIT_WIDTH / 8;
-        let token_offset = eth_address_offset + ETH_ADDRESS_BIT_WIDTH / 8;
+        let token_offset = eth_address_offset + RSK_ADDRESS_BIT_WIDTH / 8;
         let amount_offset = token_offset + LEGACY_TOKEN_BIT_WIDTH / 8;
 
         let account_id = u32::from_bytes(&bytes[account_id_offset..eth_address_offset])

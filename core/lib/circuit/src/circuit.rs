@@ -1295,7 +1295,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
         pubdata_bits.extend(cur.token.get_bits_be()); //TOKEN_BIT_WIDTH=16
         pubdata_bits.extend(op_data.full_amount.get_bits_be()); //AMOUNT_PACKED=24
         pubdata_bits.extend(op_data.fee_packed.get_bits_be()); //FEE_PACKED=8
-        pubdata_bits.extend(op_data.eth_address.get_bits_be()); //ETH_ADDRESS=160
+        pubdata_bits.extend(op_data.eth_address.get_bits_be()); //RSK_ADDRESS=160
                                                                 //        assert_eq!(pubdata_bits.len(), 30 * 8);
 
         resize_grow_only(
@@ -1763,7 +1763,7 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
         pubdata_bits.extend(cur.account_id.get_bits_be()); //ACCOUNT_TREE_DEPTH=24
         pubdata_bits.extend(cur.token.get_bits_be()); //TOKEN_BIT_WIDTH=16
         pubdata_bits.extend(op_data.full_amount.get_bits_be()); //AMOUNT_PACKED=24
-        pubdata_bits.extend(op_data.eth_address.get_bits_be()); //ETH_ADDRESS_BIT_WIDTH=160
+        pubdata_bits.extend(op_data.eth_address.get_bits_be()); //RSK_ADDRESS_BIT_WIDTH=160
         resize_grow_only(
             &mut pubdata_bits,
             DepositOp::CHUNKS * params::CHUNK_BIT_WIDTH,
@@ -1908,8 +1908,8 @@ impl<'a, E: RescueEngine + JubjubEngine> ZkSyncCircuit<'a, E> {
         let mut pubdata_bits = vec![];
         pubdata_bits.extend(global_variables.chunk_data.tx_type.get_bits_be()); //TX_TYPE_BIT_WIDTH=8
         pubdata_bits.extend(cur.account_id.get_bits_be()); //ACCOUNT_TREE_DEPTH=24
-        pubdata_bits.extend(op_data.new_pubkey_hash.get_bits_be()); //ETH_KEY_BIT_WIDTH=160
-        pubdata_bits.extend(op_data.eth_address.get_bits_be()); //ETH_KEY_BIT_WIDTH=160
+        pubdata_bits.extend(op_data.new_pubkey_hash.get_bits_be()); //RSK_KEY_BIT_WIDTH=160
+        pubdata_bits.extend(op_data.eth_address.get_bits_be()); //RSK_KEY_BIT_WIDTH=160
                                                                 // NOTE: nonce if verified implicitly here. Current account nonce goes to pubdata and to contract.
         pubdata_bits.extend(op_data.pub_nonce.get_bits_be());
         pubdata_bits.extend(cur.token.get_bits_be());

@@ -7,7 +7,7 @@ use crate::envy_load;
 
 /// Configuration for the Rootstock sender crate.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
-pub struct ETHWatchConfig {
+pub struct RSKWatchConfig {
     /// Amount of confirmations for the priority operation to be processed.
     /// In production this should be a non-zero value because of block reverts.
     pub confirmations_for_eth_event: u64,
@@ -16,9 +16,9 @@ pub struct ETHWatchConfig {
     pub eth_node_poll_interval: u64,
 }
 
-impl ETHWatchConfig {
+impl RSKWatchConfig {
     pub fn from_env() -> Self {
-        envy_load!("eth_watch", "ETH_WATCH_")
+        envy_load!("eth_watch", "RSK_WATCH_")
     }
 
     /// Converts `self.eth_node_poll_interval` into `Duration`.
@@ -32,8 +32,8 @@ mod tests {
     use super::*;
     use crate::configs::test_utils::set_env;
 
-    fn expected_config() -> ETHWatchConfig {
-        ETHWatchConfig {
+    fn expected_config() -> RSKWatchConfig {
+        RSKWatchConfig {
             confirmations_for_eth_event: 0,
             eth_node_poll_interval: 300,
         }
@@ -42,12 +42,12 @@ mod tests {
     #[test]
     fn from_env() {
         let config = r#"
-ETH_WATCH_CONFIRMATIONS_FOR_ETH_EVENT="0"
-ETH_WATCH_ETH_NODE_POLL_INTERVAL="300"
+RSK_WATCH_CONFIRMATIONS_FOR_RSK_EVENT="0"
+RSK_WATCH_RSK_NODE_POLL_INTERVAL="300"
         "#;
         set_env(config);
 
-        let actual = ETHWatchConfig::from_env();
+        let actual = RSKWatchConfig::from_env();
         assert_eq!(actual, expected_config());
     }
 

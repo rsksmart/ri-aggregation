@@ -7,7 +7,7 @@ use num::{BigUint, FromPrimitive, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use zksync_crypto::{
     params::{
-        ACCOUNT_ID_BIT_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BYTES, ETH_ADDRESS_BIT_WIDTH,
+        ACCOUNT_ID_BIT_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BYTES, RSK_ADDRESS_BIT_WIDTH,
         FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH, LEGACY_CHUNK_BYTES, LEGACY_TOKEN_BIT_WIDTH,
         TOKEN_BIT_WIDTH,
     },
@@ -80,7 +80,7 @@ impl ForcedExitOp {
         let amount_offset = token_id_offset + token_bit_width / 8;
         let fee_offset = amount_offset + BALANCE_BIT_WIDTH / 8;
         let eth_address_offset = fee_offset + (FEE_EXPONENT_BIT_WIDTH + FEE_MANTISSA_BIT_WIDTH) / 8;
-        let eth_address_end = eth_address_offset + ETH_ADDRESS_BIT_WIDTH / 8;
+        let eth_address_end = eth_address_offset + RSK_ADDRESS_BIT_WIDTH / 8;
 
         let initiator_account_id =
             u32::from_bytes(&bytes[initiator_account_id_offset..target_account_id_offset])

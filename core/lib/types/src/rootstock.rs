@@ -7,11 +7,11 @@ use crate::aggregated_operations::{AggregatedActionType, AggregatedOperation};
 use zksync_basic_types::{H256, U256};
 
 /// Numerical identifier of the Rootstock operation.
-pub type EthOpId = i64;
+pub type RSKOpId = i64;
 
 /// Stored Rootstock operation.
 #[derive(Debug, Clone)]
-pub struct ETHOperation {
+pub struct RSKOperation {
     // Numeric ID of the operation.
     pub id: i64,
     /// Type of the operation.
@@ -36,7 +36,7 @@ pub struct ETHOperation {
     pub final_hash: Option<H256>,
 }
 
-impl ETHOperation {
+impl RSKOperation {
     /// Checks whether the transaction is considered "stuck".
     /// "Stuck" transactions are ones that were not included into any block
     /// within a desirable amount of time, and thus require re-sending with
@@ -52,9 +52,9 @@ impl ETHOperation {
     }
 }
 
-impl PartialEq for ETHOperation {
+impl PartialEq for RSKOperation {
     fn eq(&self, other: &Self) -> bool {
-        // We assume that there will be no two different `ETHOperation`s with
+        // We assume that there will be no two different `RSKOperation`s with
         // the same identifiers.
         // However, the volatile fields (e.g. `used_tx_hashes` and `confirmed`) may vary
         // for the same operation in different states, so we compare them as well.

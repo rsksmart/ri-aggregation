@@ -422,7 +422,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
             let data = serde_json::to_value(op.data.clone()).expect("Should be encoded");
             let deadline_block = op.deadline_block as i64;
             let eth_hash = op.eth_hash.as_bytes().to_vec();
-            let eth_block = op.eth_block as i64;
+            let rsk_block = op.rsk_block as i64;
             let eth_block_index = op.eth_block_index.map(|v| v as i32).unwrap_or_default();
             let op_type = op.data.variance_name();
             let (l1_address, l2_address) = match &op.data {
@@ -438,13 +438,13 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
             sqlx::query!(
                 "INSERT INTO mempool_priority_operations (
                     serial_id, data, deadline_block, eth_hash, tx_hash,
-                    eth_block, eth_block_index, l1_address, 
+                    rsk_block, eth_block_index, l1_address, 
                     l2_address, type, created_at, confirmed
                  )
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), $11)
                 ON CONFLICT (serial_id) DO UPDATE SET
                 data=$2, deadline_block=$3, eth_hash=$4, tx_hash=$5,
-                eth_block=$6, eth_block_index=$7, l1_address=$8,
+                rsk_block=$6, eth_block_index=$7, l1_address=$8,
                 l2_address=$9, type=$10, confirmed=$11
                 ",
                 serial_id,
@@ -452,7 +452,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
                 deadline_block,
                 eth_hash,
                 tx_hash,
-                eth_block,
+                rsk_block,
                 eth_block_index,
                 l1_address,
                 l2_address,
@@ -470,7 +470,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
     pub async fn get_confirmed_priority_ops(&mut self) -> QueryResult<VecDeque<PriorityOp>> {
         let ops = sqlx::query_as!(
             MempoolPriorityOp,
-            "SELECT serial_id,data,deadline_block,eth_hash,tx_hash,eth_block,eth_block_index,created_at FROM mempool_priority_operations WHERE confirmed AND reverted = false ORDER BY serial_id"
+            "SELECT serial_id,data,deadline_block,eth_hash,tx_hash,rsk_block,eth_block_index,created_at FROM mempool_priority_operations WHERE confirmed AND reverted = false ORDER BY serial_id"
         )
         .fetch_all(self.0.conn())
         .await?;
@@ -508,7 +508,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
         limit: u32,
         direction: PaginationDirection,
     ) -> QueryResult<Vec<PriorityOp>> {
-        let query = "SELECT serial_id,data,deadline_block,eth_hash,tx_hash,eth_block,eth_block_index,created_at FROM mempool_priority_operations WHERE l2_address = $1";
+        let query = "SELECT serial_id,data,deadline_block,eth_hash,tx_hash,rsk_block,eth_block_index,created_at FROM mempool_priority_operations WHERE l2_address = $1";
         let query = match direction {
             PaginationDirection::Newer => {
                 format!("{} AND serial_id >= $2 ORDER BY serial_id LIMIT $3", query)
@@ -537,7 +537,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
             MempoolPriorityOp,
             r#"
                 SELECT serial_id,data,deadline_block,eth_hash,
-                       tx_hash,eth_block,eth_block_index,created_at 
+                       tx_hash,rsk_block,eth_block_index,created_at 
                 FROM mempool_priority_operations 
                 WHERE eth_hash = $1
             "#,
@@ -553,7 +553,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
             MempoolPriorityOp,
             r#"
             SELECT serial_id,data,deadline_block,eth_hash,
-                   tx_hash,eth_block,eth_block_index,created_at 
+                   tx_hash,rsk_block,eth_block_index,created_at 
             FROM mempool_priority_operations 
             WHERE type = 'Deposit' AND l2_address = $1  
             ORDER BY serial_id"#,
@@ -693,7 +693,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
                 mempool_priority_operations.serial_id as priority_op_serialid,
                 mempool_priority_operations.deadline_block,
                 mempool_priority_operations.eth_hash,
-                mempool_priority_operations.eth_block,
+                mempool_priority_operations.rsk_block,
                 mempool_priority_operations.created_at,
                 cast(mempool_priority_operations.eth_block_index as bigint) as "eth_block_index?",
                 mempool_reverted_txs_meta.tx_hash_bytes as tx_hash
@@ -951,7 +951,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
             let op_type = priority_op.data.variance_name();
             let deadline_block = priority_op.deadline_block as i64;
             let eth_hash = priority_op.eth_hash.as_bytes().to_vec();
-            let eth_block = priority_op.eth_block as i64;
+            let rsk_block = priority_op.rsk_block as i64;
             let eth_block_index = priority_op.eth_block_index.map(|a| a as i32);
 
             sqlx::query!(
@@ -976,7 +976,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
             sqlx::query!(
                 "INSERT INTO mempool_priority_operations (
                     serial_id, data, l1_address, l2_address, 
-                    type, deadline_block, eth_hash, tx_hash, eth_block, 
+                    type, deadline_block, eth_hash, tx_hash, rsk_block, 
                     eth_block_index, created_at, confirmed, reverted
                 )
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, true, true)",
@@ -988,7 +988,7 @@ impl<'a, 'c> MempoolSchema<'a, 'c> {
                 deadline_block,
                 eth_hash,
                 tx_hash,
-                eth_block,
+                rsk_block,
                 eth_block_index,
                 created_at
             )

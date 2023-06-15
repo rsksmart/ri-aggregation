@@ -2,7 +2,7 @@
 use std::{collections::VecDeque, marker::PhantomData, time::Instant};
 // External deps
 use zksync_basic_types::U256;
-use zksync_eth_client::RootstockGateway;
+use zksync_rsk_client::RootstockGateway;
 // Local deps
 use crate::database::DatabaseInterface;
 

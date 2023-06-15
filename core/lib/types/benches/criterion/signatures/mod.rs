@@ -27,13 +27,13 @@ fn bench_signature_zksync_musig_verify(b: &mut Bencher<'_>) {
 
 fn bench_signature_verify_eth_packed(b: &mut Bencher<'_>) {
     let mut rng = XorShiftRng::from_seed([1, 2, 3, 4]);
-    const TYPICAL_ETH_SIGNATURE_LEN: usize = 150;
+    const TYPICAL_RSK_SIGNATURE_LEN: usize = 150;
 
     let pk = H256(rng.gen());
 
     let message = rng
         .gen_iter::<u8>()
-        .take(TYPICAL_ETH_SIGNATURE_LEN)
+        .take(TYPICAL_RSK_SIGNATURE_LEN)
         .collect::<Vec<_>>();
 
     let signature = PackedEthSignature::sign(&pk, &message).unwrap();

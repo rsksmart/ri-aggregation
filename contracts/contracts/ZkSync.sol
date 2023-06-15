@@ -462,7 +462,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         bool sent = false;
         if (_tokenId == 0) {
             address payable toPayable = address(uint160(_recipient));
-            sent = sendETHNoRevert(toPayable, _amount);
+            sent = sendRBTCNoRevert(toPayable, _amount);
         } else {
             address tokenAddr = governance.tokenAddresses(_tokenId);
             // We use `transferERC20` here to check that `ERC20` token indeed transferred `_amount`
@@ -498,7 +498,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         emit WithdrawalPending(_tokenId, _recipient, _amount);
     }
 
-    /// @dev helper function to process ETH/ERC20 withdrawal
+    /// @dev helper function to process RBTC/ERC20 withdrawal
     function handleWithdrawFT(
         bool _completeWithdrawals,
         uint16 _tokenId,
@@ -1010,11 +1010,11 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         pendingBalances[_packedBalanceKey] = PendingBalance(balance.add(_amount), FILLED_GAS_RESERVE_VALUE);
     }
 
-    /// @notice Sends ETH
+    /// @notice Sends RBTC
     /// @param _to Address of recipient
     /// @param _amount Amount of tokens to transfer
     /// @return bool flag indicating that transfer is successful
-    function sendETHNoRevert(address payable _to, uint256 _amount) internal returns (bool) {
+    function sendRBTCNoRevert(address payable _to, uint256 _amount) internal returns (bool) {
         (bool callSuccess, ) = _to.call{gas: WITHDRAWAL_GAS_LIMIT, value: _amount}("");
         return callSuccess;
     }

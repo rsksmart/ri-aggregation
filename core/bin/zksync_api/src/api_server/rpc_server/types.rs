@@ -114,7 +114,7 @@ pub struct TransactionInfoResp {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct ETHOpInfoResp {
+pub struct RSKOpInfoResp {
     pub executed: bool,
     pub block: Option<BlockInfo>,
 }

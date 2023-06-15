@@ -5,7 +5,7 @@ use crate::envy_load;
 
 /// Configuration for the Rootstock gateways.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
-pub struct ETHClientConfig {
+pub struct RSKClientConfig {
     /// Numeric identifier of the L1 network (e.g. `9` for localhost).
     pub chain_id: u64,
     /// How much do we want to increase gas price provided by the network?
@@ -16,9 +16,9 @@ pub struct ETHClientConfig {
     pub web3_url: Vec<String>,
 }
 
-impl ETHClientConfig {
+impl RSKClientConfig {
     pub fn from_env() -> Self {
-        envy_load!("eth_client", "ETH_CLIENT_")
+        envy_load!("rsk_client", "RSK_CLIENT_")
     }
 
     /// Get first web3 url, useful in direct web3 clients, which don't need any multiplexers
@@ -35,8 +35,8 @@ mod tests {
     use super::*;
     use crate::configs::test_utils::set_env;
 
-    fn expected_config() -> ETHClientConfig {
-        ETHClientConfig {
+    fn expected_config() -> RSKClientConfig {
+        RSKClientConfig {
             chain_id: 33,
             gas_price_factor: 1.0f64,
             web3_url: vec!["http://127.0.0.1:4444".into()],
@@ -46,13 +46,13 @@ mod tests {
     #[test]
     fn from_env() {
         let config = r#"
-ETH_CLIENT_CHAIN_ID="33"
-ETH_CLIENT_GAS_PRICE_FACTOR="1"
-ETH_CLIENT_WEB3_URL="http://127.0.0.1:4444"
+RSK_CLIENT_CHAIN_ID="33"
+RSK_CLIENT_GAS_PRICE_FACTOR="1"
+RSK_CLIENT_WEB3_URL="http://127.0.0.1:4444"
         "#;
         set_env(config);
 
-        let actual = ETHClientConfig::from_env();
+        let actual = RSKClientConfig::from_env();
         assert_eq!(actual, expected_config());
         assert_eq!(actual.web3_url(), "http://127.0.0.1:4444");
     }

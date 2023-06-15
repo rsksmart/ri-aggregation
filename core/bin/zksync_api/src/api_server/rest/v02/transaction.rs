@@ -63,7 +63,7 @@ impl ApiTransactionData {
         {
             Ok(Some(Receipt::L1(L1Receipt {
                 status: TxInBlockStatus::Queued,
-                eth_block: EthBlockId(op.eth_block),
+                rsk_block: EthBlockId(op.rsk_block),
                 rollup_block: None,
                 id: op.serial_id,
             })))

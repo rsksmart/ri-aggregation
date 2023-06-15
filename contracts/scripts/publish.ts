@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 const hre = require('hardhat');
 
 async function main() {
-    if (process.env.CHAIN_ETH_NETWORK == 'localhost') {
+    if (process.env.CHAIN_RSK_NETWORK == 'localhost') {
         console.log('Skip contract publish on localhost');
         return;
     }

@@ -7,15 +7,15 @@ use web3::{
     transports::Http,
     types::{Address, BlockId, Filter, Log, Transaction, U64},
 };
-use zksync_eth_signer::PrivateKeySigner;
+use zksync_rsk_signer::PrivateKeySigner;
 use zksync_types::{TransactionReceipt, H160, H256, U256};
 
 use crate::rootstock_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
-use crate::ETHDirectClient;
+use crate::RSKDirectClient;
 
 #[derive(Debug, Default)]
 struct MultiplexerRootstockClientInner {
-    clients: Vec<(String, ETHDirectClient<PrivateKeySigner>)>,
+    clients: Vec<(String, RSKDirectClient<PrivateKeySigner>)>,
     preferred: AtomicUsize,
 }
 
@@ -44,7 +44,7 @@ impl MultiplexerRootstockClient {
     pub fn add_client(
         &mut self,
         name: String,
-        client: ETHDirectClient<PrivateKeySigner>,
+        client: RSKDirectClient<PrivateKeySigner>,
     ) -> &mut Self {
         Arc::get_mut(&mut self.inner)
             .unwrap()
@@ -61,7 +61,7 @@ impl MultiplexerRootstockClient {
         }
     }
 
-    pub fn clients(&self) -> impl Iterator<Item = (&str, &ETHDirectClient<PrivateKeySigner>)> {
+    pub fn clients(&self) -> impl Iterator<Item = (&str, &RSKDirectClient<PrivateKeySigner>)> {
         let preferred = self.inner.preferred.load(Ordering::Relaxed);
         self.inner
             .clients
@@ -148,8 +148,8 @@ impl MultiplexerRootstockClient {
         multiple_call!(self, failure_reason(tx_hash));
     }
 
-    pub async fn eth_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
-        multiple_call!(self, eth_balance(address));
+    pub async fn rbtc_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
+        multiple_call!(self, rbtc_balance(address));
     }
 
     pub async fn allowance(

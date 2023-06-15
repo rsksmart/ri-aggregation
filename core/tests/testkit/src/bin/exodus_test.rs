@@ -8,7 +8,7 @@
 //! + Check exit with garbage proof.
 //! + Check exit with correct proof for other account, correct proof for this account but other token, correct proof but wrong amount.
 
-use crate::eth_account::{parse_ether, RootstockAccount};
+use crate::rsk_account::{parse_rbtc, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts};
 use crate::zksync_account::ZkSyncAccount;
 use num::BigUint;
@@ -16,7 +16,7 @@ use std::time::Instant;
 use vlog::*;
 use web3::transports::Http;
 use zksync_crypto::proof::EncodedSingleProof;
-use zksync_testkit::zksync_account::ZkSyncETHAccountData;
+use zksync_testkit::zksync_account::ZkSyncRSKAccountData;
 use zksync_testkit::*;
 use zksync_types::{AccountId, AccountMap, Nonce, PriorityOp, TokenId};
 
@@ -26,7 +26,7 @@ const PRIORITY_EXPIRATION: u64 = 101;
 /// of the `tokens` tokens.
 async fn create_verified_initial_state(
     test_setup: &mut TestSetup,
-    deposit_account: ETHAccountId,
+    deposit_account: RSKAccountId,
     deposit_amount: &BigUint,
     tokens: &[Token],
     zksync_accounts: &[ZKSyncAccountId],
@@ -50,7 +50,7 @@ async fn create_verified_initial_state(
 // Commits deposit that has to fail, returns block close to the block where deposit was committed.
 async fn commit_deposit_to_expire(
     test_setup: &mut TestSetup,
-    from: ETHAccountId,
+    from: RSKAccountId,
     to: ZKSyncAccountId,
     token: Token,
     deposit_amount: &BigUint,
@@ -61,24 +61,24 @@ async fn commit_deposit_to_expire(
         .await;
 
     info!("Done commit deposit to expire");
-    (test_setup.eth_block_number().await, vec![priority_op])
+    (test_setup.rsk_block_number().await, vec![priority_op])
 }
 
-// Trigger exodus mode using `eth_account`, it is preferred to use not operator account for this
+// Trigger exodus mode using `rsk_account`, it is preferred to use not operator account for this
 async fn trigger_exodus(
     test_setup: &TestSetup,
-    eth_account: ETHAccountId,
+    rsk_account: RSKAccountId,
     expire_count_start_block: u64,
 ) {
     info!("Triggering exodus");
     let is_exodus = test_setup.is_exodus().await;
     assert!(!is_exodus, "Exodus should be triggered later");
 
-    while test_setup.eth_block_number().await - expire_count_start_block < PRIORITY_EXPIRATION {
-        test_setup.trigger_exodus_if_needed(eth_account).await;
+    while test_setup.rsk_block_number().await - expire_count_start_block < PRIORITY_EXPIRATION {
+        test_setup.trigger_exodus_if_needed(rsk_account).await;
     }
 
-    test_setup.trigger_exodus_if_needed(eth_account).await;
+    test_setup.trigger_exodus_if_needed(rsk_account).await;
 
     let is_exodus = test_setup.is_exodus().await;
     assert!(is_exodus, "Exodus should be triggered after expiration");
@@ -88,11 +88,11 @@ async fn trigger_exodus(
 #[allow(dead_code)]
 async fn cancel_outstanding_deposits(
     test_setup: &TestSetup,
-    deposit_receiver_account: ETHAccountId,
+    deposit_receiver_account: RSKAccountId,
     deposit_token: Token,
     deposit_amount: &BigUint,
     expired_priority_ops: &[PriorityOp],
-    call_cancel_account: ETHAccountId,
+    call_cancel_account: RSKAccountId,
 ) {
     info!("Canceling outstangind deposits");
     let token_address = test_setup.tokens[&deposit_token.0];
@@ -118,7 +118,7 @@ async fn cancel_outstanding_deposits(
 
 async fn check_exit_garbage_proof(
     test_setup: &mut TestSetup,
-    send_account: ETHAccountId,
+    send_account: RSKAccountId,
     fund_owner: ZKSyncAccountId,
     token: Token,
     amount: &BigUint,
@@ -145,7 +145,7 @@ async fn check_exit_garbage_proof(
 async fn check_exit_correct_proof(
     test_setup: &mut TestSetup,
     accounts: AccountMap,
-    send_account: ETHAccountId,
+    send_account: RSKAccountId,
     fund_owner: ZKSyncAccountId,
     token: Token,
     amount: &BigUint,
@@ -167,7 +167,7 @@ async fn check_exit_correct_proof(
     );
     assert_eq!(
         test_setup.accounts.zksync_accounts[fund_owner.0].address,
-        test_setup.accounts.eth_accounts[send_account.0].address,
+        test_setup.accounts.rsk_accounts[send_account.0].address,
         "Sender should have same address",
     );
     let account_id = test_setup
@@ -202,7 +202,7 @@ async fn check_exit_correct_proof(
 async fn check_exit_correct_proof_second_time(
     test_setup: &mut TestSetup,
     accounts: AccountMap,
-    send_account: ETHAccountId,
+    send_account: RSKAccountId,
     fund_owner: ZKSyncAccountId,
     token: Token,
     amount: &BigUint,
@@ -253,7 +253,7 @@ async fn check_exit_correct_proof_second_time(
 async fn check_exit_correct_proof_other_token(
     test_setup: &mut TestSetup,
     accounts: AccountMap,
-    send_account: ETHAccountId,
+    send_account: RSKAccountId,
     fund_owner: ZKSyncAccountId,
     token: Token,
     amount: &BigUint,
@@ -305,7 +305,7 @@ async fn check_exit_correct_proof_other_token(
 async fn check_exit_correct_proof_other_amount(
     test_setup: &mut TestSetup,
     accounts: AccountMap,
-    send_account: ETHAccountId,
+    send_account: RSKAccountId,
     fund_owner: ZKSyncAccountId,
     token: Token,
     amount: &BigUint,
@@ -357,7 +357,7 @@ async fn check_exit_correct_proof_other_amount(
 async fn check_exit_correct_proof_incorrect_sender(
     test_setup: &mut TestSetup,
     accounts: AccountMap,
-    send_account: ETHAccountId,
+    send_account: RSKAccountId,
     fund_owner: ZKSyncAccountId,
     token: Token,
     amount: &BigUint,
@@ -436,7 +436,7 @@ async fn exit_test() {
         testkit_config.chain_id,
         testkit_config.gas_price_factor,
     );
-    let eth_accounts = test_accounts_info
+    let rsk_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
             RootstockAccount::new(
@@ -452,14 +452,14 @@ async fn exit_test() {
 
     let (zksync_accounts, fee_account_id) = {
         let mut zksync_accounts = Vec::new();
-        zksync_accounts.extend(eth_accounts.iter().map(|eth_account| {
+        zksync_accounts.extend(rsk_accounts.iter().map(|rsk_account| {
             let rng_zksync_key = ZkSyncAccount::rand().private_key;
             ZkSyncAccount::new(
                 rng_zksync_key,
                 Nonce(0),
-                eth_account.address,
-                ZkSyncETHAccountData::EOA {
-                    eth_private_key: eth_account.private_key,
+                rsk_account.address,
+                ZkSyncRSKAccountData::EOA {
+                    eth_private_key: rsk_account.private_key,
                 },
             )
         }));
@@ -473,7 +473,7 @@ async fn exit_test() {
         .collect::<Vec<_>>();
 
     let accounts = AccountSet {
-        eth_accounts,
+        rsk_accounts,
         zksync_accounts,
         fee_account_id: ZKSyncAccountId(fee_account_id),
     };
@@ -487,12 +487,12 @@ async fn exit_test() {
         None,
     );
 
-    let deposit_amount = parse_ether("0.1").unwrap();
+    let deposit_amount = parse_rbtc("0.1").unwrap();
     let tokens = test_setup.get_tokens();
 
     create_verified_initial_state(
         &mut test_setup,
-        ETHAccountId(0),
+        RSKAccountId(0),
         &deposit_amount,
         &tokens,
         &test_accounts,
@@ -500,30 +500,30 @@ async fn exit_test() {
     .await;
     let verified_accounts_state = test_setup.get_accounts_state().await;
 
-    let expired_deposit_amount = parse_ether("0.3").unwrap();
+    let expired_deposit_amount = parse_rbtc("0.3").unwrap();
     let (expire_count_start_block, expired_priority_ops) = commit_deposit_to_expire(
         &mut test_setup,
-        ETHAccountId(0),
+        RSKAccountId(0),
         ZKSyncAccountId(1),
         Token(TokenId(0)),
         &expired_deposit_amount,
     )
     .await;
-    trigger_exodus(&test_setup, ETHAccountId(1), expire_count_start_block).await;
+    trigger_exodus(&test_setup, RSKAccountId(1), expire_count_start_block).await;
     cancel_outstanding_deposits(
         &test_setup,
-        ETHAccountId(1),
+        RSKAccountId(1),
         Token(TokenId(0)),
         &expired_deposit_amount,
         &expired_priority_ops,
-        ETHAccountId(1),
+        RSKAccountId(1),
     )
     .await;
 
     check_exit_correct_proof_other_token(
         &mut test_setup,
         verified_accounts_state.clone(),
-        ETHAccountId(1),
+        RSKAccountId(1),
         ZKSyncAccountId(1),
         Token(TokenId(0)),
         &deposit_amount,
@@ -534,7 +534,7 @@ async fn exit_test() {
     check_exit_correct_proof_other_amount(
         &mut test_setup,
         verified_accounts_state.clone(),
-        ETHAccountId(1),
+        RSKAccountId(1),
         ZKSyncAccountId(1),
         Token(TokenId(0)),
         &deposit_amount,
@@ -544,7 +544,7 @@ async fn exit_test() {
 
     check_exit_garbage_proof(
         &mut test_setup,
-        ETHAccountId(1),
+        RSKAccountId(1),
         ZKSyncAccountId(1),
         Token(TokenId(0)),
         &deposit_amount,
@@ -554,7 +554,7 @@ async fn exit_test() {
     check_exit_correct_proof_incorrect_sender(
         &mut test_setup,
         verified_accounts_state.clone(),
-        ETHAccountId(0),
+        RSKAccountId(0),
         ZKSyncAccountId(1),
         Token(TokenId(0)),
         &deposit_amount,
@@ -564,7 +564,7 @@ async fn exit_test() {
     check_exit_correct_proof(
         &mut test_setup,
         verified_accounts_state.clone(),
-        ETHAccountId(1),
+        RSKAccountId(1),
         ZKSyncAccountId(1),
         Token(TokenId(0)),
         &deposit_amount,
@@ -574,7 +574,7 @@ async fn exit_test() {
     check_exit_correct_proof_second_time(
         &mut test_setup,
         verified_accounts_state,
-        ETHAccountId(1),
+        RSKAccountId(1),
         ZKSyncAccountId(1),
         Token(TokenId(0)),
         &deposit_amount,

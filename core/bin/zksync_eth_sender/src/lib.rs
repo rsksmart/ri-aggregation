@@ -14,10 +14,10 @@ use web3::{
     types::{TransactionReceipt, H256, U256},
 };
 // Workspace uses
-use zksync_config::ETHSenderConfig;
-use zksync_eth_client::{RootstockGateway, SignedCallResult};
+use zksync_config::RSKSenderConfig;
+use zksync_rsk_client::{RootstockGateway, SignedCallResult};
 use zksync_storage::ConnectionPool;
-use zksync_types::rootstock::ETHOperation;
+use zksync_types::rootstock::RSKOperation;
 // Local uses
 use self::{
     database::{Database, DatabaseInterface},
@@ -57,7 +57,7 @@ enum TxCheckMode {
     Old,
 }
 
-/// `ETHSender` is a structure capable of anchoring
+/// `RSKSender` is a structure capable of anchoring
 /// the ZKSync operations to the Rootstock blockchain.
 ///
 /// # Description
@@ -67,7 +67,7 @@ enum TxCheckMode {
 /// and then commits them to the Rootstock, ensuring that all the transactions are
 /// successfully included in blocks and executed.
 ///
-/// Also `ETHSender` preserves the order of operations: it guarantees that operations
+/// Also `RSKSender` preserves the order of operations: it guarantees that operations
 /// are committed in FIFO order, meaning that until the older operation of certain type (e.g.
 /// `commit`) will always be committed before the newer one.
 ///
@@ -90,13 +90,13 @@ enum TxCheckMode {
 ///
 /// # Concurrent transaction sending
 ///
-/// `ETHSender` supports sending multiple transaction to the Rootstock at the same time.
+/// `RSKSender` supports sending multiple transaction to the Rootstock at the same time.
 /// This can be configured by the constructor `max_txs_in_flight` parameter. The order of
 /// transaction is still guaranteed to be preserved, since every sent tx has the assigned nonce
 /// which makes it impossible to get sent transactions committed out of order.
 ///
 /// Internally order of the transaction is determined by the underlying `TxQueue`, which provides
-/// transactions to send for `ETHSender` according to the following priority:
+/// transactions to send for `RSKSender` according to the following priority:
 ///
 /// 1. Verify operations (only if the corresponding commit operation was sent)
 /// 2. Withdraw operations (only if both commit/verify for the same block operations were sent).
@@ -104,13 +104,13 @@ enum TxCheckMode {
 ///
 /// # Failure policy
 ///
-/// By default, `ETHSender` expects no transactions to fail, and thus upon a failure it will
+/// By default, `RSKSender` expects no transactions to fail, and thus upon a failure it will
 /// report the incident to the log and then panic to prevent continue working in a probably
 /// erroneous conditions. Failure handling policy is determined by a corresponding callback,
 /// which can be changed if needed.
-struct ETHSender<DB: DatabaseInterface> {
+struct RSKSender<DB: DatabaseInterface> {
     /// Ongoing operations queue.
-    ongoing_ops: VecDeque<ETHOperation>,
+    ongoing_ops: VecDeque<RSKOperation>,
     /// Connection to the database.
     db: DB,
     /// Rootstock intermediator.
@@ -119,12 +119,12 @@ struct ETHSender<DB: DatabaseInterface> {
     tx_queue: TxQueue,
     /// Utility for managing the gas price for transactions.
     gas_adjuster: GasAdjuster<DB>,
-    /// Settings for the `ETHSender`.
-    options: ETHSenderConfig,
+    /// Settings for the `RSKSender`.
+    options: RSKSenderConfig,
 }
 
-impl<DB: DatabaseInterface> ETHSender<DB> {
-    pub async fn new(options: ETHSenderConfig, db: DB, rootstock: RootstockGateway) -> Self {
+impl<DB: DatabaseInterface> RSKSender<DB> {
+    pub async fn new(options: RSKSenderConfig, db: DB, rootstock: RootstockGateway) -> Self {
         let mut connection = db
             .acquire_connection()
             .await
@@ -145,7 +145,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
 
         let operations_id = ongoing_ops
             .iter()
-            .filter_map(|eth_op| eth_op.op.as_ref())
+            .filter_map(|rsk_op| rsk_op.op.as_ref())
             .map(|aggregated_op| aggregated_op.0)
             .collect::<Vec<_>>();
         db.remove_unprocessed_operations(&mut transaction, operations_id)
@@ -182,7 +182,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         }
     }
 
-    /// Main routine of `ETHSender`.
+    /// Main routine of `RSKSender`.
     pub async fn run(mut self) {
         // `eth_sender` must perform some of the activities only once per block change.
         // Having `0` as an initial value is to ensure that on the first iteration we will run all the activities.
@@ -352,7 +352,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
             // operation ID and nonce. Without them we won't be able to sign the transaction.
             let assigned_data = self
                 .db
-                .save_new_eth_tx(
+                .save_new_rsk_tx(
                     &mut transaction,
                     tx.op_type,
                     Some(tx.operation.clone()),
@@ -362,7 +362,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
                 )
                 .await?;
 
-            let mut new_op = ETHOperation {
+            let mut new_op = RSKOperation {
                 id: assigned_data.id,
                 op_type: tx.op_type,
                 op: Some(tx.operation),
@@ -422,7 +422,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
 
     /// Helper method to obtain the string representation of the zkSync operation.
     /// Intended to be used for log entries.
-    fn zksync_operation_description(&self, operation: &ETHOperation) -> String {
+    fn zksync_operation_description(&self, operation: &RSKOperation) -> String {
         if let Some((id, op)) = &operation.op {
             let (first_block, last_block) = op.get_block_range();
             format!(
@@ -445,7 +445,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     ///   processing policy.
     async fn perform_commitment_step(
         &mut self,
-        op: &mut ETHOperation,
+        op: &mut RSKOperation,
         current_block: u64,
     ) -> anyhow::Result<OperationCommitment> {
         let start = Instant::now();
@@ -540,7 +540,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
         let mut connection = self.db.acquire_connection().await?;
         let mut transaction = connection.start_transaction().await?;
         self.db
-            .update_eth_tx(
+            .update_rsk_tx(
                 &mut transaction,
                 op.id,
                 deadline_block as i64,
@@ -552,7 +552,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
             .await?;
 
         vlog::info!(
-            "Stuck tx processing: sending tx for op, eth_op_id: {}; ETH tx: {}",
+            "Stuck tx processing: sending tx for op, rsk_op_id: {}; ETH tx: {}",
             op.id,
             self.eth_tx_description(&new_tx),
         );
@@ -592,7 +592,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     async fn check_transaction_state(
         &self,
         mode: TxCheckMode,
-        op: &ETHOperation,
+        op: &RSKOperation,
         tx_hash: H256,
         current_block: u64,
     ) -> anyhow::Result<TxCheckOutcome> {
@@ -641,7 +641,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     /// Creates a new Rootstock operation.
     async fn sign_new_tx(
         rootstock: &RootstockGateway,
-        op: &ETHOperation,
+        op: &RSKOperation,
     ) -> anyhow::Result<SignedCallResult> {
         let tx_options = {
             // We set the gas limit for commit / verify operations as pre-calculated estimation.
@@ -678,7 +678,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     }
 
     /// Calculates the gas limit for transaction to be send, depending on the type of operation.
-    fn gas_limit_for_op(op: &ETHOperation) -> U256 {
+    fn gas_limit_for_op(op: &RSKOperation) -> U256 {
         let (_, op) = op
             .op
             .as_ref()
@@ -704,7 +704,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     async fn create_supplement_tx(
         &mut self,
         deadline_block: u64,
-        stuck_tx: &mut ETHOperation,
+        stuck_tx: &mut RSKOperation,
     ) -> anyhow::Result<SignedCallResult> {
         let tx_options = self.tx_options_from_stuck_tx(stuck_tx).await?;
 
@@ -722,7 +722,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     /// and nonce.
     async fn tx_options_from_stuck_tx(
         &mut self,
-        stuck_tx: &ETHOperation,
+        stuck_tx: &RSKOperation,
     ) -> anyhow::Result<Options> {
         let old_tx_gas_price = stuck_tx.last_used_gas_price;
 
@@ -759,7 +759,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
     fn operation_to_raw_tx(&self, op: &AggregatedOperation) -> Vec<u8> {
         match op {
             AggregatedOperation::CommitBlocks(operation) => {
-                let args = operation.get_eth_tx_args();
+                let args = operation.get_rsk_tx_args();
                 self.rootstock
                     .encode_tx_data("commitBlocks", args.as_slice())
             }
@@ -767,12 +767,12 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
                 panic!("Eth sender should ignore CreateProofBlocks");
             } // not for eth sender
             AggregatedOperation::PublishProofBlocksOnchain(operation) => {
-                let args = operation.get_eth_tx_args();
+                let args = operation.get_rsk_tx_args();
                 self.rootstock
                     .encode_tx_data("proveBlocks", args.as_slice())
             }
             AggregatedOperation::ExecuteBlocks(operation) => {
-                let args = operation.get_eth_tx_args();
+                let args = operation.get_rsk_tx_args();
                 self.rootstock
                     .encode_tx_data("executeBlocks", args.as_slice())
             }
@@ -805,12 +805,12 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
 pub fn run_eth_sender(
     pool: ConnectionPool,
     eth_gateway: RootstockGateway,
-    options: ETHSenderConfig,
+    options: RSKSenderConfig,
 ) -> JoinHandle<()> {
     let db = Database::new(pool);
 
     tokio::spawn(async move {
-        let eth_sender = ETHSender::new(options, db, eth_gateway).await;
+        let eth_sender = RSKSender::new(options, db, eth_gateway).await;
 
         eth_sender.run().await
     })

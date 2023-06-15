@@ -41,10 +41,10 @@ use zksync::{
     },
     Network, RootstockProvider, RpcProvider, Wallet, WalletCredentials,
 };
-use zksync_eth_signer::{PrivateKeySigner, RootstockSigner};
+use zksync_rsk_signer::{PrivateKeySigner, RootstockSigner};
 
-const ETH_ADDR: &str = "c354d97642faa06781b76ffb6786f72cd7746c97";
-const ETH_PRIVATE_KEY: &str = "20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323";
+const RSK_ADDR: &str = "c354d97642faa06781b76ffb6786f72cd7746c97";
+const RSK_PRIVATE_KEY: &str = "20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323";
 const LOCALHOST_WEB3_ADDR: &str = "http://127.0.0.1:4444";
 const DOCKER_WEB3_ADDR: &str = "http://rskj:4444";
 
@@ -58,8 +58,8 @@ fn web3_addr() -> &'static str {
 }
 
 fn eth_main_account_credentials() -> (H160, H256) {
-    let addr = ETH_ADDR.parse().unwrap();
-    let eth_private_key = ETH_PRIVATE_KEY.parse().unwrap();
+    let addr = RSK_ADDR.parse().unwrap();
+    let eth_private_key = RSK_PRIVATE_KEY.parse().unwrap();
 
     (addr, eth_private_key)
 }
@@ -86,7 +86,7 @@ async fn get_rootstock_balance<S: RootstockSigner>(
     if token.symbol == "RBTC" {
         return eth_provider
             .client()
-            .eth_balance(address)
+            .rbtc_balance(address)
             .await
             .map_err(|_e| anyhow::anyhow!("failed to request balance from Rootstock {}", _e));
     }
@@ -139,9 +139,9 @@ async fn transfer_to(
     let (main_eth_address, main_eth_private_key) = eth_main_account_credentials();
 
     let provider = RpcProvider::new(Network::Localhost);
-    let eth_signer = PrivateKeySigner::new(main_eth_private_key);
+    let rsk_signer = PrivateKeySigner::new(main_eth_private_key);
     let credentials =
-        WalletCredentials::from_eth_signer(main_eth_address, eth_signer, Network::Localhost)
+        WalletCredentials::from_eth_signer(main_eth_address, rsk_signer, Network::Localhost)
             .await
             .unwrap();
 
@@ -166,9 +166,9 @@ where
     let provider = RpcProvider::new(Network::Localhost);
 
     let (random_eth_address, random_eth_private_key) = eth_random_account_credentials();
-    let eth_signer = PrivateKeySigner::new(random_eth_private_key);
+    let rsk_signer = PrivateKeySigner::new(random_eth_private_key);
     let random_credentials =
-        WalletCredentials::from_eth_signer(random_eth_address, eth_signer, Network::Localhost)
+        WalletCredentials::from_eth_signer(random_eth_address, rsk_signer, Network::Localhost)
             .await?;
     let sync_wallet = Wallet::new(provider, random_credentials).await?;
 
@@ -530,9 +530,9 @@ async fn init_account_with_one_ether(
 
     let provider = RpcProvider::new(Network::Localhost);
 
-    let eth_signer = PrivateKeySigner::new(eth_private_key);
+    let rsk_signer = PrivateKeySigner::new(eth_private_key);
     let credentials =
-        WalletCredentials::from_eth_signer(eth_address, eth_signer, Network::Localhost)
+        WalletCredentials::from_eth_signer(eth_address, rsk_signer, Network::Localhost)
             .await
             .unwrap();
 
@@ -568,9 +568,9 @@ async fn make_wallet(
     provider: RpcProvider,
     (eth_address, eth_private_key): (H160, H256),
 ) -> Result<Wallet<PrivateKeySigner, RpcProvider>, ClientError> {
-    let eth_signer = PrivateKeySigner::new(eth_private_key);
+    let rsk_signer = PrivateKeySigner::new(eth_private_key);
     let credentials =
-        WalletCredentials::from_eth_signer(eth_address, eth_signer, Network::Localhost).await?;
+        WalletCredentials::from_eth_signer(eth_address, rsk_signer, Network::Localhost).await?;
     Wallet::new(provider, credentials).await
 }
 

@@ -57,7 +57,7 @@ ZKSYNC_RPC_ADDR
 # Address of the Rootstock web3 API.
 WEB3_URL
 # Used Rootstock network (e.g. `rinkeby` or `localhost`).
-ETH_NETWORK
+RSK_NETWORK
 # Rootstock private key of the wallet that has funds to perform a test (without `0x` prefix).
 MASTER_WALLET_PK
 # Amount of accounts to be used in test.

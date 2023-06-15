@@ -153,7 +153,7 @@ mod signatures_with_vectors {
     use super::*;
     use zksync::{signer::Signer, WalletCredentials};
     use zksync_config::test_config::unit_vectors::TxData;
-    use zksync_eth_signer::PrivateKeySigner;
+    use zksync_rsk_signer::PrivateKeySigner;
     use zksync_types::tx::{ChangePubKeyECDSAData, ChangePubKeyEthAuthData};
     use zksync_types::{network::Network, AccountId, Address, H256};
 
@@ -163,9 +163,9 @@ mod signatures_with_vectors {
         account_id: AccountId,
     ) -> Signer<PrivateKeySigner> {
         let eth_private_key = H256::from_slice(eth_private_key_raw);
-        let eth_signer = PrivateKeySigner::new(eth_private_key);
+        let rsk_signer = PrivateKeySigner::new(eth_private_key);
 
-        let creds = WalletCredentials::from_eth_signer(from_address, eth_signer, Network::Mainnet)
+        let creds = WalletCredentials::from_eth_signer(from_address, rsk_signer, Network::Mainnet)
             .await
             .unwrap();
 
@@ -519,7 +519,7 @@ mod wallet_tests {
         },
         Network, Wallet, WalletCredentials,
     };
-    use zksync_eth_signer::PrivateKeySigner;
+    use zksync_rsk_signer::PrivateKeySigner;
     use zksync_types::{
         tokens::get_genesis_token_list,
         tx::{PackedEthSignature, TxHash},
@@ -538,8 +538,8 @@ mod wallet_tests {
         async fn pub_key_hash(&self) -> PubKeyHash {
             let address =
                 PackedEthSignature::address_from_private_key(&self.eth_private_key).unwrap();
-            let eth_signer = PrivateKeySigner::new(self.eth_private_key);
-            let creds = WalletCredentials::from_eth_signer(address, eth_signer, self.network)
+            let rsk_signer = PrivateKeySigner::new(self.eth_private_key);
+            let creds = WalletCredentials::from_eth_signer(address, rsk_signer, self.network)
                 .await
                 .unwrap();
             let signer = Signer::with_credentials(creds);
@@ -671,8 +671,8 @@ mod wallet_tests {
         let private_key = H256::from_slice(private_key_raw);
         let address = PackedEthSignature::address_from_private_key(&private_key).unwrap();
 
-        let eth_signer = PrivateKeySigner::new(private_key);
-        let creds = WalletCredentials::from_eth_signer(address, eth_signer, Network::Mainnet)
+        let rsk_signer = PrivateKeySigner::new(private_key);
+        let creds = WalletCredentials::from_eth_signer(address, rsk_signer, Network::Mainnet)
             .await
             .unwrap();
 

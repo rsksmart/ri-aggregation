@@ -5,7 +5,7 @@ use sqlx::{types::BigDecimal, FromRow};
 // Local imports
 
 #[derive(Debug, Clone, FromRow, PartialEq)]
-pub struct StorageETHOperation {
+pub struct StorageRSKOperation {
     pub id: i64,
     pub nonce: i64,
     pub confirmed: bool,
@@ -18,7 +18,7 @@ pub struct StorageETHOperation {
 }
 
 #[derive(Debug, Clone, FromRow, PartialEq)]
-pub struct ETHOperationData {
+pub struct RSKOperationData {
     pub id: i64,
     pub nonce: i64,
     pub confirmed: bool,
@@ -33,14 +33,14 @@ pub struct ETHOperationData {
 }
 
 #[derive(Debug, Clone, FromRow, PartialEq)]
-pub struct ETHTxHash {
+pub struct RSKTxHash {
     pub id: i64,
-    pub eth_op_id: i64,
+    pub rsk_op_id: i64,
     pub tx_hash: Vec<u8>,
 }
 
 #[derive(Debug, FromRow, PartialEq)]
-pub struct ETHParams {
+pub struct RSKParams {
     pub id: bool,
     pub nonce: i64,
     pub gas_price_limit: i64,
@@ -50,16 +50,16 @@ pub struct ETHParams {
     pub last_executed_block: i64,
 }
 
-/// A slice of `ETHParams` structure with only stats part in it.
+/// A slice of `RSKParams` structure with only stats part in it.
 #[derive(Debug)]
-pub struct ETHStats {
+pub struct RSKStats {
     pub last_committed_block: i64,
     pub last_verified_block: i64,
     pub last_executed_block: i64,
 }
 
-impl From<ETHParams> for ETHStats {
-    fn from(params: ETHParams) -> Self {
+impl From<RSKParams> for RSKStats {
+    fn from(params: RSKParams) -> Self {
         Self {
             last_committed_block: params.last_committed_block,
             last_verified_block: params.last_verified_block,

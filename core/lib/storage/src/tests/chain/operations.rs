@@ -108,7 +108,7 @@ async fn executed_priority_operations(mut storage: StorageProcessor<'_>) -> Quer
         priority_op_serialid: 0,
         deadline_block: 100,
         eth_hash: vec![0xDE, 0xAD, 0xBE, 0xEF],
-        eth_block: 10,
+        rsk_block: 10,
         created_at: chrono::Utc::now(),
         tx_hash: Default::default(),
         eth_block_index: Some(1),
@@ -172,7 +172,7 @@ async fn duplicated_operations(mut storage: StorageProcessor<'_>) -> QueryResult
         priority_op_serialid: 0,
         deadline_block: 100,
         eth_hash: vec![0xDE, 0xAD, 0xBE, 0xEF],
-        eth_block: 10,
+        rsk_block: 10,
         created_at: chrono::Utc::now(),
         tx_hash: Default::default(),
         eth_block_index: Some(1),
@@ -439,7 +439,7 @@ async fn priority_ops_hashes(mut storage: StorageProcessor<'_>) -> QueryResult<(
         priority_op_serialid: 1,
         deadline_block: 100,
         eth_hash: vec![0xAA, 0xAA, 0xAA, 0xAA],
-        eth_block: 10,
+        rsk_block: 10,
         created_at: chrono::Utc::now(),
         tx_hash: vec![0xBB, 0xBB, 0xBB, 0xBB],
         eth_block_index: Some(1),
@@ -495,7 +495,7 @@ async fn test_remove_executed_priority_operations(
             priority_op_serialid: block_number,
             deadline_block: 100,
             eth_hash: H256::zero().as_bytes().to_vec(),
-            eth_block: 10,
+            rsk_block: 10,
             created_at: chrono::Utc::now(),
             eth_block_index: Some(1),
             tx_hash: H256::zero().as_bytes().to_vec(),
@@ -545,7 +545,7 @@ async fn test_remove_eth_unprocessed_aggregated_ops(
             100,
         ))
         .await?;
-    // Add this operation to eth_unprocessed_aggregated_ops table.
+    // Add this operation to rsk_unprocessed_aggregated_ops table.
     storage
         .rootstock_schema()
         .restore_unprocessed_operations()

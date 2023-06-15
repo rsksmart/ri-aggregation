@@ -15,7 +15,7 @@ use zksync_crypto::{
     },
     params::{
         account_tree_depth, ACCOUNT_ID_BIT_WIDTH, AMOUNT_EXPONENT_BIT_WIDTH,
-        AMOUNT_MANTISSA_BIT_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BIT_WIDTH, ETH_ADDRESS_BIT_WIDTH,
+        AMOUNT_MANTISSA_BIT_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BIT_WIDTH, RSK_ADDRESS_BIT_WIDTH,
         FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH, TOKEN_BIT_WIDTH, TX_TYPE_BIT_WIDTH,
     },
     primitives::FloatConversions,
@@ -117,7 +117,7 @@ impl Witness for ForcedExitWitness<Bn256> {
         append_be_fixed_width(
             &mut pubdata_bits,
             &self.args.eth_address.unwrap(),
-            ETH_ADDRESS_BIT_WIDTH,
+            RSK_ADDRESS_BIT_WIDTH,
         );
         resize_grow_only(
             &mut pubdata_bits,

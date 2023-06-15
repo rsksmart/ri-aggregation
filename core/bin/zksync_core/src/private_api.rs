@@ -17,7 +17,7 @@ use tokio::task::JoinHandle;
 use zksync_api_types::CoreStatus;
 
 use zksync_config::configs::api::PrivateApiConfig;
-use zksync_eth_client::RootstockGateway;
+use zksync_rsk_client::RootstockGateway;
 use zksync_storage::ConnectionPool;
 use zksync_utils::panic_notify::ThreadPanicNotify;
 
@@ -27,7 +27,7 @@ const STATUS_INVALIDATION_PERIOD: Duration = Duration::from_secs(60);
 struct AppState {
     connection_pool: ConnectionPool,
     read_only_connection_pool: ConnectionPool,
-    eth_client: RootstockGateway,
+    rsk_client: RootstockGateway,
     status_cache: RwLock<Option<(CoreStatus, Instant)>>,
 }
 
@@ -51,7 +51,7 @@ async fn status(data: web::Data<AppState>) -> actix_web::Result<HttpResponse> {
         .access_storage()
         .await
         .is_ok();
-    let eth_status = data.eth_client.block_number().await.is_ok();
+    let eth_status = data.rsk_client.block_number().await.is_ok();
 
     let response = CoreStatus {
         main_database_available: main_database_status,
@@ -66,7 +66,7 @@ async fn status(data: web::Data<AppState>) -> actix_web::Result<HttpResponse> {
 pub fn start_private_core_api(
     connection_pool: ConnectionPool,
     read_only_connection_pool: ConnectionPool,
-    eth_client: RootstockGateway,
+    rsk_client: RootstockGateway,
     config: PrivateApiConfig,
 ) -> JoinHandle<()> {
     let (panic_sender, mut panic_receiver) = mpsc::channel(1);
@@ -83,7 +83,7 @@ pub fn start_private_core_api(
                     let app_state = AppState {
                         connection_pool: connection_pool.clone(),
                         read_only_connection_pool: read_only_connection_pool.clone(),
-                        eth_client: eth_client.clone(),
+                        rsk_client: rsk_client.clone(),
                         status_cache: Default::default(),
                     };
 

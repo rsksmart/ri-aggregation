@@ -2,8 +2,8 @@
 //! such as PriorityQueue events or NewToken events.
 //! New events are accepted to the zkSync network once they have the sufficient amount of confirmations.
 //!
-//! Poll interval is configured using the `ETH_POLL_INTERVAL` constant.
-//! Number of confirmations is configured using the `CONFIRMATIONS_FOR_ETH_EVENT` environment variable.
+//! Poll interval is configured using the `RSK_POLL_INTERVAL` constant.
+//! Number of confirmations is configured using the `CONFIRMATIONS_FOR_RSK_EVENT` environment variable.
 
 // Built-in deps
 use std::collections::HashMap;
@@ -16,22 +16,22 @@ use futures::{
 };
 use thiserror::Error;
 
-pub use client::{get_web3_block_number, EthHttpClient};
+pub use client::{get_web3_block_number, RSKHttpClient};
 use itertools::Itertools;
 use tokio::{task::JoinHandle, time};
 use web3::types::BlockNumber;
 
-use zksync_config::{ContractsConfig, ETHWatchConfig};
+use zksync_config::{ContractsConfig, RSKWatchConfig};
 use zksync_crypto::params::PRIORITY_EXPIRATION;
-use zksync_eth_client::rootstock_gateway::RootstockGateway;
+use zksync_rsk_client::rootstock_gateway::RootstockGateway;
 use zksync_mempool::MempoolTransactionRequest;
 use zksync_types::{NewTokenEvent, PriorityOp, RegisterNFTFactoryEvent, SerialId};
 
 // Local deps
-use self::{client::EthClient, eth_state::ETHState, received_ops::sift_outdated_ops};
+use self::{client::RSKClient, rsk_state::RSKState, received_ops::sift_outdated_ops};
 
 mod client;
-mod eth_state;
+mod rsk_state;
 mod received_ops;
 
 #[cfg(test)]
@@ -57,7 +57,7 @@ pub enum WatcherMode {
 }
 
 #[derive(Debug)]
-pub enum EthWatchRequest {
+pub enum RSKWatchRequest {
     PollETHNode,
     GetNewTokens {
         last_eth_block: Option<u64>,
@@ -77,16 +77,16 @@ fn is_missing_priority_op_error(error: &anyhow::Error) -> bool {
     error.is::<MissingPriorityOpError>()
 }
 
-pub struct EthWatch<W: EthClient> {
+pub struct RSKWatch<W: RSKClient> {
     client: W,
     mempool_tx_sender: mpsc::Sender<MempoolTransactionRequest>,
-    eth_state: ETHState,
+    rsk_state: RSKState,
     /// All rootstock events are accepted after sufficient confirmations to eliminate risk of block reorg.
     number_of_confirmations_for_event: u64,
     mode: WatcherMode,
 }
 
-impl<W: EthClient> EthWatch<W> {
+impl<W: RSKClient> RSKWatch<W> {
     pub fn new(
         client: W,
         mempool_tx_sender: mpsc::Sender<MempoolTransactionRequest>,
@@ -95,15 +95,15 @@ impl<W: EthClient> EthWatch<W> {
         Self {
             client,
             mempool_tx_sender,
-            eth_state: ETHState::default(),
+            rsk_state: RSKState::default(),
             mode: WatcherMode::Working,
             number_of_confirmations_for_event,
         }
     }
 
     /// Atomically replaces the stored Rootstock state.
-    fn set_new_state(&mut self, new_state: ETHState) {
-        self.eth_state = new_state;
+    fn set_new_state(&mut self, new_state: RSKState) {
+        self.rsk_state = new_state;
     }
 
     async fn get_unconfirmed_ops(
@@ -126,16 +126,16 @@ impl<W: EthClient> EthWatch<W> {
     }
 
     async fn process_new_blocks(&mut self, last_rootstock_block: u64) -> anyhow::Result<()> {
-        debug_assert!(self.eth_state.last_rootstock_block() < last_rootstock_block);
-        debug_assert!(self.eth_state.last_rootstock_block() < last_rootstock_block);
+        debug_assert!(self.rsk_state.last_rootstock_block() < last_rootstock_block);
+        debug_assert!(self.rsk_state.last_rootstock_block() < last_rootstock_block);
 
         // We have to process every block between the current and previous known values.
         // This is crucial since `eth_watch` may enter the backoff mode in which it will skip many blocks.
         // Note that we don't have to add `number_of_confirmations_for_event` here, because the check function takes
         // care of it on its own. Here we calculate "how many blocks should we watch", and the offsets with respect
         // to the `number_of_confirmations_for_event` are calculated by `update_eth_state`.
-        let mut next_priority_op_id = self.eth_state.next_priority_op_id();
-        let previous_rootstock_block = self.eth_state.last_rootstock_block();
+        let mut next_priority_op_id = self.rsk_state.next_priority_op_id();
+        let previous_rootstock_block = self.rsk_state.last_rootstock_block();
         let block_difference = last_rootstock_block.saturating_sub(previous_rootstock_block);
 
         let updated_state = self
@@ -148,7 +148,7 @@ impl<W: EthClient> EthWatch<W> {
         // in the updated state.
 
         // Extend the existing priority operations with the new ones.
-        let mut priority_queue = sift_outdated_ops(self.eth_state.priority_queue());
+        let mut priority_queue = sift_outdated_ops(self.rsk_state.priority_queue());
 
         // Iterate through new priority operations sorted by their serial id.
         for (serial_id, op) in updated_state
@@ -161,7 +161,7 @@ impl<W: EthClient> EthWatch<W> {
                 // We have to revert the block range back. This will only move the watcher
                 // backwards for a single time since `last_rootstock_block` and its backup will
                 // be equal.
-                self.eth_state.reset_last_rootstock_block();
+                self.rsk_state.reset_last_rootstock_block();
                 return Err(anyhow::Error::from(MissingPriorityOpError(
                     next_priority_op_id,
                     *serial_id,
@@ -174,7 +174,7 @@ impl<W: EthClient> EthWatch<W> {
         }
 
         // Extend the existing token events with the new ones.
-        let mut new_tokens = self.eth_state.new_tokens().to_vec();
+        let mut new_tokens = self.rsk_state.new_tokens().to_vec();
         for token in updated_state.new_tokens() {
             new_tokens.push(token.clone());
         }
@@ -183,7 +183,7 @@ impl<W: EthClient> EthWatch<W> {
         new_tokens.dedup_by_key(|token_event| token_event.id.0);
 
         let mut register_nft_factory_events =
-            self.eth_state.new_register_nft_factory_events().to_vec();
+            self.rsk_state.new_register_nft_factory_events().to_vec();
         for event in updated_state.new_register_nft_factory_events() {
             register_nft_factory_events.push(event.clone());
         }
@@ -191,7 +191,7 @@ impl<W: EthClient> EthWatch<W> {
         register_nft_factory_events.sort_by_key(|factory_event| factory_event.creator_address);
         register_nft_factory_events.dedup_by_key(|factory_event| factory_event.creator_address);
 
-        let new_state = ETHState::new(
+        let new_state = RSKState::new(
             last_rootstock_block,
             previous_rootstock_block,
             updated_state.unconfirmed_queue().to_vec(),
@@ -210,7 +210,7 @@ impl<W: EthClient> EthWatch<W> {
 
         self.set_new_state(new_state);
 
-        vlog::debug!("ETH state: {:#?}", self.eth_state);
+        vlog::debug!("ETH state: {:#?}", self.rsk_state);
         Ok(())
     }
 
@@ -218,7 +218,7 @@ impl<W: EthClient> EthWatch<W> {
         &mut self,
         current_rootstock_block: u64,
         unprocessed_blocks_amount: u64,
-    ) -> anyhow::Result<ETHState> {
+    ) -> anyhow::Result<RSKState> {
         let new_block_with_accepted_events =
             current_rootstock_block.saturating_sub(self.number_of_confirmations_for_event);
         let previous_block_with_accepted_events =
@@ -288,7 +288,7 @@ impl<W: EthClient> EthWatch<W> {
         // TODO maybe retry? It can be the only problem is database
         receiver.await.expect("Mempool actor was dropped")?;
         // The backup block number is not used.
-        let state = ETHState::new(
+        let state = RSKState::new(
             current_rootstock_block,
             current_rootstock_block,
             unconfirmed_queue,
@@ -303,12 +303,12 @@ impl<W: EthClient> EthWatch<W> {
         &self,
         last_block_number: Option<u64>,
     ) -> Vec<RegisterNFTFactoryEvent> {
-        let mut events = self.eth_state.new_register_nft_factory_events().to_vec();
+        let mut events = self.rsk_state.new_register_nft_factory_events().to_vec();
 
         if let Some(last_block_number) = last_block_number {
             events = events
                 .iter()
-                .filter(|event| event.eth_block > last_block_number)
+                .filter(|event| event.rsk_block > last_block_number)
                 .cloned()
                 .collect();
         }
@@ -316,12 +316,12 @@ impl<W: EthClient> EthWatch<W> {
         events
     }
     fn get_new_tokens(&self, last_block_number: Option<u64>) -> Vec<NewTokenEvent> {
-        let mut new_tokens = self.eth_state.new_tokens().to_vec();
+        let mut new_tokens = self.rsk_state.new_tokens().to_vec();
 
         if let Some(last_block_number) = last_block_number {
             new_tokens = new_tokens
                 .iter()
-                .filter(|token| token.eth_block_number > last_block_number)
+                .filter(|token| token.rsk_block_number > last_block_number)
                 .cloned()
                 .collect();
         }
@@ -333,11 +333,11 @@ impl<W: EthClient> EthWatch<W> {
         let start = Instant::now();
         let last_block_number = self.client.block_number().await?;
 
-        if last_block_number > self.eth_state.last_rootstock_block() {
+        if last_block_number > self.rsk_state.last_rootstock_block() {
             self.process_new_blocks(last_block_number).await?;
         }
 
-        metrics::histogram!("eth_watcher.poll_eth_node", start.elapsed());
+        metrics::histogram!("rsk_watcher.poll_eth_node", start.elapsed());
         Ok(())
     }
 
@@ -351,7 +351,7 @@ impl<W: EthClient> EthWatch<W> {
         self.mode = WatcherMode::Backoff(backoff_until);
         // This is needed to track how much time is spent in backoff mode
         // and trigger grafana alerts
-        metrics::histogram!("eth_watcher.enter_backoff_mode", RATE_LIMIT_DELAY);
+        metrics::histogram!("rsk_watcher.enter_backoff_mode", RATE_LIMIT_DELAY);
     }
 
     fn polling_allowed(&mut self) -> bool {
@@ -402,10 +402,10 @@ impl<W: EthClient> EthWatch<W> {
             .expect("Unable to restore ETHWatcher state");
     }
 
-    pub async fn run(mut self, mut eth_watch_req: mpsc::Receiver<EthWatchRequest>) {
+    pub async fn run(mut self, mut eth_watch_req: mpsc::Receiver<RSKWatchRequest>) {
         while let Some(request) = eth_watch_req.next().await {
             match request {
-                EthWatchRequest::PollETHNode => {
+                RSKWatchRequest::PollETHNode => {
                     if !self.polling_allowed() {
                         // Polling is currently disabled, skip it.
                         continue;
@@ -431,13 +431,13 @@ impl<W: EthClient> EthWatch<W> {
                         }
                     }
                 }
-                EthWatchRequest::GetNewTokens {
+                RSKWatchRequest::GetNewTokens {
                     last_eth_block,
                     resp,
                 } => {
                     resp.send(self.get_new_tokens(last_eth_block)).ok();
                 }
-                EthWatchRequest::GetRegisterNFTFactoryEvents {
+                RSKWatchRequest::GetRegisterNFTFactoryEvents {
                     last_eth_block,
                     resp,
                 } => {
@@ -450,21 +450,21 @@ impl<W: EthClient> EthWatch<W> {
 }
 
 pub async fn start_eth_watch(
-    eth_req_sender: mpsc::Sender<EthWatchRequest>,
-    eth_req_receiver: mpsc::Receiver<EthWatchRequest>,
+    eth_req_sender: mpsc::Sender<RSKWatchRequest>,
+    eth_req_receiver: mpsc::Receiver<RSKWatchRequest>,
     eth_gateway: RootstockGateway,
     contract_config: &ContractsConfig,
-    eth_watcher_config: &ETHWatchConfig,
+    eth_watcher_config: &RSKWatchConfig,
     mempool_req_sender: mpsc::Sender<MempoolTransactionRequest>,
 ) -> JoinHandle<()> {
-    let eth_client = EthHttpClient::new(
+    let rsk_client = RSKHttpClient::new(
         eth_gateway,
         contract_config.contract_addr,
         contract_config.governance_addr,
     );
 
-    let mut eth_watch = EthWatch::new(
-        eth_client,
+    let mut eth_watch = RSKWatch::new(
+        rsk_client,
         mempool_req_sender,
         eth_watcher_config.confirmations_for_eth_event,
     );
@@ -481,7 +481,7 @@ pub async fn start_eth_watch(
             timer.tick().await;
             eth_req_sender
                 .clone()
-                .send(EthWatchRequest::PollETHNode)
+                .send(RSKWatchRequest::PollETHNode)
                 .await
                 .expect("ETH watch receiver dropped");
         }

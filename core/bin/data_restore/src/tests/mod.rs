@@ -33,7 +33,7 @@ use crate::{
     inmemory_storage_interactor::InMemoryStorageInteractor,
     storage_interactor::StorageInteractor,
     tests::utils::{create_log, u32_to_32bytes},
-    END_ETH_BLOCKS_OFFSET, ETH_BLOCKS_STEP,
+    END_RSK_BLOCKS_OFFSET, RSK_BLOCKS_STEP,
 };
 use web3::api::{Eth, Namespace};
 use zksync_types::aggregated_operations::BlocksCommitOperation;
@@ -85,7 +85,7 @@ fn create_deposit(from: Address, to: Address, amount: u32) -> ExecutedOperations
         data: deposit_op.try_get_priority_op().unwrap(),
         deadline_block: 0,
         eth_hash: H256::zero(),
-        eth_block: 0,
+        rsk_block: 0,
         eth_block_index: None,
     };
     let executed_deposit_op = ExecutedPriorityOp {
@@ -126,7 +126,7 @@ fn create_transaction_v4(number: u32, stored_block: Block, blocks: Vec<Block>) -
         blocks,
     };
     input_data.extend_from_slice(&fake_data);
-    input_data.extend_from_slice(&ethabi::encode(op.get_eth_tx_args().as_ref()));
+    input_data.extend_from_slice(&ethabi::encode(op.get_rsk_tx_args().as_ref()));
 
     Transaction {
         hash,
@@ -413,8 +413,8 @@ async fn test_run_state_update(mut storage: StorageProcessor<'_>) {
         contract_addr,
         contract_upgrade_eth_blocks.clone(),
         init_contract_version,
-        ETH_BLOCKS_STEP,
-        END_ETH_BLOCKS_OFFSET,
+        RSK_BLOCKS_STEP,
+        END_RSK_BLOCKS_OFFSET,
         true,
         None,
         ZkSyncDeployedContract::version4(eth, [1u8; 20].into()),
@@ -453,8 +453,8 @@ async fn test_run_state_update(mut storage: StorageProcessor<'_>) {
         contract_addr,
         contract_upgrade_eth_blocks,
         init_contract_version,
-        ETH_BLOCKS_STEP,
-        END_ETH_BLOCKS_OFFSET,
+        RSK_BLOCKS_STEP,
+        END_RSK_BLOCKS_OFFSET,
         true,
         None,
         ZkSyncDeployedContract::version4(eth, [1u8; 20].into()),
@@ -643,8 +643,8 @@ async fn test_with_inmemory_storage() {
         contract_addr,
         contract_upgrade_eth_blocks.clone(),
         init_contract_version,
-        ETH_BLOCKS_STEP,
-        END_ETH_BLOCKS_OFFSET,
+        RSK_BLOCKS_STEP,
+        END_RSK_BLOCKS_OFFSET,
         true,
         None,
         ZkSyncDeployedContract::version4(eth, [1u8; 20].into()),
@@ -676,8 +676,8 @@ async fn test_with_inmemory_storage() {
         contract_addr,
         contract_upgrade_eth_blocks,
         init_contract_version,
-        ETH_BLOCKS_STEP,
-        END_ETH_BLOCKS_OFFSET,
+        RSK_BLOCKS_STEP,
+        END_RSK_BLOCKS_OFFSET,
         true,
         None,
         ZkSyncDeployedContract::version4(eth, [1u8; 20].into()),

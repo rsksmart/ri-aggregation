@@ -52,7 +52,7 @@ impl TxHandler<Close> for ZkSyncState {
         ));
 
         let fee = CollectedFee {
-            token: params::ETH_TOKEN_ID,
+            token: params::RSK_TOKEN_ID,
             amount: BigUint::from(0u32),
         };
 

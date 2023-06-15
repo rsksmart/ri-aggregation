@@ -25,7 +25,7 @@ pub struct AccountCreatedAt {
 pub struct TransactionsHistoryItem {
     pub tx_id: String,
     pub hash: Option<String>,
-    pub eth_block: Option<i64>,
+    pub rsk_block: Option<i64>,
     pub pq_id: Option<i64>,
     pub tx: Value,
     pub success: Option<bool>,
@@ -157,7 +157,7 @@ pub struct StorageTxReceipt {
     pub block_number: Option<i64>,
     pub success: Option<bool>,
     pub fail_reason: Option<String>,
-    pub eth_block: Option<i64>,
+    pub rsk_block: Option<i64>,
     pub priority_op_serialid: Option<i64>,
 }
 

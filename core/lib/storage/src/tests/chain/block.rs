@@ -215,7 +215,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
     let mut rng = create_rng();
 
     // Required since we use `RootstockSchema` in this test.
-    RootstockSchema(&mut storage).initialize_eth_data().await?;
+    RootstockSchema(&mut storage).initialize_rsk_data().await?;
 
     let mut accounts_map = AccountMap::default();
     let n_committed = 5u32;
@@ -270,7 +270,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
         let eth_tx_hash = dummy_rootstock_tx_hash(id);
 
         let response = RootstockSchema(&mut storage)
-            .save_new_eth_tx(
+            .save_new_rsk_tx(
                 AggregatedActionType::CommitBlocks,
                 Some((id, op)),
                 100,
@@ -283,7 +283,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
             .add_hash_entry(response.id, &eth_tx_hash)
             .await?;
         RootstockSchema(&mut storage)
-            .confirm_eth_tx(&eth_tx_hash)
+            .confirm_rsk_tx(&eth_tx_hash)
             .await?;
 
         // Initialize reference sample fields.
@@ -313,7 +313,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
             // Do not add an rootstock confirmation for the last operation.
             if *block_number != n_verified {
                 let response = RootstockSchema(&mut storage)
-                    .save_new_eth_tx(
+                    .save_new_rsk_tx(
                         AggregatedActionType::CreateProofBlocks,
                         Some((id, op)),
                         100,
@@ -325,7 +325,7 @@ async fn test_find_block_by_height_or_hash(mut storage: StorageProcessor<'_>) ->
                     .add_hash_entry(response.id, &eth_tx_hash)
                     .await?;
                 RootstockSchema(&mut storage)
-                    .confirm_eth_tx(&eth_tx_hash)
+                    .confirm_rsk_tx(&eth_tx_hash)
                     .await?;
                 current_block_detail.verify_tx_hash = Some(eth_tx_hash.as_ref().to_vec());
             }
@@ -439,7 +439,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
     let mut rng = create_rng();
 
     // Required since we use `RootstockSchema` in this test.
-    RootstockSchema(&mut storage).initialize_eth_data().await?;
+    RootstockSchema(&mut storage).initialize_rsk_data().await?;
 
     let mut accounts_map = AccountMap::default();
     let n_committed = 5;
@@ -478,7 +478,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
         // commit/verify hashes.
         let eth_tx_hash = dummy_rootstock_tx_hash(id);
         let response = RootstockSchema(&mut storage)
-            .save_new_eth_tx(
+            .save_new_rsk_tx(
                 AggregatedActionType::CommitBlocks,
                 Some((id, op)),
                 100,
@@ -490,7 +490,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
             .add_hash_entry(response.id, &eth_tx_hash)
             .await?;
         RootstockSchema(&mut storage)
-            .confirm_eth_tx(&eth_tx_hash)
+            .confirm_rsk_tx(&eth_tx_hash)
             .await?;
 
         // Add verification for the block if required.
@@ -511,7 +511,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
                 .unwrap();
             let eth_tx_hash = dummy_rootstock_tx_hash(id);
             let response = RootstockSchema(&mut storage)
-                .save_new_eth_tx(
+                .save_new_rsk_tx(
                     AggregatedActionType::ExecuteBlocks,
                     Some((id, op)),
                     100,
@@ -523,7 +523,7 @@ async fn test_block_page(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
                 .add_hash_entry(response.id, &eth_tx_hash)
                 .await?;
             RootstockSchema(&mut storage)
-                .confirm_eth_tx(&eth_tx_hash)
+                .confirm_rsk_tx(&eth_tx_hash)
                 .await?;
         }
     }
@@ -572,7 +572,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
     let mut rng = create_rng();
 
     // Required since we use `RootstockSchema` in this test.
-    RootstockSchema(&mut storage).initialize_eth_data().await?;
+    RootstockSchema(&mut storage).initialize_rsk_data().await?;
 
     let mut accounts_map = AccountMap::default();
 
@@ -613,7 +613,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
         // commit/verify hashes.
         let eth_tx_hash = dummy_rootstock_tx_hash(id);
         let response = RootstockSchema(&mut storage)
-            .save_new_eth_tx(
+            .save_new_rsk_tx(
                 AggregatedActionType::CommitBlocks,
                 Some((id, op)),
                 100,
@@ -627,7 +627,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
 
         if *block_number <= n_commited_confirmed {
             RootstockSchema(&mut storage)
-                .confirm_eth_tx(&eth_tx_hash)
+                .confirm_rsk_tx(&eth_tx_hash)
                 .await?;
         }
 
@@ -650,7 +650,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
 
             let eth_tx_hash = dummy_rootstock_tx_hash(id);
             let response = RootstockSchema(&mut storage)
-                .save_new_eth_tx(
+                .save_new_rsk_tx(
                     AggregatedActionType::ExecuteBlocks,
                     Some((id, op)),
                     100,
@@ -662,7 +662,7 @@ async fn unconfirmed_transaction(mut storage: StorageProcessor<'_>) -> QueryResu
                 .add_hash_entry(response.id, &eth_tx_hash)
                 .await?;
             RootstockSchema(&mut storage)
-                .confirm_eth_tx(&eth_tx_hash)
+                .confirm_rsk_tx(&eth_tx_hash)
                 .await?;
         }
     }

@@ -21,7 +21,7 @@ pub fn block_verified(block: &StorageBlockDetails) -> bool {
 
 /// Converts a non-executed priority operation into a
 /// `TxByHashResponse` so the user can track its status in explorer.
-/// It also adds new field `tx.eth_block_number`, which is normally not there,
+/// It also adds new field `tx.rsk_block_number`, which is normally not there,
 /// which is the block number of Rootstock tx of the priority operation,
 /// it enables tracking the number of blocks (confirmations) user needs to wait
 /// before the priority op is included into zkSync block.
@@ -53,7 +53,7 @@ pub fn deposit_op_to_tx_by_hash(
                     "token": token_symbol
                 },
                 "type": "Deposit",
-                "eth_block_number": op.eth_block,
+                "rsk_block_number": op.rsk_block,
             });
 
             Some(TxByHashResponse {
@@ -82,7 +82,7 @@ pub fn deposit_op_to_tx_by_hash(
 /// in the client.
 pub fn priority_op_to_tx_history(
     tokens: &HashMap<TokenId, Token>,
-    eth_block: u64,
+    rsk_block: u64,
     op: &PriorityOp,
 ) -> TransactionsHistoryItem {
     let deposit = op
@@ -119,7 +119,7 @@ pub fn priority_op_to_tx_history(
     TransactionsHistoryItem {
         tx_id: "-".into(),
         hash: Some(hash_str),
-        eth_block: Some(eth_block as i64),
+        rsk_block: Some(rsk_block as i64),
         pq_id,
         tx: tx_json,
         success: None,

@@ -15,7 +15,7 @@ use tokio::sync::RwLock;
 use zksync_mempool::MempoolTransactionRequest;
 
 use super::is_missing_priority_op_error;
-use crate::eth_watch::{client::EthClient, EthWatch};
+use crate::eth_watch::{client::RSKClient, RSKWatch};
 
 struct FakeEthClientData {
     priority_ops: HashMap<u64, Vec<PriorityOp>>,
@@ -32,9 +32,9 @@ impl FakeEthClientData {
 
     fn add_operations(&mut self, ops: &[PriorityOp]) {
         for op in ops {
-            self.last_block_number = max(op.eth_block, self.last_block_number);
+            self.last_block_number = max(op.rsk_block, self.last_block_number);
             self.priority_ops
-                .entry(op.eth_block)
+                .entry(op.rsk_block)
                 .or_insert_with(Vec::new)
                 .push(op.clone());
         }
@@ -73,7 +73,7 @@ impl FakeEthClient {
 }
 
 #[async_trait::async_trait]
-impl EthClient for FakeEthClient {
+impl RSKClient for FakeEthClient {
     async fn get_priority_op_events(
         &self,
         from: BlockNumber,
@@ -128,11 +128,11 @@ impl EthClient for FakeEthClient {
     }
 }
 
-fn create_watcher<T: EthClient>(
+fn create_watcher<T: RSKClient>(
     client: T,
     mempool_tx_sender: mpsc::Sender<MempoolTransactionRequest>,
-) -> EthWatch<T> {
-    EthWatch::new(client, mempool_tx_sender, 1)
+) -> RSKWatch<T> {
+    RSKWatch::new(client, mempool_tx_sender, 1)
 }
 
 async fn fake_mempool(
@@ -177,7 +177,7 @@ async fn test_operation_queues() {
             }),
             deadline_block: 0,
             eth_hash: [2; 32].into(),
-            eth_block: 3,
+            rsk_block: 3,
             eth_block_index: Some(1),
         },
         PriorityOp {
@@ -190,7 +190,7 @@ async fn test_operation_queues() {
             }),
             deadline_block: 0,
             eth_hash: [3; 32].into(),
-            eth_block: 4,
+            rsk_block: 4,
             eth_block_index: Some(1),
         },
         PriorityOp {
@@ -202,7 +202,7 @@ async fn test_operation_queues() {
                 is_legacy: false,
             }),
             deadline_block: 0,
-            eth_block: 4,
+            rsk_block: 4,
             eth_hash: [4; 32].into(),
             eth_block_index: Some(2),
         },
@@ -212,10 +212,10 @@ async fn test_operation_queues() {
 
     let mut watcher = create_watcher(client, sender);
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 4);
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 4);
 
-    let priority_queues = watcher.eth_state.priority_queue();
-    let unconfirmed_queue = watcher.eth_state.unconfirmed_queue();
+    let priority_queues = watcher.rsk_state.priority_queue();
+    let unconfirmed_queue = watcher.rsk_state.unconfirmed_queue();
     assert_eq!(priority_queues.len(), 1);
     assert_eq!(
         priority_queues.values().next().unwrap().as_ref().serial_id,
@@ -262,7 +262,7 @@ async fn test_operation_queues_time_lag() {
                 }),
                 deadline_block: 0,
                 eth_hash: [2; 32].into(),
-                eth_block: 1, // <- First operation goes to the first block.
+                rsk_block: 1, // <- First operation goes to the first block.
                 eth_block_index: Some(1),
             },
             PriorityOp {
@@ -275,7 +275,7 @@ async fn test_operation_queues_time_lag() {
                 }),
                 deadline_block: 0,
                 eth_hash: [3; 32].into(),
-                eth_block: 100, // <-- Note 100th block, it will set the network block to 100.
+                rsk_block: 100, // <-- Note 100th block, it will set the network block to 100.
                 eth_block_index: Some(1),
             },
             PriorityOp {
@@ -288,17 +288,17 @@ async fn test_operation_queues_time_lag() {
                 }),
                 deadline_block: 0,
                 eth_hash: [3; 32].into(),
-                eth_block: 110, // <-- This operation will get to the unconfirmed queue.
+                rsk_block: 110, // <-- This operation will get to the unconfirmed queue.
                 eth_block_index: Some(1),
             },
         ])
         .await;
     let mut watcher = create_watcher(client, sender);
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 110);
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 110);
 
-    let priority_queues = watcher.eth_state.priority_queue();
-    let unconfirmed_queue = watcher.eth_state.unconfirmed_queue();
+    let priority_queues = watcher.rsk_state.priority_queue();
+    let unconfirmed_queue = watcher.rsk_state.unconfirmed_queue();
     assert_eq!(priority_queues.len(), 2, "Incorrect confirmed queue size");
     assert_eq!(
         unconfirmed_queue.len(),
@@ -335,7 +335,7 @@ async fn test_restore_and_poll() {
                 }),
                 deadline_block: 0,
                 eth_hash: [2; 32].into(),
-                eth_block: 4,
+                rsk_block: 4,
                 eth_block_index: Some(1),
             },
             PriorityOp {
@@ -348,7 +348,7 @@ async fn test_restore_and_poll() {
                 }),
                 deadline_block: 0,
                 eth_hash: [3; 32].into(),
-                eth_block: 3,
+                rsk_block: 3,
                 eth_block_index: Some(1),
             },
         ])
@@ -368,7 +368,7 @@ async fn test_restore_and_poll() {
                 }),
                 deadline_block: 0,
                 eth_hash: [2; 32].into(),
-                eth_block: 5,
+                rsk_block: 5,
                 eth_block_index: Some(1),
             },
             PriorityOp {
@@ -381,15 +381,15 @@ async fn test_restore_and_poll() {
                 }),
                 deadline_block: 0,
                 eth_hash: [3; 32].into(),
-                eth_block: 5,
+                rsk_block: 5,
                 eth_block_index: Some(2),
             },
         ])
         .await;
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 5);
-    let priority_queues = watcher.eth_state.priority_queue();
-    let unconfirmed_queue = watcher.eth_state.unconfirmed_queue();
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 5);
+    let priority_queues = watcher.rsk_state.priority_queue();
+    let unconfirmed_queue = watcher.rsk_state.unconfirmed_queue();
     assert_eq!(priority_queues.len(), 2);
     assert_eq!(unconfirmed_queue.len(), 2);
     assert_eq!(unconfirmed_queue[0].serial_id, 3);
@@ -420,7 +420,7 @@ async fn test_restore_and_poll_time_lag() {
                 }),
                 deadline_block: 0,
                 eth_hash: [2; 32].into(),
-                eth_block: 1,
+                rsk_block: 1,
                 eth_block_index: Some(1),
             },
             PriorityOp {
@@ -433,7 +433,7 @@ async fn test_restore_and_poll_time_lag() {
                 }),
                 deadline_block: 0,
                 eth_hash: [3; 32].into(),
-                eth_block: 100,
+                rsk_block: 100,
                 eth_block_index: Some(1),
             },
         ])
@@ -441,8 +441,8 @@ async fn test_restore_and_poll_time_lag() {
 
     let mut watcher = create_watcher(client.clone(), sender);
     watcher.restore_state_from_eth(101).await.unwrap();
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 101);
-    let priority_queues = watcher.eth_state.priority_queue();
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 101);
+    let priority_queues = watcher.rsk_state.priority_queue();
     assert_eq!(priority_queues.len(), 2);
     priority_queues.get(&0).unwrap();
     priority_queues.get(&1).unwrap();
@@ -468,7 +468,7 @@ async fn test_serial_id_gaps() {
                 data: deposit.clone(),
                 deadline_block: 0,
                 eth_hash: [2; 32].into(),
-                eth_block: 1,
+                rsk_block: 1,
                 eth_block_index: Some(1),
             },
             PriorityOp {
@@ -476,7 +476,7 @@ async fn test_serial_id_gaps() {
                 data: deposit.clone(),
                 deadline_block: 0,
                 eth_hash: [3; 32].into(),
-                eth_block: 1,
+                rsk_block: 1,
                 eth_block_index: Some(2),
             },
         ])
@@ -485,16 +485,16 @@ async fn test_serial_id_gaps() {
     let mut watcher = create_watcher(client.clone(), sender);
     // Restore the valid (empty) state.
     watcher.restore_state_from_eth(0).await.unwrap();
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 0);
-    assert!(watcher.eth_state.priority_queue().is_empty());
-    assert_eq!(watcher.eth_state.next_priority_op_id(), 0);
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 0);
+    assert!(watcher.rsk_state.priority_queue().is_empty());
+    assert_eq!(watcher.rsk_state.next_priority_op_id(), 0);
 
     // Advance the block number and poll the valid block range.
     client.set_last_block_number(2).await;
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.next_priority_op_id(), 2);
-    assert_eq!(watcher.eth_state.last_rootstock_block_backup(), 0);
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 2);
+    assert_eq!(watcher.rsk_state.next_priority_op_id(), 2);
+    assert_eq!(watcher.rsk_state.last_rootstock_block_backup(), 0);
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 2);
 
     // Add a gap.
     client
@@ -504,7 +504,7 @@ async fn test_serial_id_gaps() {
                 data: deposit.clone(),
                 deadline_block: 0,
                 eth_hash: [2; 32].into(),
-                eth_block: 2,
+                rsk_block: 2,
                 eth_block_index: Some(1),
             },
             PriorityOp {
@@ -512,7 +512,7 @@ async fn test_serial_id_gaps() {
                 data: deposit.clone(),
                 deadline_block: 0,
                 eth_hash: [3; 32].into(),
-                eth_block: 2,
+                rsk_block: 2,
                 eth_block_index: Some(3),
             },
         ])
@@ -524,10 +524,10 @@ async fn test_serial_id_gaps() {
 
     // The partially valid update is still discarded and we're waiting
     // for the serial_id = 2 even though it was present.
-    assert_eq!(watcher.eth_state.next_priority_op_id(), 2);
+    assert_eq!(watcher.rsk_state.next_priority_op_id(), 2);
     // The range got reset.
-    assert_eq!(watcher.eth_state.last_rootstock_block_backup(), 0);
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 0);
+    assert_eq!(watcher.rsk_state.last_rootstock_block_backup(), 0);
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 0);
 
     // Add a missing operations to the processed range.
     client
@@ -536,13 +536,13 @@ async fn test_serial_id_gaps() {
             data: deposit.clone(),
             deadline_block: 0,
             eth_hash: [2; 32].into(),
-            eth_block: 2,
+            rsk_block: 2,
             eth_block_index: Some(2),
         }])
         .await;
     watcher.poll_eth_node().await.unwrap();
-    assert_eq!(watcher.eth_state.next_priority_op_id(), 5);
-    assert_eq!(watcher.eth_state.priority_queue().len(), 5);
-    assert_eq!(watcher.eth_state.last_rootstock_block_backup(), 0);
-    assert_eq!(watcher.eth_state.last_rootstock_block(), 3);
+    assert_eq!(watcher.rsk_state.next_priority_op_id(), 5);
+    assert_eq!(watcher.rsk_state.priority_queue().len(), 5);
+    assert_eq!(watcher.rsk_state.last_rootstock_block_backup(), 0);
+    assert_eq!(watcher.rsk_state.last_rootstock_block(), 3);
 }

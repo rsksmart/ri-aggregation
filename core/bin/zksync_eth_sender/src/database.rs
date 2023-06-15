@@ -6,13 +6,13 @@ use num::BigUint;
 use zksync_basic_types::{H256, U256};
 // Workspace uses
 use zksync_storage::{ConnectionPool, StorageProcessor};
-use zksync_types::rootstock::{ETHOperation, EthOpId, InsertedOperationResponse};
+use zksync_types::rootstock::{InsertedOperationResponse, RSKOpId, RSKOperation};
 // Local uses
-use super::transactions::ETHStats;
+use super::transactions::RSKStats;
 use zksync_types::aggregated_operations::{AggregatedActionType, AggregatedOperation};
 use zksync_types::block::Block;
 
-/// Abstract database access trait, optimized for the needs of `ETHSender`.
+/// Abstract database access trait, optimized for the needs of `RSKSender`.
 #[async_trait::async_trait]
 pub(super) trait DatabaseInterface {
     /// Returns connection to the database.
@@ -24,7 +24,7 @@ pub(super) trait DatabaseInterface {
     async fn load_unconfirmed_operations(
         &self,
         connection: &mut StorageProcessor<'_>,
-    ) -> anyhow::Result<VecDeque<ETHOperation>>;
+    ) -> anyhow::Result<VecDeque<RSKOperation>>;
 
     /// Load all the aggregated operations that have no confirmation yet and have not yet been sent to Rootstock.
     /// Should be used after server restart only.
@@ -48,7 +48,7 @@ pub(super) trait DatabaseInterface {
     ) -> anyhow::Result<()>;
 
     /// Saves a new unconfirmed operation to the database.
-    async fn save_new_eth_tx(
+    async fn save_new_rsk_tx(
         &self,
         connection: &mut StorageProcessor<'_>,
         op_type: AggregatedActionType,
@@ -62,15 +62,15 @@ pub(super) trait DatabaseInterface {
     async fn add_hash_entry(
         &self,
         connection: &mut StorageProcessor<'_>,
-        eth_op_id: i64,
+        rsk_op_id: i64,
         hash: &H256,
     ) -> anyhow::Result<()>;
 
     /// Adds a new tx info to the previously started Rootstock operation.
-    async fn update_eth_tx(
+    async fn update_rsk_tx(
         &self,
         connection: &mut StorageProcessor<'_>,
-        eth_op_id: EthOpId,
+        rsk_op_id: RSKOpId,
         new_deadline_block: i64,
         new_gas_value: U256,
     ) -> anyhow::Result<()>;
@@ -80,11 +80,11 @@ pub(super) trait DatabaseInterface {
         &self,
         connection: &mut StorageProcessor<'_>,
         hash: &H256,
-        op: &ETHOperation,
+        op: &RSKOperation,
     ) -> anyhow::Result<()>;
 
     /// Loads the stored Rootstock operations stats.
-    async fn load_stats(&self, connection: &mut StorageProcessor<'_>) -> anyhow::Result<ETHStats>;
+    async fn load_stats(&self, connection: &mut StorageProcessor<'_>) -> anyhow::Result<RSKStats>;
 
     /// Loads the stored gas price limit.
     async fn load_gas_price_limit(
@@ -103,7 +103,7 @@ pub(super) trait DatabaseInterface {
     async fn is_previous_operation_confirmed(
         &self,
         connection: &mut StorageProcessor<'_>,
-        op: &ETHOperation,
+        op: &RSKOperation,
     ) -> anyhow::Result<bool>;
 }
 
@@ -132,7 +132,7 @@ impl DatabaseInterface for Database {
     async fn load_unconfirmed_operations(
         &self,
         connection: &mut StorageProcessor<'_>,
-    ) -> anyhow::Result<VecDeque<ETHOperation>> {
+    ) -> anyhow::Result<VecDeque<RSKOperation>> {
         let unconfirmed_ops = connection
             .rootstock_schema()
             .load_unconfirmed_operations()
@@ -177,7 +177,7 @@ impl DatabaseInterface for Database {
         Ok(())
     }
 
-    async fn save_new_eth_tx(
+    async fn save_new_rsk_tx(
         &self,
         connection: &mut StorageProcessor<'_>,
         op_type: AggregatedActionType,
@@ -188,7 +188,7 @@ impl DatabaseInterface for Database {
     ) -> anyhow::Result<InsertedOperationResponse> {
         let result = connection
             .rootstock_schema()
-            .save_new_eth_tx(
+            .save_new_rsk_tx(
                 op_type,
                 op,
                 deadline_block,
@@ -203,26 +203,26 @@ impl DatabaseInterface for Database {
     async fn add_hash_entry(
         &self,
         connection: &mut StorageProcessor<'_>,
-        eth_op_id: i64,
+        rsk_op_id: i64,
         hash: &H256,
     ) -> anyhow::Result<()> {
         Ok(connection
             .rootstock_schema()
-            .add_hash_entry(eth_op_id, hash)
+            .add_hash_entry(rsk_op_id, hash)
             .await?)
     }
 
-    async fn update_eth_tx(
+    async fn update_rsk_tx(
         &self,
         connection: &mut StorageProcessor<'_>,
-        eth_op_id: EthOpId,
+        rsk_op_id: RSKOpId,
         new_deadline_block: i64,
         new_gas_value: U256,
     ) -> anyhow::Result<()> {
         Ok(connection
             .rootstock_schema()
-            .update_eth_tx(
-                eth_op_id,
+            .update_rsk_tx(
+                rsk_op_id,
                 new_deadline_block,
                 BigUint::from_str(&new_gas_value.to_string()).unwrap(),
             )
@@ -232,7 +232,7 @@ impl DatabaseInterface for Database {
     async fn is_previous_operation_confirmed(
         &self,
         connection: &mut StorageProcessor<'_>,
-        op: &ETHOperation,
+        op: &RSKOperation,
     ) -> anyhow::Result<bool> {
         // If the ID of the current operation is 1, then this is the first transaction
         // and it is not needed for checking confirmation.
@@ -255,7 +255,7 @@ impl DatabaseInterface for Database {
         &self,
         connection: &mut StorageProcessor<'_>,
         hash: &H256,
-        op: &ETHOperation,
+        op: &RSKOperation,
     ) -> anyhow::Result<()> {
         let mut transaction = connection.start_transaction().await?;
 
@@ -312,13 +312,13 @@ impl DatabaseInterface for Database {
             _ => {}
         }
 
-        transaction.rootstock_schema().confirm_eth_tx(hash).await?;
+        transaction.rootstock_schema().confirm_rsk_tx(hash).await?;
         transaction.commit().await?;
 
         Ok(())
     }
 
-    async fn load_stats(&self, connection: &mut StorageProcessor<'_>) -> anyhow::Result<ETHStats> {
+    async fn load_stats(&self, connection: &mut StorageProcessor<'_>) -> anyhow::Result<RSKStats> {
         let stats = connection.rootstock_schema().load_stats().await?;
         Ok(stats.into())
     }

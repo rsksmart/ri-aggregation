@@ -3,7 +3,7 @@ use web3::transports::Http;
 use zksync_core::state_keeper::ZkSyncStateInitParams;
 use zksync_types::block::Block;
 
-use zksync_testkit::zksync_account::ZkSyncETHAccountData;
+use zksync_testkit::zksync_account::ZkSyncRSKAccountData;
 use zksync_testkit::*;
 use zksync_testkit::{
     data_restore::verify_restore,
@@ -12,7 +12,7 @@ use zksync_testkit::{
 use zksync_types::{BlockNumber, Nonce, TokenId};
 
 use crate::{
-    eth_account::{parse_ether, RootstockAccount},
+    rsk_account::{parse_rbtc, RootstockAccount},
     external_commands::{deploy_contracts, get_test_accounts, Contracts},
     zksync_account::ZkSyncAccount,
 };
@@ -32,7 +32,7 @@ fn create_test_setup_state(
         testkit_config.chain_id,
         testkit_config.gas_price_factor,
     );
-    let eth_accounts = test_accounts_info
+    let rsk_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
             RootstockAccount::new(
@@ -48,14 +48,14 @@ fn create_test_setup_state(
 
     let zksync_accounts = {
         let mut zksync_accounts = vec![fee_account.clone()];
-        zksync_accounts.extend(eth_accounts.iter().map(|eth_account| {
+        zksync_accounts.extend(rsk_accounts.iter().map(|rsk_account| {
             let rng_zksync_key = ZkSyncAccount::rand().private_key;
             ZkSyncAccount::new(
                 rng_zksync_key,
                 Nonce(0),
-                eth_account.address,
-                ZkSyncETHAccountData::EOA {
-                    eth_private_key: eth_account.private_key,
+                rsk_account.address,
+                ZkSyncRSKAccountData::EOA {
+                    eth_private_key: rsk_account.private_key,
                 },
             )
         }));
@@ -63,7 +63,7 @@ fn create_test_setup_state(
     };
 
     let accounts = AccountSet {
-        eth_accounts,
+        rsk_accounts,
         zksync_accounts,
         fee_account_id: ZKSyncAccountId(0),
     };
@@ -78,7 +78,7 @@ async fn execute_blocks(
     number_of_committed_iteration_blocks: u16,
     number_of_reverted_iterations_blocks: u16,
 ) -> (ZkSyncStateInitParams, AccountSet, Block) {
-    let deposit_amount = parse_ether("1.0").unwrap();
+    let deposit_amount = parse_rbtc("1.0").unwrap();
 
     let mut executed_blocks = Vec::new();
     let token = 0;
@@ -99,7 +99,7 @@ async fn execute_blocks(
         ));
     }
     test_setup
-        .get_eth_balance(ETHAccountId(0), TokenId(0))
+        .get_eth_balance(RSKAccountId(0), TokenId(0))
         .await;
     for _ in 0..number_of_committed_iteration_blocks - number_of_verified_iteration_blocks {
         let blocks = perform_basic_operations(
@@ -116,7 +116,7 @@ async fn execute_blocks(
         ));
     }
     test_setup
-        .get_eth_balance(ETHAccountId(0), TokenId(0))
+        .get_eth_balance(RSKAccountId(0), TokenId(0))
         .await;
 
     let executed_blocks_reverse_order = executed_blocks

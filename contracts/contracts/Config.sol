@@ -23,7 +23,7 @@ contract Config {
     uint8 internal constant PUBKEY_BYTES = 32;
 
     /// @dev Ethereum signature r/s bytes length
-    uint8 internal constant ETH_SIGN_RS_BYTES = 32;
+    uint8 internal constant RSK_SIGN_RS_BYTES = 32;
 
     /// @dev Success flag bytes length
     uint8 internal constant SUCCESS_FLAG_BYTES = 1;

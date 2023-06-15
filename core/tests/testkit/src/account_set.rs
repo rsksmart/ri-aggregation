@@ -1,4 +1,4 @@
-use crate::eth_account::RootstockAccount;
+use crate::rsk_account::RootstockAccount;
 use crate::zksync_account::ZkSyncAccount;
 use num::BigUint;
 use web3::types::{TransactionReceipt, H256, U64};
@@ -12,20 +12,20 @@ use crate::types::*;
 /// in a convenient way
 #[derive(Clone)]
 pub struct AccountSet {
-    pub eth_accounts: Vec<RootstockAccount>,
+    pub rsk_accounts: Vec<RootstockAccount>,
     pub zksync_accounts: Vec<ZkSyncAccount>,
     pub fee_account_id: ZKSyncAccountId,
 }
 impl AccountSet {
-    /// Create deposit from eth account to zksync account
+    /// Create deposit from rsk account to zksync account
     pub async fn deposit(
         &self,
-        from: ETHAccountId,
+        from: RSKAccountId,
         to: ZKSyncAccountId,
-        token: Option<Address>, // None for ETH
+        token: Option<Address>, // None for RBTC
         amount: BigUint,
     ) -> (Vec<TransactionReceipt>, PriorityOp) {
-        let from = &self.eth_accounts[from.0];
+        let from = &self.rsk_accounts[from.0];
         let to = &self.zksync_accounts[to.0];
 
         if let Some(address) = token {
@@ -33,20 +33,20 @@ impl AccountSet {
                 .await
                 .expect("erc20 deposit should not fail")
         } else {
-            from.deposit_eth(amount, &to.address, None)
+            from.deposit_rbtc(amount, &to.address, None)
                 .await
-                .expect("eth deposit should not fail")
+                .expect("rbtc deposit should not fail")
         }
     }
 
     pub async fn deposit_to_random(
         &self,
-        from: ETHAccountId,
-        token: Option<Address>, // None for ETH
+        from: RSKAccountId,
+        token: Option<Address>, // None for RBTC
         amount: BigUint,
         rng: &mut impl Rng,
     ) -> (Vec<TransactionReceipt>, PriorityOp) {
-        let from = &self.eth_accounts[from.0];
+        let from = &self.rsk_accounts[from.0];
         let to_address = Address::from_slice(&rng.gen::<[u8; 20]>());
 
         if let Some(address) = token {
@@ -54,9 +54,9 @@ impl AccountSet {
                 .await
                 .expect("erc20 deposit should not fail")
         } else {
-            from.deposit_eth(amount, &to_address, None)
+            from.deposit_rbtc(amount, &to_address, None)
                 .await
-                .expect("eth deposit should not fail")
+                .expect("rbtc deposit should not fail")
         }
     }
 
@@ -157,14 +157,14 @@ impl AccountSet {
         ))
     }
 
-    /// Create withdraw from zksync account to eth account
+    /// Create withdraw from zksync account to rsk account
     /// `nonce` optional nonce override
     /// `increment_nonce` - flag for `from` account nonce increment
     #[allow(clippy::too_many_arguments)]
     pub fn withdraw(
         &self,
         from: ZKSyncAccountId,
-        to: ETHAccountId,
+        to: RSKAccountId,
         token_id: Token,
         amount: BigUint,
         fee: BigUint,
@@ -173,7 +173,7 @@ impl AccountSet {
         time_range: TimeRange,
     ) -> ZkSyncTx {
         let from = &self.zksync_accounts[from.0];
-        let to = &self.eth_accounts[to.0];
+        let to = &self.rsk_accounts[to.0];
 
         ZkSyncTx::Withdraw(Box::new(
             from.sign_withdraw(
@@ -216,7 +216,7 @@ impl AccountSet {
         )))
     }
 
-    /// Create withdraw from zksync account to random eth account
+    /// Create withdraw from zksync account to random rsk account
     /// `nonce` optional nonce override
     /// `increment_nonce` - flag for `from` account nonce increment
     #[allow(clippy::too_many_arguments)]
@@ -247,7 +247,7 @@ impl AccountSet {
             .0,
         ))
     }
-    /// Create withdraw from zksync account to random eth account
+    /// Create withdraw from zksync account to random rsk account
     /// `nonce` optional nonce override
     /// `increment_nonce` - flag for `from` account nonce increment
     #[allow(clippy::too_many_arguments)]
@@ -279,26 +279,26 @@ impl AccountSet {
         ))
     }
 
-    /// Create full exit from zksync account to eth account
+    /// Create full exit from zksync account to rsk account
     /// `nonce` optional nonce override
     /// `increment_nonce` - flag for `from` account nonce increment
     #[allow(clippy::too_many_arguments)]
     pub async fn full_exit(
         &self,
-        post_by: ETHAccountId,
+        post_by: RSKAccountId,
         token_address: Address,
         account_id: AccountId,
     ) -> (TransactionReceipt, PriorityOp) {
-        self.eth_accounts[post_by.0]
+        self.rsk_accounts[post_by.0]
             .full_exit(account_id, token_address)
             .await
-            .expect("FullExit eth call failed")
+            .expect("FullExit rsk call failed")
     }
 
     #[allow(clippy::too_many_arguments)]
     pub async fn change_pubkey_with_onchain_auth(
         &self,
-        eth_account: ETHAccountId,
+        rsk_account: RSKAccountId,
         zksync_signer: ZKSyncAccountId,
         fee_token: TokenId,
         fee: BigUint,
@@ -309,8 +309,8 @@ impl AccountSet {
         let zksync_account = &self.zksync_accounts[zksync_signer.0];
         let auth_nonce = nonce.unwrap_or_else(|| zksync_account.nonce());
 
-        let eth_account = &self.eth_accounts[eth_account.0];
-        let tx_receipt = eth_account
+        let rsk_account = &self.rsk_accounts[rsk_account.0];
+        let tx_receipt = rsk_account
             .auth_fact(&zksync_account.pubkey_hash.data, auth_nonce)
             .await
             .expect("Auth pubkey fail");
@@ -340,9 +340,9 @@ impl AccountSet {
             increment_nonce,
             fee_token,
             fee,
-            if zksync_account.eth_account_data.is_eoa() {
+            if zksync_account.rsk_account_data.is_eoa() {
                 ChangePubKeyType::ECDSA
-            } else if zksync_account.eth_account_data.is_create2() {
+            } else if zksync_account.rsk_account_data.is_create2() {
                 ChangePubKeyType::CREATE2
             } else {
                 panic!("Not supported, use onchain change pubkey");

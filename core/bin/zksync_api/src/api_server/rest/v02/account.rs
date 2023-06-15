@@ -628,7 +628,7 @@ mod tests {
                             }),
                             deadline_block: 0,
                             eth_hash: H256::from_slice(&[0u8; 32]),
-                            eth_block: 25,
+                            rsk_block: 25,
                             eth_block_index: Some(1),
                         },
                         PriorityOp {
@@ -641,7 +641,7 @@ mod tests {
                             }),
                             deadline_block: 0,
                             eth_hash: H256::from_slice(&[0u8; 32]),
-                            eth_block: 25,
+                            rsk_block: 25,
                             eth_block_index: Some(1),
                         },
                         PriorityOp {
@@ -654,7 +654,7 @@ mod tests {
                             }),
                             deadline_block: 0,
                             eth_hash: H256::from_slice(&[0u8; 32]),
-                            eth_block: 25,
+                            rsk_block: 25,
                             eth_block_index: Some(1),
                         },
                     ],

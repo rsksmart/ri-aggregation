@@ -1,13 +1,13 @@
-use zksync_config::{ContractsConfig, ETHClientConfig, ETHSenderConfig, GatewayWatcherConfig};
-use zksync_eth_client::RootstockGateway;
+use zksync_config::{ContractsConfig, GatewayWatcherConfig, RSKClientConfig, RSKSenderConfig};
 use zksync_gateway_watcher::MultiplexedGatewayWatcher;
+use zksync_rsk_client::RootstockGateway;
 
 #[tokio::main]
 async fn main() {
     vlog::init();
     let contracts = ContractsConfig::from_env();
-    let eth_client_config = ETHClientConfig::from_env();
-    let eth_sender_config = ETHSenderConfig::from_env();
+    let eth_client_config = RSKClientConfig::from_env();
+    let eth_sender_config = RSKSenderConfig::from_env();
     let eth_watcher_config = GatewayWatcherConfig::from_env();
 
     MultiplexedGatewayWatcher::new(

@@ -96,7 +96,7 @@ pub fn init() -> VlogGuard {
             sentry::ClientOptions {
                 release: sentry::release_name!(),
                 environment: Some(Cow::from(
-                    std::env::var("CHAIN_ETH_NETWORK").expect("Must be set"),
+                    std::env::var("CHAIN_RSK_NETWORK").expect("Must be set"),
                 )),
                 attach_stacktrace: true,
                 ..Default::default()

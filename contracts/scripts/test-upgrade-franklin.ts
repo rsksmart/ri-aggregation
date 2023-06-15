@@ -23,7 +23,7 @@ async function main() {
     parser.addArgument('contractAddress');
     parser.addArgument('upgradeGatekeeperAddress');
     const args = parser.parseArgs(process.argv.slice(2));
-    if (process.env.CHAIN_ETH_NETWORK !== 'test') {
+    if (process.env.CHAIN_RSK_NETWORK !== 'test') {
         console.log('Upgrading test contract not on test network is not allowed');
         process.exit(1);
     }

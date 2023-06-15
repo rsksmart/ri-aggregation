@@ -9,8 +9,8 @@ use web3::contract::Options;
 use web3::transports::Http;
 use web3::types::{TransactionReceipt, H160, H256, U256};
 
-use zksync_eth_client::ETHDirectClient;
-use zksync_eth_signer::RootstockSigner;
+use zksync_rsk_signer::RootstockSigner;
+use zksync_rsk_client::RSKDirectClient;
 use zksync_types::{AccountId, Address, PriorityOp, PriorityOpId, TokenId, TokenLike};
 
 use crate::{
@@ -52,7 +52,7 @@ pub fn ierc20_contract() -> ethabi::Contract {
 #[derive(Debug)]
 pub struct RootstockProvider<S: RootstockSigner> {
     tokens_cache: TokensCache,
-    eth_client: ETHDirectClient<S>,
+    rsk_client: RSKDirectClient<S>,
     erc20_abi: ethabi::Contract,
     confirmation_timeout: Duration,
     poll_time: Duration,
@@ -64,7 +64,7 @@ impl<S: RootstockSigner> RootstockProvider<S> {
         provider: &P,
         tokens_cache: TokensCache,
         eth_web3_url: impl AsRef<str>,
-        eth_signer: S,
+        rsk_signer: S,
         eth_addr: H160,
     ) -> Result<Self, ClientError> {
         let transport = Http::new(eth_web3_url.as_ref())
@@ -80,11 +80,11 @@ impl<S: RootstockSigner> RootstockProvider<S> {
                 &address_response.main_contract
             };
 
-        let eth_client = ETHDirectClient::new(
+        let rsk_client = RSKDirectClient::new(
             transport,
             zksync_contract(),
             eth_addr,
-            eth_signer,
+            rsk_signer,
             contract_address
                 .parse()
                 .map_err(|err| ClientError::MalformedResponse(format!("{}", err)))?,
@@ -94,7 +94,7 @@ impl<S: RootstockSigner> RootstockProvider<S> {
         let erc20_abi = ierc20_contract();
 
         Ok(Self {
-            eth_client,
+            rsk_client,
             erc20_abi,
             tokens_cache,
             confirmation_timeout: Duration::from_secs(30),
@@ -103,8 +103,8 @@ impl<S: RootstockSigner> RootstockProvider<S> {
     }
 
     /// Exposes Rootstock node `web3` API.
-    pub fn client(&self) -> &ETHDirectClient<S> {
-        &self.eth_client
+    pub fn client(&self) -> &RSKDirectClient<S> {
+        &self.rsk_client
     }
 
     /// Returns the zkSync contract address.
@@ -133,7 +133,7 @@ impl<S: RootstockSigner> RootstockProvider<S> {
             .ok_or(ClientError::UnknownToken)?;
 
         let res = self
-            .eth_client
+            .rsk_client
             .call_contract_function(
                 "balanceOf",
                 address,
@@ -323,7 +323,7 @@ impl<S: RootstockSigner> RootstockProvider<S> {
                 .encode_input(&params.into_tokens())
                 .expect("failed to encode parameters");
 
-            self.eth_client
+            self.rsk_client
                 .sign_prepared_tx_for_addr(
                     data,
                     token_info.address,
@@ -337,7 +337,7 @@ impl<S: RootstockSigner> RootstockProvider<S> {
         };
 
         let transaction_hash = self
-            .eth_client
+            .rsk_client
             .send_raw_tx(signed_tx.raw_tx)
             .await
             .map_err(|err| ClientError::NetworkError(err.to_string()))?;
@@ -365,7 +365,7 @@ impl<S: RootstockSigner> RootstockProvider<S> {
                 gas: Some(200_000.into()),
                 ..Default::default()
             };
-            let data = self.client().encode_tx_data("depositETH", sync_address);
+            let data = self.client().encode_tx_data("depositRBTC", sync_address);
 
             self.client()
                 .sign_prepared_tx(data, options)
@@ -459,16 +459,16 @@ impl<S: RootstockSigner> RootstockProvider<S> {
         };
 
         let data = self
-            .eth_client
+            .rsk_client
             .encode_tx_data("requestFullExitNFT", (account_id, token.0));
         let signed_tx = self
-            .eth_client
+            .rsk_client
             .sign_prepared_tx(data, options)
             .await
             .map_err(|_| ClientError::IncorrectCredentials)?;
 
         let transaction_hash = self
-            .eth_client
+            .rsk_client
             .send_raw_tx(signed_tx.raw_tx)
             .await
             .map_err(|err| ClientError::NetworkError(err.to_string()))?;

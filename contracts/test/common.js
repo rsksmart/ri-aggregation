@@ -15,7 +15,7 @@ const DEFAULT_GAS_LIMIT = 6_800_000;
 
 // For: geth
 
-// const provider = new ethers.providers.JsonRpcProvider(process.env.ETH_CLIENT_WEB3_URL);
+// const provider = new ethers.providers.JsonRpcProvider(process.env.RSK_CLIENT_WEB3_URL);
 // const wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC, "m/44'/60'/0'/0/1").connect(provider);
 // const exitWallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC, "m/44'/60'/0'/0/2").connect(provider);
 
@@ -24,7 +24,7 @@ const DEFAULT_GAS_LIMIT = 6_800_000;
 //const [wallet, wallet1, wallet2, exitWallet] = provider.getWallets();
 
 //For: rskj
-const provider = new ethers.providers.JsonRpcProvider(process.env.ETH_CLIENT_WEB3_URL);
+const provider = new ethers.providers.JsonRpcProvider(process.env.RSK_CLIENT_WEB3_URL);
 const wallet = new ethers.Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow_privK, 'hex'), provider);
 const wallet1 = new ethers.Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'), provider);
 const wallet2 = new ethers.Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow2_privK, 'hex'), provider);

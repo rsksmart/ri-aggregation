@@ -6,7 +6,7 @@ use std::{
 use futures::{channel::mpsc::Sender, SinkExt};
 
 use zksync::{error::ClientError, operations::SyncTransactionHandle, RpcProvider, Wallet};
-use zksync_eth_signer::PrivateKeySigner;
+use zksync_rsk_signer::PrivateKeySigner;
 use zksync_types::{Token, H256};
 
 use crate::{

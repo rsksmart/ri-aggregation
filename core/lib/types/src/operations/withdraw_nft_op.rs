@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use zksync_crypto::params::{
-    ACCOUNT_ID_BIT_WIDTH, ADDRESS_WIDTH, CHUNK_BYTES, CONTENT_HASH_WIDTH, ETH_ADDRESS_BIT_WIDTH,
+    ACCOUNT_ID_BIT_WIDTH, ADDRESS_WIDTH, CHUNK_BYTES, CONTENT_HASH_WIDTH, RSK_ADDRESS_BIT_WIDTH,
     FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH, SERIAL_ID_WIDTH, TOKEN_BIT_WIDTH,
 };
 use zksync_crypto::primitives::FromBytes;
@@ -82,7 +82,7 @@ impl WithdrawNFTOp {
             u32::from_bytes(&bytes[token_fee_id_offset..token_fee_id_offset + TOKEN_BIT_WIDTH / 8])
                 .ok_or(WithdrawNFTOpError::CannotGetFeeTokenId)?;
         let to = Address::from_slice(
-            &bytes[eth_address_offset..eth_address_offset + ETH_ADDRESS_BIT_WIDTH / 8],
+            &bytes[eth_address_offset..eth_address_offset + RSK_ADDRESS_BIT_WIDTH / 8],
         );
         let fee = unpack_fee_amount(
             &bytes[fee_offset..fee_offset + (FEE_EXPONENT_BIT_WIDTH + FEE_MANTISSA_BIT_WIDTH) / 8],

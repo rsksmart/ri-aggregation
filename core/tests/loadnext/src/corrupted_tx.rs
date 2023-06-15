@@ -355,7 +355,7 @@ mod tests {
     fn create_account() -> ZkSyncAccount {
         let mut account = ZkSyncAccount::rand();
         account.set_account_id(Some(AccountId(1)));
-        let eth_pk = account.eth_account_data.unwrap_eoa_pk();
+        let eth_pk = account.rsk_account_data.unwrap_eoa_pk();
         account.private_key = private_key_from_seed(eth_pk.as_bytes()).unwrap();
         account.pubkey_hash = PubKeyHash::from_privkey(&account.private_key);
         account.address = PackedEthSignature::address_from_private_key(&eth_pk).unwrap();
@@ -369,7 +369,7 @@ mod tests {
         let transfer = create_transfer(&account);
 
         let (modified_transfer, _eth_signature) =
-            transfer.zero_fee(account.eth_account_data.unwrap_eoa_pk(), "RBTC", 18);
+            transfer.zero_fee(account.rsk_account_data.unwrap_eoa_pk(), "RBTC", 18);
 
         assert_eq!(unwrap_transfer(modified_transfer).fee, 0u64.into());
     }
@@ -381,7 +381,7 @@ mod tests {
         let transfer = create_transfer(&account);
 
         let (modified_transfer, _eth_signature) =
-            transfer.too_big_amount(account.eth_account_data.unwrap_eoa_pk(), "RBTC", 18);
+            transfer.too_big_amount(account.rsk_account_data.unwrap_eoa_pk(), "RBTC", 18);
 
         assert!(unwrap_transfer(modified_transfer).amount > AMOUNT.into());
     }
@@ -393,7 +393,7 @@ mod tests {
         let transfer = create_transfer(&account);
 
         let (modified_transfer, _eth_signature) =
-            transfer.not_packable_amount(account.eth_account_data.unwrap_eoa_pk(), "RBTC", 18);
+            transfer.not_packable_amount(account.rsk_account_data.unwrap_eoa_pk(), "RBTC", 18);
 
         assert!(!is_token_amount_packable(
             &unwrap_transfer(modified_transfer).amount
@@ -407,7 +407,7 @@ mod tests {
         let transfer = create_transfer(&account);
 
         let (modified_transfer, _eth_signature) =
-            transfer.not_packable_fee(account.eth_account_data.unwrap_eoa_pk(), "RBTC", 18);
+            transfer.not_packable_fee(account.rsk_account_data.unwrap_eoa_pk(), "RBTC", 18);
 
         assert!(!is_fee_amount_packable(
             &unwrap_transfer(modified_transfer).fee
@@ -421,7 +421,7 @@ mod tests {
         let transfer = create_transfer(&account);
 
         let (modified_transfer, _eth_signature) =
-            transfer.nonexistent_token(account.eth_account_data.unwrap_eoa_pk(), "RBTC", 18);
+            transfer.nonexistent_token(account.rsk_account_data.unwrap_eoa_pk(), "RBTC", 18);
 
         assert_ne!(unwrap_transfer(modified_transfer).token, TokenId(0));
     }
@@ -434,7 +434,7 @@ mod tests {
         let current_eth_signature = transfer.1.clone();
 
         let (_modified_transfer, new_eth_signature) =
-            transfer.bad_eth_signature(account.eth_account_data.unwrap_eoa_pk(), "RBTC", 18);
+            transfer.bad_eth_signature(account.rsk_account_data.unwrap_eoa_pk(), "RBTC", 18);
 
         assert_ne!(current_eth_signature, new_eth_signature);
     }

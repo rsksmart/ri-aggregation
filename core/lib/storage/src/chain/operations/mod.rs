@@ -328,7 +328,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
 
         let sequence_number: Option<i64>= sqlx::query!(
             "INSERT INTO executed_priority_operations (block_number, block_index, operation, from_account, to_account,
-                priority_op_serialid, deadline_block, eth_hash, eth_block, created_at, eth_block_index, tx_hash)
+                priority_op_serialid, deadline_block, eth_hash, rsk_block, created_at, eth_block_index, tx_hash)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             ON CONFLICT (priority_op_serialid)
             DO NOTHING
@@ -342,7 +342,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
             operation.priority_op_serialid,
             operation.deadline_block,
             operation.eth_hash,
-            operation.eth_block,
+            operation.rsk_block,
             operation.created_at,
             operation.eth_block_index,
             operation.tx_hash,
@@ -554,7 +554,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
 
         if !operation.is_create_proof() {
             sqlx::query!(
-                "INSERT INTO eth_unprocessed_aggregated_ops (op_id)
+                "INSERT INTO rsk_unprocessed_aggregated_ops (op_id)
                 VALUES ($1)",
                 id
             )
@@ -608,7 +608,7 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
     // Removes rootstock unprocessed aggregated operations
     pub async fn remove_eth_unprocessed_aggregated_ops(&mut self) -> QueryResult<()> {
         let start = Instant::now();
-        sqlx::query!("TRUNCATE eth_unprocessed_aggregated_ops")
+        sqlx::query!("TRUNCATE rsk_unprocessed_aggregated_ops")
             .execute(self.0.conn())
             .await?;
 
@@ -701,28 +701,28 @@ impl<'a, 'c> OperationsSchema<'a, 'c> {
         .collect();
 
         let eth_op_ids: Vec<i64> = sqlx::query!(
-            "SELECT eth_op_id FROM eth_aggregated_ops_binding WHERE op_id = ANY($1)",
+            "SELECT rsk_op_id FROM rsk_aggregated_ops_binding WHERE op_id = ANY($1)",
             &op_ids
         )
         .fetch_all(transaction.conn())
         .await?
         .into_iter()
-        .map(|record| record.eth_op_id)
+        .map(|record| record.rsk_op_id)
         .collect();
 
         sqlx::query!(
-            "DELETE FROM eth_tx_hashes WHERE eth_op_id = ANY($1)",
+            "DELETE FROM rsk_tx_hashes WHERE rsk_op_id = ANY($1)",
             &eth_op_ids
         )
         .execute(transaction.conn())
         .await?;
         sqlx::query!(
-            "DELETE FROM eth_aggregated_ops_binding WHERE op_id = ANY($1)",
+            "DELETE FROM rsk_aggregated_ops_binding WHERE op_id = ANY($1)",
             &op_ids
         )
         .execute(transaction.conn())
         .await?;
-        sqlx::query!("DELETE FROM eth_operations WHERE id = ANY($1)", &eth_op_ids)
+        sqlx::query!("DELETE FROM rsk_operations WHERE id = ANY($1)", &eth_op_ids)
             .execute(transaction.conn())
             .await?;
         sqlx::query!(

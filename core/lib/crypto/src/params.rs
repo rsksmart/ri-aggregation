@@ -97,7 +97,7 @@ pub fn max_fungible_token_id() -> TokenId {
     TokenId(number_of_processable_tokens() as u32 - 1)
 }
 
-pub const ETH_TOKEN_ID: TokenId = TokenId(0);
+pub const RSK_TOKEN_ID: TokenId = TokenId(0);
 
 pub const ACCOUNT_ID_BIT_WIDTH: usize = 32;
 
@@ -141,7 +141,7 @@ pub const CHUNK_BYTES: usize = CHUNK_BIT_WIDTH / 8;
 
 pub const MAX_CIRCUIT_MSG_HASH_BITS: usize = 736;
 
-pub const ETH_ADDRESS_BIT_WIDTH: usize = 160;
+pub const RSK_ADDRESS_BIT_WIDTH: usize = 160;
 /// Block number bit width
 pub const BLOCK_NUMBER_BIT_WIDTH: usize = 32;
 
@@ -170,7 +170,7 @@ pub const FR_BIT_WIDTH: usize = 254;
 pub const FR_BIT_WIDTH_PADDED: usize = 256;
 
 pub const LEAF_DATA_BIT_WIDTH: usize =
-    NONCE_BIT_WIDTH + NEW_PUBKEY_HASH_WIDTH + FR_BIT_WIDTH_PADDED + ETH_ADDRESS_BIT_WIDTH;
+    NONCE_BIT_WIDTH + NEW_PUBKEY_HASH_WIDTH + FR_BIT_WIDTH_PADDED + RSK_ADDRESS_BIT_WIDTH;
 
 /// Priority op should be executed for this number of eth blocks.
 pub const PRIORITY_EXPIRATION: u64 = 35000; // TODO: Check that in the future this constant cannot cause unexpected behavior (ZKS-520).

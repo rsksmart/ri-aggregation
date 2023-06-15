@@ -39,7 +39,7 @@ pub trait Web3Rpc {
     #[rpc(name = "eth_gasPrice", returns = "U256")]
     fn gas_price(&self) -> Result<U256>;
 
-    #[rpc(name = "eth_accounts", returns = "Vec<H160>")]
+    #[rpc(name = "rsk_accounts", returns = "Vec<H160>")]
     fn accounts(&self) -> Result<Vec<H160>>;
 
     #[rpc(name = "eth_getUncleCountByBlockHash", returns = "U256")]

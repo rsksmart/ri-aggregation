@@ -43,7 +43,7 @@ impl CoinGeckoAPI {
             }
         }
 
-        // Add ETH manually because coingecko API doesn't return address for it.
+        // Add RBTC manually because coingecko API doesn't return address for it.
         token_ids.insert(Address::default(), String::from("rootstock"));
 
         Ok(Self {

@@ -98,13 +98,13 @@ export default {
             if (process.env.CONTRACT_TESTS) {
                 return contractDefs.test;
             }
-            return contractDefs[process.env.CHAIN_ETH_NETWORK];
+            return contractDefs[process.env.CHAIN_RSK_NETWORK];
         })()
     },
     networks: {
         env: {
-            url: process.env.ETH_CLIENT_WEB3_URL?.split(',')[0],
-            chainId: parseInt(process.env.ETH_CLIENT_CHAIN_ID)
+            url: process.env.RSK_CLIENT_WEB3_URL?.split(',')[0],
+            chainId: parseInt(process.env.RSK_CLIENT_CHAIN_ID)
         },
         hardhat: {
             allowUnlimitedContractSize: true,

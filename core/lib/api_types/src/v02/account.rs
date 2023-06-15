@@ -85,7 +85,7 @@ impl OngoingDeposit {
         };
 
         Self {
-            received_on_block: priority_op.eth_block,
+            received_on_block: priority_op.rsk_block,
             token_id,
             amount,
         }

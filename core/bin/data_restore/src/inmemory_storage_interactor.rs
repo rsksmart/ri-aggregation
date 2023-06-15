@@ -243,7 +243,7 @@ impl InMemoryStorageInteractor {
         for &NewTokenEvent {
             id,
             address,
-            eth_block_number: _,
+            rsk_block_number: _,
         } in tokens
         {
             inner.tokens.insert(

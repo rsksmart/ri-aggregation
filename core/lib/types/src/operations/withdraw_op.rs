@@ -7,7 +7,7 @@ use num::{BigUint, FromPrimitive, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use zksync_crypto::{
     params::{
-        ACCOUNT_ID_BIT_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BYTES, ETH_ADDRESS_BIT_WIDTH,
+        ACCOUNT_ID_BIT_WIDTH, BALANCE_BIT_WIDTH, CHUNK_BYTES, RSK_ADDRESS_BIT_WIDTH,
         FEE_EXPONENT_BIT_WIDTH, FEE_MANTISSA_BIT_WIDTH, LEGACY_CHUNK_BYTES, LEGACY_TOKEN_BIT_WIDTH,
         TOKEN_BIT_WIDTH,
     },
@@ -76,7 +76,7 @@ impl WithdrawOp {
         let token = u32::from_bytes(&bytes[token_id_offset..token_id_offset + token_bit_width / 8])
             .ok_or(WithdrawOpError::CannotGetTokenId)?;
         let to = Address::from_slice(
-            &bytes[eth_address_offset..eth_address_offset + ETH_ADDRESS_BIT_WIDTH / 8],
+            &bytes[eth_address_offset..eth_address_offset + RSK_ADDRESS_BIT_WIDTH / 8],
         );
         let amount = BigUint::from_u128(
             u128::from_bytes(&bytes[amount_offset..amount_offset + BALANCE_BIT_WIDTH / 8])

@@ -313,7 +313,7 @@ mod messages {
         /// Returns a list of addresses owned by client.
         pub fn accounts() -> Self {
             let params = Vec::new();
-            Self::create("eth_accounts", params)
+            Self::create("rsk_accounts", params)
         }
 
         // Unlocks the address, after that the server can sign messages and transactions.
@@ -387,7 +387,7 @@ mod tests {
     #[post("/")]
     async fn index(req: web::Json<JsonRpcRequest>, state: web::Data<State>) -> impl Responder {
         let resp = match req.method.as_str() {
-            "eth_accounts" => {
+            "rsk_accounts" => {
                 let mut addresses = vec![];
                 for pair in &state.key_pairs {
                     addresses.push(pair.address())

@@ -6,7 +6,7 @@ use tokio::time::timeout;
 use zksync::{
     provider::Provider, utils::private_key_from_seed, RpcProvider, Wallet, WalletCredentials,
 };
-use zksync_eth_signer::PrivateKeySigner;
+use zksync_rsk_signer::PrivateKeySigner;
 use zksync_types::{tx::PackedEthSignature, Address, H256};
 
 use crate::{

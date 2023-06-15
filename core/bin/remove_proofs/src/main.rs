@@ -19,13 +19,13 @@ async fn remove_operations(
         .operations_schema()
         .remove_eth_unprocessed_aggregated_ops()
         .await?;
-    println!("`eth_unprocessed_aggregated_ops` table is cleaned");
+    println!("`rsk_unprocessed_aggregated_ops` table is cleaned");
     transaction
         .chain()
         .operations_schema()
         .remove_aggregate_operations(last_block)
         .await?;
-    println!("`aggregate_operations`, `eth_aggregated_ops_binding`, `eth_tx_hashes`, `eth_operations` tables are cleaned");
+    println!("`aggregate_operations`, `rsk_aggregated_ops_binding`, `rsk_tx_hashes`, `rsk_operations` tables are cleaned");
 
     transaction
         .prover_schema()

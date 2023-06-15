@@ -275,7 +275,7 @@ impl ApiV01 {
         Ok(block)
     }
 
-    /// Sends an EthWatchRequest asking for an unconfirmed priority op
+    /// Sends an RSKWatchRequest asking for an unconfirmed priority op
     /// with given hash. If no such priority op exists, returns Ok(None).
     pub(crate) async fn get_unconfirmed_op_by_hash(
         &self,

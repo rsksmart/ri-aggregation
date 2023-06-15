@@ -28,7 +28,7 @@ pub fn stored_block_info(block: &Block) -> Token {
 }
 
 impl BlocksCommitOperation {
-    pub fn get_eth_tx_args(&self) -> Vec<Token> {
+    pub fn get_rsk_tx_args(&self) -> Vec<Token> {
         let stored_block_info = stored_block_info(&self.last_committed_block);
         let blocks_to_commit = self
             .blocks
@@ -81,10 +81,10 @@ pub struct BlocksProofOperation {
 }
 
 impl BlocksProofOperation {
-    pub fn get_eth_tx_args(&self) -> Vec<Token> {
+    pub fn get_rsk_tx_args(&self) -> Vec<Token> {
         let blocks_arg = Token::Array(self.blocks.iter().map(stored_block_info).collect());
 
-        let proof = self.proof.get_eth_tx_args();
+        let proof = self.proof.get_rsk_tx_args();
 
         vec![blocks_arg, proof]
     }
@@ -118,7 +118,7 @@ impl BlocksExecuteOperation {
         Token::Tuple(vec![stored_block, processable_ops_pubdata])
     }
 
-    pub fn get_eth_tx_args(&self) -> Vec<Token> {
+    pub fn get_rsk_tx_args(&self) -> Vec<Token> {
         // Does not make automatic withdrawals in execute operation
         let complete_withdrawals = Token::Bool(false);
         vec![

@@ -49,7 +49,7 @@ pub struct TxData {
 #[serde(rename_all = "camelCase")]
 pub struct L1Receipt {
     pub status: TxInBlockStatus,
-    pub eth_block: EthBlockId,
+    pub rsk_block: EthBlockId,
     pub rollup_block: Option<BlockNumber>,
     pub id: SerialId,
 }

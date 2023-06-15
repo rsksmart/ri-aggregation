@@ -65,7 +65,7 @@ pub(crate) struct MempoolPriorityOp {
     pub data: serde_json::Value,
     #[allow(dead_code)]
     pub created_at: DateTime<Utc>,
-    pub eth_block: i64,
+    pub rsk_block: i64,
     pub eth_block_index: Option<i32>,
     pub deadline_block: i64,
 }
@@ -77,7 +77,7 @@ impl From<MempoolPriorityOp> for PriorityOp {
             data: serde_json::from_value(value.data).expect("Should be correctly stored"),
             deadline_block: value.deadline_block as u64,
             eth_hash: H256::from_slice(&value.eth_hash),
-            eth_block: value.eth_block as u64,
+            rsk_block: value.rsk_block as u64,
             eth_block_index: value.eth_block_index.map(|i| i as u64),
         }
     }

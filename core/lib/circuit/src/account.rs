@@ -51,7 +51,7 @@ impl<E: RescueEngine> AccountContent<E> {
         let address = CircuitElement::from_fe_with_known_length(
             cs.namespace(|| "address"),
             || witness.address.grab(),
-            zksync_crypto::params::ETH_ADDRESS_BIT_WIDTH,
+            zksync_crypto::params::RSK_ADDRESS_BIT_WIDTH,
         )?;
 
         Ok(Self {

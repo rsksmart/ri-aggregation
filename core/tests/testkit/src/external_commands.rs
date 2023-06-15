@@ -92,7 +92,7 @@ fn run_external_command(command: &str, args: &[&str]) -> String {
 
 pub fn js_revert_reason(tx_hash: &H256) -> String {
     let web3_urls =
-        std::env::var("ETH_CLIENT_WEB3_URL").expect("ETH_CLIENT_WEB3_URL should be installed");
+        std::env::var("RSK_CLIENT_WEB3_URL").expect("RSK_CLIENT_WEB3_URL should be installed");
     let web3_urls: Vec<&str> = web3_urls.split(',').collect();
     run_external_command(
         "zk",
@@ -160,16 +160,16 @@ pub fn run_upgrade_franklin(franklin_address: Address, upgrade_gatekeeper_addres
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct ETHAccountInfo {
+pub struct RSKAccountInfo {
     pub address: Address,
     pub private_key: H256,
 }
 
 /// First is vec of test acccounts, second is commit account
-pub fn get_test_accounts() -> (Vec<ETHAccountInfo>, ETHAccountInfo) {
+pub fn get_test_accounts() -> (Vec<RSKAccountInfo>, RSKAccountInfo) {
     let stdout = run_external_command("zk", &["run", "test-accounts"]);
 
-    if let Ok(mut parsed) = serde_json::from_str::<Vec<ETHAccountInfo>>(&stdout) {
+    if let Ok(mut parsed) = serde_json::from_str::<Vec<RSKAccountInfo>>(&stdout) {
         let commit_account = parsed.remove(0);
         assert!(
             !parsed.is_empty(),

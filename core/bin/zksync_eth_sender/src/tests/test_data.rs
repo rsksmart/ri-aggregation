@@ -1,4 +1,4 @@
-//! Data to be used in tests as the input for `ETHSender`.
+//! Data to be used in tests as the input for `RSKSender`.
 
 use std::time::SystemTime;
 // External uses
@@ -16,7 +16,7 @@ use zksync_types::{
     FullExitOp, PriorityOp, TokenId, ZkSyncOp, ZkSyncPriorityOp,
 };
 
-/// Creates a dummy operation as a test input for `ETHSender` tests.
+/// Creates a dummy operation as a test input for `RSKSender` tests.
 fn gen_aggregated_operation(
     id: i64,
     block_number: BlockNumber,
@@ -36,7 +36,7 @@ fn gen_aggregated_operation(
                 data: ZkSyncPriorityOp::FullExit(priority_op.clone()),
                 deadline_block: 0,
                 eth_hash: H256::zero(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
             op: ZkSyncOp::FullExit(Box::new(FullExitOp {

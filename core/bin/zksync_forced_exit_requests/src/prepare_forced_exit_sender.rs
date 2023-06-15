@@ -19,7 +19,7 @@ use futures::SinkExt;
 use tokio::time;
 
 use zksync_mempool::MempoolTransactionRequest;
-use zksync_test_account::{ZkSyncAccount, ZkSyncETHAccountData};
+use zksync_test_account::{ZkSyncAccount, ZkSyncRSKAccountData};
 
 use super::utils::{read_signing_key, Engine};
 
@@ -177,7 +177,7 @@ pub async fn register_signing_key(
     sender_eth_private_key: H256,
     sender_sk: PrivateKey<Engine>,
 ) -> anyhow::Result<()> {
-    let eth_account_data = ZkSyncETHAccountData::EOA {
+    let rsk_account_data = ZkSyncRSKAccountData::EOA {
         eth_private_key: sender_eth_private_key,
     };
 
@@ -186,7 +186,7 @@ pub async fn register_signing_key(
         // The account is changing public key for the first time, so nonce is 0
         Nonce(0),
         sender_address,
-        eth_account_data,
+        rsk_account_data,
     );
     sender_account.set_account_id(Some(sender_id));
 

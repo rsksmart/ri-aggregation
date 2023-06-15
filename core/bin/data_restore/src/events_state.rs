@@ -509,12 +509,12 @@ impl EventsState {
                 .transaction_hash
                 .expect("There are no tx hash in block event");
             // Restore the number of contract upgrades using Eth block numbers.
-            let eth_block = log
+            let rsk_block = log
                 .block_number
                 .expect("no Rootstock block number for block log");
             let num = contract_upgrade_eth_blocks
                 .iter()
-                .filter(|block| eth_block.as_u64() >= **block)
+                .filter(|block| rsk_block.as_u64() >= **block)
                 .count();
             let contract_version = init_contract_version.upgrade(num as u32);
 

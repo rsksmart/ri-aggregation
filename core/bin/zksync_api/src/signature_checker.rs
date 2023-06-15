@@ -16,7 +16,7 @@ use futures::{
 use tokio::task::JoinHandle;
 
 // Workspace uses
-use zksync_eth_client::RootstockGateway;
+use zksync_rsk_client::RootstockGateway;
 use zksync_types::{
     tx::{error::TxAddError, EthBatchSignData, EthSignData, TxEthSignature},
     Address, Order, SignedZkSyncTx, Token, ZkSyncTx,

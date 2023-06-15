@@ -72,13 +72,13 @@ impl ApiV01 {
             .await
             .map_err(Self::db_error)?;
 
-        // Add ETH for tokens allowed for fee
-        // Different APIs have different views on how to represent ETH in their system.
-        // But ETH is always allowed to pay fee, and in all cases it should be on the list.
+        // Add RBTC for tokens allowed for fee
+        // Different APIs have different views on how to represent RBTC in their system.
+        // But RBTC is always allowed to pay fee, and in all cases it should be on the list.
 
         if tokens.get(&TokenId(0)).is_none() {
-            let eth = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
-            tokens.insert(eth.id, eth);
+            let rbtc = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
+            tokens.insert(rbtc.id, rbtc);
         }
 
         let mut tokens = tokens.values().cloned().collect::<Vec<_>>();
@@ -137,13 +137,13 @@ impl ApiV01 {
             })?;
 
         // Sort operations by block number from smaller (older) to greater (newer).
-        ongoing_ops.sort_by(|lhs, rhs| rhs.eth_block.cmp(&lhs.eth_block));
+        ongoing_ops.sort_by(|lhs, rhs| rhs.rsk_block.cmp(&lhs.rsk_block));
 
         // Collect the unconfirmed priority operations with respect to the
         // `offset` and `limit` parameters.
         let mut ongoing_transactions_history: Vec<_> = ongoing_ops
             .iter()
-            .map(|op| priority_op_to_tx_history(&tokens, op.eth_block, op))
+            .map(|op| priority_op_to_tx_history(&tokens, op.rsk_block, op))
             .skip(offset as usize)
             .take(limit as usize)
             .collect();
@@ -289,7 +289,7 @@ impl ApiV01 {
                 })?;
 
             // Sort operations by block number from smaller (older) to greater (newer).
-            ongoing_ops.sort_by(|lhs, rhs| rhs.eth_block.cmp(&lhs.eth_block));
+            ongoing_ops.sort_by(|lhs, rhs| rhs.rsk_block.cmp(&lhs.rsk_block));
 
             let tokens = storage.tokens_schema().load_tokens().await.map_err(|err| {
                 vlog::warn!(
@@ -305,7 +305,7 @@ impl ApiV01 {
             // `limit` parameters.
             let mut txs: Vec<_> = ongoing_ops
                 .iter()
-                .map(|op| priority_op_to_tx_history(&tokens, op.eth_block, op))
+                .map(|op| priority_op_to_tx_history(&tokens, op.rsk_block, op))
                 .take(limit as usize)
                 .collect();
 
@@ -365,7 +365,7 @@ impl ApiV01 {
             return ok_json!(res);
         }
 
-        // Or try to find this priority op in eth_watcher
+        // Or try to find this priority op in rsk_watcher
         let unconfirmed_op = self_
             .get_unconfirmed_op_by_hash(hash)
             .await
@@ -378,7 +378,7 @@ impl ApiV01 {
                 InternalError::from_response(err, HttpResponse::InternalServerError().finish())
             })?;
 
-        // If eth watcher has a priority op with given hash, transform it
+        // If rsk watcher has a priority op with given hash, transform it
         // to TxByHashResponse and assign it to res.
         if let Some(priority_op) = unconfirmed_op {
             let tokens = self_

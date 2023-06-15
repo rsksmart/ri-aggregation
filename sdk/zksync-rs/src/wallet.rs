@@ -1,5 +1,5 @@
 use num::BigUint;
-use zksync_eth_signer::RootstockSigner;
+use zksync_rsk_signer::RootstockSigner;
 use zksync_types::{AccountId, Address, TokenId, TokenLike};
 
 use crate::{
@@ -165,12 +165,12 @@ where
         &self,
         web3_addr: impl AsRef<str>,
     ) -> Result<RootstockProvider<S>, ClientError> {
-        if let Some(eth_signer) = &self.signer.eth_signer {
+        if let Some(rsk_signer) = &self.signer.rsk_signer {
             let rootstock_provider = RootstockProvider::new(
                 &self.provider,
                 self.tokens.clone(),
                 web3_addr,
-                eth_signer.clone(),
+                rsk_signer.clone(),
                 self.signer.address,
             )
             .await?;

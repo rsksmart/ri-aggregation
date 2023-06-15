@@ -8,7 +8,7 @@ use crate::{
     DatabaseInterface, GasAdjuster,
 };
 
-use zksync_eth_client::rootstock_gateway::RootstockGateway;
+use zksync_rsk_client::rootstock_gateway::RootstockGateway;
 
 /// Creates `Rootstock` and `Database` instances for the `GasAdjuster` tests.
 async fn eth_and_db_clients() -> (RootstockGateway, MockDatabase) {

@@ -18,7 +18,7 @@ use zksync_types::{
 use zksync_state::state::ZkSyncState;
 use zksync_types::tx::{ChangePubKeyECDSAData, ChangePubKeyEthAuthData};
 
-const ETH_TOKEN_ID: TokenId = TokenId(0x00);
+const RSK_TOKEN_ID: TokenId = TokenId(0x00);
 // The amount is not important, since we always work with 1 account.
 // We use some small non-zero value, so the overhead for cloning will not be big.
 const ACCOUNTS_AMOUNT: AccountId = AccountId(10);
@@ -38,7 +38,7 @@ fn generate_account() -> (H256, PrivateKey, Account) {
 
     let mut account = Account::default_with_address(&address);
     account.pub_key_hash = PubKeyHash::from_privkey(&sk);
-    account.set_balance(ETH_TOKEN_ID, default_balance);
+    account.set_balance(RSK_TOKEN_ID, default_balance);
 
     (eth_sk, sk, account)
 }
@@ -73,7 +73,7 @@ fn apply_transfer_to_new_op(b: &mut Bencher<'_>) {
         AccountId(0),
         from_account.address,
         Address::random(),
-        ETH_TOKEN_ID,
+        RSK_TOKEN_ID,
         10u32.into(),
         1u32.into(),
         Nonce(0),
@@ -112,7 +112,7 @@ fn apply_transfer_tx(b: &mut Bencher<'_>) {
         AccountId(0),
         from_account.address,
         to_account.address,
-        ETH_TOKEN_ID,
+        RSK_TOKEN_ID,
         10u32.into(),
         1u32.into(),
         Nonce(0),
@@ -147,7 +147,7 @@ fn apply_full_exit_tx(b: &mut Bencher<'_>) {
     let full_exit = FullExit {
         account_id: AccountId(0),
         eth_address: from_account.address,
-        token: ETH_TOKEN_ID,
+        token: RSK_TOKEN_ID,
         is_legacy: false,
     };
 
@@ -175,7 +175,7 @@ fn apply_deposit_tx(b: &mut Bencher<'_>) {
     let deposit = Deposit {
         from: Address::random(),
         to: to_account.address,
-        token: ETH_TOKEN_ID,
+        token: RSK_TOKEN_ID,
         amount: 10u32.into(),
     };
 
@@ -205,7 +205,7 @@ fn apply_withdraw_tx(b: &mut Bencher<'_>) {
         AccountId(0),
         from_account.address,
         Address::random(),
-        ETH_TOKEN_ID,
+        RSK_TOKEN_ID,
         10u32.into(),
         1u32.into(),
         Nonce(0),

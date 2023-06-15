@@ -302,7 +302,7 @@ pub fn create_deposit(token: TokenId, amount: impl Into<BigUint>) -> PriorityOp 
         serial_id: 0,
         deadline_block: 0,
         eth_hash: H256::zero(),
-        eth_block: 0,
+        rsk_block: 0,
         eth_block_index: None,
     }
 }

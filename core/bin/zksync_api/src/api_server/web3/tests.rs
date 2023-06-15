@@ -56,7 +56,7 @@ async fn static_methods() -> anyhow::Result<()> {
         let mining = client.call_method("eth_mining", Params::None);
         let hashrate = client.call_method("eth_hashrate", Params::None);
         let gas_price = client.call_method("eth_gasPrice", Params::None);
-        let accounts = client.call_method("eth_accounts", Params::None);
+        let accounts = client.call_method("rsk_accounts", Params::None);
         let get_uncle_count_by_block_hash = client.call_method(
             "eth_getUncleCountByBlockHash",
             Params::Array(vec![serde_json::to_value(H256::zero()).unwrap()]),

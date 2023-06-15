@@ -15,7 +15,7 @@ use super::received_ops::ReceivedPriorityOp;
 /// "partially updated". The state is either updated completely, or not
 /// updated at all.
 #[derive(Debug, Default, Clone)]
-pub struct ETHState {
+pub struct RSKState {
     /// The last block of the Rootstock network known to the Rootstock watcher.
     last_rootstock_block: u64,
     /// The previous Rootstock block successfully processed by the watcher.
@@ -41,7 +41,7 @@ pub struct ETHState {
     register_nft_factory_events: Vec<RegisterNFTFactoryEvent>,
 }
 
-impl ETHState {
+impl RSKState {
     pub fn new(
         last_rootstock_block: u64,
         last_rootstock_block_backup: u64,

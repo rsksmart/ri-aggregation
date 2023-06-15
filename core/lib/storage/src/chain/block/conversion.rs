@@ -67,7 +67,7 @@ impl StoredExecutedPriorityOperation {
                     .expect("ZkSyncOp should have priority op"),
                 deadline_block: self.deadline_block as u64,
                 eth_hash: H256::from_slice(&self.eth_hash),
-                eth_block: self.eth_block as u64,
+                rsk_block: self.rsk_block as u64,
                 eth_block_index: self.eth_block_index.map(|index| index as u64),
             },
             op: franklin_op,
@@ -115,7 +115,7 @@ impl NewExecutedPriorityOperation {
             priority_op_serialid: exec_prior_op.priority_op.serial_id as i64,
             deadline_block: exec_prior_op.priority_op.deadline_block as i64,
             eth_hash: exec_prior_op.priority_op.eth_hash.as_bytes().to_vec(),
-            eth_block: exec_prior_op.priority_op.eth_block as i64,
+            rsk_block: exec_prior_op.priority_op.rsk_block as i64,
             created_at: exec_prior_op.created_at,
             eth_block_index: exec_prior_op
                 .priority_op

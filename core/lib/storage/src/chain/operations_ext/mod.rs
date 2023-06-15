@@ -102,7 +102,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                         block_number,
                         success,
                         fail_reason,
-                        Null::bigint as eth_block,
+                        Null::bigint as rsk_block,
                         Null::bigint as priority_op_serialid
                     FROM executed_transactions
                     WHERE tx_hash = $1
@@ -112,7 +112,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                         block_number,
                         true as success,
                         Null as fail_reason,
-                        eth_block,
+                        rsk_block,
                         priority_op_serialid
                     FROM executed_priority_operations
                     WHERE tx_hash = $1 OR eth_hash = $1
@@ -122,7 +122,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                         Null::bigint as block_number,
                         Null::boolean as success,
                         Null as fail_reason,
-                        Null::bigint as eth_block,
+                        Null::bigint as rsk_block,
                         Null::bigint as priority_op_serialid
                     FROM mempool_txs
                     WHERE tx_hash = $2
@@ -139,7 +139,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                     block_number as "block_number?",
                     success as "success?",
                     fail_reason as "fail_reason?",
-                    eth_block as "eth_block?",
+                    rsk_block as "rsk_block?",
                     priority_op_serialid as "priority_op_serialid?"
                 FROM everything
             "#,
@@ -709,7 +709,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                         tx,
                         'sync-tx:' || encode(executed_transactions.tx_hash, 'hex') AS hash,
                         null as pq_id,
-                        null as eth_block,
+                        null as rsk_block,
                         success,
                         fail_reason,
                         block_number,
@@ -725,7 +725,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                         operation as tx,
                         '0x' || encode(eth_hash, 'hex') as hash,
                         priority_op_serialid as pq_id,
-                        eth_block,
+                        rsk_block,
                         true as success,
                         null as fail_reason,
                         block_number,
@@ -748,7 +748,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
             select
                 tx_id as "tx_id!",
                 hash as "hash?",
-                eth_block as "eth_block?",
+                rsk_block as "rsk_block?",
                 pq_id as "pq_id?",
                 tx as "tx!",
                 success as "success?",
@@ -883,7 +883,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                         tx,
                         'sync-tx:' || encode(executed_transactions.tx_hash, 'hex') as hash,
                         null as pq_id,
-                        null as eth_block,
+                        null as rsk_block,
                         success,
                         fail_reason,
                         block_number,
@@ -901,7 +901,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
                         operation as tx,
                         '0x' || encode(eth_hash, 'hex') as hash,
                         priority_op_serialid as pq_id,
-                        eth_block,
+                        rsk_block,
                         true as success,
                         null as fail_reason,
                         block_number,
@@ -927,7 +927,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
             select
                 tx_id as "tx_id!",
                 hash as "hash?",
-                eth_block as "eth_block?",
+                rsk_block as "rsk_block?",
                 pq_id as "pq_id?",
                 tx as "tx!",
                 success as "success?",

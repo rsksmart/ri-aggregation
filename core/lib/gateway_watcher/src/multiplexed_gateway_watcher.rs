@@ -8,7 +8,7 @@ use tokio_stream::wrappers::IntervalStream;
 use web3::types::{Block, BlockId, BlockNumber, H256, U64};
 
 use zksync_config::GatewayWatcherConfig;
-use zksync_eth_client::{MultiplexerRootstockClient, RootstockGateway};
+use zksync_rsk_client::{MultiplexerRootstockClient, RootstockGateway};
 use zksync_utils::retry_opt;
 
 /// Watcher which checks multiplexed client's gateways once within specified interval.
@@ -139,7 +139,7 @@ impl MultiplexedGatewayWatcher {
 
                     if let Ok(block) = block_fut.await {
                         let req_time = start.elapsed();
-                        metrics::histogram!("eth_client.multiplexed.block", req_time, &[("address", key.to_owned())]);
+                        metrics::histogram!("rsk_client.multiplexed.block", req_time, &[("address", key.to_owned())]);
 
                         Some((key, block, req_time))
                     } else {

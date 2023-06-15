@@ -8,17 +8,17 @@ use serde::{Deserialize, Serialize};
 
 use zksync_api::fee_ticker::{run_updaters, FeeTicker, TickerInfo};
 use zksync_core::{genesis_init, run_core, wait_for_tasks};
-use zksync_eth_client::RootstockGateway;
 use zksync_forced_exit_requests::run_forced_exit_requests_actors;
 use zksync_gateway_watcher::run_gateway_watcher_if_multiplexed;
+use zksync_rsk_client::RootstockGateway;
 use zksync_witness_generator::run_prover_server;
 
 use tokio::task::JoinHandle;
 use zksync_config::configs::api::{PrivateApiConfig, PrometheusConfig, TokenConfig};
 use zksync_config::{
     configs::api::{CommonApiConfig, JsonRpcConfig, ProverApiConfig, RestApiConfig, Web3Config},
-    ChainConfig, ContractsConfig, DBConfig, ETHClientConfig, ETHSenderConfig, ETHWatchConfig,
-    ForcedExitRequestsConfig, GatewayWatcherConfig, ProverConfig, TickerConfig, ZkSyncConfig,
+    ChainConfig, ContractsConfig, DBConfig, ForcedExitRequestsConfig, GatewayWatcherConfig,
+    ProverConfig, RSKClientConfig, RSKSenderConfig, RSKWatchConfig, TickerConfig, ZkSyncConfig,
 };
 use zksync_core::rejected_tx_cleaner::run_rejected_tx_cleaner;
 use zksync_mempool::run_mempool_tx_handler;
@@ -43,7 +43,7 @@ pub enum Component {
 
     // Core components
     Fetchers,
-    EthSender,
+    RskSender,
     Core,
     WitnessGenerator,
     ForcedExit,
@@ -63,7 +63,7 @@ impl FromStr for Component {
             "web3-api" => Ok(Component::Web3Api),
             "rpc-api" => Ok(Component::RpcApi),
             "rpc-websocket-api" => Ok(Component::RpcWebSocketApi),
-            "eth-sender" => Ok(Component::EthSender),
+            "rsk-sender" => Ok(Component::RskSender),
             "witness-generator" => Ok(Component::WitnessGenerator),
             "forced-exit" => Ok(Component::ForcedExit),
             "prometheus" => Ok(Component::Prometheus),
@@ -86,7 +86,7 @@ impl Default for ComponentsToRun {
             Component::Web3Api,
             Component::RpcApi,
             Component::RpcWebSocketApi,
-            Component::EthSender,
+            Component::RskSender,
             Component::WitnessGenerator,
             Component::ForcedExit,
             Component::Prometheus,
@@ -119,7 +119,7 @@ struct Opt {
     /// comma-separated list of components to launch
     #[structopt(
         long,
-        default_value = "rest-api,web3-api,rpc-api,rpc-websocket-api,eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics"
+        default_value = "rest-api,web3-api,rpc-api,rpc-websocket-api,rsk-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics"
     )]
     components: ComponentsToRun,
 }
@@ -181,7 +181,7 @@ async fn run_server(components: &ComponentsToRun) {
         // Create gateway
         let eth_gateway = create_eth_gateway();
 
-        let eth_watch_config = ETHWatchConfig::from_env();
+        let eth_watch_config = RSKWatchConfig::from_env();
         let gateway_watcher_config = GatewayWatcherConfig::from_env();
 
         // Run eth multiplexer
@@ -275,7 +275,7 @@ async fn run_server(components: &ComponentsToRun) {
         }
     }
 
-    if components.0.contains(&Component::EthSender) {
+    if components.0.contains(&Component::RskSender) {
         tasks.push(run_eth_sender(connection_pool.clone()))
     }
 
@@ -343,7 +343,7 @@ pub fn run_forced_exit(connection_pool: ConnectionPool) -> Vec<JoinHandle<()>> {
     let config = ForcedExitRequestsConfig::from_env();
     let common_config = CommonApiConfig::from_env();
     let contract_config = ContractsConfig::from_env();
-    let eth_client_config = ETHClientConfig::from_env();
+    let eth_client_config = RSKClientConfig::from_env();
     let chain_config = ChainConfig::from_env();
 
     let (mempool_tx_request_sender, mempool_tx_request_receiver) =
@@ -374,8 +374,8 @@ pub fn run_witness_generator(connection_pool: ConnectionPool) -> JoinHandle<()> 
 
 pub fn run_eth_sender(connection_pool: ConnectionPool) -> JoinHandle<()> {
     vlog::info!("Starting the Rootstock sender actors");
-    let eth_client_config = ETHClientConfig::from_env();
-    let eth_sender_config = ETHSenderConfig::from_env();
+    let eth_client_config = RSKClientConfig::from_env();
+    let eth_sender_config = RSKSenderConfig::from_env();
     let contracts = ContractsConfig::from_env();
     let eth_gateway = RootstockGateway::from_config(
         &eth_client_config,
@@ -392,8 +392,8 @@ pub fn run_price_updaters(connection_pool: ConnectionPool) -> Vec<JoinHandle<()>
 }
 
 pub fn create_eth_gateway() -> RootstockGateway {
-    let eth_client_config = ETHClientConfig::from_env();
-    let eth_sender_config = ETHSenderConfig::from_env();
+    let eth_client_config = RSKClientConfig::from_env();
+    let eth_sender_config = RSKSenderConfig::from_env();
     let contracts = ContractsConfig::from_env();
     RootstockGateway::from_config(
         &eth_client_config,

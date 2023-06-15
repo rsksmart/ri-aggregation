@@ -2,11 +2,11 @@ use crate::{error::ClientError, utils::private_key_from_seed};
 
 use web3::types::{Address, H256};
 use zksync_crypto::PrivateKey;
-use zksync_eth_signer::{PrivateKeySigner, RootstockSigner};
+use zksync_rsk_signer::{PrivateKeySigner, RootstockSigner};
 use zksync_types::{network::Network, tx::TxEthSignature};
 
 pub struct WalletCredentials<S: RootstockSigner> {
-    pub(crate) eth_signer: Option<S>,
+    pub(crate) rsk_signer: Option<S>,
     pub(crate) eth_address: Address,
     pub(crate) zksync_private_key: PrivateKey,
 }
@@ -25,11 +25,11 @@ impl<S: RootstockSigner> WalletCredentials<S> {
     /// ## Arguments
     ///
     /// - `eth_address`: Address of the corresponding Rootstock wallet.
-    /// - `eth_signer`: Abstract signer that signs messages and transactions.
+    /// - `rsk_signer`: Abstract signer that signs messages and transactions.
     /// - `network`: Network this wallet is used on.
     pub async fn from_eth_signer(
         eth_address: Address,
-        eth_signer: S,
+        rsk_signer: S,
         network: Network,
     ) -> Result<Self, ClientError> {
         // Pre-defined message to generate seed from.
@@ -45,7 +45,7 @@ impl<S: RootstockSigner> WalletCredentials<S> {
         }
         .into_bytes();
 
-        let signature = eth_signer
+        let signature = rsk_signer
             .sign_message(&eth_sign_message)
             .await
             .map_err(ClientError::SigningError)?;
@@ -70,7 +70,7 @@ impl<S: RootstockSigner> WalletCredentials<S> {
         let zksync_pk = private_key_from_seed(&signature_bytes)?;
 
         Ok(Self {
-            eth_signer: Some(eth_signer),
+            rsk_signer: Some(rsk_signer),
             eth_address,
             zksync_private_key: zksync_pk,
         })
@@ -89,7 +89,7 @@ impl<S: RootstockSigner> WalletCredentials<S> {
         let zksync_pk = private_key_from_seed(seed)?;
 
         Ok(Self {
-            eth_signer: None,
+            rsk_signer: None,
             eth_address,
             zksync_private_key: zksync_pk,
         })
@@ -107,11 +107,11 @@ impl<S: RootstockSigner> WalletCredentials<S> {
         private_key: PrivateKey,
         eth_private_key: Option<H256>,
     ) -> WalletCredentials<PrivateKeySigner> {
-        let eth_signer = eth_private_key.map(PrivateKeySigner::new);
+        let rsk_signer = eth_private_key.map(PrivateKeySigner::new);
 
         WalletCredentials {
             eth_address,
-            eth_signer,
+            rsk_signer,
             zksync_private_key: private_key,
         }
     }

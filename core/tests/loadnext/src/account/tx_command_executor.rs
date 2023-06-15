@@ -5,7 +5,7 @@ use zksync::{
     error::ClientError, operations::SyncTransactionHandle, provider::Provider,
     rootstock::PriorityOpHolder,
 };
-use zksync_types::{tokens::ETH_TOKEN_ID, tx::PackedEthSignature, Nonce, ZkSyncTx, H256};
+use zksync_types::{tokens::RSK_TOKEN_ID, tx::PackedEthSignature, Nonce, ZkSyncTx, H256};
 
 use crate::{
     account::AccountLifespan,
@@ -64,19 +64,19 @@ impl AccountLifespan {
     /// skipped.
     async fn l1_balances(&self) -> Result<(BigUint, BigUint), ClientError> {
         let rootstock = self.wallet.rootstock(&self.config.web3_url).await?;
-        let eth_balance = rootstock.balance().await?;
+        let rbtc_balance = rootstock.balance().await?;
         let erc20_balance = rootstock
             .erc20_balance(self.wallet.address(), self.main_token.id)
             .await?;
 
         // Casting via `low_u128` is safe here, since we don't use numbers higher than `u128::max_value()`.
         let erc20_balance = erc20_balance.low_u128().into();
-        Ok((eth_balance, erc20_balance))
+        Ok((rbtc_balance, erc20_balance))
     }
 
     async fn execute_deposit(&self, command: &TxCommand) -> Result<ReportLabel, ClientError> {
-        let (eth_balance, erc20_balance) = self.l1_balances().await?;
-        if eth_balance.is_zero() || erc20_balance < command.amount {
+        let (rbtc_balance, erc20_balance) = self.l1_balances().await?;
+        if rbtc_balance.is_zero() || erc20_balance < command.amount {
             // We don't have either funds in L1 to pay for tx or to deposit.
             // It's not a problem with the server, thus we mark this operation as skipped.
             return Ok(ReportLabel::skipped("No L1 balance"));
@@ -135,7 +135,7 @@ impl AccountLifespan {
         }
 
         // We always call full exit for the ETH, since we don't want to leave the wallet without main token.
-        let exit_token_id = ETH_TOKEN_ID;
+        let exit_token_id = RSK_TOKEN_ID;
 
         let account_id = match self.wallet.account_id() {
             Some(id) => id,

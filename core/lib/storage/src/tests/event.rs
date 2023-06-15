@@ -67,7 +67,7 @@ async fn store_operation(
     let eth_tx_hash = dummy_rootstock_tx_hash(id);
     let response = storage
         .rootstock_schema()
-        .save_new_eth_tx(
+        .save_new_rsk_tx(
             action_type,
             Some((id, op)),
             100,
@@ -81,7 +81,7 @@ async fn store_operation(
         .await?;
     storage
         .rootstock_schema()
-        .confirm_eth_tx(&eth_tx_hash)
+        .confirm_rsk_tx(&eth_tx_hash)
         .await?;
 
     Ok(())
@@ -116,7 +116,7 @@ async fn test_block_events(mut storage: StorageProcessor<'_>) -> QueryResult<()>
         "database should be empty"
     );
 
-    storage.rootstock_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_rsk_data().await?;
     const FROM_BLOCK: u32 = 1;
     const TO_BLOCK: u32 = 3;
 
@@ -234,7 +234,7 @@ async fn test_account_events(mut storage: StorageProcessor<'_>) -> QueryResult<(
         "database should be empty"
     );
 
-    storage.rootstock_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_rsk_data().await?;
 
     let mut rng = create_rng();
     let (accounts_block_1, updates_block_1) = apply_random_updates(AccountMap::default(), &mut rng);

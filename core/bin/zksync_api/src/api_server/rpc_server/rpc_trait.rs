@@ -36,10 +36,10 @@ pub trait Rpc {
     #[rpc(name = "account_info", returns = "AccountInfoResp")]
     fn account_info(&self, addr: Address) -> BoxFutureResult<AccountInfoResp>;
 
-    #[rpc(name = "ethop_info", returns = "ETHOpInfoResp")]
-    fn ethop_info(&self, serial_id: u32) -> BoxFutureResult<ETHOpInfoResp>;
+    #[rpc(name = "ethop_info", returns = "RSKOpInfoResp")]
+    fn ethop_info(&self, serial_id: u32) -> BoxFutureResult<RSKOpInfoResp>;
 
-    #[rpc(name = "tx_info", returns = "ETHOpInfoResp")]
+    #[rpc(name = "tx_info", returns = "RSKOpInfoResp")]
     fn tx_info(&self, hash: TxHash) -> BoxFutureResult<TransactionInfoResp>;
 
     #[rpc(name = "tx_submit", returns = "TxHash")]
@@ -117,7 +117,7 @@ impl Rpc for RpcApp {
         spawn!(self._impl_account_info(addr))
     }
 
-    fn ethop_info(&self, serial_id: u32) -> BoxFutureResult<ETHOpInfoResp> {
+    fn ethop_info(&self, serial_id: u32) -> BoxFutureResult<RSKOpInfoResp> {
         spawn!(self._impl_ethop_info(serial_id))
     }
 

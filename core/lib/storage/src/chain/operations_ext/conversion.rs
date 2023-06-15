@@ -27,10 +27,10 @@ impl StorageTxReceipt {
             } else {
                 TxInBlockStatus::Rejected
             };
-            if receipt.eth_block.is_some() {
+            if receipt.rsk_block.is_some() {
                 Receipt::L1(L1Receipt {
                     status,
-                    eth_block: EthBlockId(receipt.eth_block.unwrap() as u64),
+                    rsk_block: EthBlockId(receipt.rsk_block.unwrap() as u64),
                     rollup_block: receipt
                         .block_number
                         .map(|number| BlockNumber(number as u32)),

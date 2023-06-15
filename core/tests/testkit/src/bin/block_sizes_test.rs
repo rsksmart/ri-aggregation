@@ -11,11 +11,11 @@ use zksync_crypto::circuit::CircuitAccountTree;
 use zksync_crypto::params::account_tree_depth;
 use zksync_prover_utils::aggregated_proofs::{gen_aggregate_proof, prepare_proof_data};
 use zksync_prover_utils::{PlonkVerificationKey, SetupForStepByStepProver};
-use zksync_testkit::eth_account::RootstockAccount;
+use zksync_testkit::rsk_account::RootstockAccount;
 use zksync_testkit::external_commands::{deploy_contracts, get_test_accounts};
-use zksync_testkit::zksync_account::{ZkSyncAccount, ZkSyncETHAccountData};
+use zksync_testkit::zksync_account::{ZkSyncAccount, ZkSyncRSKAccountData};
 use zksync_testkit::{
-    genesis_state, spawn_state_keeper, AccountSet, ETHAccountId, TestSetup, TestkitConfig, Token,
+    genesis_state, spawn_state_keeper, AccountSet, RSKAccountId, TestSetup, TestkitConfig, Token,
     ZKSyncAccountId,
 };
 use zksync_types::{aggregated_operations::BlocksProofOperation, DepositOp, Nonce, TokenId};
@@ -115,7 +115,7 @@ async fn main() {
         testkit_config.chain_id,
         testkit_config.gas_price_factor,
     );
-    let eth_accounts = test_accounts_info
+    let rsk_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
             RootstockAccount::new(
@@ -131,14 +131,14 @@ async fn main() {
 
     let zksync_accounts = {
         let mut zksync_accounts = vec![fee_account];
-        zksync_accounts.extend(eth_accounts.iter().map(|eth_account| {
+        zksync_accounts.extend(rsk_accounts.iter().map(|rsk_account| {
             let rng_zksync_key = ZkSyncAccount::rand().private_key;
             ZkSyncAccount::new(
                 rng_zksync_key,
                 Nonce(0),
-                eth_account.address,
-                ZkSyncETHAccountData::EOA {
-                    eth_private_key: eth_account.private_key,
+                rsk_account.address,
+                ZkSyncRSKAccountData::EOA {
+                    eth_private_key: rsk_account.private_key,
                 },
             )
         }));
@@ -146,7 +146,7 @@ async fn main() {
     };
 
     let accounts = AccountSet {
-        eth_accounts,
+        rsk_accounts,
         zksync_accounts,
         fee_account_id: ZKSyncAccountId(0),
     };
@@ -182,7 +182,7 @@ async fn main() {
         for _ in 1..=(block_size / DepositOp::CHUNKS) {
             let (receipts, _) = test_setup
                 .deposit(
-                    ETHAccountId(1),
+                    RSKAccountId(1),
                     ZKSyncAccountId(2),
                     Token(TokenId(0)),
                     1u32.into(),
@@ -255,7 +255,7 @@ async fn main() {
             for _ in 1..=(block_size / DepositOp::CHUNKS) {
                 let (receipts, _) = test_setup
                     .deposit(
-                        ETHAccountId(1),
+                        RSKAccountId(1),
                         ZKSyncAccountId(2),
                         Token(TokenId(0)),
                         1u32.into(),

@@ -46,7 +46,7 @@ async function setupWallet() {
         encoding: 'utf-8'
     });
     const ethTestConfig = JSON.parse(config);
-    let web3Url = (process.env.ETH_CLIENT_WEB3_URL as string).split(',')[0];
+    let web3Url = (process.env.RSK_CLIENT_WEB3_URL as string).split(',')[0];
     const ethProvider = new ethers.providers.JsonRpcProvider(web3Url);
     ethProvider.pollingInterval = 100;
     const syncProvider = await zksync.getDefaultRestProvider('localhost');

@@ -5,7 +5,7 @@ use std::{convert::TryFrom, fmt, fs::read_to_string, path::PathBuf, str::FromStr
 use thiserror::Error;
 
 /// ID of the ETH token in zkSync network.
-pub use zksync_crypto::params::ETH_TOKEN_ID;
+pub use zksync_crypto::params::RSK_TOKEN_ID;
 use zksync_utils::{parse_env, UnsignedRatioSerializeAsDecimal};
 
 use crate::{tx::ChangePubKeyType, AccountId, Address, Log, TokenId, H256, U256};
@@ -184,7 +184,7 @@ impl TokenInfo {
 /// Tokens that added through a contract.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NewTokenEvent {
-    pub eth_block_number: u64,
+    pub rsk_block_number: u64,
     pub address: Address,
     pub id: TokenId,
 }
@@ -199,7 +199,7 @@ impl TryFrom<Log> for NewTokenEvent {
             return Err(NewTokenEventParseError::ParseError(event));
         }
 
-        let eth_block_number = match event.block_number {
+        let rsk_block_number = match event.block_number {
             Some(block_number) => block_number.as_u64(),
             None => {
                 return Err(NewTokenEventParseError::ParseError(event));
@@ -207,7 +207,7 @@ impl TryFrom<Log> for NewTokenEvent {
         };
 
         Ok(NewTokenEvent {
-            eth_block_number,
+            rsk_block_number,
             address: Address::from_slice(&event.topics[1].as_fixed_bytes()[12..]),
             id: TokenId(U256::from_big_endian(&event.topics[2].as_fixed_bytes()[..]).as_u32()),
         })

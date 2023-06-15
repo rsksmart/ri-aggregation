@@ -1,5 +1,5 @@
 use crate::api_server::rpc_server::types::{
-    BlockInfo, ETHOpInfoResp, ResponseAccountState, TransactionInfoResp,
+    BlockInfo, RSKOpInfoResp, ResponseAccountState, TransactionInfoResp,
 };
 use jsonrpc_pubsub::{typed::Subscriber, SubscriptionId};
 use std::time::{Duration, Instant};
@@ -18,7 +18,7 @@ pub struct OperationNotifier {
     state: NotifierState,
 
     tx_subs: SubStorage<TxHash, TransactionInfoResp>,
-    prior_op_subs: SubStorage<PriorityOpId, ETHOpInfoResp>,
+    prior_op_subs: SubStorage<PriorityOpId, RSKOpInfoResp>,
     account_subs: SubStorage<AccountId, ResponseAccountState>,
 }
 
@@ -148,7 +148,7 @@ impl OperationNotifier {
                 }
                 ExecutedOperations::PriorityOp(prior_op) => {
                     let id = prior_op.priority_op.serial_id;
-                    let resp = ETHOpInfoResp {
+                    let resp = RSKOpInfoResp {
                         executed: true,
                         block: Some(BlockInfo {
                             block_number: i64::from(*block_number),
@@ -189,7 +189,7 @@ impl OperationNotifier {
         &mut self,
         serial_id: u64,
         action: ActionType,
-        sub: Subscriber<ETHOpInfoResp>,
+        sub: Subscriber<RSKOpInfoResp>,
     ) -> Result<(), anyhow::Error> {
         let start = Instant::now();
         let sub_id = self
@@ -209,7 +209,7 @@ impl OperationNotifier {
             {
                 match action {
                     ActionType::COMMIT => {
-                        let resp = ETHOpInfoResp {
+                        let resp = RSKOpInfoResp {
                             executed: true,
                             block: Some(block_info),
                         };
@@ -218,7 +218,7 @@ impl OperationNotifier {
                     }
                     ActionType::VERIFY => {
                         if block_info.verified {
-                            let resp = ETHOpInfoResp {
+                            let resp = RSKOpInfoResp {
                                 executed: true,
                                 block: Some(block_info),
                             };

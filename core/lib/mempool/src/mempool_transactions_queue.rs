@@ -269,7 +269,7 @@ mod tests {
                 }),
                 deadline_block: 0,
                 eth_hash: Default::default(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
             PriorityOp {
@@ -282,7 +282,7 @@ mod tests {
                 }),
                 deadline_block: 0,
                 eth_hash: Default::default(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
             PriorityOp {
@@ -295,7 +295,7 @@ mod tests {
                 }),
                 deadline_block: 0,
                 eth_hash: Default::default(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
         ]);
@@ -310,7 +310,7 @@ mod tests {
                 }),
                 deadline_block: 0,
                 eth_hash: Default::default(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
             PriorityOp {
@@ -323,7 +323,7 @@ mod tests {
                 }),
                 deadline_block: 0,
                 eth_hash: Default::default(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
             PriorityOp {
@@ -336,7 +336,7 @@ mod tests {
                 }),
                 deadline_block: 0,
                 eth_hash: Default::default(),
-                eth_block: 0,
+                rsk_block: 0,
                 eth_block_index: None,
             },
         ]);

@@ -18,7 +18,7 @@ pub struct StoredExecutedPriorityOperation {
     pub priority_op_serialid: i64,
     pub deadline_block: i64,
     pub eth_hash: Vec<u8>,
-    pub eth_block: i64,
+    pub rsk_block: i64,
     pub created_at: DateTime<Utc>,
     /// This field must be optional because of backward compatibility.
     pub eth_block_index: Option<i64>,
@@ -32,7 +32,7 @@ impl From<StoredExecutedPriorityOperation> for PriorityOp {
             data: serde_json::from_value(value.operation).expect("Should be correctly stored"),
             deadline_block: value.deadline_block as u64,
             eth_hash: H256::from_slice(&value.eth_hash),
-            eth_block: value.eth_block as u64,
+            rsk_block: value.rsk_block as u64,
             eth_block_index: Some(value.block_index as u64),
         }
     }
@@ -74,7 +74,7 @@ pub struct NewExecutedPriorityOperation {
     pub priority_op_serialid: i64,
     pub deadline_block: i64,
     pub eth_hash: Vec<u8>,
-    pub eth_block: i64,
+    pub rsk_block: i64,
     pub created_at: DateTime<Utc>,
     /// This field must be optional because of backward compatibility.
     pub eth_block_index: Option<i64>,

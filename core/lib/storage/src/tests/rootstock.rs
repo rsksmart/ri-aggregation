@@ -4,7 +4,7 @@ use std::str::FromStr;
 // Workspace imports
 use zksync_types::{
     aggregated_operations::{AggregatedActionType, AggregatedOperation},
-    rootstock::ETHOperation,
+    rootstock::RSKOperation,
     BlockNumber, H256, U256,
 };
 // Local imports
@@ -40,13 +40,13 @@ impl RootstockTxParams {
         }
     }
 
-    pub fn to_eth_op(&self, db_id: i64, nonce: u64) -> ETHOperation {
+    pub fn to_eth_op(&self, db_id: i64, nonce: u64) -> RSKOperation {
         let op_type = AggregatedActionType::from_str(self.op_type.as_ref())
             .expect("Stored operation type must have a valid value");
         let last_used_gas_price = U256::from_str(&self.gas_price.to_string()).unwrap();
         let used_tx_hashes = vec![self.hash];
 
-        ETHOperation {
+        RSKOperation {
             id: db_id,
             op_type,
             op: self.op.clone(),
@@ -82,7 +82,7 @@ async fn rootstock_empty_load(mut storage: StorageProcessor<'_>) -> QueryResult<
 /// - Check that now txs aren't loaded.
 #[db_test]
 async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    RootstockSchema(&mut storage).initialize_eth_data().await?;
+    RootstockSchema(&mut storage).initialize_rsk_data().await?;
 
     for expected_next_nonce in 0..5 {
         let actual_next_nonce = RootstockSchema(&mut storage).get_next_nonce().await?;
@@ -111,7 +111,7 @@ async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()>
     // Store the Rootstock transaction.
     let params = RootstockTxParams::new("CommitBlocks".into(), op);
     let response = RootstockSchema(&mut storage)
-        .save_new_eth_tx(
+        .save_new_rsk_tx(
             AggregatedActionType::CommitBlocks,
             params.op.clone(),
             params.deadline_block as i64,
@@ -127,12 +127,12 @@ async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()>
     let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
         .await?;
-    let eth_op = unconfirmed_operations[0].clone();
+    let rsk_op = unconfirmed_operations[0].clone();
     // assert_eq!(Some(op.0), operation.id);
     // Load the database ID, since we can't predict it for sure.
     assert_eq!(
-        eth_op,
-        params.to_eth_op(eth_op.id, response.nonce.low_u64())
+        rsk_op,
+        params.to_eth_op(rsk_op.id, response.nonce.low_u64())
     );
 
     // Store operation with ID 2.
@@ -151,7 +151,7 @@ async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()>
     // Create one more Rootstock transaction.
     let params_2 = RootstockTxParams::new("CommitBlocks".into(), op);
     let response_2 = RootstockSchema(&mut storage)
-        .save_new_eth_tx(
+        .save_new_rsk_tx(
             AggregatedActionType::CreateProofBlocks,
             params_2.op.clone(),
             params_2.deadline_block as i64,
@@ -168,16 +168,16 @@ async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()>
         .load_unconfirmed_operations()
         .await?;
     assert_eq!(unconfirmed_operations.len(), 2);
-    let eth_op = unconfirmed_operations[1].clone();
+    let rsk_op = unconfirmed_operations[1].clone();
     // assert_eq!(op.id, operation_2.id);
     assert_eq!(
-        eth_op,
-        params_2.to_eth_op(eth_op.id, response_2.nonce.low_u64())
+        rsk_op,
+        params_2.to_eth_op(rsk_op.id, response_2.nonce.low_u64())
     );
 
     // Make the transaction as completed.
     RootstockSchema(&mut storage)
-        .confirm_eth_tx(&params_2.hash)
+        .confirm_rsk_tx(&params_2.hash)
         .await?;
 
     // Now there should be only one unconfirmed operation.
@@ -197,14 +197,14 @@ async fn rootstock_storage(mut storage: StorageProcessor<'_>) -> QueryResult<()>
 }
 
 /// Here we check `unprocessed` and `unconfirmed` operations getting.
-/// If there is no `ETHOperation` for `Operation`, it must be returned by `load_unprocessed_operations`.
+/// If there is no `RSKOperation` for `Operation`, it must be returned by `load_unprocessed_operations`.
 /// It must **not** be returned by `load_unconfirmed_operations`.
 ///
-/// If there is an `ETHOperation` and it's not confirmed, it must be returned by `load_unconfirmed_operations`
+/// If there is an `RSKOperation` and it's not confirmed, it must be returned by `load_unconfirmed_operations`
 /// and **not** returned by `load_unprocessed_operations`.
 #[db_test]
 async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    RootstockSchema(&mut storage).initialize_eth_data().await?;
+    RootstockSchema(&mut storage).initialize_rsk_data().await?;
 
     let unconfirmed_operations = RootstockSchema(&mut storage)
         .load_unconfirmed_operations()
@@ -265,7 +265,7 @@ async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult
     // Store the Rootstock transaction.
     let params = RootstockTxParams::new("CommitBlocks".into(), commit_operation.clone());
     let response = RootstockSchema(&mut storage)
-        .save_new_eth_tx(
+        .save_new_rsk_tx(
             AggregatedActionType::CommitBlocks,
             params.op.clone(),
             params.deadline_block as i64,
@@ -282,15 +282,15 @@ async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult
         .load_unconfirmed_operations()
         .await?;
     assert_eq!(unconfirmed_operations.len(), 1);
-    let eth_op = unconfirmed_operations[0].clone();
+    let rsk_op = unconfirmed_operations[0].clone();
     // assert_eq!(op.id, operation.id);
     // Load the database ID, since we can't predict it for sure.
     assert_eq!(
-        eth_op,
-        params.to_eth_op(eth_op.id, response.nonce.low_u64())
+        rsk_op,
+        params.to_eth_op(rsk_op.id, response.nonce.low_u64())
     );
 
-    // After we created an ETHOperation for the operation, the number of unprocessed operations should not change.
+    // After we created an RSKOperation for the operation, the number of unprocessed operations should not change.
     let unprocessed_operations = RootstockSchema(&mut storage)
         .load_unprocessed_operations()
         .await?;
@@ -323,7 +323,7 @@ async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult
     let verify_params =
         RootstockTxParams::new("PublishProofBlocksOnchain".into(), verify_operation.clone());
     let response = RootstockSchema(&mut storage)
-        .save_new_eth_tx(
+        .save_new_rsk_tx(
             AggregatedActionType::PublishProofBlocksOnchain,
             verify_params.op,
             verify_params.deadline_block as i64,
@@ -347,7 +347,7 @@ async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult
 
     // Confirm first tx and check that it isn't returned by `unconfirmed` method anymore.
     RootstockSchema(&mut storage)
-        .confirm_eth_tx(&params.hash)
+        .confirm_rsk_tx(&params.hash)
         .await?;
 
     let unconfirmed_operations = RootstockSchema(&mut storage)
@@ -361,10 +361,10 @@ async fn rootstock_unprocessed(mut storage: StorageProcessor<'_>) -> QueryResult
 /// Simple test for store/load of (average) gas price.
 #[db_test]
 async fn rootstock_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    storage.rootstock_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_rsk_data().await?;
     let old_price_limit = storage.rootstock_schema().load_gas_price_limit().await?;
     let old_average_price = storage.rootstock_schema().load_average_gas_price().await?;
-    // This parameter is not set in `initialize_eth_data()`
+    // This parameter is not set in `initialize_rsk_data()`
     assert!(old_average_price.is_none());
     // Update these values.
     storage
@@ -384,12 +384,12 @@ async fn rootstock_gas_update(mut storage: StorageProcessor<'_>) -> QueryResult<
 /// Check update eth parameters
 #[db_test]
 async fn test_update_eth_parameters(mut storage: StorageProcessor<'_>) -> QueryResult<()> {
-    storage.rootstock_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_rsk_data().await?;
 
     // Updates eth parameters and checks if they were really saved.
     storage
         .rootstock_schema()
-        .update_eth_parameters(BlockNumber(5))
+        .update_rsk_parameters(BlockNumber(5))
         .await?;
 
     let stats = storage.rootstock_schema().load_stats().await?;

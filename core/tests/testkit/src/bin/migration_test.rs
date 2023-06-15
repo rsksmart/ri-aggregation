@@ -1,10 +1,10 @@
-use crate::eth_account::{parse_ether, RootstockAccount};
+use crate::rsk_account::{parse_rbtc, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts, run_upgrade_franklin};
 use crate::zksync_account::ZkSyncAccount;
 use std::time::Instant;
 use web3::transports::Http;
 use zksync_testkit::scenarios::{perform_basic_operations, BlockProcessing};
-use zksync_testkit::zksync_account::ZkSyncETHAccountData;
+use zksync_testkit::zksync_account::ZkSyncRSKAccountData;
 use zksync_testkit::*;
 use zksync_types::{Nonce, TokenId};
 
@@ -35,7 +35,7 @@ async fn migration_test() {
         testkit_config.chain_id,
         testkit_config.gas_price_factor,
     );
-    let eth_accounts = test_accounts_info
+    let rsk_accounts = test_accounts_info
         .into_iter()
         .map(|test_eth_account| {
             RootstockAccount::new(
@@ -51,14 +51,14 @@ async fn migration_test() {
 
     let zksync_accounts = {
         let mut zksync_accounts = vec![fee_account];
-        zksync_accounts.extend(eth_accounts.iter().map(|eth_account| {
+        zksync_accounts.extend(rsk_accounts.iter().map(|rsk_account| {
             let rng_zksync_key = ZkSyncAccount::rand().private_key;
             ZkSyncAccount::new(
                 rng_zksync_key,
                 Nonce(0),
-                eth_account.address,
-                ZkSyncETHAccountData::EOA {
-                    eth_private_key: eth_account.private_key,
+                rsk_account.address,
+                ZkSyncRSKAccountData::EOA {
+                    eth_private_key: rsk_account.private_key,
                 },
             )
         }));
@@ -66,7 +66,7 @@ async fn migration_test() {
     };
 
     let accounts = AccountSet {
-        eth_accounts,
+        rsk_accounts,
         zksync_accounts,
         fee_account_id: ZKSyncAccountId(0),
     };
@@ -80,7 +80,7 @@ async fn migration_test() {
         None,
     );
 
-    let deposit_amount = parse_ether("1.0").unwrap();
+    let deposit_amount = parse_rbtc("1.0").unwrap();
 
     let token = TokenId(0);
     perform_basic_operations(

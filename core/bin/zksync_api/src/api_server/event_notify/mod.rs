@@ -1,4 +1,4 @@
-use super::rpc_server::types::{ETHOpInfoResp, ResponseAccountState, TransactionInfoResp};
+use super::rpc_server::types::{RSKOpInfoResp, ResponseAccountState, TransactionInfoResp};
 use futures::{channel::mpsc, select, stream::StreamExt};
 use jsonrpc_pubsub::{
     typed::{Sink, Subscriber},
@@ -35,7 +35,7 @@ pub enum EventSubscribeRequest {
     PriorityOp {
         serial_id: u64,
         action: ActionType,
-        subscriber: Subscriber<ETHOpInfoResp>,
+        subscriber: Subscriber<RSKOpInfoResp>,
     },
     Account {
         address: Address,

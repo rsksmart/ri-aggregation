@@ -1,6 +1,6 @@
 use num::BigUint;
 use zksync_crypto::params::MIN_NFT_TOKEN_ID;
-use zksync_eth_signer::RootstockSigner;
+use zksync_rsk_signer::RootstockSigner;
 use zksync_types::{
     helpers::{closest_packable_fee_amount, is_fee_amount_packable},
     tx::{PackedEthSignature, TimeRange},

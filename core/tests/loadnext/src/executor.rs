@@ -68,11 +68,11 @@ impl Executor {
         let master_wallet = &mut self.pool.master_wallet;
         let rootstock = master_wallet.rootstock(&self.config.web3_url).await?;
 
-        let eth_balance = rootstock.balance().await?;
-        if eth_balance < 2u64.pow(17).into() {
+        let rbtc_balance = rootstock.balance().await?;
+        if rbtc_balance < 2u64.pow(17).into() {
             anyhow::bail!(
                 "ETH balance is too low to safely perform the loadtest: {}",
-                eth_balance
+                rbtc_balance
             );
         }
 
@@ -87,7 +87,7 @@ impl Executor {
 
         let master_wallet = &self.pool.master_wallet;
         let mut rootstock = master_wallet.rootstock(&self.config.web3_url).await?;
-        rootstock.set_confirmation_timeout(ETH_CONFIRMATION_TIMEOUT);
+        rootstock.set_confirmation_timeout(RSK_CONFIRMATION_TIMEOUT);
 
         let token = self.config.main_token.as_str();
 
@@ -127,7 +127,7 @@ impl Executor {
             .master_wallet
             .rootstock(&self.config.web3_url)
             .await?;
-        rootstock.set_confirmation_timeout(ETH_CONFIRMATION_TIMEOUT);
+        rootstock.set_confirmation_timeout(RSK_CONFIRMATION_TIMEOUT);
 
         // Approve ERC20 deposits.
         let main_token = self.config.main_token.as_str();

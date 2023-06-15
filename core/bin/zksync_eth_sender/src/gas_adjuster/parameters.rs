@@ -47,7 +47,7 @@ mod parameters_impl {
     // Built-in deps.
     use std::time::Duration;
     // Workspace deps
-    use zksync_config::configs::eth_sender::ETHSenderConfig;
+    use zksync_config::configs::eth_sender::RSKSenderConfig;
 
     /// Obtains the interval for renewing the maximum gas price.
     ///
@@ -55,7 +55,7 @@ mod parameters_impl {
     /// server by an administrator. This may be required if existing settings aren't flexible
     /// enough to match the current network price.
     pub fn limit_update_interval() -> Duration {
-        let config = ETHSenderConfig::from_env();
+        let config = RSKSenderConfig::from_env();
         config.gas_price_limit.update_interval()
     }
 
@@ -65,7 +65,7 @@ mod parameters_impl {
     /// server by an administrator. This may be required if existing settings aren't flexible
     /// enough to match the current network price.
     pub fn limit_scale_factor() -> f64 {
-        let config = ETHSenderConfig::from_env();
+        let config = RSKSenderConfig::from_env();
         config.gas_price_limit.scale_factor
     }
 
@@ -75,7 +75,7 @@ mod parameters_impl {
     /// server by an administrator. This may be required if existing settings aren't flexible
     /// enough to match the current network price.
     pub fn sample_adding_interval() -> Duration {
-        let config = ETHSenderConfig::from_env();
+        let config = RSKSenderConfig::from_env();
         config.gas_price_limit.sample_interval()
     }
 }

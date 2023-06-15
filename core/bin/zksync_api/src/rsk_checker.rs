@@ -4,7 +4,7 @@
 
 use web3::{contract::Options, types::Address};
 use zksync_contracts::eip1271_contract;
-use zksync_eth_client::rootstock_gateway::RootstockGateway;
+use zksync_rsk_client::rootstock_gateway::RootstockGateway;
 use zksync_types::{
     tx::EIP1271Signature,
     {Nonce, PubKeyHash},
@@ -95,9 +95,9 @@ mod tests {
     use std::str::FromStr;
     use zksync_config::test_config::TestConfig;
     use zksync_contracts::zksync_contract;
-    use zksync_eth_client::rootstock_gateway::RootstockGateway;
-    use zksync_eth_client::ETHDirectClient;
-    use zksync_eth_signer::PrivateKeySigner;
+    use zksync_rsk_client::rootstock_gateway::RootstockGateway;
+    use zksync_rsk_client::RSKDirectClient;
+    use zksync_rsk_signer::PrivateKeySigner;
     use zksync_types::{
         tx::{EIP1271Signature, PackedEthSignature},
         Address,
@@ -109,7 +109,7 @@ mod tests {
         let message = "hello-world";
 
         let web3_urls =
-            std::env::var("ETH_CLIENT_WEB3_URL").expect("ETH_CLIENT_WEB3_URL should be installed");
+            std::env::var("RSK_CLIENT_WEB3_URL").expect("RSK_CLIENT_WEB3_URL should be installed");
         let web3_urls: Vec<&str> = web3_urls.split(',').collect();
 
         let manual_signature =
@@ -120,7 +120,7 @@ mod tests {
         let transport =
             web3::transports::Http::new(web3_urls.first().expect("At least one should exist"))
                 .unwrap();
-        let client = RootstockGateway::Direct(ETHDirectClient::new(
+        let client = RootstockGateway::Direct(RSKDirectClient::new(
             transport,
             zksync_contract(),
             Default::default(),

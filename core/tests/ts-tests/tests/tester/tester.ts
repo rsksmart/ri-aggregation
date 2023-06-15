@@ -44,7 +44,7 @@ export class Tester {
             throw new Error('REST provider supports only HTTP transport');
         }
         // @ts-ignore
-        let web3Url = process.env.ETH_CLIENT_WEB3_URL.split(",")[0];
+        let web3Url = process.env.RSK_CLIENT_WEB3_URL.split(",")[0];
         const ethProvider = network == 'localhost'
             ? new ethers.providers.JsonRpcProvider(web3Url)
             : ethers.getDefaultProvider(network);
@@ -57,14 +57,14 @@ export class Tester {
         
         const syncWallet = await zksync.Wallet.fromEthSigner(ethWallet, syncProvider);
 
-        const operatorPrivateKey = process.env.ETH_SENDER_SENDER_OPERATOR_PRIVATE_KEY;
+        const operatorPrivateKey = process.env.RSK_SENDER_SENDER_OPERATOR_PRIVATE_KEY;
         if (!operatorPrivateKey) {
             throw new Error("Operator private key is not set in env or the variable name has changed");
         }
         const operatorEthWallet = new ethers.Wallet(operatorPrivateKey);
         const operatorWallet = await zksync.Wallet.fromEthSigner(operatorEthWallet, syncProvider);
         // Sanity check.
-        if (operatorWallet.address() != process.env.ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR) {
+        if (operatorWallet.address() != process.env.RSK_SENDER_SENDER_OPERATOR_COMMIT_RSK_ADDR) {
             throw new Error("Operator private key doesn't correspond to the operator address from env");
         }
 

@@ -83,12 +83,12 @@ impl RpcApp {
         })
     }
 
-    pub async fn _impl_ethop_info(self, serial_id: u32) -> Result<ETHOpInfoResp> {
+    pub async fn _impl_ethop_info(self, serial_id: u32) -> Result<RSKOpInfoResp> {
         let start = Instant::now();
         let executed_op = self.get_executed_priority_operation(serial_id).await?;
         let result = if let Some(executed_op) = executed_op {
             let block = self.get_block_info(executed_op.block_number).await?;
-            ETHOpInfoResp {
+            RSKOpInfoResp {
                 executed: true,
                 block: Some(BlockInfo {
                     block_number: executed_op.block_number,
@@ -97,7 +97,7 @@ impl RpcApp {
                 }),
             }
         } else {
-            ETHOpInfoResp {
+            RSKOpInfoResp {
                 executed: false,
                 block: None,
             }

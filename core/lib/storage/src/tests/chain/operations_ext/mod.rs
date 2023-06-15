@@ -110,7 +110,7 @@ async fn confirm_eth_op(
     let eth_tx_hash = dummy_rootstock_tx_hash(op.0);
     let response = storage
         .rootstock_schema()
-        .save_new_eth_tx(op_type, Some(op), 100, 100u32.into(), Default::default())
+        .save_new_rsk_tx(op_type, Some(op), 100, 100u32.into(), Default::default())
         .await?;
     storage
         .rootstock_schema()
@@ -118,7 +118,7 @@ async fn confirm_eth_op(
         .await?;
     storage
         .rootstock_schema()
-        .confirm_eth_tx(&eth_tx_hash)
+        .confirm_rsk_tx(&eth_tx_hash)
         .await?;
 
     Ok(())
@@ -129,7 +129,7 @@ pub async fn commit_block(
     block_number: BlockNumber,
 ) -> QueryResult<()> {
     // Required since we use `RootstockSchema` in this test.
-    storage.rootstock_schema().initialize_eth_data().await?;
+    storage.rootstock_schema().initialize_rsk_data().await?;
     BlockSchema(storage)
         .save_full_block(gen_sample_block(
             block_number,

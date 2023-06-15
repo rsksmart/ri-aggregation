@@ -23,7 +23,7 @@ use zksync_types::{
 // Local uses
 use zksync_types::tx::{ChangePubKeyECDSAData, ChangePubKeyEthAuthData};
 
-const ETH_TOKEN_ID: TokenId = TokenId(0x00);
+const RSK_TOKEN_ID: TokenId = TokenId(0x00);
 
 /// Creates a random ZKSync account.
 fn generate_account() -> (H256, PrivateKey, Account) {
@@ -38,7 +38,7 @@ fn generate_account() -> (H256, PrivateKey, Account) {
 
     let mut account = Account::default_with_address(&address);
     account.pub_key_hash = PubKeyHash::from_privkey(&sk);
-    account.set_balance(ETH_TOKEN_ID, default_balance);
+    account.set_balance(RSK_TOKEN_ID, default_balance);
 
     (eth_sk, sk, account)
 }
@@ -64,7 +64,7 @@ impl TxBenchSetup {
             AccountId(0),
             self.account.address,
             Address::random(),
-            ETH_TOKEN_ID,
+            RSK_TOKEN_ID,
             10u32.into(),
             1u32.into(),
             Nonce(0),
@@ -85,7 +85,7 @@ impl TxBenchSetup {
             AccountId(0),
             self.account.address,
             Address::random(),
-            ETH_TOKEN_ID,
+            RSK_TOKEN_ID,
             10u32.into(),
             1u32.into(),
             Nonce(0),
@@ -109,7 +109,7 @@ impl TxBenchSetup {
             AccountId(0),
             self.account.address,
             PubKeyHash::from_privkey(&new_sk),
-            ETH_TOKEN_ID,
+            RSK_TOKEN_ID,
             Default::default(),
             Nonce(0),
             Default::default(),
@@ -142,7 +142,7 @@ impl TxBenchSetup {
         let mut tx = ForcedExit::new_signed(
             AccountId(0),
             self.account.address,
-            ETH_TOKEN_ID,
+            RSK_TOKEN_ID,
             Default::default(),
             Nonce(0),
             Default::default(),
@@ -164,7 +164,7 @@ impl TxBenchSetup {
             H256::random(),
             Address::random(),
             Default::default(),
-            ETH_TOKEN_ID,
+            RSK_TOKEN_ID,
             Nonce(0),
             &self.private_key,
         )
@@ -183,7 +183,7 @@ impl TxBenchSetup {
             self.account.address,
             self.account.address,
             TokenId(MIN_NFT_TOKEN_ID),
-            ETH_TOKEN_ID,
+            RSK_TOKEN_ID,
             Default::default(),
             Nonce(0),
             Default::default(),
@@ -237,7 +237,7 @@ impl TxBenchSetup {
             (order_0, order_1),
             (BigUint::from(1u64), BigUint::from(1u64)),
             Default::default(),
-            ETH_TOKEN_ID,
+            RSK_TOKEN_ID,
             &self.private_key,
         )
         .expect("swap creation failed");

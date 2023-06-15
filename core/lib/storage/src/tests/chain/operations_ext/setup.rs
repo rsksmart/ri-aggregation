@@ -207,7 +207,7 @@ impl TransactionsHistoryTestSetup {
                 eth_hash: H256::from_slice(
                     &hex::decode(format!("{:0>64}", format!("{}{}", block, block_index))).unwrap(),
                 ),
-                eth_block: 10,
+                rsk_block: 10,
                 eth_block_index: Some(1),
             },
             op: deposit_op,
@@ -246,7 +246,7 @@ impl TransactionsHistoryTestSetup {
                 eth_hash: H256::from_slice(
                     &hex::decode(format!("{:0>64}", format!("{}{}", block, block_index))).unwrap(),
                 ),
-                eth_block: 11,
+                rsk_block: 11,
                 eth_block_index: Some(1),
             },
             op: full_exit_op,
