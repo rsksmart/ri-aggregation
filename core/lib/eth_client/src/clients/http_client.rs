@@ -22,7 +22,7 @@ use web3::{
 // Workspace uses
 use zksync_eth_signer::{raw_rootstock_tx::RawTransaction, EthereumSigner};
 
-use crate::ethereum_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
+use crate::rootstock_gateway::{ExecutedTxStatus, FailureInfo, SignedCallResult};
 use sha3::Digest;
 /// Gas limit value to be used in transaction if for some reason
 /// gas limit was not set for it.
