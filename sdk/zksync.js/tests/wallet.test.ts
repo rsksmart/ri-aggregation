@@ -51,7 +51,7 @@ describe('Wallet with mock provider', function () {
 
         let thrown = false;
         try {
-            await wallet.getBalance('ETH', 'committed');
+            await wallet.getBalance('RBTC', 'committed');
         } catch {
             thrown = true;
         }
@@ -75,7 +75,7 @@ describe('Wallet with mock provider', function () {
 
         let thrown = false;
         try {
-            await wallet.getBalance('ETH', 'verified');
+            await wallet.getBalance('RBTC', 'verified');
         } catch {
             thrown = true;
         }

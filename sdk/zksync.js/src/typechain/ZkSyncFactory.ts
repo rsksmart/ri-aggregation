@@ -484,7 +484,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "depositETH",
+    name: "depositRBTC",
     outputs: [],
     stateMutability: "payable",
     type: "function",

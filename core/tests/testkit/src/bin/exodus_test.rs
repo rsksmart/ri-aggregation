@@ -8,7 +8,7 @@
 //! + Check exit with garbage proof.
 //! + Check exit with correct proof for other account, correct proof for this account but other token, correct proof but wrong amount.
 
-use crate::eth_account::{parse_ether, RootstockAccount};
+use crate::eth_account::{parse_rbtc, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts};
 use crate::zksync_account::ZkSyncAccount;
 use num::BigUint;
@@ -487,7 +487,7 @@ async fn exit_test() {
         None,
     );
 
-    let deposit_amount = parse_ether("0.1").unwrap();
+    let deposit_amount = parse_rbtc("0.1").unwrap();
     let tokens = test_setup.get_tokens();
 
     create_verified_initial_state(
@@ -500,7 +500,7 @@ async fn exit_test() {
     .await;
     let verified_accounts_state = test_setup.get_accounts_state().await;
 
-    let expired_deposit_amount = parse_ether("0.3").unwrap();
+    let expired_deposit_amount = parse_rbtc("0.3").unwrap();
     let (expire_count_start_block, expired_priority_ops) = commit_deposit_to_expire(
         &mut test_setup,
         ETHAccountId(0),

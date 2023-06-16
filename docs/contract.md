@@ -25,7 +25,7 @@ To enforece censorship-resistance and enable guaranteed retrievability of the fu
 
 To make deposit, a user can:
 
-- Either send ETH to smart contract (will be handled by the default function),
+- Either send RBTC to smart contract (will be handled by the default function),
 - or call `depositERC20()` function to perform transferFrom for a registered ERC20 token. Note: the user must have
   previously called approve() on the ERC20 token contract in order to authorize ZKSync contract to perform this
   operation.
@@ -56,7 +56,7 @@ operation** are acrued to the users' **root-chain balances**.
 
 If the block is reverted, this **withdraw onchain operations** are simply discarded.
 
-A user can withdraw funds from the **root-chain balance** at any time by calling a `withdrawETH()` or `withdrawERC20()`
+A user can withdraw funds from the **root-chain balance** at any time by calling a `withdrawRBTC()` or `withdrawERC20()`
 function.
 
 ### Full exit

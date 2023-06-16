@@ -18,7 +18,7 @@ import {
     Toggle2FARequest,
     Toggle2FAResponse
 } from './types';
-import { isTokenETH, sleep, TokenSet } from './utils';
+import { isTokenRBTC, sleep, TokenSet } from './utils';
 import {
     Governance,
     GovernanceFactory,
@@ -358,7 +358,7 @@ export class ETHProxy {
     }
 
     async resolveTokenId(token: TokenAddress): Promise<number> {
-        if (isTokenETH(token)) {
+        if (isTokenRBTC(token)) {
             return 0;
         } else {
             const tokenId = await this.governanceContract.tokenIds(token);

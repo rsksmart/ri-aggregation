@@ -663,7 +663,7 @@ mod tests {
                 .await?;
         }
         let balances = vec![(
-            String::from("ETH"),
+            String::from("RBTC"),
             DepositingFunds {
                 amount: BigUint::from(301500u32),
                 expected_accept_block: 25 + server.confirmations_for_eth_event,

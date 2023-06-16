@@ -671,7 +671,7 @@ impl TxSender {
         let mut provided_total_usd_fee = BigDecimal::from(0);
         let mut transaction_types = vec![];
 
-        let eth_token = TokenLike::Id(TokenId(0));
+        let rbtc_token = TokenLike::Id(TokenId(0));
 
         let mut token_fees = HashMap::<Address, BigUint>::new();
         let mut token_fees_ids = vec![];
@@ -700,8 +700,8 @@ impl TxSender {
                     token.clone()
                 } else {
                     // For non-popular tokens we've already checked that the provided fee is 0,
-                    // and the USD price will be checked in ETH.
-                    eth_token.clone()
+                    // and the USD price will be checked in RBTC.
+                    rbtc_token.clone()
                 };
 
                 let token_price_in_usd = self
@@ -761,33 +761,33 @@ impl TxSender {
             }
         } else {
             // Calculate required fee for rootstock token
-            let required_eth_fee = self
+            let required_rbtc_fee = self
                 .ticker
-                .get_batch_from_ticker_in_wei(eth_token.clone(), transaction_types)
+                .get_batch_from_ticker_in_wei(rbtc_token.clone(), transaction_types)
                 .await?;
 
             let required_fee = if self
                 .should_subsidize_cpk(
-                    &required_eth_fee.normal_fee.total_fee,
-                    &required_eth_fee.subsidized_fee.total_fee,
-                    &required_eth_fee.subsidy_size_usd,
+                    &required_rbtc_fee.normal_fee.total_fee,
+                    &required_rbtc_fee.subsidized_fee.total_fee,
+                    &required_rbtc_fee.subsidy_size_usd,
                     extracted_request_metadata,
                 )
                 .await?
             {
-                fee_data_for_subsidy = Some(required_eth_fee.clone());
-                required_eth_fee.subsidized_fee.total_fee
+                fee_data_for_subsidy = Some(required_rbtc_fee.clone());
+                required_rbtc_fee.subsidized_fee.total_fee
             } else {
-                required_eth_fee.normal_fee.total_fee
+                required_rbtc_fee.normal_fee.total_fee
             };
 
-            let eth_price_in_usd = self
+            let rbtc_price_in_usd = self
                 .ticker
-                .get_token_price(eth_token, TokenPriceRequestType::USDForOneWei)
+                .get_token_price(rbtc_token, TokenPriceRequestType::USDForOneWei)
                 .await?;
 
             let required_total_usd_fee =
-                BigDecimal::from(required_fee.to_bigint().unwrap()) * &eth_price_in_usd;
+                BigDecimal::from(required_fee.to_bigint().unwrap()) * &rbtc_price_in_usd;
 
             // Scaling the fee required since the price may change between signing the transaction and sending it to the server.
             let scaled_provided_fee_in_usd = scale_user_fee_up(provided_total_usd_fee.clone());
@@ -896,9 +896,9 @@ impl TxSender {
                 token_fees_ids[0]
             } else {
                 // When there are more than token to pay the fee with,
-                // we get the price of the batch in ETH and then convert it to USD.
+                // we get the price of the batch in RBTC and then convert it to USD.
                 // Since the `subsidies` table contains the token_id field and the only fee which is fetched from the fee_ticker is
-                // in ETH, then we can consider ETH as the token_id of the subsidy. Even though formally this may not be the case.
+                // in RBTC, then we can consider RBTC as the token_id of the subsidy. Even though formally this may not be the case.
                 TokenId(0)
             };
 

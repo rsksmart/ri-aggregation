@@ -15,7 +15,7 @@ use crate::witness::{
     utils::SigDataInput,
 };
 
-const FEE_TOKEN: TokenId = TokenId(0); // ETH
+const FEE_TOKEN: TokenId = TokenId(0); // RBTC
 
 /// Basic check for execution of `ChangePubKeyOp` in circuit.
 /// Here we generate an empty account and change its public key.

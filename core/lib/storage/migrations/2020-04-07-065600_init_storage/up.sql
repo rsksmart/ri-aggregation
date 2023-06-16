@@ -93,7 +93,7 @@ CREATE TABLE executed_transactions (
 -- -------------- --
 
 -- Token types known to the ZKSync node.
--- By default has the ETH token only (see the `INSERT` statement in the end of the file).
+-- By default has the RBTC token only (see the `INSERT` statement in the end of the file).
 CREATE TABLE tokens (
     id INTEGER NOT NULL PRIMARY KEY,
     address TEXT NOT NULL,
@@ -154,8 +154,8 @@ CREATE TABLE account_pubkey_updates (
 
 -- Table for the account balances. One account can have several balances,
 -- but every balance account has must have an unique token (meaning that
--- there may be user with `ETH` and `ERC-20` balances, but not with `ETH`
--- and `ETH` balances).
+-- there may be user with `RBTC` and `ERC-20` balances, but not with `RBTC`
+-- and `RBTC` balances).
 CREATE TABLE balances (
     account_id BIGINT REFERENCES accounts(id) ON UPDATE CASCADE ON DELETE CASCADE,
     coin_id INTEGER REFERENCES tokens(id) ON UPDATE CASCADE,
@@ -335,10 +335,9 @@ CREATE EXTENSION IF NOT EXISTS tablefunc;
 -- Data insertion section --
 -- ---------------------- --
 
--- TODO: We may need to change this part to replace `ETH` with `RBTC`
--- Add ETH token
+-- Add RBTC token
 INSERT INTO tokens
 VALUES (0,
         '0x0000000000000000000000000000000000000000',
-        'ETH',
+        'RBTC',
         18);

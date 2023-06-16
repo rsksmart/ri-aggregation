@@ -66,7 +66,7 @@
 
 ### Overview
 
-zkSync implements a ZK rollup protocol (in short "rollup" below) for ETH and ERC20 fungible token transfers.
+zkSync implements a ZK rollup protocol (in short "rollup" below) for RBTC and ERC20 fungible token transfers.
 
 General rollup workflow is as follows:
 
@@ -288,8 +288,8 @@ Account.address -> EthAddress # Address of the account
 Account.pubkey_hash -> RollupPubkeyHash # Hash of the public key set for the account
 
 # Constants
-MAX_TOKENS = 2**32 # maximum number of tokens in the Rollup(including "ETH" token)
-MAX_FUNGIBLE_TOKENS = 2**16 # maximum number of fungible tokens in the Rollup(including "ETH" token)
+MAX_TOKENS = 2**32 # maximum number of tokens in the Rollup(including "RBTC" token)
+MAX_FUNGIBLE_TOKENS = 2**16 # maximum number of fungible tokens in the Rollup(including "RBTC" token)
 MAX_NONCE = 2**32 # max possible nonce
 ```
 
@@ -1772,7 +1772,7 @@ def pubdata_invariants():
 Deposit Ether to Rollup - transfer Ether from user L1 address into Rollup address
 
 ```solidity
-function depositETH(address _zkSyncAddress) payable
+function depositRBTC(address _zkSyncAddress) payable
 ```
 
 - `_zkSyncAddress`: The receiver Layer 2 address

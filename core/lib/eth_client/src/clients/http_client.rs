@@ -336,17 +336,17 @@ impl<S: EthereumSigner> ETHDirectClient<S> {
         }
     }
 
-    pub async fn eth_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
+    pub async fn rbtc_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
         #[cfg(feature = "with-metrics")]
         let start = Instant::now();
         let balance = self.inner.web3.eth().balance(address, None).await?;
         #[cfg(feature = "with-metrics")]
-        metrics::histogram!("eth_client.direct.eth_balance", start.elapsed());
+        metrics::histogram!("eth_client.direct.rbtc_balance", start.elapsed());
         Ok(balance)
     }
 
-    pub async fn sender_eth_balance(&self) -> Result<U256, anyhow::Error> {
-        self.eth_balance(self.inner.sender_account).await
+    pub async fn sender_rbtc_balance(&self) -> Result<U256, anyhow::Error> {
+        self.rbtc_balance(self.inner.sender_account).await
     }
 
     pub async fn allowance(

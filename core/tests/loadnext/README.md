@@ -76,6 +76,7 @@ OPERATIONS_PER_ACCOUNT
 #
 # Note that we use ERC-20 token since we can't easily mint a lot of ETH on
 # Rinkeby or Ropsten without caring about collecting it back.
+# TODO: ^^^ lose references to non-rootstock networks
 MAIN_TOKEN
 ```
 

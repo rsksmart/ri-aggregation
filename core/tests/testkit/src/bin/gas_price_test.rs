@@ -302,7 +302,7 @@ async fn gas_price_test() {
 
     commit_cost_of_deposits(&mut test_setup, 100, Token(TokenId(0)), rng)
         .await
-        .report(&base_cost, "deposit ETH", true);
+        .report(&base_cost, "deposit RBTC", true);
     commit_cost_of_deposits(&mut test_setup, 50, Token(TokenId(1)), rng)
         .await
         .report(&base_cost, "deposit ERC20", true);
@@ -332,14 +332,14 @@ async fn gas_price_test() {
 
     commit_cost_of_full_exits(&mut test_setup, 100, Token(TokenId(0)))
         .await
-        .report(&base_cost, "full exit ETH", true);
+        .report(&base_cost, "full exit RBTC", true);
     commit_cost_of_full_exits(&mut test_setup, 100, Token(TokenId(1)))
         .await
         .report(&base_cost, "full exit ERC20", true);
 
     commit_cost_of_withdrawals(&mut test_setup, 40, Token(TokenId(0)), rng)
         .await
-        .report(&base_cost, "withdrawals ETH", false);
+        .report(&base_cost, "withdrawals RBTC", false);
     commit_cost_of_withdrawals(&mut test_setup, 40, Token(TokenId(1)), rng)
         .await
         .report(&base_cost, "withdrawals ERC20", false);

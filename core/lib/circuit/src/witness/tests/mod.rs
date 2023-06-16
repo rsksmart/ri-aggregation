@@ -59,7 +59,7 @@ mod withdraw_nft;
 /// - WithdrawNFT operation
 ///
 fn apply_many_ops() -> ZkSyncCircuit<'static, Bn256> {
-    const ETH_TOKEN: TokenId = TokenId(0);
+    const RBTC_TOKEN: TokenId = TokenId(0);
     const NNM_TOKEN: TokenId = TokenId(2);
 
     // Create two accounts: we will perform all the operations with the first one,
@@ -79,8 +79,8 @@ fn apply_many_ops() -> ZkSyncCircuit<'static, Bn256> {
 
     // Deposit two types of tokens on the account.
     let deposit_data = [
-        (ETH_TOKEN, 1000u32), // 1000 of ETH
-        (NNM_TOKEN, 2000u32), // 2000 of token with ID 2
+        (RBTC_TOKEN, 1000u32), // 1000 of RBTC
+        (NNM_TOKEN, 2000u32),  // 2000 of token with ID 2
     ];
     let deposit_ops = deposit_data
         .iter()
@@ -94,12 +94,12 @@ fn apply_many_ops() -> ZkSyncCircuit<'static, Bn256> {
             account_id: account.id,
         });
 
-    // Transfer ETH to an existing account.
+    // Transfer RBTC to an existing account.
     let transfer_op = TransferOp {
         tx: account
             .zksync_account
             .sign_transfer(
-                ETH_TOKEN,
+                RBTC_TOKEN,
                 "",
                 BigUint::from(97u32),
                 BigUint::from(3u32),

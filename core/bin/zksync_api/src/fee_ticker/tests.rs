@@ -60,7 +60,7 @@ impl TestToken {
             .unwrap_or_else(|| Ratio::from_integer(1u32.into()))
     }
 
-    fn eth() -> Self {
+    fn rbtc() -> Self {
         Self::new(TokenId(0), 182.0, None, 18, Address::default())
     }
 
@@ -88,7 +88,7 @@ impl TestToken {
 
     pub(crate) fn all_tokens() -> Vec<Self> {
         vec![
-            Self::eth(),
+            Self::rbtc(),
             Self::cheap(),
             Self::expensive(),
             Self::hex(),
@@ -175,7 +175,7 @@ impl FeeTickerInfo for MockTickerInfo {
         unreachable!("incorrect token input")
     }
 
-    /// Get current gas price in ETH
+    /// Get current gas price in RBTC
     async fn get_gas_price_wei(&self) -> Result<BigUint, anyhow::Error> {
         Ok(BigUint::from(10u32).pow(7u32)) // 10 GWei
     }
@@ -464,7 +464,7 @@ fn test_ticker_formula() {
         ratio_to_big_decimal(&((&max - &min) / min), 6)
     };
 
-    let expected_price_of_eth_token_transfer_usd = get_token_fee_in_usd(
+    let expected_price_of_rbtc_token_transfer_usd = get_token_fee_in_usd(
         &mut ticker,
         TxFeeTypes::Transfer,
         TokenId(0).into(),
@@ -473,7 +473,7 @@ fn test_ticker_formula() {
         None,
     );
 
-    let expected_price_of_eth_token_withdraw_usd = get_token_fee_in_usd(
+    let expected_price_of_rbtc_token_withdraw_usd = get_token_fee_in_usd(
         &mut ticker,
         TxFeeTypes::Withdraw,
         TokenId(0).into(),
@@ -485,7 +485,7 @@ fn test_ticker_formula() {
     // Cost of the transfer and withdraw in USD should be the same for all tokens up to +/- 3 digits
     // (mantissa len == 11)
     let threshold = BigDecimal::from_str("0.01").unwrap();
-    for token in &[TestToken::eth(), TestToken::expensive()] {
+    for token in &[TestToken::rbtc(), TestToken::expensive()] {
         let transfer_fee = get_token_fee_in_usd(
             &mut ticker,
             TxFeeTypes::Transfer,
@@ -494,11 +494,11 @@ fn test_ticker_formula() {
             None,
             None,
         );
-        let expected_fee = expected_price_of_eth_token_transfer_usd.clone() * token.risk_factor();
+        let expected_fee = expected_price_of_rbtc_token_transfer_usd.clone() * token.risk_factor();
         let transfer_diff = get_relative_diff(&transfer_fee, &expected_fee);
         assert!(
                 transfer_diff <= threshold.clone(),
-                "token transfer fee is above eth fee threshold: <{:?}: {}, ETH: {}, diff: {}, threshold: {}>",
+                "token transfer fee is above rbtc fee threshold: <{:?}: {}, RBTC: {}, diff: {}, threshold: {}>",
                 token.id,
                 format_with_dot(&transfer_fee, 6),
                 format_with_dot(&expected_fee, 6),
@@ -513,11 +513,11 @@ fn test_ticker_formula() {
             None,
             None,
         );
-        let expected_fee = expected_price_of_eth_token_withdraw_usd.clone() * token.risk_factor();
+        let expected_fee = expected_price_of_rbtc_token_withdraw_usd.clone() * token.risk_factor();
         let withdraw_diff = get_relative_diff(&withdraw_fee, &expected_fee);
         assert!(
                 withdraw_diff <= threshold.clone(),
-                "token withdraw fee is above eth fee threshold: <{:?}: {}, ETH: {}, diff: {}, threshold: {}>",
+                "token withdraw fee is above rbtc fee threshold: <{:?}: {}, RBTC: {}, diff: {}, threshold: {}>",
                 token.id,
                 format_with_dot(&withdraw_fee, 6),
                 format_with_dot(&expected_fee, 6),
@@ -552,7 +552,7 @@ fn test_ticker_formula() {
                 None,
             );
 
-            let expected_price_of_eth_token_fast_withdraw_usd = get_token_fee_in_usd(
+            let expected_price_of_rbtc_token_fast_withdraw_usd = get_token_fee_in_usd(
                 &mut ticker,
                 TxFeeTypes::FastWithdraw,
                 TokenId(0).into(),
@@ -561,11 +561,11 @@ fn test_ticker_formula() {
                 None,
             );
             let expected_fee =
-                expected_price_of_eth_token_fast_withdraw_usd.clone() * token.risk_factor();
+                expected_price_of_rbtc_token_fast_withdraw_usd.clone() * token.risk_factor();
             let fast_withdraw_diff = get_relative_diff(&fast_withdraw_fee, &expected_fee);
             assert!(
                 fast_withdraw_diff <= threshold.clone(),
-                "token fast withdraw fee is above eth fee threshold: <{:?}: {}, ETH: {}, diff: {}, threshold: {}>",
+                "token fast withdraw fee is above rbtc fee threshold: <{:?}: {}, RBTC: {}, diff: {}, threshold: {}>",
                 token.id,
                 format_with_dot(&fast_withdraw_fee, 6),
                 format_with_dot(&expected_fee, 6),

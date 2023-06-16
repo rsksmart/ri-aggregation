@@ -10,7 +10,7 @@ use zksync_types::{Nonce, TokenId};
 
 use crate::{
     data_restore::verify_restore,
-    eth_account::{parse_ether, RootstockAccount},
+    eth_account::{parse_rbtc, RootstockAccount},
     external_commands::{deploy_contracts, get_test_accounts},
     state_keeper_utils::spawn_state_keeper,
     zksync_account::ZkSyncAccount,
@@ -98,7 +98,7 @@ pub async fn perform_basic_tests() {
         None,
     );
 
-    let deposit_amount = parse_ether("1.0").unwrap();
+    let deposit_amount = parse_rbtc("1.0").unwrap();
 
     let token = TokenId(1);
     let executed_blocks = perform_basic_operations(

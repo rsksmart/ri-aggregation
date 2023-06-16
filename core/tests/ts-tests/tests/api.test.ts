@@ -20,7 +20,7 @@ describe('ZkSync REST API V0.1 tests', () => {
         tester = await Tester.init('localhost', 'HTTP', 'RPC');
         alice = await tester.fundedWallet('1.0');
         let bob = await tester.emptyWallet();
-        for (const token of ['ETH', 'DAI']) {
+        for (const token of ['RBTC', 'DAI']) {
             const thousand = tester.syncProvider.tokenSet.parseToken(token, '1000');
             await tester.testDeposit(alice, token, thousand, true);
             await tester.testChangePubKey(alice, token, false);
@@ -80,17 +80,17 @@ describe('ZkSync REST API V0.2 tests', () => {
         tester = await Tester.init('localhost', 'HTTP', 'REST');
         alice = await tester.fundedWallet('1.0');
         bob = await tester.emptyWallet();
-        for (const token of ['ETH', 'wBTC']) {
+        for (const token of ['RBTC', 'wBTC']) {
             const thousand = tester.syncProvider.tokenSet.parseToken(token, '1000');
             await tester.testDeposit(alice, token, thousand, true);
-            if (token === 'ETH') await tester.testChangePubKey(alice, token, false);
+            if (token === 'RBTC') await tester.testChangePubKey(alice, token, false);
             await tester.testTransfer(alice, bob, token, thousand.div(4));
         }
 
         const handle = await alice.syncTransfer({
             to: bob.address(),
-            token: 'ETH',
-            amount: alice.provider.tokenSet.parseToken('ETH', '1')
+            token: 'RBTC',
+            amount: alice.provider.tokenSet.parseToken('RBTC', '1')
         });
         lastTxHash = handle.txHash;
         lastTxHash.replace('sync-tx:', '0x');
@@ -115,7 +115,7 @@ describe('ZkSync REST API V0.2 tests', () => {
                 limit: 10,
                 direction: 'older'
             },
-            'ETH'
+            'RBTC'
         );
         expect(
             ethTxs.list.length,
@@ -205,14 +205,14 @@ describe('ZkSync REST API V0.2 tests', () => {
     });
 
     it('should check api v0.2 fee scope', async () => {
-        const fee = await provider.getTransactionFee('Withdraw', alice.address(), 'ETH');
+        const fee = await provider.getTransactionFee('Withdraw', alice.address(), 'RBTC');
         expect(fee).to.exist;
         const batchFee = await provider.getBatchFullFee(
             [
                 { txType: 'Transfer', address: alice.address() },
                 { txType: 'Withdraw', address: alice.address() }
             ],
-            'ETH'
+            'RBTC'
         );
         expect(batchFee).to.exist;
     });
@@ -235,8 +235,8 @@ describe('ZkSync REST API V0.2 tests', () => {
         expect(tokens.list[1]).to.be.eql(secondToken);
 
         // Case insensitivity check.
-        const ethToken1 = await provider.tokenInfo('ETH');
-        const ethToken2 = await provider.tokenInfo('eth');
+        const ethToken1 = await provider.tokenInfo('RBTC');
+        const ethToken2 = await provider.tokenInfo('rbtc');
         expect(tokens.list[0]).to.be.eql(ethToken1);
         expect(tokens.list[0]).to.be.eql(ethToken2);
 
@@ -258,9 +258,9 @@ describe('ZkSync REST API V0.2 tests', () => {
 
         const batch = await alice
             .batchBuilder()
-            .addTransfer({ to: bob.address(), token: 'ETH', amount: alice.provider.tokenSet.parseToken('ETH', '1') })
-            .addTransfer({ to: bob.address(), token: 'ETH', amount: alice.provider.tokenSet.parseToken('ETH', '1') })
-            .build('ETH');
+            .addTransfer({ to: bob.address(), token: 'RBTC', amount: alice.provider.tokenSet.parseToken('RBTC', '1') })
+            .addTransfer({ to: bob.address(), token: 'RBTC', amount: alice.provider.tokenSet.parseToken('RBTC', '1') })
+            .build('RBTC');
         const submitBatchResponse = await provider.submitTxsBatchNew(batch.txs, [batch.signature!]);
         await provider.notifyAnyTransaction(submitBatchResponse.transactionHashes[0], 'COMMIT');
         const batchInfo = await provider.getBatch(submitBatchResponse.batchHash);
@@ -277,7 +277,7 @@ describe('ZkSync web3 API tests', () => {
     let tester: Tester;
     let alice: Wallet;
     let bob: Wallet;
-    const token: string = 'ETH';
+    const token: string = 'RBTC';
     let depositAmount: ethers.BigNumber;
     let web3Provider: ethers.ethers.providers.BaseProvider;
     let restProvider: RestProvider;
@@ -323,7 +323,7 @@ describe('ZkSync web3 API tests', () => {
     });
 
     it('should check logs', async () => {
-        const fee = (await restProvider.getTransactionFee('Transfer', bob.address(), 'ETH')).totalFee;
+        const fee = (await restProvider.getTransactionFee('Transfer', bob.address(), 'RBTC')).totalFee;
         const transferAmount = depositAmount.div(10);
         const handle = await alice.syncTransfer({
             to: bob.address(),
@@ -405,7 +405,7 @@ describe('ZkSync web3 API tests', () => {
         const owner1 = nftFactoryContract.interface.decodeFunctionResult(ownerOfFunction, callResult)[0];
         expect(owner1, 'Incorrect owner after mint').to.eql(alice.address());
 
-        const transferHandle = (await alice.syncTransferNFT({ to: bob.address(), token: nft, feeToken: 'ETH' }))[0];
+        const transferHandle = (await alice.syncTransferNFT({ to: bob.address(), token: nft, feeToken: 'RBTC' }))[0];
         await transferHandle.awaitVerifyReceipt();
 
         callResult = await web3Provider.call({ to: nftFactoryAddress, data: ownerOfCallData });

@@ -36,7 +36,7 @@ impl UniswapTokenWatcher {
         let start = Instant::now();
 
         let query = format!(
-            "{{token(id: \"{:#x}\"){{totalLiquidity, derivedETH}}}}",
+            "{{token(id: \"{:#x}\"){{totalLiquidity, derivedRBTC}}}}",
             address
         );
 
@@ -67,8 +67,8 @@ impl UniswapTokenWatcher {
 
         let volume = if let Some(token) = response.data.token {
             let total_liquidity: BigDecimal = token.total_liquidity.parse()?;
-            let derived_eth: BigDecimal = token.derived_eth.parse()?;
-            total_liquidity * derived_eth
+            let derived_rbtc: BigDecimal = token.derived_rbtc.parse()?;
+            total_liquidity * derived_rbtc
         } else {
             BigDecimal::zero()
         };
@@ -99,9 +99,9 @@ pub struct TokenResponse {
     /// Total liquidity in token itself
     #[serde(rename = "totalLiquidity")]
     pub total_liquidity: String,
-    /// Price of token in eth
-    #[serde(rename = "derivedETH")]
-    pub derived_eth: String,
+    /// Price of token in rbtc
+    #[serde(rename = "derivedRBTC")]
+    pub derived_rbtc: String,
 }
 
 #[async_trait::async_trait]

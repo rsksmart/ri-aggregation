@@ -22,14 +22,14 @@ const TX_AMOUNT = utils.parseEther('10.0');
 // should be enough for ~200 test transactions (excluding fees), increase if needed
 const DEPOSIT_AMOUNT = TX_AMOUNT.mul(200);
 
-// wBTC is chosen because it has decimals different from ETH (8 instead of 18).
+// wBTC is chosen because it has decimals different from RBTC (8 instead of 18).
 // Using this token will help us to detect decimals-related errors.
 const defaultERC20 = 'wBTC';
 
 /**
  * Tests for the Full Exit priority operation.
  * These tests don't actually rely on the API, so they are not included into the basic suite,
- * but the processing of ERC20 tokens and ETH in server and contract is different, thus we run
+ * but the processing of ERC20 tokens and RBTC in server and contract is different, thus we run
  * these tests for both types of tokens.
  */
 const FullExitTestSuite = (token: types.TokenSymbol) =>
@@ -90,4 +90,4 @@ const FullExitTestSuite = (token: types.TokenSymbol) =>
     });
 
 FullExitTestSuite(defaultERC20);
-FullExitTestSuite('ETH');
+FullExitTestSuite('RBTC');

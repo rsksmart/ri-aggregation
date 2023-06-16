@@ -72,13 +72,13 @@ impl ApiV01 {
             .await
             .map_err(Self::db_error)?;
 
-        // Add ETH for tokens allowed for fee
-        // Different APIs have different views on how to represent ETH in their system.
-        // But ETH is always allowed to pay fee, and in all cases it should be on the list.
+        // Add RBTC for tokens allowed for fee
+        // Different APIs have different views on how to represent RBTC in their system.
+        // But RBTC is always allowed to pay fee, and in all cases it should be on the list.
 
         if tokens.get(&TokenId(0)).is_none() {
-            let eth = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
-            tokens.insert(eth.id, eth);
+            let rbtc = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
+            tokens.insert(rbtc.id, rbtc);
         }
 
         let mut tokens = tokens.values().cloned().collect::<Vec<_>>();

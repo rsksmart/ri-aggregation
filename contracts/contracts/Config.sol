@@ -5,7 +5,7 @@ pragma solidity ^0.7.0;
 /// @title zkSync configuration constants
 /// @author Matter Labs
 contract Config {
-    /// @dev ERC20 tokens and ETH withdrawals gas limit, used only for complete withdrawals
+    /// @dev ERC20 tokens and RBTC withdrawals gas limit, used only for complete withdrawals
     uint256 internal constant WITHDRAWAL_GAS_LIMIT = 100000;
 
     /// @dev NFT withdrawals gas limit, used only for complete withdrawals
@@ -28,7 +28,7 @@ contract Config {
     /// @dev Success flag bytes length
     uint8 internal constant SUCCESS_FLAG_BYTES = 1;
 
-    /// @dev Max amount of tokens registered in the network (excluding ETH, which is hardcoded as tokenId = 0)
+    /// @dev Max amount of tokens registered in the network (excluding RBTC, which is hardcoded as tokenId = 0)
     uint32 internal constant MAX_AMOUNT_OF_REGISTERED_TOKENS = $(MAX_AMOUNT_OF_REGISTERED_TOKENS);
 
     /// @dev Max account id that could be registered in the network

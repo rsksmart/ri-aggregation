@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::{convert::TryFrom, fmt, fs::read_to_string, path::PathBuf, str::FromStr};
 use thiserror::Error;
 
-/// ID of the ETH token in zkSync network.
-pub use zksync_crypto::params::ETH_TOKEN_ID;
+/// ID of the RBTC token in zkSync network.
+pub use zksync_crypto::params::RBTC_TOKEN_ID;
 use zksync_utils::{parse_env, UnsignedRatioSerializeAsDecimal};
 
 use crate::{tx::ChangePubKeyType, AccountId, Address, Log, TokenId, H256, U256};
@@ -25,7 +25,7 @@ pub enum TokenLike {
     Id(TokenId),
     /// Address of the token in the L1.
     Address(Address),
-    /// Symbol associated with token, e.g. "ETH".
+    /// Symbol associated with token, e.g. "RBTC".
     Symbol(String),
 }
 
@@ -83,14 +83,14 @@ impl TokenLike {
     }
 
     /// Checks if the token is Rootstock.
-    pub fn is_eth(&self) -> bool {
+    pub fn is_rbtc(&self) -> bool {
         match self {
             Self::Symbol(symbol) => {
-                // Case-insensitive comparison against `ETH`.
+                // Case-insensitive comparison against `RBTC`.
                 symbol
                     .chars()
                     .map(|c| c.to_ascii_lowercase())
-                    .eq("eth".chars())
+                    .eq("rbtc".chars())
             }
             Self::Address(address) => *address == Address::zero(),
             Self::Id(id) => **id == 0,
@@ -113,11 +113,11 @@ impl TokenLike {
 pub struct Token {
     /// id is used for tx signature and serialization
     pub id: TokenId,
-    /// Contract address of ERC20 token or Address::zero() for "ETH"
+    /// Contract address of ERC20 token or Address::zero() for "RBTC"
     pub address: Address,
-    /// Token symbol (e.g. "ETH" or "USDC")
+    /// Token symbol (e.g. "RBTC" or "USDC")
     pub symbol: String,
-    /// Token precision (e.g. 18 for "ETH" so "1.0" ETH = 10e18 as U256 number)
+    /// Token precision (e.g. 18 for "RBTC" so "1.0" RBTC = 10e18 as U256 number)
     pub decimals: u8,
     pub kind: TokenKind,
     pub is_nft: bool,
@@ -165,7 +165,7 @@ impl Token {
 pub struct TokenInfo {
     /// Address (prefixed with 0x)
     pub address: Address,
-    /// Powers of 10 in 1.0 token (18 for default ETH-like tokens)
+    /// Powers of 10 in 1.0 token (18 for default RBTC-like tokens)
     pub decimals: u8,
     /// Token symbol
     pub symbol: String,
@@ -386,24 +386,24 @@ mod tests {
     }
 
     #[test]
-    fn token_like_is_eth() {
+    fn token_like_is_rbtc() {
         let tokens = vec![
             TokenLike::Address(Address::zero()),
             TokenLike::Id(TokenId(0)),
-            TokenLike::Symbol("ETH".into()),
-            TokenLike::Symbol("eth".into()),
+            TokenLike::Symbol("RBTC".into()),
+            TokenLike::Symbol("rbtc".into()),
         ];
 
         for token in tokens {
-            assert!(token.is_eth());
+            assert!(token.is_rbtc());
         }
     }
 
     #[test]
     fn token_like_to_case_insensitive() {
         assert_eq!(
-            TokenLike::Symbol("ETH".into()).to_lowercase(),
-            TokenLike::Symbol("eth".into())
+            TokenLike::Symbol("RBTC".into()).to_lowercase(),
+            TokenLike::Symbol("rbtc".into())
         );
     }
 }

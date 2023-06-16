@@ -35,7 +35,7 @@
           },
           "ethSignData": {
             "stringAmount": "1000000000000.0",
-            "stringToken": "ETH",
+            "stringToken": "RBTC",
             "stringFee": "1000000.0",
             "to": "0x19aa2ed8712072e918632259780e587698ef58df",
             "accountId": 44,
@@ -102,7 +102,7 @@
           },
           "ethSignData": {
             "stringAmount": "1000000000000.0",
-            "stringToken": "ETH",
+            "stringToken": "RBTC",
             "stringFee": "1000000.0",
             "ethAddress": "0x19aa2ed8712072e918632259780e587698ef58df",
             "accountId": 44,
@@ -159,7 +159,7 @@
             "nonce": 12
           },
           "ethSignData": {
-            "stringFeeToken": "ETH",
+            "stringFeeToken": "RBTC",
             "stringFee": "1000000.0",
             "recipient": "0x19aa2ed8712072e918632259780e587698ef58df",
             "contentHash": "0x0000000000000000000000000000000000000000000000000000000000000123",
@@ -195,7 +195,7 @@
             "token": 100000,
             "to": "0x19aa2ed8712072e918632259780e587698ef58df",
             "stringFee": "1000000.0",
-            "stringFeeToken": "ETH",
+            "stringFeeToken": "RBTC",
             "nonce": 12
           }
         },
@@ -228,7 +228,7 @@
             "validUntil": 4294967295
           },
           "ethSignData": {
-            "tokenSell": "ETH",
+            "tokenSell": "RBTC",
             "tokenBuy": "DAI",
             "recipient": "0x823b6a996cea19e0c41e250b20e2e804ea72ccdf",
             "amount": "1000.0",
@@ -479,12 +479,12 @@
         },
         {
           "inputs": {
-            "token": "ETH",
+            "token": "RBTC",
             "decimals": 18,
             "amount": "1000000000000000100000"
           },
           "outputs": {
-            "formatted": "1000.0000000000001 ETH"
+            "formatted": "1000.0000000000001 RBTC"
           }
         }
       ]

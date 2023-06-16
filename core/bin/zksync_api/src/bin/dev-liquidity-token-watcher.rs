@@ -111,7 +111,7 @@ async fn handle_graphql(
         data: GraphqlTokenResponse {
             token: Some(TokenResponse {
                 total_liquidity: volume.to_string(),
-                derived_eth: "1.0".to_string(),
+                derived_rbtc: "1.0".to_string(),
             }),
         },
     };
