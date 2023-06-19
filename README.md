@@ -29,6 +29,10 @@ In other words, ZK Rollup strictly inherits the security guarantees of the under
 
 To learn how to use zkSync, please refer to the [zkSync SDK documentation](https://zksync.io/api/sdk/).
 
+## Operation
+
+- Managing ERC20 tokens: [docs/tokens/md](docs/tokens.md).
+
 ## Development Documentation
 
 The following guides for developers are available:
