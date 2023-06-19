@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import toml from '@iarna/toml';
 import * as utils from '../utils';
 import { Wallet } from 'ethers';
 import fs from 'fs';
@@ -10,17 +11,57 @@ import * as docker from '../docker';
 
 export { verifyKeys, dataRestore };
 
+type Token = {
+    decimals: number;
+    symbol: string;
+    name: string;
+    address: string;
+};
+
+type PartialFeeTickerConfig = {
+    fee_ticker: {
+        unconditionally_valid_tokens: string | string[];
+    };
+};
+
 export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?: string, decimals?: string) {
     if (command == 'dev') {
-        await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '
-            [
-                { "name": "DAI",  "symbol": "DAI",  "decimals": 18 },
-                { "name": "wBTC", "symbol": "wBTC", "decimals":  8, "implementation": "RevertTransferERC20" },
-                { "name": "BAT",  "symbol": "BAT",  "decimals": 18 },
-                { "name": "GNT",  "symbol": "GNT",  "decimals": 18 },
-                { "name": "MLTT", "symbol": "MLTT", "decimals": 18 },
-                { "name": "RDOC", "symbol": "RDOC", "decimals": 18 }
-            ]' > ./etc/tokens/localhost.json`);
+        await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '[
+            { "name": "DAI",  "symbol": "DAI",  "decimals": 18 },
+            { "name": "wBTC", "symbol": "wBTC", "decimals":  8, "implementation": "RevertTransferERC20" },
+            { "name": "BAT",  "symbol": "BAT",  "decimals": 18 },
+            { "name": "GNT",  "symbol": "GNT",  "decimals": 18 },
+            { "name": "MLTT", "symbol": "MLTT", "decimals": 18 },
+            { "name": "RDOC", "symbol": "RDOC", "decimals": 18 },
+            { "decimals": 18, "symbol": "RIF", "name": "RSK Infrastructure Framework" }
+          ]' > ./etc/tokens/localhost.json`);
+
+        // Update the fee ticker configuration file with the deployed unconditionally valid erc20 tokens
+        const localhostTokensFile = fs.readFileSync('./etc/tokens/localhost.json', 'utf-8');
+        const tokens: Token[] = localhostTokensFile && JSON.parse(localhostTokensFile);
+        const deployedUnconditionallyValidAddresses =
+            (tokens &&
+                tokens.filter((token) => ['rDOC', 'RIF'].includes(token.symbol)).map(({ address }) => address)) ||
+            [];
+
+        const feeTickerConfigFile = fs.readFileSync('./etc/env/dev/fee_ticker.toml', 'utf-8');
+        const feeTicker = feeTickerConfigFile && (toml.parse(feeTickerConfigFile) as PartialFeeTickerConfig);
+        let unconditionallyValidTokens = feeTicker && feeTicker.fee_ticker.unconditionally_valid_tokens;
+
+        if (!Array.isArray(unconditionallyValidTokens)) {
+            unconditionallyValidTokens = [unconditionallyValidTokens];
+        }
+        if (feeTicker) {
+            feeTicker.fee_ticker.unconditionally_valid_tokens = [
+                ...unconditionallyValidTokens,
+                ...deployedUnconditionallyValidAddresses
+            ];
+            const newConfig = toml.stringify(feeTicker);
+            fs.writeFileSync('./etc/env/dev/fee_ticker.toml', newConfig, 'utf-8');
+            console.log('updated fee ticker config with', newConfig);
+        }
+        await utils.spawn('zk config compile');
+
         if (!process.env.CI) {
             await docker.restart('dev-liquidity-token-watcher');
             await docker.restart('dev-ticker');
