@@ -28,8 +28,7 @@ services:
       - ./etc/tokens/:/etc/tokens
 
   zk:
-    build:
-      context: ./docker/zk-environment
+    image: "rsksmart/rollup-environment:0.0.1-beta"
     depends_on:
       - postgres
       - rskj
