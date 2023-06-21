@@ -78,7 +78,7 @@ export async function restart(container: string) {
 }
 
 export async function pull() {
-    await utils.spawn('docker-compose pull postgres rskj dev-liquidity-token-watcher dev-ticker tesseracts elastic');
+    await utils.spawn('docker-compose pull postgres rskj dev-ticker tesseracts elastic'); // TODO: If the dev-liquidity-token-watcher and dev-ticker are not combined and the former is uploaded to docker hub we'll need to add it here. If they are combined this comment should be removed.
 }
 
 export const command = new Command('docker').description('docker management');

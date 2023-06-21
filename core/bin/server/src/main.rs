@@ -387,8 +387,8 @@ pub fn run_eth_sender(connection_pool: ConnectionPool) -> JoinHandle<()> {
 }
 
 pub fn run_price_updaters(connection_pool: ConnectionPool) -> Vec<JoinHandle<()>> {
-    let ticker_config = TickerConfig::from_env();
-    run_updaters(connection_pool, &ticker_config)
+    let config = ZkSyncConfig::from_env();
+    run_updaters(connection_pool, &config)
 }
 
 pub fn create_eth_gateway() -> EthereumGateway {

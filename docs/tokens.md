@@ -140,8 +140,12 @@ In RIF Rollup the cost of every transaction has two components:
 
 - **Off-chain part (storage + prover costs):** the cost of the state storage and the SNARK (zero-knowledge proof)
   generation. This part depends on the use of hardware resources and is therefore invariable. Our benchmarks give
-  estimates of [~0.001 USD](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/fee_ticker/mod.rs#L269) per transfer.
-- **On-chain part (gas costs):** for every RIF Rollup block the validator must pay gas to verify the SNARK proof, plus additional gas per transaction to publish the state 𝛥, depending on the transaction type. However, this part is orders of magnitude cheaper than the cost of normal RBTC/ERC20 transfers.
+  estimates of
+  [~0.001 USD](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/fee_ticker/mod.rs#L269) per
+  transfer.
+- **On-chain part (gas costs):** for every RIF Rollup block the validator must pay gas to verify the SNARK proof, plus
+  additional gas per transaction to publish the state 𝛥, depending on the transaction type. However, this part is orders
+  of magnitude cheaper than the cost of normal RBTC/ERC20 transfers.
 
 ### **How fees are paid**
 

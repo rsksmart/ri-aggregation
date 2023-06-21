@@ -86,7 +86,7 @@ const BasicTestSuite = (token: types.TokenSymbol, transport: 'HTTP' | 'WS', prov
             await tester.disconnect();
         });
 
-        step('should execute an auto-approved deposit', async () => {
+        step('should execute an auto-approved deposit', async () => { // FIXME: for some reason this test is required to run to pass other tests here
             await tester.testDeposit(alice, token, DEPOSIT_AMOUNT, true);
         });
 
