@@ -20,7 +20,7 @@ describe('ZkSync REST API V0.1 tests', () => {
         tester = await Tester.init('localhost', 'HTTP', 'RPC');
         alice = await tester.fundedWallet('1.0');
         let bob = await tester.emptyWallet();
-        for (const token of ['ETH', 'DAI']) {
+        for (const token of ['ETH', 'RIF']) {
             const thousand = tester.syncProvider.tokenSet.parseToken(token, '1000');
             await tester.testDeposit(alice, token, thousand, true);
             await tester.testChangePubKey(alice, token, false);

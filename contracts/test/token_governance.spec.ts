@@ -38,7 +38,7 @@ describe('ZK token governance unit tests', function () {
         [zkSyncGovernor, tokenLister, userWallet, treasury] = await hardhat.ethers.getSigners();
 
         const tokFactory = new TestnetERC20TokenFactory(zkSyncGovernor);
-        paymentToken = await tokFactory.deploy('DAI', 'DAI', 18);
+        paymentToken = await tokFactory.deploy('RIF', 'RIF', 18);
 
         const govFactory = new GovernanceFactory(zkSyncGovernor);
         zkSyncGovernance = await govFactory.deploy();

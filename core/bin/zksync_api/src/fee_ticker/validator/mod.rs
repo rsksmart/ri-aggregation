@@ -190,27 +190,27 @@ mod tests {
 
     #[tokio::test]
     async fn check_tokens() {
-        let dai_token_address =
-            Address::from_str("6b175474e89094c44da98b954eedeac495271d0f").unwrap();
-        let dai_token = Token::new(TokenId(1), dai_token_address, "DAI", 18, TokenKind::ERC20);
-        let phnx_token_address =
-            Address::from_str("38A2fDc11f526Ddd5a607C1F251C065f40fBF2f7").unwrap();
-        let phnx_token = Token::new(TokenId(2), phnx_token_address, "PHNX", 18, TokenKind::ERC20);
+        let rif_token_address =
+            Address::from_str("0x2acc95758f8b5f583470ba265eb685a8f45fc9d5").unwrap();
+        let rif_token = Token::new(TokenId(1), rif_token_address, "RIF", 18, TokenKind::ERC20);
+        let rdoc_token_address =
+            Address::from_str("0x2d919f19D4892381d58EdEbEcA66D5642ceF1A1F").unwrap();
+        let rdoc_token = Token::new(TokenId(2), rdoc_token_address, "RDOC", 18, TokenKind::ERC20);
 
         let eth_address = Address::from_str("0000000000000000000000000000000000000000").unwrap();
         let eth_token = Token::new(TokenId(2), eth_address, "ETH", 18, TokenKind::ERC20);
-        let all_tokens = vec![dai_token.clone(), phnx_token.clone()];
+        let all_tokens = vec![rif_token.clone(), rdoc_token.clone()];
 
         let mut market = HashMap::new();
         market.insert(
-            dai_token.id,
+            rif_token.id,
             TokenMarketVolume {
                 market_volume: Ratio::new(BigUint::from(10u32), BigUint::from(1u32)),
                 last_updated: Utc::now(),
             },
         );
         market.insert(
-            phnx_token.id,
+            rdoc_token.id,
             TokenMarketVolume {
                 market_volume: Ratio::new(BigUint::from(200u32), BigUint::from(1u32)),
                 last_updated: Utc::now(),
@@ -218,12 +218,12 @@ mod tests {
         );
 
         let mut tokens = HashMap::new();
-        tokens.insert(TokenLike::Address(dai_token_address), dai_token.clone());
-        tokens.insert(TokenLike::Address(phnx_token_address), phnx_token.clone());
+        tokens.insert(TokenLike::Address(rif_token_address), rif_token.clone());
+        tokens.insert(TokenLike::Address(rdoc_token_address), rdoc_token.clone());
         tokens.insert(TokenLike::Address(eth_address), eth_token);
         let mut amounts = HashMap::new();
-        amounts.insert(dai_token_address, BigDecimal::from(200));
-        amounts.insert(phnx_token_address, BigDecimal::from(10));
+        amounts.insert(rif_token_address, BigDecimal::from(200));
+        amounts.insert(rdoc_token_address, BigDecimal::from(10));
         let mut unconditionally_valid = HashSet::new();
         unconditionally_valid.insert(eth_address);
 
@@ -247,7 +247,7 @@ mod tests {
 
         let new_dai_token_market = validator
             .tokens_cache
-            .get_token_market_volume(dai_token.id)
+            .get_token_market_volume(rif_token.id)
             .await
             .unwrap()
             .unwrap();
@@ -259,7 +259,7 @@ mod tests {
 
         let new_phnx_token_market = validator
             .tokens_cache
-            .get_token_market_volume(phnx_token.id)
+            .get_token_market_volume(rdoc_token.id)
             .await
             .unwrap()
             .unwrap();
@@ -269,11 +269,11 @@ mod tests {
         );
 
         let dai_allowed = validator
-            .token_allowed(TokenLike::Address(dai_token_address))
+            .token_allowed(TokenLike::Address(rif_token_address))
             .await
             .unwrap();
         let phnx_allowed = validator
-            .token_allowed(TokenLike::Address(phnx_token_address))
+            .token_allowed(TokenLike::Address(rdoc_token_address))
             .await
             .unwrap();
         let eth_allowed = validator

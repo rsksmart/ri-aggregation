@@ -604,10 +604,10 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
         .ok_or_else(|| anyhow::anyhow!("Error resolve token"))?;
     let token_dai = sync_depositor_wallet
         .tokens
-        .resolve("DAI".into())
+        .resolve("RIF".into())
         .ok_or_else(|| anyhow::anyhow!("Error resolve token"))?;
 
-    let dai_deposit_amount = U256::from(10).pow(18.into()) * 10000; // 10000 DAI
+    let dai_deposit_amount = U256::from(10).pow(18.into()) * 10000; // 10000 RIF
 
     // Move ETH to wallets so they will have some funds for L1 transactions.
     let eth_deposit_amount = U256::from(10).pow(17.into()); // 0.1 ETH
@@ -615,7 +615,7 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
     transfer_to("ETH", eth_deposit_amount, alice_wallet1.address()).await?;
     transfer_to("ETH", eth_deposit_amount, bob_wallet1.address()).await?;
 
-    transfer_to("DAI", dai_deposit_amount, sync_depositor_wallet.address()).await?;
+    transfer_to("RIF", dai_deposit_amount, sync_depositor_wallet.address()).await?;
 
     assert_eq!(
         get_ethereum_balance(&ethereum, sync_depositor_wallet.address(), &token_eth).await?,
@@ -634,8 +634,8 @@ async fn comprehensive_test() -> Result<(), anyhow::Error> {
         &sync_depositor_wallet,
         &mut alice_wallet1,
         &bob_wallet1,
-        "DAI",
-        // 200 DAI
+        "RIF",
+        // 200 RIF
         200_000_000_000_000_000_000u128,
     )
     .await?;

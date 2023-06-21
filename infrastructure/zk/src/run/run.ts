@@ -27,13 +27,9 @@ type PartialFeeTickerConfig = {
 export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?: string, decimals?: string) {
     if (command == 'dev') {
         await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '[
-            { "name": "DAI",  "symbol": "DAI",  "decimals": 18 },
             { "name": "wBTC", "symbol": "wBTC", "decimals":  8, "implementation": "RevertTransferERC20" },
-            { "name": "BAT",  "symbol": "BAT",  "decimals": 18 },
-            { "name": "GNT",  "symbol": "GNT",  "decimals": 18 },
-            { "name": "MLTT", "symbol": "MLTT", "decimals": 18 },
             { "name": "RDOC", "symbol": "RDOC", "decimals": 18 },
-            { "decimals": 18, "symbol": "RIF", "name": "RSK Infrastructure Framework" }
+            { "name": "RSK Infrastructure Framework", "symbol": "RIF", "decimals": 18  }
           ]' > ./etc/tokens/localhost.json`);
 
         // Update the fee ticker configuration file with the deployed unconditionally valid erc20 tokens
@@ -41,7 +37,7 @@ export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?
         const tokens: Token[] = localhostTokensFile && JSON.parse(localhostTokensFile);
         const deployedUnconditionallyValidAddresses =
             (tokens &&
-                tokens.filter((token) => ['rDOC', 'RIF'].includes(token.symbol)).map(({ address }) => address)) ||
+                tokens.filter((token) => ['RDOC', 'RIF'].includes(token.symbol)).map(({ address }) => address)) ||
             [];
 
         const feeTickerConfigFile = fs.readFileSync('./etc/env/dev/fee_ticker.toml', 'utf-8');
