@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:experimental
-FROM rust:1.55 as builder
+FROM rust:1.68 as builder
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    cargo install sccache
-WORKDIR /usr/src/zksync
+    cargo install sccache  --no-default-features
+WORKDIR /usr/src/rollup
 COPY . .
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=/root/.cache/sccache \
@@ -11,6 +11,9 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 
 FROM debian:bullseye
 EXPOSE 9975
+ENV RUST_BACKTRACE "full"
 ENV RUST_LOG info
-COPY --from=builder /usr/src/zksync/target/release/dev-liquidity-token-watcher /bin/
+COPY --from=builder /usr/src/rollup/target/release/dev-liquidity-token-watcher /bin/
+COPY --from=builder /usr/src/rollup/etc/tokens /etc/tokens
+
 ENTRYPOINT ["dev-liquidity-token-watcher"]

@@ -25,7 +25,8 @@ services:
       - ./docker/rskj/data:/var/lib/rsk/.rsk
   
   dev-liquidity-token-watcher:
-    image: "matterlabs/dev-liquidity-token-watcher:latest"
+    build:
+      dockerfile: ./docker/dev-liquidity-token-watcher/Dockerfile
     env_file:
       - ./etc/env/docker.env
     ports:

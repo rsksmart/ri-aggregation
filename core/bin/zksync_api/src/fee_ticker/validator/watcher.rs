@@ -2,8 +2,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
-use bigdecimal::{BigDecimal, Zero};
-use serde::{Deserialize, Serialize};
+use super::types as CGTypes;
+use bigdecimal::BigDecimal;
+use num::FromPrimitive;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use tokio::sync::Mutex;
 use zksync_types::{Address, Token};
 
@@ -14,66 +16,83 @@ pub trait TokenWatcher {
     async fn get_token_market_volume(&mut self, token: &Token) -> anyhow::Result<BigDecimal>;
 }
 
-/// Watcher for Uniswap protocol
-/// https://thegraph.com/explorer/subgraph/uniswap/uniswap-v2
 #[derive(Clone)]
-pub struct UniswapTokenWatcher {
+pub struct CoinGeckoTokenWatcher {
     client: reqwest::Client,
-    addr: String,
+    url: String,
+    chain_id: u64,
     cache: Arc<Mutex<HashMap<Address, BigDecimal>>>,
 }
 
-impl UniswapTokenWatcher {
-    pub fn new(addr: String) -> Self {
+impl CoinGeckoTokenWatcher {
+    pub fn new(url: String, chain_id: u64) -> Self {
         Self {
             client: reqwest::Client::new(),
-            addr,
+            url,
+            chain_id,
             cache: Default::default(),
         }
     }
-    async fn get_market_volume(&mut self, address: Address) -> anyhow::Result<BigDecimal> {
-        // Uniswap has graphql API, using full graphql client for one query is overkill for current task
-        let start = Instant::now();
 
-        let query = format!(
-            "{{token(id: \"{:#x}\"){{totalLiquidity, derivedRBTC}}}}",
-            address
-        );
-
+    async fn get<T>(&self, query: &str) -> Result<T, anyhow::Error>
+    where
+        T: DeserializeOwned,
+    {
         let raw_response = self
             .client
-            .post(&self.addr)
-            .json(&serde_json::json!({
-                "query": query.clone(),
-            }))
+            .get(query)
+            .header("accept", "application/json")
             .timeout(REQUEST_TIMEOUT)
             .send()
             .await
-            .map_err(|err| anyhow::format_err!("Uniswap API request failed: {}", err))?;
+            .map_err(|err| anyhow::format_err!("CoinGecko API request failed: {}", err))?;
 
         let response_status = raw_response.status();
-        let response_text = raw_response.text().await?;
+        let response_text = raw_response.text().await.unwrap();
 
-        let response: GraphqlResponse = serde_json::from_str(&response_text).map_err(|err| {
+        serde_json::from_str(&response_text).map_err(|err| {
             anyhow::format_err!(
-                "Error: {} while decoding response: {} with status: {}",
+                "Error: {} while decoding response of query: {} with status: {}",
                 err,
-                response_text,
+                &query,
                 response_status
             )
-        })?;
-
-        metrics::histogram!("ticker.uniswap_watcher.get_market_volume", start.elapsed());
-
-        let volume = if let Some(token) = response.data.token {
-            let total_liquidity: BigDecimal = token.total_liquidity.parse()?;
-            let derived_rbtc: BigDecimal = token.derived_rbtc.parse()?;
-            total_liquidity * derived_rbtc
-        } else {
-            BigDecimal::zero()
-        };
-        Ok(volume)
+        })
     }
+
+    async fn find_coingecko_platform_for_current_chain_id(
+        &self,
+    ) -> anyhow::Result<CGTypes::AssetPlatform> {
+        let query = format!("{}/asset_platforms", &self.url);
+
+        let platforms: Vec<CGTypes::AssetPlatform> = self.get(&query).await?;
+
+        match platforms.iter().find(|platform| {
+            platform.chain_identifier.is_some()
+                && platform.chain_identifier.unwrap() == self.chain_id as i64
+        }) {
+            Some(platform) => Ok(platform.clone()),
+            None => Err(anyhow::format_err!(
+                "\"{}\" platform not found on CoinGecko with query {}",
+                self.chain_id,
+                query
+            )),
+        }
+    }
+
+    async fn get_token_contract(
+        &self,
+        platform_id: &str,
+        contract_address: Address,
+    ) -> anyhow::Result<CGTypes::ContractSimplified> {
+        let query = format!(
+            "{}/coins/{}/contract/{:#x}",
+            &self.url, platform_id, contract_address
+        );
+
+        self.get(&query).await
+    }
+
     async fn update_historical_amount(&mut self, address: Address, amount: BigDecimal) {
         let mut cache = self.cache.lock().await;
         cache.insert(address, amount);
@@ -105,22 +124,35 @@ pub struct TokenResponse {
 }
 
 #[async_trait::async_trait]
-impl TokenWatcher for UniswapTokenWatcher {
+impl TokenWatcher for CoinGeckoTokenWatcher {
     async fn get_token_market_volume(&mut self, token: &Token) -> anyhow::Result<BigDecimal> {
-        match self.get_market_volume(token.address).await {
-            Ok(amount) => {
-                self.update_historical_amount(token.address, amount.clone())
-                    .await;
-                return Ok(amount);
-            }
-            Err(err) => {
-                vlog::error!("Error in api: {:?}", err);
-            }
+        let start = Instant::now();
+        let stop = || {
+            metrics::histogram!(
+                "ticker.coingecko_watcher.get_token_market_volume",
+                start.elapsed()
+            )
+        };
+
+        let CGTypes::AssetPlatform {
+            id: platform_id, ..
+        } = self.find_coingecko_platform_for_current_chain_id().await?;
+        let contract = self
+            .get_token_contract(&platform_id, token.address)
+            .await
+            .map_err(|err| anyhow::format_err!("CoinGecko error: {}", err))?;
+        if let Some(amount) = contract.market_data.total_volume.usd {
+            self.update_historical_amount(token.address, BigDecimal::from_f64(amount).unwrap())
+                .await;
         }
 
         if let Some(amount) = self.get_historical_amount(token.address).await {
+            stop();
+
             return Ok(amount);
         };
+
+        stop();
         anyhow::bail!("Token amount api is not available right now.")
     }
 }

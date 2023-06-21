@@ -118,7 +118,7 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<TokenData> {
                 platforms.insert(String::from("rootstock"), token.address);
                 let id = match symbol.as_str() {
                     "rbtc" => String::from("rootstock"),
-                    "wbtc" => String::from("wrapped-bitcoin"),
+                    "wBTC" => String::from("wrapped-bitcoin"),
                     "bat" => String::from("basic-attention-token"),
                     "RIF" => String::from("RSK-infrastructure-framework"),
                     _ => symbol.clone(),
