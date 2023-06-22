@@ -48,7 +48,7 @@ async function _build(image: string, tag: string) {
 }
 
 async function _push(image: string, tag: string) {
-    await utils.spawn(`docker push rsksmart/${image}:${tag}`);
+    await utils.spawn(`docker push rsksmart/rollup-${image}:${tag}`);
 }
 
 export async function build(image: string, tag: string) {
@@ -56,8 +56,8 @@ export async function build(image: string, tag: string) {
 }
 
 export async function buildFromTag(tag: string) {
-    const splitted = tag.split(':');
-    await dockerCommand('build', splitted[0], splitted[1]);
+    const [image_name, image_tag] = tag.split(':');
+    await dockerCommand('build', image_name, image_tag);
 }
 
 export async function push(image: string, tag: string) {
@@ -66,9 +66,9 @@ export async function push(image: string, tag: string) {
 }
 
 export async function pushFromTag(tag: string) {
-    const splitted = tag.split(':');
-    await dockerCommand('build', splitted[0], splitted[1]);
-    await dockerCommand('push', splitted[0], splitted[1]);
+    const [image_name, image_tag] = tag.split(':');
+    await dockerCommand('build', image_name, image_tag);
+    await dockerCommand('push', image_name, image_tag);
 }
 
 export async function restart(container: string) {
@@ -83,7 +83,7 @@ export const command = new Command('docker').description('docker management');
 
 command.command('build <image> <tag>').description('build docker image').action(build);
 command.command('push <image> <tag>').description('build and push docker image').action(push);
-command.command('build-from-tag <tag>').description('build docker image from tag').action(pushFromTag);
-command.command('push-from-tag <tag>').description('build and push docker image from tag').action(buildFromTag);
+command.command('build-from-tag <tag>').description('build docker image from tag').action(buildFromTag);
+command.command('push-from-tag <tag>').description('build and push docker image from tag').action(pushFromTag);
 command.command('pull').description('pull all containers').action(pull);
 command.command('restart <container>').description('restart container in docker-compose.yml').action(restart);
