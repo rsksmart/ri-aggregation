@@ -31,7 +31,9 @@ token with a liquid market volume.
 ### **Supported tokens**
 
 RIF Rollup can be used to transfer RBTC and ERC20 tokens. The full list of currently supported tokens is available under
-this [link](https://explorer.rollup.rifcomputing.net) (opens new window).
+this [link](https://explorer.rollup.rifcomputing.net) (opens new window). Locally, this can be seen in the
+_localhost.json_ file under [etc/tokens](https://github.com/rsksmart/rif-rollup/tree/main/etc/tokens) folder and in the
+_tokens_ database table.
 
 Depending on the type of transaction, the submitter may or may not be able to select the type of token to pay the fees
 with:
@@ -55,18 +57,24 @@ Operations where the user must use the same token being operated as the fees tok
 
 ### **Listing a token**
 
-1. Deploy your ERC20 contract and take note of its _address_
+1. Deploy your ERC20 contract and take note of its _address_.
 
-   1. You can use `zk deploy-erc20 new <name> <symbol> <decimals> [<implementation>]` which will output
+   You can use `zk deploy-erc20 new <name> <symbol> <decimals> [<implementation>]`, for example:
 
-      ```json
-      {
-        "address": "0x186E485150dDAB799Be8e25f87D717dEc45a86e5",
-        "name": "ProRif",
-        "symbol": "PRIF",
-        "decimals": "18"
-      }
-      ```
+   ```bash
+   zk deploy-erc20 new "ProRif" "PRIF" 18 "$CUSTOM_ERC20_IMPL/abi.json"
+   ```
+
+   which will result in output:
+
+   ```json
+   {
+     "address": "0x186E485150dDAB799Be8e25f87D717dEc45a86e5",
+     "name": "ProRif",
+     "symbol": "PRIF",
+     "decimals": "18"
+   }
+   ```
 
 2. In rollup run `zk run governance-add-erc20 new <address>`. this will:
    1. collect fees (token listing fees) on the `TokenGovernance` contract if caller is not on the `tokenLister` list and
@@ -132,11 +140,8 @@ In RIF Rollup the cost of every transaction has two components:
 
 - **Off-chain part (storage + prover costs):** the cost of the state storage and the SNARK (zero-knowledge proof)
   generation. This part depends on the use of hardware resources and is therefore invariable. Our benchmarks give
-  estimates of ~0.001 USD per transfer.
-- **On-chain part (gas costs):** for every RIF Rollup block, the validator must pay Rootstock gas to verify the SNARK,
-  plus additionally ~0.4k gas per transaction to publish the state 𝛥. The on-chain part is a variable that depends on
-  the current gas price in the Rootstock network. However, this part is orders of magnitude cheaper than the cost of
-  normal RBTC/ERC20 transfers.
+  estimates of [~0.001 USD](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/fee_ticker/mod.rs#L269) per transfer.
+- **On-chain part (gas costs):** for every RIF Rollup block the validator must pay gas to verify the SNARK proof, plus additional gas per transaction to publish the state 𝛥, depending on the transaction type. However, this part is orders of magnitude cheaper than the cost of normal RBTC/ERC20 transfers.
 
 ### **How fees are paid**
 
@@ -184,23 +189,23 @@ cost for the whole batch, in the provided _tokenForFees_ token. For that it will
 [following formula](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/fee_ticker/mod.rs#L408):
 
 > $
-> feeTokenRiskFactor = 1
+> token\_risk\_factor = 1
 > $
 >
 > $
-> feeTokenPriceWithRiskInUSD = tokenRiskFactor/TokenPriceInUSD
+> token\_price\_with\_risk\_in\_usd = token\_risk\_factor / token\_price\_in\_usd
 > $
 >
 > $
-> totalZKPFeeInTokenUnits = costPerChunkInUSD _totalChunks_ tokenPriceWithRiskInUSD
+> total\_zkp\_fee\_in\_tokens = cost\_per\_chunk\_in\_usd * total\_chunks * token\_price\_with\_risk\_in\_usd
 > $
 >
 > $
-> totalGasFeeInTokenUnits = weiInUSD _(totalGas_ gasPriceInWei _scaleFactor)_ tokenPriceWithRiskInUSD
+> total\_gas\_fee\_in\_tokens = wei\_in\_usd * total\_gas * gas\_price\_in\_wei * scale\_factor * token\_price\_with\_risk\_in\_usd
 > $
 >
 > $
-> batchFeeInTokens = totalZKPFeeInTokens + totalGasFeeInTokens
+> batch\_fee\_in\_tokens = total\_zkp\_fee\_in\_tokens + total\_gas\_fee\_in\_tokens
 > $
 
 - **scaleFactor** is a constant factor applied to the gasPrice to account for price volatility. feeTokenRiskFactor can
@@ -232,18 +237,18 @@ process on the server.
 
 ### **_JS SDK side batch processing_**
 
-The server makes a distinction betwwen batches with:
+The server makes a distinction betwen batches that use:
 
-- only a single token type used to pay the fee with (_feeToken_)
-- having more than one type of the fee token
+- a single token type to pay fees with (_feeToken_) (has to be a single )
+- multiple fee token types
 
 #### Single fee token type
 
 The process will
 [calculate](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L729) the
 batch cost (standard operation type cost + zero-knowledge-proof cost per chunk (operation type)) with price per wei
-provided by a fee ticker. This the server then checks against the amount sent by the user. The submission will fail if
-this value is higher than the user submitted fee (plus some
+provided by a fee ticker. The server then checks this value against the amount sent by the user. The submission will
+fail if this value is higher than the user submitted fee (plus some
 [constant upscaling](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L749)
 to compensate for price fluctuations).
 
@@ -255,34 +260,48 @@ First, for each transaction it
 [calculates](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L707) the
 amount paid in USD (it fetches the price in USD of the fee token used in that transaction) and then calculates the total
 amount of USD paid for the batch
-([_totalBatchUSDPaid_](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L718)).
+([_provided_total_usd_fee_](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L718)).
 Then it calculates the cost of the batch in the token0 (RBTC), and also fetches the token0 price in USD, these two
 values are used to calculate the batch fee cost in USD
-([_totalBatchUSDCalc_](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L789)).
-Finally, it checks that _totalBatchUSDPaid_ (plus a constant upscaling the user’s paid fee to compensate for price
-fluctuations) is greater or equal than _totalBatchUSDCalc_, otherwise, the submission fails. If in this scenario
+([_required_total_usd_fee_](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L789)).
+Finally, it checks that _provided_total_usd_fee_ (plus a constant upscaling the user’s paid fee to compensate for price
+fluctuations) is greater or equal than _required_total_usd_fee_, otherwise, the submission fails. If in this scenario
 transactions are operating in tokens that are not eligible as fee tokens, then their fee amount must be 0 (otherwise the
 submission will fail). Since these are
 [included](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L685) in the
 list of transactions when
 [asking](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L764) the
-batch cost to the fee ticker, their cost is ultimately included in _totalBatchUSDCalc_, and the server will expect that
-the total fee in USD paid for the whole batch is enough to cover the cost of these transactions with “unavailable for
-fees” tokens.
+batch cost to the fee ticker, their cost is ultimately included in _required_total_usd_fee_, and the server will expect
+that the total fee in USD paid for the whole batch is enough to cover the cost of these transactions with “unavailable
+for fees” tokens.
 
 ```mermaid
+---
+title: Rollup API - submit_txs_batch (fee token focused)
+---
 flowchart TD
+  received_batch("Receive transaction batch")
   is_single_fee_type{"Is single fee token type"}
+  provided_enough{"Provided enough"}
+  get_cost_in_token["Calculate batch cost in fee_token"]
+  get_cost_in_native["Calculate batch cost in RBTC"]
+  scale_user_fee_up["Scale the user fee up by a constant"]
+  get_required_fee["Adjust cost for subsidy"]
+  get_native_in_usd["Get USD per WEI"]
 
   received_batch --> is_single_fee_type
-  is_single_fee_type -- yes --> get_cost
+  is_single_fee_type -- yes --> get_cost_in_token
+  get_cost_in_token --> scale_user_fee_up
 
-  get_cost --> get_fee_price
-  get_fee_price --> is_enough
-  is_enough -- no --> reject
-  is_enough -- yes --> process
+  is_single_fee_type -- no --> get_cost_in_native
+  get_cost_in_native --> get_native_in_usd
+  get_native_in_usd --> scale_user_fee_up
 
-  is_single_fee_type -- no --> loop
+  scale_user_fee_up --> get_required_fee
+  get_required_fee --> provided_enough
+  provided_enough -- no --> reject
+  provided_enough -- yes --> process
+
 ```
 
 Permissionless listings allow anybody to list new ERC20 tokens to be used in L2. However, only a whitelisted (by the
