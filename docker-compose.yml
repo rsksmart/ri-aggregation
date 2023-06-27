@@ -39,6 +39,7 @@ services:
       - "9876:9876"
     volumes:
       - ./etc/tokens/:/etc/tokens
+      
   tesseracts:
     image: "adria0/tesseracts"
     command: --cfg /tesseracts.toml -vvv

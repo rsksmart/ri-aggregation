@@ -13,12 +13,12 @@ RUN apt update; apt install -y docker-ce-cli
 # Install node and yarn
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs
-RUN npm install -g yarn@1.22.17
-RUN npm install -g ts-node@10.9.1
+RUN npm install -g yarn
+RUN npm install -g ts-node
 
 # Install required node packages
-RUN yarn global add aglio@2.3.0
-RUN yarn global add dredd@14.1.0
+RUN yarn global add aglio
+RUN yarn global add dredd
 
 # Install Rust and required cargo packages
 ENV RUSTUP_HOME=/usr/local/rustup \
