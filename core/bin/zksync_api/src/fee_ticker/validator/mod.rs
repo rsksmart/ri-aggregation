@@ -190,11 +190,13 @@ mod tests {
 
     #[tokio::test]
     async fn check_tokens() {
+        // RIF address is from mainnet file in etc>tokens directory
         let rif_token_address =
-            Address::from_str("0x2acc95758f8b5f583470ba265eb685a8f45fc9d5").unwrap();
+            Address::from_str("2acc95758f8b5f583470ba265eb685a8f45fc9d5").unwrap();
         let rif_token = Token::new(TokenId(1), rif_token_address, "RIF", 18, TokenKind::ERC20);
+        // RDOC address is from mainnet file in etc>tokens directory
         let rdoc_token_address =
-            Address::from_str("0x2d919f19D4892381d58EdEbEcA66D5642ceF1A1F").unwrap();
+            Address::from_str("2d919f19D4892381d58EdEbEcA66D5642ceF1A1F").unwrap();
         let rdoc_token = Token::new(TokenId(2), rdoc_token_address, "RDOC", 18, TokenKind::ERC20);
 
         let eth_address = Address::from_str("0000000000000000000000000000000000000000").unwrap();
@@ -245,7 +247,7 @@ mod tests {
         let mut updater = MarketUpdater::new(cache, watcher);
         updater.update_all_tokens(all_tokens).await.unwrap();
 
-        let new_dai_token_market = validator
+        let new_rif_token_market = validator
             .tokens_cache
             .get_token_market_volume(rif_token.id)
             .await
@@ -253,26 +255,26 @@ mod tests {
             .unwrap();
 
         assert_eq!(
-            new_dai_token_market.market_volume,
+            new_rif_token_market.market_volume,
             big_decimal_to_ratio(&BigDecimal::from(200)).unwrap()
         );
 
-        let new_phnx_token_market = validator
+        let new_rdoc_token_market = validator
             .tokens_cache
             .get_token_market_volume(rdoc_token.id)
             .await
             .unwrap()
             .unwrap();
         assert_eq!(
-            new_phnx_token_market.market_volume,
+            new_rdoc_token_market.market_volume,
             big_decimal_to_ratio(&BigDecimal::from(10)).unwrap()
         );
 
-        let dai_allowed = validator
+        let rif_allowed = validator
             .token_allowed(TokenLike::Address(rif_token_address))
             .await
             .unwrap();
-        let phnx_allowed = validator
+        let rdoc_allowed = validator
             .token_allowed(TokenLike::Address(rdoc_token_address))
             .await
             .unwrap();
@@ -280,8 +282,8 @@ mod tests {
             .token_allowed(TokenLike::Address(eth_address))
             .await
             .unwrap();
-        assert!(dai_allowed);
-        assert!(!phnx_allowed);
+        assert!(rif_allowed);
+        assert!(!rdoc_allowed);
         assert!(eth_allowed);
     }
 }
