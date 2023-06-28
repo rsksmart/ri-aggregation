@@ -64,7 +64,7 @@ impl Witness for TransferToNewWitness<Bn256> {
         let transfer_data = TransferToNewData {
             amount: transfer_to_new.tx.amount.to_string().parse().unwrap(),
             fee: transfer_to_new.tx.fee.to_string().parse().unwrap(),
-            token: *transfer_to_new.tx.token as u32,
+            token: *transfer_to_new.tx.token,
             from_account_address: *transfer_to_new.from,
             to_account_address: *transfer_to_new.to,
             new_address: eth_address_to_fr(&transfer_to_new.tx.to),
@@ -128,7 +128,7 @@ impl Witness for TransferToNewWitness<Bn256> {
         let pubdata_chunks: Vec<_> = self
             .get_pubdata()
             .chunks(CHUNK_BIT_WIDTH)
-            .map(|x| le_bit_vector_into_field_element(&x.to_vec()))
+            .map(le_bit_vector_into_field_element)
             .collect();
 
         let operation_zero = Operation {
@@ -369,8 +369,8 @@ impl TransferToNewWitness<Bn256> {
                 fee: Some(fee_encoded),
                 a: Some(a),
                 b: Some(b),
-                valid_from: Some(fr_from(&valid_from)),
-                valid_until: Some(fr_from(&valid_until)),
+                valid_from: Some(fr_from(valid_from)),
+                valid_until: Some(fr_from(valid_until)),
                 ..Default::default()
             },
             before_root: Some(before_root),

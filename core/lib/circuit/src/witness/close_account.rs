@@ -70,7 +70,7 @@ impl Witness for CloseAccountWitness<Bn256> {
         let pubdata_chunks: Vec<_> = self
             .get_pubdata()
             .chunks(CHUNK_BIT_WIDTH)
-            .map(|x| le_bit_vector_into_field_element(&x.to_vec()))
+            .map(le_bit_vector_into_field_element)
             .collect();
         let operation_zero = Operation {
             new_root: self.after_root,

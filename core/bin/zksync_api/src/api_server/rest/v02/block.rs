@@ -133,12 +133,12 @@ impl ApiBlockData {
         block_index: u64,
     ) -> Result<Option<TxData>, Error> {
         let mut storage = self.pool.access_storage().await.map_err(Error::storage)?;
-        Ok(storage
+        storage
             .chain()
             .operations_ext_schema()
             .tx_data_by_block_and_index_api_v02(block_number, block_index)
             .await
-            .map_err(Error::storage)?)
+            .map_err(Error::storage)
     }
 
     async fn get_last_committed_block_number(&self) -> QueryResult<BlockNumber> {
@@ -297,7 +297,7 @@ mod tests {
         };
 
         let response = client
-            .block_transactions(&query, &*block_number.to_string())
+            .block_transactions(&query, &block_number.to_string())
             .await?;
         let paginated: Paginated<Transaction, TxHash> = deserialize_response_result(response)?;
         assert_eq!(paginated.pagination.count as usize, expected_txs.len());

@@ -216,22 +216,22 @@ export class DummyTransport extends AbstractJSONRPCTransport {
             // The example `AccountState` instance:
             //  - assigns the '42' value to account_id;
             //  - assigns the committed.pubKeyHash to match the wallet's signer's PubKeyHash
-            //  - adds single entry of "DAI" token to the committed balances;
-            //  - adds single entry of "USDC" token to the verified balances.
+            //  - adds single entry of "RIF" token to the committed balances;
+            //  - adds single entry of "RDOC" token to the verified balances.
             return {
                 address: params[0],
                 id: 42,
                 depositing: {},
                 committed: {
                     balances: {
-                        DAI: BigNumber.from(12345)
+                        RIF: BigNumber.from(12345)
                     },
                     nonce: 0,
                     pubKeyHash: await this.getPubKeyHash()
                 },
                 verified: {
                     balances: {
-                        USDC: BigNumber.from(98765)
+                        RDOC: BigNumber.from(98765)
                     },
                     nonce: 0,
                     pubKeyHash: ''

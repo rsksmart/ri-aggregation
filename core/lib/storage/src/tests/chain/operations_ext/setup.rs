@@ -34,8 +34,8 @@ impl TransactionsHistoryTestSetup {
         nft_token.address = Address::random();
         let tokens = vec![
             Token::new(TokenId(0), Address::zero(), "ETH", 18, TokenKind::ERC20), // used for deposits, swaps
-            Token::new(TokenId(1), Address::random(), "DAI", 18, TokenKind::ERC20), // used for transfers, swaps
-            Token::new(TokenId(2), Address::random(), "FAU", 6, TokenKind::ERC20), // used for withdraws
+            Token::new(TokenId(1), Address::random(), "RIF", 18, TokenKind::ERC20), // used for transfers, swaps
+            Token::new(TokenId(2), Address::random(), "RDOC", 6, TokenKind::ERC20), // used for withdraws
             nft_token, // used for nft withdrawals
         ];
 

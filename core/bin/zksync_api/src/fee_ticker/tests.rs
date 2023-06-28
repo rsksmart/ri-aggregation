@@ -335,7 +335,7 @@ fn test_ticker_subsidy() {
     );
 
     let config = get_test_ticker_config();
-    let mut ticker = FeeTicker::new(Box::new(MockTickerInfo::default()), config, validator);
+    let mut ticker = FeeTicker::new(Box::<MockTickerInfo>::default(), config, validator);
 
     // Only CREATE2 is subsidized
     let cpk = |cpk_type: ChangePubKeyType| {
@@ -456,7 +456,7 @@ fn test_ticker_formula() {
     );
 
     let config = get_test_ticker_config();
-    let mut ticker = FeeTicker::new(Box::new(MockTickerInfo::default()), config, validator);
+    let mut ticker = FeeTicker::new(Box::<MockTickerInfo>::default(), config, validator);
 
     let get_relative_diff = |a: &Ratio<BigUint>, b: &Ratio<BigUint>| -> BigDecimal {
         let max = std::cmp::max(a.clone(), b.clone());
@@ -690,7 +690,7 @@ fn test_zero_price_token_fee() {
     );
 
     let config = get_test_ticker_config();
-    let ticker = FeeTicker::new(Box::new(MockTickerInfo::default()), config, validator);
+    let ticker = FeeTicker::new(Box::<MockTickerInfo>::default(), config, validator);
 
     let token = TestToken::zero_price();
 

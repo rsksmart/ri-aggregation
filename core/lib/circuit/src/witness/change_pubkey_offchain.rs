@@ -65,7 +65,7 @@ impl Witness for ChangePubkeyOffChainWitness<Bn256> {
             account_id: *change_pubkey_offchain.account_id,
             address: eth_address_to_fr(&change_pubkey_offchain.tx.account),
             new_pubkey_hash: change_pubkey_offchain.tx.new_pk_hash.as_fr(),
-            fee_token: *change_pubkey_offchain.tx.fee_token as u32,
+            fee_token: *change_pubkey_offchain.tx.fee_token,
             fee: change_pubkey_offchain.tx.fee.to_u128().unwrap(),
             nonce: fr_from(change_pubkey_offchain.tx.nonce),
             valid_from,
@@ -126,7 +126,7 @@ impl Witness for ChangePubkeyOffChainWitness<Bn256> {
     fn calculate_operations(&self, input: SigDataInput) -> Vec<Operation<Bn256>> {
         self.get_pubdata()
             .chunks(CHUNK_BIT_WIDTH)
-            .map(|x| le_bit_vector_into_field_element(&x.to_vec()))
+            .map(le_bit_vector_into_field_element)
             .enumerate()
             .map(|(chunk_n, pubdata_chunk)| Operation {
                 new_root: self.after_root,
@@ -235,8 +235,8 @@ impl ChangePubkeyOffChainWitness<Bn256> {
                 b: Some(b),
                 pub_nonce: Some(change_pubkey_offcahin.nonce),
                 new_pub_key_hash: Some(change_pubkey_offcahin.new_pubkey_hash),
-                valid_from: Some(fr_from(&change_pubkey_offcahin.valid_from)),
-                valid_until: Some(fr_from(&change_pubkey_offcahin.valid_until)),
+                valid_from: Some(fr_from(change_pubkey_offcahin.valid_from)),
+                valid_until: Some(fr_from(change_pubkey_offcahin.valid_until)),
                 ..Default::default()
             },
             before_root: Some(before_root),

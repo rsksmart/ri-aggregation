@@ -552,14 +552,14 @@ mod wallet_tests {
         /// Returns the example `AccountInfo` instance:
         ///  - assigns the '42' value to account_id;
         ///  - assigns the PubKeyHash to match the wallet's signer's PubKeyHash
-        ///  - adds single entry of "RDOC" token to the committed balances;
-        ///  - adds single entry of "USDC" token to the verified balances.
+        ///  - adds single entry of "RIF" token to the committed balances;
+        ///  - adds single entry of "RDOC" token to the verified balances.
         async fn account_info(&self, address: Address) -> Result<AccountInfo, ClientError> {
             let mut committed_balances = HashMap::new();
-            committed_balances.insert("RDOC".into(), BigUint::from(12345_u32).into());
+            committed_balances.insert("RIF".into(), BigUint::from(12345_u32).into());
 
             let mut verified_balances = HashMap::new();
-            verified_balances.insert("USDC".into(), BigUint::from(98765_u32).into());
+            verified_balances.insert("RDOC".into(), BigUint::from(98765_u32).into());
 
             Ok(AccountInfo {
                 address,
@@ -585,7 +585,7 @@ mod wallet_tests {
                 .expect("Initial token list not found");
 
             let tokens = (1..)
-                .zip(&genesis_tokens[..4])
+                .zip(&genesis_tokens[..2])
                 .map(|(id, token)| {
                     Token::new(
                         TokenId(id),
@@ -726,7 +726,7 @@ mod wallet_tests {
     async fn test_wallet_get_balance_committed() {
         let wallet = get_test_wallet(&[40; 32], Network::Mainnet).await;
         let balance = wallet
-            .get_balance(BlockStatus::Committed, "RDOC")
+            .get_balance(BlockStatus::Committed, "RIF")
             .await
             .unwrap();
         assert_eq!(balance.to_u32(), Some(12345));
@@ -744,7 +744,7 @@ mod wallet_tests {
     async fn test_wallet_get_balance_verified() {
         let wallet = get_test_wallet(&[50; 32], Network::Mainnet).await;
         let balance = wallet
-            .get_balance(BlockStatus::Verified, "USDC")
+            .get_balance(BlockStatus::Verified, "RDOC")
             .await
             .unwrap();
         assert_eq!(balance.to_u32(), Some(98765));

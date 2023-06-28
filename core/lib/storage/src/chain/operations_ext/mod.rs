@@ -1171,7 +1171,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
 
         Ok(sqlx::query_as(&query)
             .bind(address.as_bytes())
-            .bind(&second_address.as_bytes())
+            .bind(second_address.as_bytes())
             .bind(token.unwrap_or_default().0 as i32)
             .bind(id_from)
             .bind(limit)
@@ -1419,8 +1419,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
         )
         .fetch_optional(transaction.conn())
         .await?
-        .map(|record| record.sequence_number)
-        .flatten();
+        .and_then(|record| record.sequence_number);
 
         if result.is_some() {
             return Ok(result);
@@ -1436,8 +1435,7 @@ impl<'a, 'c> OperationsExtSchema<'a, 'c> {
         )
         .fetch_optional(transaction.conn())
         .await?
-        .map(|record| record.sequence_number)
-        .flatten();
+        .and_then(|record| record.sequence_number);
         transaction.commit().await?;
 
         metrics::histogram!("sql.chain.block.get_tx_sequence_number", start.elapsed());

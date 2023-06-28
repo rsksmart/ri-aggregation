@@ -38,7 +38,7 @@ describe('Wallet with mock provider', function () {
     it('Wallet has expected committed balances', async function () {
         const key = new Uint8Array(new Array(32).fill(40));
         const wallet = await getWallet(key, 'mainnet');
-        const balance = await wallet.getBalance('DAI', 'committed');
+        const balance = await wallet.getBalance('RIF', 'committed');
         expect(balance).eql(
             BigNumber.from(12345),
             "Wallet's committed balance does not match the hardcoded mock value"
@@ -62,7 +62,7 @@ describe('Wallet with mock provider', function () {
     it('Wallet has expected verified balances', async function () {
         const key = new Uint8Array(new Array(32).fill(50));
         const wallet = await getWallet(key, 'mainnet');
-        const balance = await wallet.getBalance('USDC', 'verified');
+        const balance = await wallet.getBalance('RDOC', 'verified');
         expect(balance).eql(
             BigNumber.from(98765),
             "Wallet's committed balance does not match the hardcoded mock value"

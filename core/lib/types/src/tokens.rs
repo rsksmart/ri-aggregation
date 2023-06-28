@@ -115,7 +115,7 @@ pub struct Token {
     pub id: TokenId,
     /// Contract address of ERC20 token or Address::zero() for "ETH"
     pub address: Address,
-    /// Token symbol (e.g. "ETH" or "USDC")
+    /// Token symbol (e.g. "ETH" or "RDOC")
     pub symbol: String,
     /// Token precision (e.g. 18 for "ETH" so "1.0" ETH = 10e18 as U256 number)
     pub decimals: u8,

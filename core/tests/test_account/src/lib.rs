@@ -178,7 +178,7 @@ impl ZkSyncAccount {
             *recipient,
             fee,
             fee_token,
-            nonce.unwrap_or_else(|| *stored_nonce),
+            nonce.unwrap_or(*stored_nonce),
             &self.private_key,
         )
         .expect("Failed to sign mint nft");
@@ -223,7 +223,7 @@ impl ZkSyncAccount {
             token,
             fee_token,
             fee,
-            nonce.unwrap_or_else(|| *stored_nonce),
+            nonce.unwrap_or(*stored_nonce),
             time_range,
             &self.private_key,
         )
@@ -264,7 +264,7 @@ impl ZkSyncAccount {
             self.get_account_id()
                 .expect("can't sign tx without account id"),
             *recipient,
-            nonce.unwrap_or_else(|| *stored_nonce),
+            nonce.unwrap_or(*stored_nonce),
             token_sell,
             token_buy,
             (price_sell, price_buy),
@@ -297,7 +297,7 @@ impl ZkSyncAccount {
             self.get_account_id()
                 .expect("can't sign tx without account id"),
             self.address,
-            nonce.unwrap_or_else(|| *stored_nonce),
+            nonce.unwrap_or(*stored_nonce),
             orders,
             amounts,
             fee,
@@ -346,7 +346,7 @@ impl ZkSyncAccount {
             token_id,
             amount,
             fee,
-            nonce.unwrap_or_else(|| *stored_nonce),
+            nonce.unwrap_or(*stored_nonce),
             time_range,
             &self.private_key,
         )
@@ -387,7 +387,7 @@ impl ZkSyncAccount {
             *target,
             token_id,
             fee,
-            nonce.unwrap_or_else(|| *stored_nonce),
+            nonce.unwrap_or(*stored_nonce),
             time_range,
             &self.private_key,
         )
@@ -423,7 +423,7 @@ impl ZkSyncAccount {
             token_id,
             amount,
             fee,
-            nonce.unwrap_or_else(|| *stored_nonce),
+            nonce.unwrap_or(*stored_nonce),
             time_range,
             &self.private_key,
         )
@@ -450,7 +450,7 @@ impl ZkSyncAccount {
         let mut stored_nonce = self.nonce.lock().unwrap();
         let mut close = Close {
             account: self.address,
-            nonce: nonce.unwrap_or_else(|| *stored_nonce),
+            nonce: nonce.unwrap_or(*stored_nonce),
             signature: TxSignature::default(),
             time_range: Default::default(),
         };
@@ -477,7 +477,7 @@ impl ZkSyncAccount {
             .unwrap()
             .expect("can't sign tx withoud account id");
         let mut stored_nonce = self.nonce.lock().unwrap();
-        let nonce = nonce.unwrap_or_else(|| *stored_nonce);
+        let nonce = nonce.unwrap_or(*stored_nonce);
 
         let mut change_pubkey = ChangePubKey::new_signed(
             account_id,

@@ -176,7 +176,7 @@ impl<'a, 'c> EventSchema<'a, 'c> {
             .load_state_diff_for_block(block_number)
             .await?
             .into_iter()
-            .map(|(account_id, update)| {
+            .filter_map(|(account_id, update)| {
                 let update_type = AccountStateChangeType::from(&update);
                 AccountUpdateDetails::from_account_update(account_id, update).map(
                     |update_details| {
@@ -190,7 +190,6 @@ impl<'a, 'c> EventSchema<'a, 'c> {
                     },
                 )
             })
-            .flatten()
             .collect();
 
         transaction

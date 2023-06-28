@@ -1,0 +1,12 @@
+version: '3.2'
+services: 
+
+  rskj:
+      image: rsksmart/rskj:HOP-4.4.0
+      entrypoint:  ["java", "-Dminer.client.autoMine=true", "-cp", "rsk.jar", "co.rsk.Start" ]
+      ports:
+        - "4444:4444"
+        - "4445:4445"
+      volumes:
+        - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+        - ./docker/rskj/node.conf:/etc/rsk/node.conf

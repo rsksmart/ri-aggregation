@@ -58,13 +58,9 @@ async fn handle_coinmarketcap_token_price_query(
     let base_price = match symbol.as_str() {
         "ETH" => BigDecimal::from(200),
         "wBTC" => BigDecimal::from(9000),
-        "BAT" => BigDecimal::try_from(0.2).unwrap(),
         // Even though these tokens have their base price equal to
         // the default one, we still keep them here so that in the future it would
         // be easier to change the default price without affecting the important tokens
-        "DAI" => BigDecimal::from(1),
-        "tGLM" => BigDecimal::from(1),
-        "GLM" => BigDecimal::from(1),
         "RBTC" => BigDecimal::from(18000),
         "RIF" => BigDecimal::try_from(0.053533).unwrap(),
         _ => BigDecimal::from(1),
@@ -174,8 +170,8 @@ async fn handle_coingecko_token_price_query(
 }
 
 fn main_scope(sloppy_mode: bool) -> actix_web::Scope {
-    let localhost_tokens = load_tokens(&"etc/tokens/localhost.json");
-    let testnet_tokens = load_tokens(&"etc/tokens/testnet.json");
+    let localhost_tokens = load_tokens("etc/tokens/localhost.json");
+    let testnet_tokens = load_tokens("etc/tokens/testnet.json");
     let data: Vec<TokenData> = localhost_tokens
         .into_iter()
         .chain(testnet_tokens.into_iter())
