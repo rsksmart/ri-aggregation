@@ -42,10 +42,10 @@ describe('Packing and unpacking', function () {
 describe('Token cache resolve', function () {
     it('Test token cache resolve', function () {
         const tokens = {
-            ETH: {
+            RBTC: {
                 address: '0x0000000000000000000000000000000000000000',
                 id: 0,
-                symbol: 'ETH',
+                symbol: 'RBTC',
                 decimals: 18
             },
             'ERC20-1': {
@@ -57,8 +57,8 @@ describe('Token cache resolve', function () {
         };
         const tokenCache = new TokenSet(tokens);
 
-        expect(tokenCache.resolveTokenId('ETH')).eq(0, 'ETH by id resolve');
-        expect(tokenCache.resolveTokenId('0x0000000000000000000000000000000000000000')).eq(0, 'ETH by addr resolve');
+        expect(tokenCache.resolveTokenId('RBTC')).eq(0, 'RBTC by id resolve');
+        expect(tokenCache.resolveTokenId('0x0000000000000000000000000000000000000000')).eq(0, 'RBTC by addr resolve');
         expect(tokenCache.resolveTokenId('ERC20-1')).eq(1, 'ERC20 by id resolve');
         expect(tokenCache.resolveTokenId('0xEEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')).eq(1, 'ERC20 by addr resolve');
         expect(tokenCache.resolveTokenId('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')).eq(1, 'ERC20 by addr resolve');

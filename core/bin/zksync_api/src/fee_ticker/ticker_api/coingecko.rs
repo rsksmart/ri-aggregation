@@ -43,7 +43,7 @@ impl CoinGeckoAPI {
             }
         }
 
-        // Add ETH manually because coingecko API doesn't return address for it.
+        // Add RBTC manually because coingecko API doesn't return address for it.
         token_ids.insert(Address::default(), String::from("rootstock"));
 
         Ok(Self {
@@ -100,10 +100,10 @@ impl TokenPriceAPI for CoinGeckoAPI {
             .take(6)
             .map(|token_price| token_price.1);
 
-        // We use max price for ETH token because we spend ETH with each commit and collect token
-        // so it is in our interest to assume highest price for ETH.
-        // Theoretically we should use min and max price for ETH in our ticker formula when we
-        // calculate fee for tx with ETH token. Practically if we use only max price foe ETH it is fine because
+        // We use max price for RBTC token because we spend RBTC with each commit and collect token
+        // so it is in our interest to assume highest price for RBTC.
+        // Theoretically we should use min and max price for RBTC in our ticker formula when we
+        // calculate fee for tx with RBTC token. Practically if we use only max price foe RBTC it is fine because
         // we don't need to sell this token lnd price only affects ZKP cost of such tx which is negligible.
         // For other tokens we use average price
         let usd_price = if token.id.0 == 0 {
@@ -165,7 +165,7 @@ mod tests {
         let ticker_url = parse_env("FEE_TICKER_COINGECKO_BASE_URL");
         let client = reqwest::Client::new();
         let api = CoinGeckoAPI::new(client, ticker_url).await.unwrap();
-        let token = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
+        let token = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
         api.get_price(&token)
             .await
             .expect("Failed to get data from ticker");

@@ -261,7 +261,7 @@ impl RpcApp {
             .drain()
             .map(|(id, token)| {
                 if *id == 0 {
-                    ("ETH".to_string(), token)
+                    ("RBTC".to_string(), token)
                 } else {
                     (token.symbol.clone(), token)
                 }

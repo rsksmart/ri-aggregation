@@ -16,7 +16,7 @@ tx_interval_scaling_factor=1.5
 # Number of digits in id
 digits_in_id=13
 
-# Price per exit in wei (currently it's 0.03 ETH)
+# Price per exit in wei (currently it's 0.03 RBTC) TODO: true in RSK? 
 price_per_token=30000000000000000
 
 # Wait confirmations
@@ -28,7 +28,7 @@ sender_account_address="0xe1faB3eFD74A77C23B426c302D96372140FF7d0C"
 # The time after which an invalid request is deleted in milliseconds
 expiration_period=3000
 
-# The minimum amount of ETH in wei that needs to be stored on the forced exit smart contract 
+# The minimum amount of RBTC in wei that needs to be stored on the forced exit smart contract 
 # until it is ok to withdraw the funds from it
 withdrawal_threshold=1000000000000000000
 

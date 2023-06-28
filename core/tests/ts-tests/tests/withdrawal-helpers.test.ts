@@ -30,7 +30,7 @@ const TestSuite = (providerType: 'REST' | 'RPC') =>
             bob = await tester.fundedWallet('10.0');
             chuck = await tester.emptyWallet();
 
-            for (const token of ['ETH', erc20Token]) {
+            for (const token of ['RBTC', erc20Token]) {
                 await tester.testDeposit(alice, token, DEPOSIT_AMOUNT, true);
                 await tester.testChangePubKey(alice, token, false);
             }
@@ -43,8 +43,8 @@ const TestSuite = (providerType: 'REST' | 'RPC') =>
             await tester.disconnect();
         });
 
-        it('should recover failed ETH withdraw', async () => {
-            await tester.testRecoverETHWithdrawal(alice, TEST_CONFIG.withdrawalHelpers.revert_receive_address, TX_AMOUNT);
+        it('should recover failed RBTC withdraw', async () => {
+            await tester.testRecoverRBTCWithdrawal(alice, TEST_CONFIG.withdrawalHelpers.revert_receive_address, TX_AMOUNT);
         });
 
         it('should recover failed ERC20 withdraw', async () => {
@@ -63,7 +63,7 @@ const TestSuite = (providerType: 'REST' | 'RPC') =>
                     TEST_CONFIG.withdrawalHelpers.revert_receive_address,
                     TEST_CONFIG.withdrawalHelpers.revert_receive_address
                 ],
-                ['ETH', erc20Token],
+                ['RBTC', erc20Token],
                 [TX_AMOUNT, TX_AMOUNT]
             );
         });
@@ -73,7 +73,7 @@ const TestSuite = (providerType: 'REST' | 'RPC') =>
                 alice,
                 bob.ethSigner(),
                 chuck.address(),
-                ['ETH', erc20Token],
+                ['RBTC', erc20Token],
                 [TX_AMOUNT, TX_AMOUNT.mul(2)]
             );
         });

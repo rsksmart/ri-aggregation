@@ -55,7 +55,7 @@ pub trait FeeTickerInfo: FeeTickerClone + Send + Sync + 'static {
     /// Get last price for token from ticker info
     async fn get_last_token_price(&self, token: TokenLike) -> Result<TokenPrice, PriceError>;
 
-    /// Get current gas price in ETH
+    /// Get current gas price in RBTC
     async fn get_gas_price_wei(&self) -> Result<BigUint, anyhow::Error>;
 
     async fn get_token(&self, token: TokenLike) -> Result<Token, anyhow::Error>;
@@ -214,7 +214,7 @@ impl FeeTickerInfo for TickerInfo {
         Err(PriceError::db_error("No price stored in database"))
     }
 
-    /// Get current gas price in ETH
+    /// Get current gas price in RBTC
     async fn get_gas_price_wei(&self) -> Result<BigUint, anyhow::Error> {
         let start = Instant::now();
 

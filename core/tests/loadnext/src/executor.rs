@@ -62,17 +62,17 @@ impl Executor {
         Ok(final_resultion)
     }
 
-    /// Verifies that onchain ETH balance for the main account is sufficient to run the loadtest.
+    /// Verifies that onchain RBTC balance for the main account is sufficient to run the loadtest.
     async fn check_onchain_balance(&mut self) -> anyhow::Result<()> {
         vlog::info!("Master Account: Checking onchain balance...");
         let master_wallet = &mut self.pool.master_wallet;
         let rootstock = master_wallet.rootstock(&self.config.web3_url).await?;
 
-        let eth_balance = rootstock.balance().await?;
-        if eth_balance < 2u64.pow(17).into() {
+        let rbtc_balance = rootstock.balance().await?;
+        if rbtc_balance < 2u64.pow(17).into() {
             anyhow::bail!(
-                "ETH balance is too low to safely perform the loadtest: {}",
-                eth_balance
+                "RBTC balance is too low to safely perform the loadtest: {}",
+                rbtc_balance
             );
         }
 
@@ -237,7 +237,7 @@ impl Executor {
             // We don't actually care whether transactions will be successful or not; at worst we will not use
             // priority operations in test.
             let _ = rootstock
-                .transfer("ETH", eth_to_distribute, target_address)
+                .transfer("RBTC", eth_to_distribute, target_address)
                 .await;
 
             // And then we will prepare an L2 transaction.
@@ -315,7 +315,7 @@ impl Executor {
     ///
     /// - Spawning the `ReportCollector`.
     /// - Distributing ERC-20 token in L2 among test wallets via `Transfer` operation.
-    /// - Distributing ETH in L1 among test wallets in order to make them able to perform priority operations.
+    /// - Distributing RBTC in L1 among test wallets in order to make them able to perform priority operations.
     /// - Spawning test account routine futures.
     /// - Collecting all the spawned tasks and returning them to the caller.
     async fn send_initial_transfers(
@@ -414,7 +414,7 @@ impl Executor {
         Ok((report_collector_future, account_futures))
     }
 
-    /// Calculates amount of ETH to be distributed per account in order to make them
+    /// Calculates amount of RBTC to be distributed per account in order to make them
     /// able to perform priority operations.
     async fn eth_amount_to_distribute(&self) -> anyhow::Result<U256> {
         let rootstock = self

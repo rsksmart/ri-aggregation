@@ -56,12 +56,15 @@ async fn handle_coinmarketcap_token_price_query(
 ) -> Result<HttpResponse> {
     let symbol = query.symbol.clone();
     let base_price = match symbol.as_str() {
-        "ETH" => BigDecimal::from(200),
+        "RBTC" => BigDecimal::from(1800),
         "wBTC" => BigDecimal::from(9000),
         // Even though these tokens have their base price equal to
         // the default one, we still keep them here so that in the future it would
         // be easier to change the default price without affecting the important tokens
-        "RBTC" => BigDecimal::from(18000),
+        "DAI" => BigDecimal::from(1),
+        "tGLM" => BigDecimal::from(1),
+        "GLM" => BigDecimal::from(1),
+
         "RIF" => BigDecimal::try_from(0.053533).unwrap(),
         _ => BigDecimal::from(1),
     };
@@ -114,10 +117,9 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<TokenData> {
                 let mut platforms = HashMap::new();
                 platforms.insert(String::from("rootstock"), token.address);
                 let id = match symbol.as_str() {
-                    "eth" => String::from("rootstock"),
+                    "rbtc" => String::from("rootstock"),
                     "wbtc" => String::from("wrapped-bitcoin"),
                     "bat" => String::from("basic-attention-token"),
-                    "RBTC" => String::from("RSK-smart-bitcoin"),
                     "RIF" => String::from("RSK-infrastructure-framework"),
                     _ => symbol.clone(),
                 };

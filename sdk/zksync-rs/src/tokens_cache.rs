@@ -23,7 +23,7 @@ impl TokensCache {
         }
     }
 
-    pub fn is_eth(&self, token: TokenLike) -> bool {
-        token.is_eth()
+    pub fn is_rbtc(&self, token: TokenLike) -> bool {
+        token.is_rbtc()
     }
 }

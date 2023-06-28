@@ -98,7 +98,7 @@ mod test {
         let ticker_url = parse_env("FEE_TICKER_COINMARKETCAP_BASE_URL");
         let client = reqwest::Client::new();
         let api = CoinMarketCapAPI::new(client, ticker_url);
-        let token = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
+        let token = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
         runtime
             .block_on(api.get_price(&token))
             .expect("Failed to get data from ticker");
@@ -116,10 +116,10 @@ mod test {
         "notice": null
     },
     "data": {
-        "ETH": {
+        "RBTC": {
             "id": 1027,
             "name": "Rootstock",
-            "symbol": "ETH",
+            "symbol": "RBTC",
             "slug": "rootstock",
             "num_market_pairs": 5153,
             "date_added": "2015-08-07T00:00:00.000Z",
@@ -150,8 +150,8 @@ mod test {
             serde_json::from_str::<CoinmarketCapResponse>(example).expect("serialization failed");
         let token_data = resp
             .data
-            .get(&TokenLike::Symbol("ETH".to_string()))
-            .expect("ETH data not found");
+            .get(&TokenLike::Symbol("RBTC".to_string()))
+            .expect("RBTC data not found");
         let quote = token_data
             .quote
             .get(&TokenLike::Symbol("USD".to_string()))

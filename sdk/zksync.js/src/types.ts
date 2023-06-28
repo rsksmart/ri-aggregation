@@ -5,11 +5,11 @@ export type Address = string;
 // sync:-prefixed, hex encoded, hash of the account public key
 export type PubKeyHash = string;
 
-// Symbol like "ETH" or "FAU" or token contract address(zero address is implied for "ETH").
+// Symbol like "RBTC" or "FAU" or token contract address(zero address is implied for "RBTC").
 export type TokenLike = TokenSymbol | TokenAddress | number;
-// Token symbol (e.g. "ETH", "FAU", etc.)
+// Token symbol (e.g. "RBTC", "FAU", etc.)
 export type TokenSymbol = string;
-// Token address (e.g. 0xde..ad for ERC20, or 0x00.00 for "ETH")
+// Token address (e.g. 0xde..ad for ERC20, or 0x00.00 for "RBTC")
 export type TokenAddress = string;
 
 export type TotalFee = Map<TokenLike, BigNumber>;
@@ -67,7 +67,7 @@ export type EthAccountType = 'Owned' | 'CREATE2' | 'No2FA';
 
 export interface Depositing {
     balances: {
-        // Token are indexed by their symbol (e.g. "ETH")
+        // Token are indexed by their symbol (e.g. "RBTC")
         [token: string]: {
             // Sum of pending deposits for the token.
             amount: BigNumberish;
@@ -85,7 +85,7 @@ export interface AccountState {
     depositing: Depositing;
     committed: {
         balances: {
-            // Token are indexed by their symbol (e.g. "ETH")
+            // Token are indexed by their symbol (e.g. "RBTC")
             [token: string]: BigNumberish;
         };
         nfts: {
@@ -101,7 +101,7 @@ export interface AccountState {
     };
     verified: {
         balances: {
-            // Token are indexed by their symbol (e.g. "ETH")
+            // Token are indexed by their symbol (e.g. "RBTC")
             [token: string]: BigNumberish;
         };
         nfts: {
@@ -314,7 +314,7 @@ export interface ContractAddress {
 }
 
 export interface Tokens {
-    // Tokens are indexed by their symbol (e.g. "ETH")
+    // Tokens are indexed by their symbol (e.g. "RBTC")
     [token: string]: {
         address: string;
         id: number;
@@ -324,7 +324,7 @@ export interface Tokens {
 }
 
 export interface ExtendedTokens extends Tokens {
-    // Tokens are indexed by their symbol (e.g. "ETH")
+    // Tokens are indexed by their symbol (e.g. "RBTC")
     [token: string]: TokenInfo;
 }
 

@@ -57,7 +57,7 @@ fn test_empty_batch() {
 /// Checks the correctness of the message `EthBatchSignData::new()` returns.
 #[test]
 fn test_batch_message() {
-    let token = Token::new(TokenId(0), Default::default(), "ETH", 18, TokenKind::ERC20);
+    let token = Token::new(TokenId(0), Default::default(), "RBTC", 18, TokenKind::ERC20);
     let transfer = get_transfer();
     let withdraw = get_withdraw();
     let change_pub_key = get_change_pub_key();
@@ -82,7 +82,7 @@ fn test_batch_message() {
         Nonce: 13",
         amount1 = format_units(transfer.amount, 18),
         amount2 = format_units(withdraw.amount, 18),
-        token = "ETH",
+        token = "RBTC",
         to1 = transfer.to,
         to2 = withdraw.to,
         fee = format_units(withdraw.fee, 18),
@@ -117,7 +117,7 @@ fn test_batch_message() {
         Withdraw {amount} {token} to: {to:?}\n\
         Nonce: 0",
         fee = format_units(transfer.fee, 18),
-        token = "ETH",
+        token = "RBTC",
         amount = format_units(withdraw.amount, 18),
         to = withdraw.to
     );

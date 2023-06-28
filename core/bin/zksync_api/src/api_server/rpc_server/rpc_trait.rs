@@ -62,7 +62,7 @@ pub trait Rpc {
     #[rpc(name = "contract_address", returns = "ContractAddressResp")]
     fn contract_address(&self) -> BoxFutureResult<ContractAddressResp>;
 
-    /// "ETH" | #ERC20_ADDRESS => {Token}
+    /// "RBTC" | #ERC20_ADDRESS => {Token}
     #[rpc(name = "tokens", returns = "Token")]
     fn tokens(&self) -> BoxFutureResult<HashMap<String, Token>>;
 

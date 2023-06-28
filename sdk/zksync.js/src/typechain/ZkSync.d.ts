@@ -33,7 +33,7 @@ interface ZkSyncInterface extends ethers.utils.Interface {
     "cancelOutstandingDepositsForExodusMode(uint64,bytes[])": FunctionFragment;
     "commitBlocks(tuple,tuple[])": FunctionFragment;
     "depositERC20(address,uint104,address)": FunctionFragment;
-    "depositETH(address)": FunctionFragment;
+    "depositRBTC(address)": FunctionFragment;
     "executeBlocks(tuple[])": FunctionFragment;
     "exodusMode()": FunctionFragment;
     "getNoticePeriod()": FunctionFragment;
@@ -100,7 +100,7 @@ interface ZkSyncInterface extends ethers.utils.Interface {
     functionFragment: "depositERC20",
     values: [string, BigNumberish, string]
   ): string;
-  encodeFunctionData(functionFragment: "depositETH", values: [string]): string;
+  encodeFunctionData(functionFragment: "depositRBTC", values: [string]): string;
   encodeFunctionData(
     functionFragment: "executeBlocks",
     values: [
@@ -254,7 +254,7 @@ interface ZkSyncInterface extends ethers.utils.Interface {
     functionFragment: "depositERC20",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "depositETH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "depositRBTC", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "executeBlocks",
     data: BytesLike
@@ -476,12 +476,12 @@ export class ZkSync extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    depositETH(
+    depositRBTC(
       _zkSyncAddress: string,
       overrides?: PayableOverrides
     ): Promise<ContractTransaction>;
 
-    "depositETH(address)"(
+    "depositRBTC(address)"(
       _zkSyncAddress: string,
       overrides?: PayableOverrides
     ): Promise<ContractTransaction>;
@@ -897,12 +897,12 @@ export class ZkSync extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  depositETH(
+  depositRBTC(
     _zkSyncAddress: string,
     overrides?: PayableOverrides
   ): Promise<ContractTransaction>;
 
-  "depositETH(address)"(
+  "depositRBTC(address)"(
     _zkSyncAddress: string,
     overrides?: PayableOverrides
   ): Promise<ContractTransaction>;
@@ -1274,12 +1274,12 @@ export class ZkSync extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    depositETH(
+    depositRBTC(
       _zkSyncAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "depositETH(address)"(
+    "depositRBTC(address)"(
       _zkSyncAddress: string,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1689,12 +1689,12 @@ export class ZkSync extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    depositETH(
+    depositRBTC(
       _zkSyncAddress: string,
       overrides?: PayableOverrides
     ): Promise<BigNumber>;
 
-    "depositETH(address)"(
+    "depositRBTC(address)"(
       _zkSyncAddress: string,
       overrides?: PayableOverrides
     ): Promise<BigNumber>;
@@ -2061,12 +2061,12 @@ export class ZkSync extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    depositETH(
+    depositRBTC(
       _zkSyncAddress: string,
       overrides?: PayableOverrides
     ): Promise<PopulatedTransaction>;
 
-    "depositETH(address)"(
+    "depositRBTC(address)"(
       _zkSyncAddress: string,
       overrides?: PayableOverrides
     ): Promise<PopulatedTransaction>;

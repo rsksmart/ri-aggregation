@@ -29,7 +29,7 @@ describe(`No2FA tests`, () => {
     const transport = 'HTTP';
     const providerType = 'REST';
     const token = 'wBTC';
-    const secondToken = 'ETH';
+    const secondToken = 'RBTC';
 
     let tester: Tester;
     let hilda: Wallet;

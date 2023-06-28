@@ -86,7 +86,7 @@ async function prepareForcedExitRequestAccount() {
         ethRichWallet
     );
 
-    const depositTransaction = (await mainZkSyncContract.depositETH(forcedExitAccount, {
+    const depositTransaction = (await mainZkSyncContract.depositRBTC(forcedExitAccount, {
         // Here the amount to deposit does not really matter, as it is done purely
         // to guarantee that the account exists in the network
         value: ethers.utils.parseEther('1.0'),

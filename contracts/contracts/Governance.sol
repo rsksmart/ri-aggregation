@@ -37,7 +37,7 @@ contract Governance is Config {
     /// @notice Address which will exercise governance over the network i.e. add tokens, change validator set, conduct upgrades
     address public networkGovernor;
 
-    /// @notice Total number of ERC20 tokens registered in the network (excluding ETH, which is hardcoded as tokenId = 0)
+    /// @notice Total number of ERC20 tokens registered in the network (excluding RBTC, which is hardcoded as tokenId = 0)
     uint16 public totalTokens;
 
     /// @notice List of registered tokens by tokenId
@@ -103,7 +103,7 @@ contract Governance is Config {
         require(totalTokens < MAX_AMOUNT_OF_REGISTERED_TOKENS, "1f"); // no free identifiers for tokens
 
         totalTokens++;
-        uint16 newTokenId = totalTokens; // it is not `totalTokens - 1` because tokenId = 0 is reserved for eth
+        uint16 newTokenId = totalTokens; // it is not `totalTokens - 1` because tokenId = 0 is reserved for rbtc
 
         tokenAddresses[newTokenId] = _token;
         tokenIds[_token] = newTokenId;

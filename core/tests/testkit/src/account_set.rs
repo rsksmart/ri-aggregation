@@ -22,7 +22,7 @@ impl AccountSet {
         &self,
         from: ETHAccountId,
         to: ZKSyncAccountId,
-        token: Option<Address>, // None for ETH
+        token: Option<Address>, // None for RBTC
         amount: BigUint,
     ) -> (Vec<TransactionReceipt>, PriorityOp) {
         let from = &self.eth_accounts[from.0];
@@ -33,16 +33,16 @@ impl AccountSet {
                 .await
                 .expect("erc20 deposit should not fail")
         } else {
-            from.deposit_eth(amount, &to.address, None)
+            from.deposit_rbtc(amount, &to.address, None)
                 .await
-                .expect("eth deposit should not fail")
+                .expect("rbtc deposit should not fail")
         }
     }
 
     pub async fn deposit_to_random(
         &self,
         from: ETHAccountId,
-        token: Option<Address>, // None for ETH
+        token: Option<Address>, // None for RBTC
         amount: BigUint,
         rng: &mut impl Rng,
     ) -> (Vec<TransactionReceipt>, PriorityOp) {
@@ -54,9 +54,9 @@ impl AccountSet {
                 .await
                 .expect("erc20 deposit should not fail")
         } else {
-            from.deposit_eth(amount, &to_address, None)
+            from.deposit_rbtc(amount, &to_address, None)
                 .await
-                .expect("eth deposit should not fail")
+                .expect("rbtc deposit should not fail")
         }
     }
 

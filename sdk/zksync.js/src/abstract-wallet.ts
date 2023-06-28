@@ -23,10 +23,10 @@ import {
     ERC20_APPROVE_TRESHOLD,
     ERC20_DEPOSIT_GAS_LIMIT,
     ERC20_RECOMMENDED_DEPOSIT_GAS_LIMIT,
-    ETH_RECOMMENDED_DEPOSIT_GAS_LIMIT,
+    RBTC_RECOMMENDED_DEPOSIT_GAS_LIMIT,
     getEthereumBalance,
     IERC20_INTERFACE,
-    isTokenETH,
+    isTokenRBTC,
     MAX_ERC20_APPROVE_AMOUNT,
     SYNC_MAIN_CONTRACT_INTERFACE,
     getToggle2FAMessage
@@ -440,8 +440,8 @@ export abstract class AbstractWallet {
         token: TokenLike,
         max_erc20_approve_amount: BigNumber = MAX_ERC20_APPROVE_AMOUNT
     ): Promise<ContractTransaction> {
-        if (isTokenETH(token)) {
-            throw Error('ETH token does not need approval.');
+        if (isTokenRBTC(token)) {
+            throw Error('RBTC token does not need approval.');
         }
         const tokenAddress = this.provider.tokenSet.resolveTokenAddress(token);
         const erc20contract = new Contract(tokenAddress, IERC20_INTERFACE, this.ethSigner());
@@ -466,11 +466,11 @@ export abstract class AbstractWallet {
 
         let ethTransaction;
 
-        if (isTokenETH(deposit.token)) {
+        if (isTokenRBTC(deposit.token)) {
             try {
-                ethTransaction = await mainZkSyncContract.depositETH(deposit.depositTo, {
+                ethTransaction = await mainZkSyncContract.depositRBTC(deposit.depositTo, {
                     value: BigNumber.from(deposit.amount),
-                    gasLimit: BigNumber.from(ETH_RECOMMENDED_DEPOSIT_GAS_LIMIT),
+                    gasLimit: BigNumber.from(RBTC_RECOMMENDED_DEPOSIT_GAS_LIMIT),
                     gasPrice,
                     ...deposit.ethTxOptions
                 });
@@ -650,8 +650,8 @@ export abstract class AbstractWallet {
         token: TokenLike,
         erc20ApproveThreshold: BigNumber = ERC20_APPROVE_TRESHOLD
     ): Promise<boolean> {
-        if (isTokenETH(token)) {
-            throw Error('ETH token does not need approval.');
+        if (isTokenRBTC(token)) {
+            throw Error('RBTC token does not need approval.');
         }
         const tokenAddress = this.provider.tokenSet.resolveTokenAddress(token);
         const erc20contract = new Contract(tokenAddress, IERC20_INTERFACE, this.ethSigner());
