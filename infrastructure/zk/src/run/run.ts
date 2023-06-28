@@ -59,7 +59,6 @@ export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?
         await utils.spawn('zk config compile');
 
         if (!process.env.CI) {
-            await docker.restart('dev-liquidity-token-watcher');
             await docker.restart('dev-ticker');
         }
     } else if (command == 'new') {

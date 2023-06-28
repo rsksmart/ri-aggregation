@@ -16,12 +16,8 @@ services:
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
   
   dev-ticker:
-    image: "matterlabs/dev-ticker:latest"
-    volumes:
-      - ./etc/tokens/:/etc/tokens
-
-  dev-liquidity-token-watcher:
-    image: "matterlabs/dev-liquidity-token-watcher:latest"
+    build:
+      dockerfile: ./docker/dev-ticker/Dockerfile
     env_file:
       - ./etc/env/docker.env
     volumes:
@@ -33,7 +29,6 @@ services:
       - postgres
       - rskj
       - dev-ticker
-      - dev-liquidity-token-watcher
     command: tail -f /dev/null
     volumes:
       - .:/usr/src/zksync

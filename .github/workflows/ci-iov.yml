@@ -44,8 +44,8 @@ jobs:
           ci_run zk
           ci_run zk init
 
-      - name: restart dev-liquidity-token-watcher and dev-ticker
-        run: docker-compose -f docker-compose-runner.yml restart dev-liquidity-token-watcher dev-ticker
+      - name: restart dev-ticker
+        run: docker-compose -f docker-compose-runner.yml restart dev-ticker
 
       - name: js-unit-tests
         run: ci_run zk test js

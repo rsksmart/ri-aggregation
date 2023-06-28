@@ -211,8 +211,7 @@ pub fn run_updaters(db_pool: ConnectionPool, config: &ZkSyncConfig) -> Vec<JoinH
     let cache = (db_pool.clone(), TokenDBCache::new(TOKEN_INVALIDATE_CACHE));
 
     let watcher = CoinGeckoTokenWatcher::new(
-        format!("http://127.0.0.1:9975"),
-        // !! TODO: use config.ticker.coingecko_base_url.clone() once fee ticker and liquidity ticker are ran on the same mock server !!
+        config.ticker.coingecko_base_url.clone(),
         config.eth_client.chain_id,
     );
 

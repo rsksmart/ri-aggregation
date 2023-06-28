@@ -24,18 +24,11 @@ services:
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
       - ./docker/rskj/data:/var/lib/rsk/.rsk
   
-  dev-liquidity-token-watcher:
+  dev-ticker:
     build:
-      dockerfile: ./docker/dev-liquidity-token-watcher/Dockerfile
+      dockerfile: ./docker/dev-ticker/Dockerfile
     env_file:
       - ./etc/env/docker.env
-    ports:
-      - "9975:9975"
-    volumes:
-      - ./etc/tokens/:/etc/tokens
-
-  dev-ticker:
-    image: "matterlabs/dev-ticker:latest"
     ports:
       - "9876:9876"
     volumes:

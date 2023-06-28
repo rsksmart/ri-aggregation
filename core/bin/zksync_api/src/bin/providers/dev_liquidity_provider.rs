@@ -9,34 +9,31 @@ use std::{
     path::Path,
 };
 
-use actix_cors::Cors;
-use actix_web::{dev::AnyBody, middleware, web, App, HttpResponse, HttpServer, Result};
+use actix_web::{dev::AnyBody, web, HttpResponse, Result};
 use bigdecimal::{BigDecimal, ToPrimitive};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use zksync_api::fee_ticker::CoinGeckoTypes::{AssetPlatform, ContractSimplified};
 
-use zksync_config::{
-    configs::dev_liquidity_token_watcher::Regime, DevLiquidityTokenWatcherConfig, ETHClientConfig,
-};
+use zksync_config::{configs::dev_ticker::Regime, DevTickerConfig, ETHClientConfig};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-struct TokenData {
+pub struct TokenData {
     address: String,
     name: String,
     volume: BigDecimal,
 }
 
-type Tokens = HashMap<String, TokenData>;
+pub type Tokens = HashMap<String, TokenData>;
 
 #[derive(Debug, Clone)]
-enum VolumeStorage {
+pub enum VolumeStorage {
     Blacklist(HashSet<String>, BigDecimal),
     Whitelist(Tokens),
 }
 
 impl VolumeStorage {
-    fn whitelisted_tokens(tokens: Vec<(String, String)>, default_volume: BigDecimal) -> Self {
+    pub fn whitelisted_tokens(tokens: Vec<(String, String)>, default_volume: BigDecimal) -> Self {
         let whitelist_tokens: Tokens = tokens
             .into_iter()
             .map(|(address, name)| {
@@ -53,11 +50,11 @@ impl VolumeStorage {
         Self::Whitelist(whitelist_tokens)
     }
 
-    fn blacklisted_tokens(tokens: HashSet<String>, default_volume: BigDecimal) -> Self {
+    pub fn blacklisted_tokens(tokens: HashSet<String>, default_volume: BigDecimal) -> Self {
         Self::Blacklist(tokens, default_volume)
     }
 
-    fn get_volume(&self, address: &str) -> BigDecimal {
+    pub fn get_volume(&self, address: &str) -> BigDecimal {
         match self {
             Self::Blacklist(tokens, default_volume) => {
                 if tokens.get(address).is_some() {
@@ -80,8 +77,8 @@ impl VolumeStorage {
     }
 }
 
-type PlatformId = String;
-type CoinGeckoStorage = HashMap<PlatformId, VolumeStorage>;
+pub type PlatformId = String;
+pub type CoinGeckoStorage = HashMap<PlatformId, VolumeStorage>;
 
 const DEV_PLATFORM_ID: &str = "regtest";
 const DEV_PLATFORM_NAME: &str = "Local Dev Regtest";
@@ -116,8 +113,9 @@ async fn handle_get_coin_contract(
     storage: web::Data<CoinGeckoStorage>,
 ) -> Result<HttpResponse> {
     let (platform_id, contract_address) = path.into_inner();
+
     if let Some(volume_storage) = storage.get(&platform_id) {
-        let volume = volume_storage.get_volume(&contract_address);
+        let volume = volume_storage.get_volume(&contract_address.to_ascii_lowercase());
         let mut contract = ContractSimplified::default();
         contract.market_data.total_volume.usd = volume.to_f64();
 
@@ -130,25 +128,8 @@ async fn handle_get_coin_contract(
     )))
 }
 
-pub fn config_app(cfg: &mut web::ServiceConfig) {
-    cfg.service(web::resource("/asset_platforms").route(web::get().to(handle_get_asset_platforms)))
-        .service(
-            web::scope("/coins").service(
-                web::scope("/{platform_id}").service(
-                    web::scope("/contract").service(
-                        web::resource("/{contract_address}")
-                            .route(web::get().to(handle_get_coin_contract)),
-                    ),
-                ),
-            ),
-        );
-}
-
-fn main() {
-    vlog::init();
-
-    let runtime = actix_rt::System::new();
-    let config = DevLiquidityTokenWatcherConfig::from_env();
+pub fn config_liquidity_app(cfg: &mut web::ServiceConfig) {
+    let config = DevTickerConfig::from_env();
 
     let volume_storage = match config.regime {
         Regime::Blacklist => VolumeStorage::blacklisted_tokens(
@@ -161,25 +142,21 @@ fn main() {
         }
     };
 
-    let eth_client_config = ETHClientConfig::from_env();
-    let chain_id = eth_client_config.chain_id.to_string();
-    let storage: CoinGeckoStorage = [(chain_id, volume_storage)].iter().cloned().collect();
+    let storage: CoinGeckoStorage =
+        HashMap::from([(String::from(DEV_PLATFORM_ID), volume_storage)]);
 
-    runtime.block_on(async {
-        HttpServer::new(move || {
-            App::new()
-                .app_data(web::Data::new(storage.clone()))
-                .wrap(Cors::default().send_wildcard().max_age(3600))
-                .wrap(middleware::Logger::default())
-                .configure(config_app)
-        })
-        .bind("0.0.0.0:9975")
-        .unwrap()
-        .shutdown_timeout(1)
-        .run()
-        .await
-        .expect("Server crashed");
-    });
+    cfg.app_data(web::Data::new(storage.clone()));
+    cfg.service(web::resource("/asset_platforms").route(web::get().to(handle_get_asset_platforms)))
+        .service(
+            web::scope("/coins").service(
+                web::scope("/{platform_id}").service(
+                    web::scope("/contract").service(
+                        web::resource("/{contract_address}")
+                            .route(web::get().to(handle_get_coin_contract)),
+                    ),
+                ),
+            ),
+        );
 }
 
 #[cfg(test)]

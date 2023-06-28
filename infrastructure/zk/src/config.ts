@@ -17,7 +17,7 @@ const CONFIG_FILES = [
     'gateway_watcher.toml',
     'fee_ticker.toml',
     'misc.toml',
-    'dev_liquidity_token_watcher.toml',
+    'dev_ticker.toml',
     'prover.toml',
     'rust.toml',
     'private.toml',
