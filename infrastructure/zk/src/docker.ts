@@ -57,8 +57,8 @@ export async function build(image: string, tag: string) {
     await dockerCommand('build', image, tag);
 }
 
-export async function buildFromTag(githubTag: string) {
-    const [image_name, image_tag] = githubTag.split(':');
+export async function buildFromTag(gitTag: string) {
+    const [image_name, image_tag] = gitTag.split(':');
     await dockerCommand('build', image_name, image_tag);
 }
 
@@ -67,8 +67,8 @@ export async function push(image: string, tag: string) {
     await dockerCommand('push', image, tag);
 }
 
-export async function pushFromTag(githubTag: string) {
-    const [image_name, image_tag] = githubTag.split(':');
+export async function pushFromTag(gitTag: string) {
+    const [image_name, image_tag] = gitTag.split(':');
     await dockerCommand('build', image_name, image_tag);
     await dockerCommand('push', image_name, image_tag);
 }
@@ -85,10 +85,7 @@ export const command = new Command('docker').description('docker management');
 
 command.command('build <image> <tag>').description('build docker image').action(build);
 command.command('push <image> <tag>').description('build and push docker image').action(push);
-command.command('build-from-tag <githubTag>').description('build docker image from github tag').action(buildFromTag);
-command
-    .command('push-from-tag <githubTag>')
-    .description('build and push docker image from github tag')
-    .action(pushFromTag);
+command.command('build-from-tag <gitTag>').description('build docker image from git tag').action(buildFromTag);
+command.command('push-from-tag <gitTag>').description('build and push docker image from git tag').action(pushFromTag);
 command.command('pull').description('pull all containers').action(pull);
 command.command('restart <container>').description('restart container in docker-compose.yml').action(restart);
