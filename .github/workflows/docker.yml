@@ -1,0 +1,38 @@
+name: publish server docker image
+
+on:
+  push:
+    tags:
+      - 'prover:**'
+      - 'server:**'
+      - 'dev-ticker:**'
+      - 'dev-liquidity-token-watcher:**'
+
+jobs:
+  push_to_docker_hub:
+     name: Push server image to Docker Hub
+     runs-on: ubuntu-latest
+     steps:
+        - uses: actions/checkout@v3
+
+        - name: Use Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: "16.x"
+
+        - name: setup-env
+          run: |
+            echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
+            echo $(pwd)/bin >> $GITHUB_PATH
+
+        - name: Log in to Docker Hub
+          uses: docker/login-action@v2.2.0
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+                                  
+        - name: Build and push image
+          run: |
+            zk
+            zk run verify-keys unpack
+            zk docker push-from-tag ${{steps.vars.outputs.tag}}
