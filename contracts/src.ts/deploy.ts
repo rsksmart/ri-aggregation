@@ -144,7 +144,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`CONTRACTS_CREATE2_FACTORY_ADDR=${create2Factory.address}`);
             console.log(
-                `Create2 factory deployed, gasUsed: ${gasUsed.toString()}, eth spent: ${formatEther(
+                `Create2 factory deployed, gasUsed: ${gasUsed.toString()}, rbtc spent: ${formatEther(
                     gasUsed.mul(gasPrice)
                 )}`
             );
@@ -177,7 +177,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`CONTRACTS_GOVERNANCE_TARGET_ADDR=${address}`);
             console.log(
-                `Governance target deployed, gasUsed: ${govGasUsed.toString()}, eth spent: ${formatEther(
+                `Governance target deployed, gasUsed: ${govGasUsed.toString()}, rbtc spent: ${formatEther(
                     govGasUsed.mul(gasPrice)
                 )}`
             );
@@ -203,7 +203,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`CONTRACTS_VERIFIER_TARGET_ADDR=${address}`);
             console.log(
-                `Verifier target deployed, gasUsed: ${verGasUsed.toString()}, eth spent: ${formatEther(
+                `Verifier target deployed, gasUsed: ${verGasUsed.toString()}, rbtc spent: ${formatEther(
                     verGasUsed.mul(gasPrice)
                 )}`
             );
@@ -229,7 +229,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`CONTRACTS_CONTRACT_TARGET_ADDR=${address}`);
             console.log(
-                `zkSync target deployed, gasUsed: ${zksGasUsed.toString()}, eth spent: ${formatEther(
+                `zkSync target deployed, gasUsed: ${zksGasUsed.toString()}, rbtc spent: ${formatEther(
                     zksGasUsed.mul(gasPrice)
                 )}`
             );
@@ -287,7 +287,7 @@ export class Deployer {
             console.log(`CONTRACTS_UPGRADE_GATEKEEPER_ADDR=${this.addresses.UpgradeGatekeeper}`);
             console.log(`CONTRACTS_GENESIS_TX_HASH=${txHash}`);
             console.log(
-                `Deploy finished, gasUsed: ${gasUsed.toString()}, eth spent: ${formatEther(gasUsed.mul(gasPrice))}`
+                `Deploy finished, gasUsed: ${gasUsed.toString()}, rbtc spent: ${formatEther(gasUsed.mul(gasPrice))}`
             );
         }
     }
@@ -317,7 +317,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`CONTRACTS_NFT_FACTORY_ADDR=${nftFactoryContarct.address}`);
             console.log(
-                `NFT Factory contract deployed, gasUsed: ${zksGasUsed.toString()}, eth spent: ${formatEther(
+                `NFT Factory contract deployed, gasUsed: ${zksGasUsed.toString()}, rbtc spent: ${formatEther(
                     zksGasUsed.mul(gasPrice)
                 )}`
             );
@@ -355,7 +355,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`\nCONTRACTS_LISTING_GOVERNANCE=${tokenGovernanceContract.address}\n`);
             console.log(
-                `Token governance contract deployed, gasUsed: ${zksGasUsed.toString()}, eth spent: ${formatEther(
+                `Token governance contract deployed, gasUsed: ${zksGasUsed.toString()}, rbtc spent: ${formatEther(
                     zksGasUsed.mul(gasPrice)
                 )}`
             );
@@ -391,7 +391,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`CONTRACTS_FORCED_EXIT_ADDR=${forcedExitContract.address}`);
             console.log(
-                `ForcedExit contract deployed, gasUsed: ${zksGasUsed.toString()}, eth spent: ${formatEther(
+                `ForcedExit contract deployed, gasUsed: ${zksGasUsed.toString()}, rbtc spent: ${formatEther(
                     zksGasUsed.mul(gasPrice)
                 )}`
             );
@@ -417,7 +417,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`CONTRACTS_ADDITIONAL_ZKSYNC_ADDR=${address}`);
             console.log(
-                `Additiinal zkSync contract deployed, gasUsed: ${zksGasUsed.toString()}, eth spent: ${formatEther(
+                `Additiinal zkSync contract deployed, gasUsed: ${zksGasUsed.toString()}, rbtc spent: ${formatEther(
                     zksGasUsed.mul(gasPrice)
                 )}`
             );
@@ -448,7 +448,7 @@ export class Deployer {
         if (this.verbose) {
             console.log(`MISC_REGENESIS_MULTISIG_ADDRESS=${regenesisMultisigContract.address}`);
             console.log(
-                `Regenesis Multisig contract deployed, gasUsed: ${zksGasUsed.toString()}, eth spent: ${formatEther(
+                `Regenesis Multisig contract deployed, gasUsed: ${zksGasUsed.toString()}, rbtc spent: ${formatEther(
                     zksGasUsed.mul(gasPrice)
                 )}`
             );

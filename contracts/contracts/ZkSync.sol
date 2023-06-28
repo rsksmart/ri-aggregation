@@ -206,9 +206,9 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         delegateAdditional();
     }
 
-    /// @notice Deposit ETH to Layer 2 - transfer ether from user into contract, validate it, register deposit
+    /// @notice Deposit RBTC to Layer 2 - transfer ether from user into contract, validate it, register deposit
     /// @param _zkSyncAddress The receiver Layer 2 address
-    function depositETH(address _zkSyncAddress) external payable {
+    function depositRBTC(address _zkSyncAddress) external payable {
         require(_zkSyncAddress != SPECIAL_ACCOUNT_ADDRESS, "P");
         require(msg.value > 0, "M"); // Zero-value deposits are forbidden by zkSync rollup logic
         requireActive();
@@ -242,7 +242,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
 
     /// @notice Returns amount of tokens that can be withdrawn by `address` from zkSync contract
     /// @param _address Address of the tokens owner
-    /// @param _token Address of token, zero address is used for ETH
+    /// @param _token Address of token, zero address is used for RBTC
     function getPendingBalance(address _address, address _token) public view returns (uint128) {
         uint16 tokenId = 0;
         if (_token != address(0)) {
@@ -253,7 +253,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
 
     /// @notice  Withdraws tokens from zkSync contract to the owner
     /// @param _owner Address of the tokens owner
-    /// @param _token Address of tokens, zero address is used for ETH
+    /// @param _token Address of tokens, zero address is used for RBTC
     /// @param _amount Amount to withdraw to request.
     ///         NOTE: We will call ERC20.transfer(.., _amount), but if according to internal logic of ERC20 token zkSync contract
     ///         balance will be decreased by value more then _amount we will try to subtract this value from user pending balance
@@ -274,7 +274,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
 
         if (tokenId == 0) {
             (bool success, ) = _owner.call{value: amount}("");
-            require(success, "d"); // ETH withdraw failed
+            require(success, "d"); // RBTC withdraw failed
         } else {
             // We will allow withdrawals of `value` such that:
             // `value` <= user pending balance
@@ -498,7 +498,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         emit WithdrawalPending(_tokenId, _recipient, _amount);
     }
 
-    /// @dev helper function to process ETH/ERC20 withdrawal
+    /// @dev helper function to process RBTC/ERC20 withdrawal
     function handleWithdrawFT(
         bool _completeWithdrawals,
         uint16 _tokenId,
@@ -1010,7 +1010,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         pendingBalances[_packedBalanceKey] = PendingBalance(balance.add(_amount), FILLED_GAS_RESERVE_VALUE);
     }
 
-    /// @notice Sends ETH
+    /// @notice Sends RBTC
     /// @param _to Address of recipient
     /// @param _amount Amount of tokens to transfer
     /// @return bool flag indicating that transfer is successful

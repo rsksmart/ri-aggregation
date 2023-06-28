@@ -48,9 +48,9 @@ export const ERC20_APPROVE_TRESHOLD = BigNumber.from(
     '57896044618658097711785492504343953926634992332820282019728792003956564819968'
 ); // 2^255
 
-// Gas limit that is set for eth deposit by default. For default EOA accounts 60k should be enough, but we reserve
+// Gas limit that is set for rbtc deposit by default. For default EOA accounts 60k should be enough, but we reserve
 // more gas for smart-contract wallets
-export const ETH_RECOMMENDED_DEPOSIT_GAS_LIMIT = BigNumber.from('90000'); // 90k
+export const RBTC_RECOMMENDED_DEPOSIT_GAS_LIMIT = BigNumber.from('90000'); // 90k
 // For normal wallet/erc20 token 90k gas for deposit should be enough, but for some tokens this can go as high as ~200k
 // we try to be safe by default
 export const ERC20_RECOMMENDED_DEPOSIT_GAS_LIMIT = BigNumber.from('300000'); // 300k
@@ -342,8 +342,8 @@ export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function isTokenETH(token: TokenLike): boolean {
-    return token === 'ETH' || token === constants.AddressZero;
+export function isTokenRBTC(token: TokenLike): boolean {
+    return token === 'RBTC' || token === constants.AddressZero;
 }
 
 type TokenOrId = TokenLike | number;
@@ -910,7 +910,7 @@ export async function getEthereumBalance(
     token: TokenLike
 ): Promise<BigNumber> {
     let balance: BigNumber;
-    if (isTokenETH(token)) {
+    if (isTokenRBTC(token)) {
         balance = await ethProvider.getBalance(address);
     } else {
         const erc20contract = new Contract(

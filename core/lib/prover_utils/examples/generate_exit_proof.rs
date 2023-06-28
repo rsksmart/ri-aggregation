@@ -69,7 +69,7 @@ struct Opt {
     #[structopt(long)]
     address: Address,
 
-    /// Token to withdraw - "ETH" or address of the ERC20 token
+    /// Token to withdraw - "RBTC" or address of the ERC20 token
     #[structopt(long)]
     token: String,
 }

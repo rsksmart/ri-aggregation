@@ -8,8 +8,8 @@ use zksync_types::{tx::TxSignature, AccountId, Nonce, Token, TokenId, TokenKind}
 fn test_tokens_cache() {
     let mut tokens: HashMap<String, Token> = HashMap::default();
 
-    let token_eth = Token::new(TokenId(0), H160::default(), "ETH", 18, TokenKind::ERC20);
-    tokens.insert("ETH".to_string(), token_eth.clone());
+    let token_rbtc = Token::new(TokenId(0), H160::default(), "RBTC", 18, TokenKind::ERC20);
+    tokens.insert("RBTC".to_string(), token_rbtc.clone());
     let token_dai = Token::new(TokenId(1), H160::random(), "RDOC", 18, TokenKind::ERC20);
     tokens.insert("RDOC".to_string(), token_dai.clone());
 
@@ -18,16 +18,16 @@ fn test_tokens_cache() {
     let tokens_cache = TokensCache::new(tokens);
 
     assert_eq!(
-        tokens_cache.resolve(token_eth.address.into()),
-        Some(token_eth.clone())
+        tokens_cache.resolve(token_rbtc.address.into()),
+        Some(token_rbtc.clone())
     );
     assert_eq!(
-        tokens_cache.resolve(token_eth.id.into()),
-        Some(token_eth.clone())
+        tokens_cache.resolve(token_rbtc.id.into()),
+        Some(token_rbtc.clone())
     );
     assert_eq!(
-        tokens_cache.resolve((&token_eth.symbol as &str).into()),
-        Some(token_eth.clone())
+        tokens_cache.resolve((&token_rbtc.symbol as &str).into()),
+        Some(token_rbtc.clone())
     );
 
     assert_eq!(
@@ -50,13 +50,13 @@ fn test_tokens_cache() {
         None
     );
 
-    assert!(tokens_cache.is_eth(token_eth.address.into()));
-    assert!(tokens_cache.is_eth(token_eth.id.into()));
-    assert!(tokens_cache.is_eth((&token_eth.symbol as &str).into()));
+    assert!(tokens_cache.is_rbtc(token_rbtc.address.into()));
+    assert!(tokens_cache.is_rbtc(token_rbtc.id.into()));
+    assert!(tokens_cache.is_rbtc((&token_rbtc.symbol as &str).into()));
 
-    assert!(!tokens_cache.is_eth(token_dai.address.into()));
-    assert!(!tokens_cache.is_eth(token_dai.id.into()));
-    assert!(!tokens_cache.is_eth((&token_dai.symbol as &str).into()));
+    assert!(!tokens_cache.is_rbtc(token_dai.address.into()));
+    assert!(!tokens_cache.is_rbtc(token_dai.id.into()));
+    assert!(!tokens_cache.is_rbtc((&token_dai.symbol as &str).into()));
 }
 
 fn priv_key_from_raw(raw: &[u8]) -> Option<PrivateKey> {
@@ -735,7 +735,7 @@ mod wallet_tests {
     #[tokio::test]
     async fn test_wallet_get_balance_committed_not_existent() {
         let wallet = get_test_wallet(&[40; 32], Network::Mainnet).await;
-        let result = wallet.get_balance(BlockStatus::Committed, "ETH").await;
+        let result = wallet.get_balance(BlockStatus::Committed, "RBTC").await;
 
         assert_eq!(result.unwrap_err(), ClientError::UnknownToken);
     }
@@ -753,7 +753,7 @@ mod wallet_tests {
     #[tokio::test]
     async fn test_wallet_get_balance_verified_not_existent() {
         let wallet = get_test_wallet(&[50; 32], Network::Mainnet).await;
-        let result = wallet.get_balance(BlockStatus::Verified, "ETH").await;
+        let result = wallet.get_balance(BlockStatus::Verified, "RBTC").await;
 
         assert_eq!(result.unwrap_err(), ClientError::UnknownToken);
     }

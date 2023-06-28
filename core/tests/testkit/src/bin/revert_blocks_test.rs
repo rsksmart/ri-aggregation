@@ -12,7 +12,7 @@ use zksync_testkit::{
 use zksync_types::{BlockNumber, Nonce, TokenId};
 
 use crate::{
-    eth_account::{parse_ether, RootstockAccount},
+    eth_account::{parse_rbtc, RootstockAccount},
     external_commands::{deploy_contracts, get_test_accounts, Contracts},
     zksync_account::ZkSyncAccount,
 };
@@ -78,7 +78,7 @@ async fn execute_blocks(
     number_of_committed_iteration_blocks: u16,
     number_of_reverted_iterations_blocks: u16,
 ) -> (ZkSyncStateInitParams, AccountSet, Block) {
-    let deposit_amount = parse_ether("1.0").unwrap();
+    let deposit_amount = parse_rbtc("1.0").unwrap();
 
     let mut executed_blocks = Vec::new();
     let token = 0;
@@ -99,7 +99,7 @@ async fn execute_blocks(
         ));
     }
     test_setup
-        .get_eth_balance(ETHAccountId(0), TokenId(0))
+        .get_rbtc_balance(ETHAccountId(0), TokenId(0))
         .await;
     for _ in 0..number_of_committed_iteration_blocks - number_of_verified_iteration_blocks {
         let blocks = perform_basic_operations(
@@ -116,7 +116,7 @@ async fn execute_blocks(
         ));
     }
     test_setup
-        .get_eth_balance(ETHAccountId(0), TokenId(0))
+        .get_rbtc_balance(ETHAccountId(0), TokenId(0))
         .await;
 
     let executed_blocks_reverse_order = executed_blocks

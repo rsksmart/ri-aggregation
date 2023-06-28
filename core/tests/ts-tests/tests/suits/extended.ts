@@ -35,7 +35,7 @@ describe(`Extended tests`, () => {
     const transport = 'HTTP';
     const providerType = 'REST';
     const token = 'wBTC';
-    const secondToken = 'ETH';
+    const secondToken = 'RBTC';
 
     let tester: Tester;
     let alice: Wallet;

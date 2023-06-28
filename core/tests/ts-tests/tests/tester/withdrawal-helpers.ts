@@ -13,7 +13,7 @@ type Address = types.Address;
 
 declare module './tester' {
     interface Tester {
-        testRecoverETHWithdrawal(from: Wallet, to: Address, amount: BigNumber): Promise<void>;
+        testRecoverRBTCWithdrawal(from: Wallet, to: Address, amount: BigNumber): Promise<void>;
         testRecoverERC20Withdrawal(from: Wallet, to: Address, token: TokenLike, amount: BigNumber): Promise<void>;
         testRecoverMultipleWithdrawals(
             from: Wallet,
@@ -67,20 +67,20 @@ async function setRevert(
     const tokenSymbol = provider.tokenSet.resolveTokenSymbol(token);
     const tokenAddress = provider.tokenSet.resolveTokenAddress(token);
 
-    if (tokenSymbol === 'ETH') {
+    if (tokenSymbol === 'RBTC') {
         await setRevertReceive(ethWallet, recipient, value);
     } else {
         await setRevertTransfer(ethWallet, tokenAddress, value);
     }
 }
 
-Tester.prototype.testRecoverETHWithdrawal = async function (from: Wallet, to: Address, amount: BigNumber) {
+Tester.prototype.testRecoverRBTCWithdrawal = async function (from: Wallet, to: Address, amount: BigNumber) {
     // Make sure that the withdrawal will fail
-    await setRevert(from.ethSigner(), this.syncProvider, to, 'ETH', true);
+    await setRevert(from.ethSigner(), this.syncProvider, to, 'RBTC', true);
     const balanceBefore = await this.ethProvider.getBalance(to);
     const withdrawTx = await from.withdrawFromSyncToEthereum({
         ethAddress: to,
-        token: 'ETH',
+        token: 'RBTC',
         amount
     });
     await withdrawTx.awaitVerifyReceipt();
@@ -95,10 +95,10 @@ Tester.prototype.testRecoverETHWithdrawal = async function (from: Wallet, to: Ad
     expect(balanceBefore.eq(balanceAfter), 'The withdrawal did not fail the first time').to.be.true;
 
     // Make sure that the withdrawal will pass now
-    await setRevert(from.ethSigner(), this.syncProvider, to, 'ETH', false);
+    await setRevert(from.ethSigner(), this.syncProvider, to, 'RBTC', false);
 
     // Re-try
-    const withdrawPendingTx = await from.withdrawPendingBalance(to, 'ETH');
+    const withdrawPendingTx = await from.withdrawPendingBalance(to, 'RBTC');
     await withdrawPendingTx.wait();
 
     // The funds should have arrived

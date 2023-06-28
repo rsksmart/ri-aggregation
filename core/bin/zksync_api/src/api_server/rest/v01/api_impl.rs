@@ -76,10 +76,6 @@ impl ApiV01 {
             .await
             .map_err(Self::db_error)?;
 
-        // I know this seems like a very inefficient way of doing it, when we could just make a left join in sql and in fact I've got that code stashed for two reasons:
-        // 1. the storage manager should not really have any knowledge of the unconditionally valid tokens
-        // 2. and more importantly, I couldn't make it work, due to limitations of myself and/or sqlx (the 'token.address IN ()' seems to be problematic when not dealing with hardcoded values)
-        // We should optimise this at some point tho  (#tech-debt)
         let mut unconditionally_valid_tokens: Vec<Token> = Vec::new();
         let tokens_to_filter: HashMap<TokenId, Token> = tokens
             .into_iter()

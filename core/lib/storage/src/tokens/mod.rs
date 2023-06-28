@@ -180,7 +180,7 @@ impl<'a, 'c> TokensSchema<'a, 'c> {
     }
 
     /// Loads all the stored tokens from the database.
-    /// Alongside with the tokens added via `store_token` method, the default `ETH` token
+    /// Alongside with the tokens added via `store_token` method, the default `RBTC` token
     /// is returned.
     pub async fn load_tokens(&mut self) -> QueryResult<HashMap<TokenId, Token>> {
         let tokens = self.load_tokens_asc(TokenId(0), None).await?;
@@ -290,7 +290,7 @@ impl<'a, 'c> TokensSchema<'a, 'c> {
             .map(|t| TokenId(t.token_id as u32))
             .collect();
 
-        // ETH always has enough market volume
+        // RBTC has always got enough market volume
         if tokens_to_check.contains(&0) && !result.contains(&TokenId(0)) {
             result.insert(TokenId(0));
         }

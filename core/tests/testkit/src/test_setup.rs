@@ -128,7 +128,7 @@ impl TestSetup {
             .cloned()
         {
             Some(balance) => balance,
-            None => self.get_eth_balance(account, token).await,
+            None => self.get_rbtc_balance(account, token).await,
         }
     }
 
@@ -179,8 +179,8 @@ impl TestSetup {
             .eth_accounts_state
             .contains_key(&(eth_account_id, TokenId(0)))
         {
-            // Setup eth balance for fee
-            let balance = self.get_eth_balance(eth_account_id, TokenId(0)).await;
+            // Setup rbtc balance for fee
+            let balance = self.get_rbtc_balance(eth_account_id, TokenId(0)).await;
             self.expected_changes_for_current_block
                 .eth_accounts_state
                 .insert((eth_account_id, TokenId(0)), balance);
@@ -192,7 +192,7 @@ impl TestSetup {
             .contains_key(&(eth_account_id, token.0))
         {
             // Setup token balance
-            let balance = self.get_eth_balance(eth_account_id, token.0).await;
+            let balance = self.get_rbtc_balance(eth_account_id, token.0).await;
             self.expected_changes_for_current_block
                 .eth_accounts_state
                 .insert((eth_account_id, token.0), balance);
@@ -766,11 +766,11 @@ impl TestSetup {
             .sync_accounts_state
             .insert((from, token.0), zksync0_old);
 
-        let mut to_eth_balance = self.get_expected_eth_account_balance(to, token.0).await;
-        to_eth_balance += &amount;
+        let mut to_rbtc_balance = self.get_expected_eth_account_balance(to, token.0).await;
+        to_rbtc_balance += &amount;
         self.expected_changes_for_current_block
             .eth_accounts_state
-            .insert((to, token.0), to_eth_balance);
+            .insert((to, token.0), to_rbtc_balance);
 
         let mut zksync0_old = self
             .get_expected_zksync_account_balance(self.accounts.fee_account_id, token.0)
@@ -876,13 +876,13 @@ impl TestSetup {
             .sync_accounts_state
             .insert((target, token_id.0), 0u64.into());
 
-        let mut target_eth_balance = self
+        let mut target_rbtc_balance = self
             .get_expected_eth_account_balance(target_eth_id, token_id.0)
             .await;
-        target_eth_balance += &target_old;
+        target_rbtc_balance += &target_old;
         self.expected_changes_for_current_block
             .eth_accounts_state
-            .insert((target_eth_id, token_id.0), target_eth_balance);
+            .insert((target_eth_id, token_id.0), target_rbtc_balance);
 
         let mut fee_account_balance = self
             .get_expected_zksync_account_balance(self.accounts.fee_account_id, token_id.0)
@@ -1140,7 +1140,7 @@ impl TestSetup {
         for ((eth_account, token), expected_balance) in
             &self.expected_changes_for_current_block.eth_accounts_state
         {
-            let real_balance = self.get_eth_balance(*eth_account, *token).await;
+            let real_balance = self.get_rbtc_balance(*eth_account, *token).await;
             if expected_balance != &real_balance {
                 println!("eth acc: {}, token: {}", eth_account.0, token);
                 println!("expected: {}", expected_balance);
@@ -1225,13 +1225,13 @@ impl TestSetup {
             .unwrap_or_default()
     }
 
-    pub async fn get_eth_balance(&self, eth_account_id: ETHAccountId, token: TokenId) -> BigUint {
+    pub async fn get_rbtc_balance(&self, eth_account_id: ETHAccountId, token: TokenId) -> BigUint {
         let account = &self.accounts.eth_accounts[eth_account_id.0];
         let result = if token == TokenId(0) {
             account
-                .eth_balance()
+                .rbtc_balance()
                 .await
-                .expect("Failed to get eth balance")
+                .expect("Failed to get rbtc balance")
         } else {
             account
                 .erc20_balance(&self.tokens[&token])

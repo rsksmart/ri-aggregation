@@ -4,7 +4,7 @@ use num::{BigUint, Zero};
 use zksync_types::{account::AccountUpdate, AccountId, TokenId};
 
 /// Checks if fees are collected correctly.
-/// Fees are not only in ETH and may be zero.
+/// Fees are not only in RBTC and may be zero.
 #[test]
 fn success() {
     let mut tb = PlasmaTestBuilder::new();

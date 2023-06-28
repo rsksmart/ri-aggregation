@@ -50,7 +50,7 @@ pub fn ierc20_contract() -> ethabi::Contract {
 /// In order to monitor transaction execution, an Rootstock node `web3` API is exposed
 /// via `RootstockProvider::web3` method.
 #[derive(Debug)]
-pub struct EthereumProvider<S: EthereumSigner> {
+pub struct RootstockProvider<S: EthereumSigner> {
     tokens_cache: TokensCache,
     eth_client: ETHDirectClient<S>,
     erc20_abi: ethabi::Contract,
@@ -115,7 +115,7 @@ impl<S: EthereumSigner> RootstockProvider<S> {
     /// Returns the Rootstock account balance.
     pub async fn balance(&self) -> Result<BigUint, ClientError> {
         self.client()
-            .sender_eth_balance()
+            .sender_rbtc_balance()
             .await
             .map_err(|err| ClientError::NetworkError(err.to_string()))
             .map(u256_to_biguint)
@@ -253,7 +253,7 @@ impl<S: EthereumSigner> RootstockProvider<S> {
             .resolve(token.clone())
             .ok_or(ClientError::UnknownToken)?;
 
-        let signed_tx = if self.tokens_cache.is_eth(token) {
+        let signed_tx = if self.tokens_cache.is_rbtc(token) {
             let options = Options {
                 value: Some(amount),
                 gas: Some(300_000.into()),
@@ -308,8 +308,8 @@ impl<S: EthereumSigner> RootstockProvider<S> {
             .resolve(token.clone())
             .ok_or(ClientError::UnknownToken)?;
 
-        if self.tokens_cache.is_eth(token) {
-            // ETH minting is not supported
+        if self.tokens_cache.is_rbtc(token) {
+            // RBTC minting is not supported
             return Err(ClientError::IncorrectInput);
         }
 
@@ -359,13 +359,13 @@ impl<S: EthereumSigner> RootstockProvider<S> {
             .resolve(token.clone())
             .ok_or(ClientError::UnknownToken)?;
 
-        let signed_tx = if self.tokens_cache.is_eth(token) {
+        let signed_tx = if self.tokens_cache.is_rbtc(token) {
             let options = Options {
                 value: Some(amount),
                 gas: Some(200_000.into()),
                 ..Default::default()
             };
-            let data = self.client().encode_tx_data("depositETH", sync_address);
+            let data = self.client().encode_tx_data("depositRBTC", sync_address);
 
             self.client()
                 .sign_prepared_tx(data, options)

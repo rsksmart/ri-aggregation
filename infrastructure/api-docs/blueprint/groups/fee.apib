@@ -9,7 +9,7 @@ Request fee for a single transaction.
     + Attributes
         + txType: Transfer (Fee.Type, required)
         + address: 0xf33A2D61DD09541A8C9897D7236aDcCCC14Cf769 (string, required)
-        + tokenLike: ETH (Token.TokenLike, required)
+        + tokenLike: RBTC (Token.TokenLike, required)
 
 + Response 200 (application/json)
     + Attributes
@@ -26,7 +26,7 @@ Request fee for a transactions batch.
 + Request (application/json)
     + Attributes
         + transactions (array[Fee.Type.with.Address], required)
-        + tokenLike: ETH (Token.TokenLike, required)
+        + tokenLike: RBTC (Token.TokenLike, required)
 
 + Response 200 (application/json)
     + Attributes

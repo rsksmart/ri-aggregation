@@ -21,9 +21,9 @@ use zksync_types::aggregated_operations::{
 use zksync_types::block::Block;
 use zksync_types::{AccountId, Address, Nonce, PriorityOp, PubKeyHash, TokenId, ZkSyncTx};
 
-pub fn parse_ether(eth_value: &str) -> Result<BigUint, anyhow::Error> {
-    let split = eth_value.split('.').collect::<Vec<&str>>();
-    ensure!(split.len() == 1 || split.len() == 2, "Wrong eth value");
+pub fn parse_rbtc(rbtc_value: &str) -> Result<BigUint, anyhow::Error> {
+    let split = rbtc_value.split('.').collect::<Vec<&str>>();
+    ensure!(split.len() == 1 || split.len() == 2, "Wrong rbtc value");
     let string_wei_value = if split.len() == 1 {
         format!("{}000000000000000000", split[0])
     } else if split.len() == 2 {
@@ -31,7 +31,7 @@ pub fn parse_ether(eth_value: &str) -> Result<BigUint, anyhow::Error> {
         let after_dot = split[1];
         ensure!(
             after_dot.len() <= 18,
-            "ETH value can have up to 18 digits after dot."
+            "RBTC value can have up to 18 digits after dot."
         );
         let zeros_to_pad = 18 - after_dot.len();
         format!("{}{}{}", before_dot, after_dot, "0".repeat(zeros_to_pad))
@@ -231,7 +231,7 @@ impl RootstockAccount {
     }
 
     /// Returns only one tx receipt. Return type is `Vec` for compatibility with deposit erc20
-    pub async fn deposit_eth(
+    pub async fn deposit_rbtc(
         &self,
         amount: BigUint,
         to: &Address,
@@ -239,7 +239,7 @@ impl RootstockAccount {
     ) -> Result<(Vec<TransactionReceipt>, PriorityOp), anyhow::Error> {
         let data = self
             .main_contract_eth_client
-            .encode_tx_data("depositETH", *to);
+            .encode_tx_data("depositRBTC", *to);
         let signed_tx = self
             .main_contract_eth_client
             .sign_prepared_tx(
@@ -251,19 +251,19 @@ impl RootstockAccount {
                 }),
             )
             .await
-            .map_err(|e| format_err!("Deposit eth send err: {}", e))?;
+            .map_err(|e| format_err!("Deposit rbtc send err: {}", e))?;
         let receipt =
             send_raw_tx_wait_confirmation(&self.main_contract_eth_client, signed_tx.raw_tx).await?;
-        ensure!(receipt.status == Some(U64::from(1)), "eth deposit fail");
+        ensure!(receipt.status == Some(U64::from(1)), "rbtc deposit fail");
         let priority_op =
             priority_op_from_tx_logs(&receipt).expect("no priority op log in deposit");
         Ok((vec![receipt], priority_op))
     }
 
-    pub async fn eth_balance(&self) -> Result<BigUint, anyhow::Error> {
+    pub async fn rbtc_balance(&self) -> Result<BigUint, anyhow::Error> {
         Ok(u256_to_big_dec(
             self.main_contract_eth_client
-                .eth_balance(self.address)
+                .rbtc_balance(self.address)
                 .await?,
         ))
     }

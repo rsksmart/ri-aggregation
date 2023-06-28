@@ -172,7 +172,7 @@ impl MockEthereum {
         unreachable!()
     }
 
-    pub async fn sender_eth_balance(&self) -> Result<U256, Error> {
+    pub async fn sender_rbtc_balance(&self) -> Result<U256, Error> {
         unreachable!()
     }
 
@@ -189,7 +189,7 @@ impl MockEthereum {
         unreachable!()
     }
 
-    pub async fn eth_balance(&self, _address: Address) -> Result<U256, Error> {
+    pub async fn rbtc_balance(&self, _address: Address) -> Result<U256, Error> {
         unreachable!()
     }
 

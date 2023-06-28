@@ -127,8 +127,8 @@ impl RootstockGateway {
         delegate_call!(self.get_gas_price())
     }
     /// Returns the account balance.
-    pub async fn sender_eth_balance(&self) -> Result<U256, anyhow::Error> {
-        delegate_call!(self.sender_eth_balance())
+    pub async fn sender_rbtc_balance(&self) -> Result<U256, anyhow::Error> {
+        delegate_call!(self.sender_rbtc_balance())
     }
 
     /// Signs the transaction given the previously encoded data.
@@ -174,8 +174,8 @@ impl RootstockGateway {
     }
 
     /// Auxiliary function that returns the balance of the account on Rootstock.
-    pub async fn eth_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
-        delegate_call!(self.eth_balance(address))
+    pub async fn rbtc_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
+        delegate_call!(self.rbtc_balance(address))
     }
 
     pub async fn allowance(

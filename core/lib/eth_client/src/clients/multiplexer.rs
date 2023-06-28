@@ -106,8 +106,8 @@ impl MultiplexerEthereumClient {
         multiple_call!(self, get_gas_price());
     }
 
-    pub async fn sender_eth_balance(&self) -> Result<U256, anyhow::Error> {
-        multiple_call!(self, sender_eth_balance());
+    pub async fn sender_rbtc_balance(&self) -> Result<U256, anyhow::Error> {
+        multiple_call!(self, sender_rbtc_balance());
     }
 
     pub async fn sign_prepared_tx(
@@ -148,8 +148,8 @@ impl MultiplexerEthereumClient {
         multiple_call!(self, failure_reason(tx_hash));
     }
 
-    pub async fn eth_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
-        multiple_call!(self, eth_balance(address));
+    pub async fn rbtc_balance(&self, address: Address) -> Result<U256, anyhow::Error> {
+        multiple_call!(self, rbtc_balance(address));
     }
 
     pub async fn allowance(

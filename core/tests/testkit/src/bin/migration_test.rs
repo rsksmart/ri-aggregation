@@ -1,4 +1,4 @@
-use crate::eth_account::{parse_ether, RootstockAccount};
+use crate::eth_account::{parse_rbtc, RootstockAccount};
 use crate::external_commands::{deploy_contracts, get_test_accounts, run_upgrade_franklin};
 use crate::zksync_account::ZkSyncAccount;
 use std::time::Instant;
@@ -80,7 +80,7 @@ async fn migration_test() {
         None,
     );
 
-    let deposit_amount = parse_ether("1.0").unwrap();
+    let deposit_amount = parse_rbtc("1.0").unwrap();
 
     let token = TokenId(0);
     perform_basic_operations(

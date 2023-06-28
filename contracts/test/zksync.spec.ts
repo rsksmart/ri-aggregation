@@ -192,7 +192,7 @@ describe('ZK priority queue ops unit tests', function () {
 
         let tx;
         if (token === hardhat.ethers.constants.AddressZero) {
-            tx = await zksyncContract.depositETH(depositOwner, {
+            tx = await zksyncContract.depositRBTC(depositOwner, {
                 value: depositAmount
             });
         } else {
@@ -243,7 +243,7 @@ describe('ZK priority queue ops unit tests', function () {
         expect(priorityQueueEvent.args.expirationBlock, 'expiration block').eq(deadlineBlock);
     }
 
-    it('success ETH deposits', async () => {
+    it('success RBTC deposits', async () => {
         zksyncContract.connect(wallet);
         const tokenAddress = hardhat.ethers.constants.AddressZero;
         const depositAmount = parseEther('1.0');
@@ -370,7 +370,7 @@ describe('zkSync withdraw unit tests', function () {
         );
     }
 
-    it('Withdraw ETH success', async () => {
+    it('Withdraw RBTC success', async () => {
         zksyncContract.connect(wallet);
         const withdrawAmount = parseEther('1.0');
 
@@ -389,7 +389,7 @@ describe('zkSync withdraw unit tests', function () {
         await performWithdraw(wallet, constants.AddressZero, 0, withdrawAmount.div(2));
     });
 
-    it('Withdraw ETH incorrect amount', async () => {
+    it('Withdraw RBTC incorrect amount', async () => {
         zksyncContract.connect(wallet);
         const withdrawAmount = parseEther('1.0');
 
@@ -647,7 +647,7 @@ describe('zkSync test process next operation', function () {
         zksyncContract.connect(wallet);
         const depositAmount = BigNumber.from('2');
 
-        await zksyncContract.depositETH(wallet.address, { value: depositAmount });
+        await zksyncContract.depositRBTC(wallet.address, { value: depositAmount });
 
         // construct deposit pubdata
         const pubdata = Buffer.alloc(CHUNK_SIZE * 6, 0);

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
 use zksync_basic_types::{AccountId, Address};
-use zksync_crypto::params::ETH_TOKEN_ID;
+use zksync_crypto::params::RBTC_TOKEN_ID;
 
 use crate::{
     operations::{ChangePubKeyOp, MintNFTOp},
@@ -243,7 +243,7 @@ impl ZkSyncTx {
         match self {
             ZkSyncTx::Transfer(tx) => tx.token,
             ZkSyncTx::Withdraw(tx) => tx.token,
-            ZkSyncTx::Close(_) => ETH_TOKEN_ID,
+            ZkSyncTx::Close(_) => RBTC_TOKEN_ID,
             ZkSyncTx::ChangePubKey(tx) => tx.fee_token,
             ZkSyncTx::ForcedExit(tx) => tx.token,
             ZkSyncTx::Swap(tx) => tx.fee_token,

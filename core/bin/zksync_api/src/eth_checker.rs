@@ -159,7 +159,7 @@ mod tests {
 
         let signature_data = hex::decode(SIG_DATA).unwrap();
 
-        let modified_message = EthereumChecker::get_sign_message(MESSAGE.as_bytes());
+        let modified_message = RootstockChecker::get_sign_message(MESSAGE.as_bytes());
         // Here we use `web3::signing` module for purpose to not interfer with our own recovering implementation.
         // Otherwise it's possible that signing / recovering will overlap with the same error.
         let restored_address = web3::signing::recover(

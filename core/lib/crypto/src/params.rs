@@ -97,7 +97,7 @@ pub fn max_fungible_token_id() -> TokenId {
     TokenId(number_of_processable_tokens() as u32 - 1)
 }
 
-pub const ETH_TOKEN_ID: TokenId = TokenId(0);
+pub const RBTC_TOKEN_ID: TokenId = TokenId(0);
 
 pub const ACCOUNT_ID_BIT_WIDTH: usize = 32;
 

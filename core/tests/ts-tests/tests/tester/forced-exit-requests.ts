@@ -59,7 +59,7 @@ Tester.prototype.testForcedExitRequestMultipleTokens = async function (
             amount: amounts[i]
         });
     });
-    const batch = await batchBuilder.build('ETH');
+    const batch = await batchBuilder.build('RBTC');
     const handles = await wallet.submitSignedTransactionsBatch(from.provider, batch.txs, [batch.signature!]);
 
     // Waiting only for the first tx since we send the transactions in batch

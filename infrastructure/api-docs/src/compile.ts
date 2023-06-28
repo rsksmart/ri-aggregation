@@ -56,14 +56,14 @@ async function setupWallet() {
 
     const depositHandle = await syncWallet.depositToSyncFromEthereum({
         depositTo: syncWallet.address(),
-        token: 'ETH',
-        amount: syncWallet.provider.tokenSet.parseToken('ETH', '1000')
+        token: 'RBTC',
+        amount: syncWallet.provider.tokenSet.parseToken('RBTC', '1000')
     });
     await depositHandle.awaitReceipt();
 
     if (!(await syncWallet.isSigningKeySet())) {
         const changePubkeyHandle = await syncWallet.setSigningKey({
-            feeToken: 'ETH',
+            feeToken: 'RBTC',
             ethAuthType: 'ECDSA'
         });
         await changePubkeyHandle.awaitReceipt();
@@ -90,14 +90,14 @@ interface Parameters {
 async function getHashesAndSignatures() {
     let syncWallet = await setupWallet();
 
-    const handle = await syncWallet.syncTransfer({ to: syncWallet.address(), token: 'ETH', amount: 0 });
+    const handle = await syncWallet.syncTransfer({ to: syncWallet.address(), token: 'RBTC', amount: 0 });
     await handle.awaitReceipt();
     const txHash = handle.txHash;
 
     const batch = await syncWallet
         .batchBuilder()
-        .addTransfer({ to: syncWallet.address(), token: 'ETH', amount: 0 })
-        .build('ETH');
+        .addTransfer({ to: syncWallet.address(), token: 'RBTC', amount: 0 })
+        .build('RBTC');
 
     const submitBatchResponse = await (syncWallet.provider as zksync.RestProvider).submitTxsBatchNew(
         batch.txs,
@@ -108,7 +108,7 @@ async function getHashesAndSignatures() {
 
     const signedTransfer = await syncWallet.signSyncTransfer({
         to: '0xD3c62D2F7b6d4A63577F2415E55A6Aa6E1DbB9CA',
-        token: 'ETH',
+        token: 'RBTC',
         amount: '17500000000000000',
         fee: '12000000000000000000',
         nonce: 12123,
@@ -124,7 +124,7 @@ async function getHashesAndSignatures() {
     const mintHandle = await syncWallet.mintNFT({
         recipient: address,
         contentHash: ethers.utils.randomBytes(32),
-        feeToken: 'ETH'
+        feeToken: 'RBTC'
     });
     const mintNFTTxHash = mintHandle.txHash;
     await mintHandle.awaitVerifyReceipt();
