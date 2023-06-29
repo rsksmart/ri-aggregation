@@ -2,8 +2,6 @@ import { Tester } from './tester';
 import { expect } from 'chai';
 import { Wallet, types, utils, SyncProvider } from 'zksync';
 import { BigNumber, ethers } from 'ethers';
-import { Address } from '@rsksmart/rif-aggregation-sdk-js/build/types';
-import { sleep } from '@rsksmart/rif-aggregation-sdk-js/build/utils';
 
 import { RevertReceiveAccountFactory, RevertTransferERC20Factory } from '../../../../../contracts/typechain';
 import { loadTestConfig } from 'reading-tool';
@@ -11,6 +9,7 @@ import { loadTestConfig } from 'reading-tool';
 const TEST_CONFIG = loadTestConfig(true);
 
 type TokenLike = types.TokenLike;
+type Address = types.Address;
 
 declare module './tester' {
     interface Tester {
@@ -38,7 +37,7 @@ async function waitForOnchainWithdrawal(
         if (withdrawalTxHash != null) {
             break;
         }
-        await sleep(polling_interval);
+        await utils.sleep(polling_interval);
     }
 
     return withdrawalTxHash;

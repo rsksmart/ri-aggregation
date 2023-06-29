@@ -841,16 +841,6 @@
     estree-walker "^1.0.1"
     picomatch "^2.2.2"
 
-"@rsksmart/rif-aggregation-sdk-js@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@rsksmart/rif-aggregation-sdk-js/-/rif-aggregation-sdk-js-0.0.2.tgz#344618019145b83e9a806184c272a1d24b227cb1"
-  integrity sha512-FinZJVJ2mLVYcs6eqzjpTa+m5a5ILzkmmo1c+yGm6eBMeds+58kwl+97VU4YCywcHKIjLVsCW2jLC6bT4MAa+Q==
-  dependencies:
-    axios "^0.21.2"
-    websocket "^1.0.30"
-    websocket-as-promised "^1.1.0"
-    zksync-crypto "^0.6.1"
-
 "@sentry/core@5.30.0":
   version "5.30.0"
   resolved "https://registry.yarnpkg.com/@sentry/core/-/core-5.30.0.tgz#6b203664f69e75106ee8b5a2fe1d717379b331f3"
