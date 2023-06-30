@@ -140,8 +140,12 @@ In RIF Rollup the cost of every transaction has two components:
 
 - **Off-chain part (storage + prover costs):** the cost of the state storage and the SNARK (zero-knowledge proof)
   generation. This part depends on the use of hardware resources and is therefore invariable. Our benchmarks give
-  estimates of [~0.001 USD](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/fee_ticker/mod.rs#L269) per transfer.
-- **On-chain part (gas costs):** for every RIF Rollup block the validator must pay gas to verify the SNARK proof, plus additional gas per transaction to publish the state 𝛥, depending on the transaction type. However, this part is orders of magnitude cheaper than the cost of normal RBTC/ERC20 transfers.
+  estimates of
+  [~0.001 USD](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/fee_ticker/mod.rs#L269) per
+  transfer.
+- **On-chain part (gas costs):** for every RIF Rollup block the validator must pay gas to verify the SNARK proof, plus
+  additional gas per transaction to publish the state 𝛥, depending on the transaction type. However, this part is orders
+  of magnitude cheaper than the cost of normal RBTC/ERC20 transfers.
 
 ### **How fees are paid**
 
@@ -197,11 +201,11 @@ cost for the whole batch, in the provided _tokenForFees_ token. For that it will
 > $
 >
 > $
-> total\_zkp\_fee\_in\_tokens = cost\_per\_chunk\_in\_usd * total\_chunks * token\_price\_with\_risk\_in\_usd
+> total\_zkp\_fee\_in\_tokens = cost\_per\_chunk\_in\_usd *total\_chunks* token\_price\_with\_risk\_in\_usd
 > $
 >
 > $
-> total\_gas\_fee\_in\_tokens = wei\_in\_usd * total\_gas * gas\_price\_in\_wei * scale\_factor * token\_price\_with\_risk\_in\_usd
+> total\_gas\_fee\_in\_tokens = wei\_in\_usd *total\_gas* gas\_price\_in\_wei *scale\_factor* token\_price\_with\_risk\_in\_usd
 > $
 >
 > $
@@ -264,8 +268,8 @@ amount of USD paid for the batch
 Then it calculates the cost of the batch in the token0 (RBTC), and also fetches the token0 price in USD, these two
 values are used to calculate the batch fee cost in USD
 ([_required_total_usd_fee_](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L789)).
-Finally, it checks that _provided_total_usd_fee_ (plus a constant upscaling the user’s paid fee to compensate for price
-fluctuations) is greater or equal than _required_total_usd_fee_, otherwise, the submission fails. If in this scenario
+Finally, it checks that _provided_total_usd_fee_(plus a constant upscaling the user’s paid fee to compensate for price
+fluctuations) is greater or equal than*required_total_usd_fee*, otherwise, the submission fails. If in this scenario
 transactions are operating in tokens that are not eligible as fee tokens, then their fee amount must be 0 (otherwise the
 submission will fail). Since these are
 [included](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/api_server/tx_sender.rs#L685) in the

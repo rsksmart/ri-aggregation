@@ -6,9 +6,6 @@ import { Wallet, types, utils, wallet } from 'zksync';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 import * as path from 'path';
 
-import { Address } from '@rsksmart/rif-aggregation-sdk-js/build/types';
-import { sleep } from '@rsksmart/rif-aggregation-sdk-js/build/utils';
-
 import './transfer';
 
 const testConfigPath = path.join(process.env.ZKSYNC_HOME as string, `etc/test_config/constant`);
@@ -16,6 +13,7 @@ const apiTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/api.json`, {
 const apiUrl = `${apiTestConfig.rest_api_url}/api/forced_exit_requests/v0.1`;
 
 type TokenLike = types.TokenLike;
+type Address = types.Address;
 
 declare module './tester' {
     interface Tester {
@@ -113,7 +111,7 @@ Tester.prototype.testForcedExitRequestMultipleTokens = async function (
             break;
         }
 
-        await sleep(interval);
+        await utils.sleep(interval);
     }
 
     const balancesPromises = tokenAddresses.map((address) => getFullOnchainBalance(this, to, address));
