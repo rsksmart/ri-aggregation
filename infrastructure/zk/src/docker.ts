@@ -43,9 +43,7 @@ async function _build(image: string, tag: string) {
     }
 
     const imageTag = `-t rsksmart/rollup-${image}:${tag}`;
-    await utils.spawn(
-        `DOCKER_BUILDKIT=1 docker build ${imageTag} --platform linux/amd64 -f ./docker/${image}/Dockerfile .`
-    );
+    await utils.spawn(`DOCKER_BUILDKIT=1 docker build ${imageTag} -f ./docker/${image}/Dockerfile .`);
 }
 
 async function _push(image: string, tag: string) {

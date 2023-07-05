@@ -1,0 +1,103 @@
+version: '3.2'
+services:
+
+  server:
+    image: "rsksmart/rollup-server:0.0.1-beta"
+    ports:
+      - 3001:3001
+      - 3002:3002
+      - 3030:3030
+      - 3031:3031
+      - 3032:3032
+      - 3312:3312
+      - 8080:8080
+      - 8088:8088
+      - 8090:8090
+    volumes:
+      - type: bind
+        source: ./etc/tokens
+        target: /etc/tokens
+      - type: bind
+        source: ./etc/token-lists
+        target: /etc/token-lists
+    env_file:
+      - ${ENV_FILE-./etc/env/dev.env}
+      - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
+    environment:
+      - ZKSYNC_HOME=/
+
+  server-api:
+    extends:
+      file: docker-compose.deploy.yml
+      service: server
+    command: --components=web3-api,rest-api,rpc-api,rpc-websocket-api
+
+  server-web3:
+    extends:
+      file: docker-compose.deploy.yml
+      service: server
+    command: --components=web3-api
+
+  server-core:
+    extends:
+      file: docker-compose.deploy.yml
+      service: server
+    command: --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics
+  
+  prover:
+    image: "rsksmart/rollup-prover:0.0.1-beta"
+    env_file:
+      - ${ENV_FILE-./etc/env/dev.env}
+      - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
+    volumes:
+      - type: bind
+        source: ./keys/
+        target: /keys/
+
+  dev-liquidity-token-watcher:
+    image: "matterlabs/dev-liquidity-token-watcher:latest"
+    env_file:
+      - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
+    ports:
+      - "9975:9975"
+    volumes:
+      - ./etc/tokens/:/etc/tokens
+
+  dev-ticker:
+    image: "matterlabs/dev-ticker:latest"
+    ports:
+      - "9876:9876"
+    volumes:
+      - ./etc/tokens/:/etc/tokens
+
+  rollup:
+    image: "rsksmart/rollup-environment:0.0.1-beta"
+    command: tail -f /dev/null
+    depends_on:
+      - postgres
+      - rskj
+      - dev-ticker
+      - dev-liquidity-token-watcher
+    volumes:
+      - .:/usr/src/zksync
+      - /usr/src/cache:/usr/src/cache
+      - /usr/src/keys:/usr/src/keys
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - OVERRIDE=docker
+      - CI=1
+
+  postgres:
+    image: "postgres:12"
+    environment:
+        - POSTGRES_HOST_AUTH_METHOD=trust
+
+  rskj:
+    image: rsksmart/rskj:HOP-4.4.0
+    entrypoint:  ["java", "-cp", "rsk.jar", "co.rsk.Start" ]
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    volumes:
+      - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+      - ./docker/rskj/node.conf:/etc/rsk/node.conf

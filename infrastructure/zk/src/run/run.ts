@@ -49,8 +49,7 @@ export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?
         }
         if (feeTicker) {
             feeTicker.fee_ticker.unconditionally_valid_tokens = [
-                ...unconditionallyValidTokens,
-                ...deployedUnconditionallyValidAddresses
+                ...new Set([...unconditionallyValidTokens, ...deployedUnconditionallyValidAddresses])
             ];
             const newConfig = toml.stringify(feeTicker);
             fs.writeFileSync('./etc/env/dev/fee_ticker.toml', newConfig, 'utf-8');
@@ -93,10 +92,13 @@ export async function tokenInfo(address: string) {
 }
 
 // installs all dependencies and builds our js packages
-export async function yarn() {
+export async function yarn(sdk: boolean) {
     await utils.spawn('yarn');
-    await utils.spawn('yarn build:crypto');
-    await utils.spawn('yarn build:zksync-sdk');
+    if (sdk) {
+        await utils.spawn('yarn build:crypto');
+        await utils.spawn('yarn build:zksync-sdk');
+    }
+
     await utils.spawn('yarn build:reading-tool');
 }
 

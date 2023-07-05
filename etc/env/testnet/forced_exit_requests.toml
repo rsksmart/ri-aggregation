@@ -47,3 +47,5 @@ blocks_check_amount=10
 # How often we want to poll the RSK node (in milliseconds).
 eth_node_poll_interval=300
 
+# Addresses of the Ethereum node API, separated by comma. Consider change the web3_url to a particular IP pointing to an RSK full node.
+web3_url="https://public-node.testnet.rsk.co"

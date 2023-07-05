@@ -3,41 +3,61 @@ import * as utils from './utils';
 import * as env from './env';
 import fs from 'fs';
 import * as db from './db/db';
+import * as deploy from './deploy';
 
 import { ethers } from 'ethers';
 
-export async function core() {
+export async function core(docker: boolean) {
     prepareForcedExitRequestAccount();
 
-    await utils.spawn(
-        'cargo run --bin zksync_server --release -- --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics'
-    );
+    if (docker) {
+        await deploy.dockerUp('server-core');
+    } else {
+        await utils.spawn(
+            'cargo run --bin zksync_server --release -- --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics'
+        );
+    }
 }
 
-export async function web3Node() {
-    await utils.spawn('cargo run --bin zksync_server --release -- --components=web3-api');
+export async function web3Node(docker: boolean) {
+    if (docker) {
+        await deploy.dockerUp('server-web3');
+    } else {
+        await utils.spawn('cargo run --bin zksync_server --release -- --components=web3-api');
+    }
 }
 
-export async function apiNode() {
-    await utils.spawn(
-        'cargo run --bin zksync_server --release -- --components=web3-api,rest-api,rpc-api,rpc-websocket-api'
-    );
+export async function apiNode(docker: boolean) {
+    if (docker) {
+        await deploy.dockerUp('server-api');
+    } else {
+        await utils.spawn(
+            'cargo run --bin zksync_server --release -- --components=web3-api,rest-api,rpc-api,rpc-websocket-api'
+        );
+    }
 }
 
-export async function server() {
+export async function server(docker: boolean) {
     // By the time this function is run the server is most likely not be running yet
     // However, it does not matter, since the only thing the function does is depositing
     // to the forced exit sender account, and server should be capable of recognizing
     // priority operaitons that happened before it was booted
     prepareForcedExitRequestAccount();
-
-    await utils.spawn('cargo run --bin zksync_server --release');
+    if (docker) {
+        await deploy.dockerUp('server');
+    } else {
+        await utils.spawn('cargo run --bin zksync_server --release');
+    }
 }
 
-export async function genesis() {
+export async function genesis(docker: boolean) {
     await db.reset();
     await utils.confirmAction();
-    await utils.spawn('cargo run --bin zksync_server --release -- --genesis | tee genesis.log');
+    if (docker) {
+        await deploy.dockerRun('--rm server --genesis | tee genesis.log');
+    } else {
+        await utils.spawn('cargo run --bin zksync_server --release -- --genesis | tee genesis.log');
+    }
     const genesisRoot = fs.readFileSync('genesis.log').toString().trim();
     const date = new Date();
     const [year, month, day, hour, minute, second] = [
@@ -62,7 +82,7 @@ async function prepareForcedExitRequestAccount() {
     const forcedExitAccount = process.env.FORCED_EXIT_REQUESTS_SENDER_ACCOUNT_ADDRESS as string;
 
     // This is the private key of the first test account ()
-    const ethProvider = new ethers.providers.JsonRpcProvider(process.env.ETH_CLIENT_WEB3_URL);
+    const ethProvider = new ethers.providers.JsonRpcProvider(process.env.FORCED_EXIT_REQUESTS_WEB3_URL);
     const ethRichWallet = new ethers.Wallet(
         '0x20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323',
         ethProvider
@@ -102,14 +122,40 @@ async function prepareForcedExitRequestAccount() {
 export const command = new Command('server')
     .description('start zksync server')
     .option('--genesis', 'generate genesis data via server')
+    .option('--docker', 'use docker container instead of local environment')
     .action(async (cmd: Command) => {
-        if (cmd.genesis) {
-            await genesis();
+        const { genesis, docker } = cmd;
+        if (genesis) {
+            await genesis(docker);
         } else {
-            await server();
+            await server(docker);
         }
     });
 
-command.command('api').description('start api node').action(apiNode);
-command.command('web3').description('start web3 node').action(web3Node);
-command.command('core').description('start core').action(core);
+command
+    .command('api')
+    .description('start api node')
+    .action(async (cmd: Command) => {
+        const {
+            parent: { docker }
+        } = cmd;
+        await apiNode(docker);
+    });
+command
+    .command('web3')
+    .description('start web3 node')
+    .action(async (cmd: Command) => {
+        const {
+            parent: { docker }
+        } = cmd;
+        await web3Node(docker);
+    });
+command
+    .command('core')
+    .description('start core')
+    .action(async (cmd: Command) => {
+        const {
+            parent: { docker }
+        } = cmd;
+        await core(docker);
+    });
