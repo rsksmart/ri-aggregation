@@ -34,7 +34,7 @@ export async function init() {
     await announced('Running server genesis setup', server.genesis());
     await announced('Deploying main contracts', contract.redeploy());
     if (!process.env.CI) {
-        await announced('Restarting dev liquidity watcher', docker.restart('dev-liquidity-token-watcher'));
+        await announced('Restarting dev liquidity watcher', docker.restart('dev-ticker'));
     }
 }
 
@@ -44,7 +44,7 @@ export async function reinit() {
     await announced('Building contracts', contract.build());
     await announced('Running server genesis setup', server.genesis());
     await announced('Deploying main contracts', contract.redeploy());
-    await announced('Restarting dev liquidity watcher', docker.restart('dev-liquidity-token-watcher'));
+    await announced('Restarting dev liquidity watcher', docker.restart('dev-ticker'));
 }
 
 // Wrapper that writes an announcement and completion notes for each executed task.

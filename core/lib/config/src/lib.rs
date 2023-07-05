@@ -1,8 +1,7 @@
 pub use crate::configs::{
-    ApiConfig, ChainConfig, ContractsConfig, DBConfig, DevLiquidityTokenWatcherConfig,
-    ETHClientConfig, ETHSenderConfig, ETHWatchConfig, EventListenerConfig,
-    ForcedExitRequestsConfig, GatewayWatcherConfig, MiscConfig, ProverConfig, TickerConfig,
-    TokenHandlerConfig,
+    ApiConfig, ChainConfig, ContractsConfig, DBConfig, DevTickerConfig, ETHClientConfig,
+    ETHSenderConfig, ETHWatchConfig, EventListenerConfig, ForcedExitRequestsConfig,
+    GatewayWatcherConfig, MiscConfig, ProverConfig, TickerConfig, TokenHandlerConfig,
 };
 
 pub mod configs;
