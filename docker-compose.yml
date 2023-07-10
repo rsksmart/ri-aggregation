@@ -26,6 +26,7 @@ services:
   
   dev-ticker:
     build:
+      context: .
       dockerfile: ./docker/dev-ticker/Dockerfile
     env_file:
       - ./etc/env/docker.env
