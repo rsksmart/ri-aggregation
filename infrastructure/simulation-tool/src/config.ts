@@ -6,8 +6,9 @@ type TxValueLimits = [BigNumberish, BigNumberish];
 type Config = {
     rollupUrl: string;
     nodeUrl: string;
+    chainId: number;
     transactionsPerSecond: number;
-    totalTransactions: number;
+    totalRunningTimeSeconds: number;
     numberOfAccounts: number;
     weiLimits: {
         deposit: TxValueLimits;
@@ -20,8 +21,9 @@ const getConfig = (key: keyof Config): Config[typeof key] => nodeConfig.get<Conf
 const config: Record<keyof Config, ReturnType<typeof getConfig>> = {
     rollupUrl: getConfig('rollupUrl'),
     nodeUrl: getConfig('nodeUrl'),
+    chainId: getConfig('chainId'),
     transactionsPerSecond: getConfig('transactionsPerSecond'),
-    totalTransactions: getConfig('totalTransactions'),
+    totalRunningTimeSeconds: getConfig('totalRunningTimeSeconds'),
     numberOfAccounts: getConfig('numberOfAccounts'),
     weiLimits: getConfig('weiLimits')
 };
