@@ -1,11 +1,24 @@
-import { Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
-import { DepositResult, executeDeposit, getDepositResult, prepareDeposit } from '../operations/deposit';
-import { Wallet as EthersWallet } from 'ethers';
+import { PreparedDeposit, generateDeposits } from '../operations/deposit';
+import {
+    generateL1Wallets
+} from '../wallet';
+import { SimulationConfiguration } from './common';
 
-const depositToSelf = async (l1wallet: EthersWallet, l2wallet: RollupWallet): Promise<DepositResult> => {
-    const preparedDeposit = prepareDeposit(l2wallet, l1wallet);
-    const deposit = await executeDeposit(preparedDeposit);
-    return getDepositResult(deposit);
+const runSimulation = async ({ l1WalletGenerator, , numberOfAccounts, totalRunningTimeSeconds, transactionsPerSecond }: SimulationConfiguration) => {
+    console.log('Creating transfer recepients from HD wallet ...');
+    const recepients = generateL1Wallets(numberOfAccounts - 1, l1WalletGenerator);
+    console.log(`Created ${recepients.length} recipients.`);
+
+    // Create transactions
+    console.log('Creating deposits ...');
+    const txCount = totalRunningTimeSeconds * transactionsPerSecond;
+
+    const preparedTransfers: PreparedDeposit[] = generateDeposits(txCount, funderL2Wallet, recepients);
+    console.log(`Created ${preparedTransfers.length} transfers`);
+
 };
 
-export { depositToSelf };
+export {
+    runSimulation as runDepositSimulation
+};
+
