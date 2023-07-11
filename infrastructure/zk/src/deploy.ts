@@ -7,9 +7,9 @@ import * as run from './run/run';
 import * as utils from './utils';
 import { announced, checkEnv } from './init';
 
-async function prepareEnvironment(sdk: boolean) {
+async function prepareEnvironment() {
     await announced('Checking environment', checkEnv());
-    await announced('Compiling JS packages', run.yarn(sdk));
+    await announced('Compiling JS packages', run.yarn(false));
 }
 
 async function prepareKeys() {
@@ -17,8 +17,8 @@ async function prepareKeys() {
     await announced('Unpacking verification  keys', run.verifyKeys.unpack());
 }
 
-async function prepareServer(docker: boolean, sdk: boolean) {
-    await prepareEnvironment(sdk);
+async function prepareServer(docker: boolean) {
+    await prepareEnvironment();
     await prepareKeys();
     await announced('Setting up database', db.setup());
     await announced('Building contracts', contract.build());
@@ -29,8 +29,8 @@ async function prepareServer(docker: boolean, sdk: boolean) {
     await announced('Deploying main contracts', contract.redeploy());
 }
 
-async function prepareProver(sdk: boolean) {
-    await prepareEnvironment(sdk);
+async function prepareProver() {
+    await prepareEnvironment();
     await prepareKeys();
     await announced('Building contracts', contract.build());
 }
@@ -55,33 +55,19 @@ function getEnvironmentFiles() {
 
 export const command = new Command('deploy')
     .option('--docker', 'use docker container instead of local environment')
-    .option('--sdk', 'include sdk packages')
     .description('commands for zksync dummy prover');
 
 command
     .command('prepare-environment')
     .description('perform rollup environment preparation for deployment')
-    .action(async (cmd: Command) => {
-        const {
-            parent: { sdk }
-        } = cmd;
-        await prepareEnvironment(sdk);
-    });
+    .action(prepareEnvironment);
 command
     .command('prepare-server')
     .description('perform rollup server preparation for deployment')
     .action(async (cmd: Command) => {
         const {
-            parent: { docker, sdk }
+            parent: { docker }
         } = cmd;
-        await prepareServer(docker, sdk);
+        await prepareServer(docker);
     });
-command
-    .command('prepare-prover')
-    .description('perform rollup prover preparation for deployment')
-    .action(async (cmd: Command) => {
-        const {
-            parent: { sdk }
-        } = cmd;
-        await prepareProver(sdk);
-    });
+command.command('prepare-prover').description('perform rollup prover preparation for deployment').action(prepareProver);

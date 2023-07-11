@@ -45,6 +45,3 @@ blocks_check_amount=10
 
 # How often we want to poll the Rootstock node (in milliseconds).
 eth_node_poll_interval=300
-
-# Addresses of the Ethereum node API, separated by comma
-web3_url="http://127.0.0.1:8545"

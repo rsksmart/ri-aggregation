@@ -25,11 +25,11 @@ zk init
 This command will do the following:
 
 - Generate `$ZKSYNC_HOME/etc/env/dev.env` file with settings for the applications.
-- Initialize docker containers with `geth` Rootstock node and `postgres` database for local development.
+- Initialize docker containers with `RSKj` node and `postgres` database for local development.
 - Download and unpack files for cryptographical backend (`circuit`).
 - Generate required smart contracts.
 - Compile all the smart contracts.
-- Deploy smart contracts to the local Rootstock network.
+- Deploy smart contracts to the local RSKj network.
 - Initialize database and apply migrations.
 - Insert required data into created database.
 - Create “genesis block” for server.

@@ -31,7 +31,7 @@ export async function init(sdk: boolean) {
     await announced('Deploying localhost ERC20 tokens', run.deployERC20('dev'));
     await announced('Deploying localhost EIP1271 contract', run.deployEIP1271());
     await announced('Deploying withdrawal helpers contracts', run.deployWithdrawalHelpersContracts());
-    await announced('Running server genesis setup', server.genesis(false));
+    await announced('Running server genesis setup', server.genesis());
     await announced('Deploying main contracts', contract.redeploy());
     if (!process.env.CI) {
         await announced('Restarting dev liquidity watcher', docker.restart('dev-ticker'));

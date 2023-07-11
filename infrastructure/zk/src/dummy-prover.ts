@@ -12,7 +12,7 @@ async function performRedeployment(docker: boolean) {
     await contract.redeploy();
 }
 
-export async function run(docker: boolean) {
+export async function run(docker = false) {
     if (docker) {
         await deploy.dockerUp('prover');
     } else {
@@ -40,11 +40,11 @@ async function setStatus(value: boolean, redeploy: boolean, docker: boolean) {
     }
 }
 
-export async function enable(redeploy: boolean, docker: boolean) {
+export async function enable(redeploy = true, docker = false) {
     await setStatus(true, redeploy, docker);
 }
 
-export async function disable(redeploy: boolean, docker: boolean) {
+export async function disable(redeploy = true, docker = false) {
     await setStatus(false, redeploy, docker);
 }
 

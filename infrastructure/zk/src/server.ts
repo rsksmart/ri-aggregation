@@ -7,7 +7,7 @@ import * as deploy from './deploy';
 
 import { ethers } from 'ethers';
 
-export async function core(docker: boolean) {
+export async function core(docker = false) {
     prepareForcedExitRequestAccount();
 
     if (docker) {
@@ -19,7 +19,7 @@ export async function core(docker: boolean) {
     }
 }
 
-export async function web3Node(docker: boolean) {
+export async function web3Node(docker = false) {
     if (docker) {
         await deploy.dockerUp('server-web3');
     } else {
@@ -27,7 +27,7 @@ export async function web3Node(docker: boolean) {
     }
 }
 
-export async function apiNode(docker: boolean) {
+export async function apiNode(docker = false) {
     if (docker) {
         await deploy.dockerUp('server-api');
     } else {
@@ -37,7 +37,7 @@ export async function apiNode(docker: boolean) {
     }
 }
 
-export async function server(docker: boolean) {
+export async function server(docker = false) {
     // By the time this function is run the server is most likely not be running yet
     // However, it does not matter, since the only thing the function does is depositing
     // to the forced exit sender account, and server should be capable of recognizing
@@ -50,7 +50,7 @@ export async function server(docker: boolean) {
     }
 }
 
-export async function genesis(docker: boolean) {
+export async function genesis(docker = false) {
     await db.reset();
     await utils.confirmAction();
     if (docker) {
@@ -82,7 +82,9 @@ async function prepareForcedExitRequestAccount() {
     const forcedExitAccount = process.env.FORCED_EXIT_REQUESTS_SENDER_ACCOUNT_ADDRESS as string;
 
     // This is the private key of the first test account ()
-    const ethProvider = new ethers.providers.JsonRpcProvider(process.env.FORCED_EXIT_REQUESTS_WEB3_URL);
+    const ethProvider = new ethers.providers.JsonRpcProvider(
+        process.env.FORCED_EXIT_REQUESTS_WEB3_URL ?? process.env.ETH_CLIENT_WEB3_URL
+    );
     const ethRichWallet = new ethers.Wallet(
         '0x20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323',
         ethProvider

@@ -7,7 +7,7 @@ import * as run from '../run/run';
 
 export async function withServer(testSuite: () => Promise<void>, timeout: number) {
     if (!(await dummyProver.status())) {
-        await dummyProver.enable(true, false);
+        await dummyProver.enable();
     }
 
     await utils.spawn('cargo build --bin zksync_server --release');
