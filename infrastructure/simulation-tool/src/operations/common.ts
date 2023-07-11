@@ -5,19 +5,19 @@ import { depositToSelf } from '../simulations/setup';
 const ensureL1Funds = (funder: Signer) => async (totalAmount: BigNumber, account: Signer) => {
     const accountBalance = await account.getBalance();
     if (accountBalance.lt(totalAmount)) {
-        console.log(
-            `Funding account ${await account.getAddress()} with ${totalAmount
-                .sub(accountBalance)
-                .toString()} RBTC from funder ${await funder.getAddress()}`
-        );
-
         const latestBlock = await funder.provider.getBlock('latest');
         const gasLimit = latestBlock.gasLimit;
         const gasPrice = await funder.provider.getGasPrice();
+        const value = totalAmount.sub(accountBalance).add(gasLimit.mul(gasPrice)); // Adds gas cost for a future transaction (totalAmount - balance would not be enough to cover gas cost);
+        console.log(
+            `Funding account ${await account.getAddress()} with ${value} RBTC \nfrom funder ${await funder.getAddress()} \nwith ${await funder.getBalance(
+                'pending'
+            )} RBTC`
+        );
 
         const tx = await funder.sendTransaction({
             to: await account.getAddress(),
-            value: totalAmount.sub(accountBalance).add(gasLimit.mul(gasPrice)) // Adds gas cost for a future transaction (totalAmount - balance would not be enough to cover gas cost)
+            value
         });
         await tx.wait();
         console.log(
