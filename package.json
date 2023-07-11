@@ -12,6 +12,7 @@
       "infrastructure/reading-tool",
       "infrastructure/token-lists-manager",
       "infrastructure/api-docs",
+      "infrastructure/simulation-tool",
       "core/tests/ts-tests"
     ]
   },
@@ -19,12 +20,14 @@
     "build:zksync-sdk": "yarn zksync prepublish",
     "build:crypto": "yarn crypto build",
     "build:reading-tool": "yarn reading-tool build",
+    "build:simulation-tool": "yarn simulation-tool build",
     "zksync": "yarn workspace zksync",
     "crypto": "yarn workspace zksync-crypto",
     "contracts": "yarn workspace franklin-contracts",
     "ts-tests": "yarn workspace ts-tests",
     "zk": "yarn workspace zk",
     "reading-tool": "yarn workspace reading-tool",
+    "simulation-tool": "yarn workspace simulation-tool",
     "api-docs": "yarn workspace api-docs"
   },
   "devDependencies": {

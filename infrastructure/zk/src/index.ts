@@ -19,6 +19,7 @@ import { command as lint } from './lint';
 import { command as completion } from './completion';
 import { command as config } from './config';
 import { command as apiDocs } from './api-docs';
+import { command as simulate } from './simulate';
 import * as env from './env';
 
 const COMMANDS = [
@@ -39,6 +40,7 @@ const COMMANDS = [
     docker,
     config,
     apiDocs,
+    simulate,
     env.command,
     completion(program as Command)
 ];
