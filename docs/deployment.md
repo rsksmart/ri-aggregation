@@ -3,11 +3,11 @@
 This document covers deployment-related actions in rif-rollup. The deployment script provides multiple utilities to
 prepare and deploy the different rif-rollup components.
 
-The deployment script can take advantage of docker and reduce the amount of components to be build.
+The deployment script can take advantage of docker and reduce the amount of components to build.
 
 ## Prerequisites
 
-By default the rif-rollup system will use the `dev` environment configuration, to use different environment
+By default the rif-rollup system will use the `dev` environment configuration; to use different environment
 configuration we need to compile the configuration folder with the command:
 
 ```
