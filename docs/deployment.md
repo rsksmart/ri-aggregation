@@ -138,10 +138,10 @@ OVERRIDE=deploy zk deploy --docker prepare-server
 OVERRIDE=deploy zk dummy-prover --docker enable
 ```
 
-5. Initialize docker containers with `dev-ticker` and `dev-liquidity-token-watcher` for local development.
+5. Initialize docker containers with `dev-ticker` for local development.
 
 ```
-docker-compose -f docker-compose.deploy.yml up -d dev-ticker dev-liquidity-token-watcher
+docker-compose -f docker-compose.deploy.yml up -d dev-ticker
 ```
 
 6. Start running the `server`.

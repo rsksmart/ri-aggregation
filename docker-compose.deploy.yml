@@ -1,6 +1,5 @@
 version: '3.2'
 services:
-
   server:
     image: "rsksmart/rollup-server:0.0.1-beta"
     ports: #Ports that where configured using the environment variables
@@ -54,17 +53,10 @@ services:
         source: ./keys/
         target: /keys/
 
-  dev-liquidity-token-watcher:
-    image: "matterlabs/dev-liquidity-token-watcher:latest"
+  dev-ticker:
+    image: "rsksmart/rollup-dev-ticker:0.0.1-beta"
     env_file:
       - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
-    ports:
-      - "9975:9975"
-    volumes:
-      - ./etc/tokens/:/etc/tokens
-
-  dev-ticker:
-    image: "matterlabs/dev-ticker:latest"
     ports:
       - "9876:9876"
     volumes:
@@ -77,7 +69,6 @@ services:
       - postgres
       - rskj
       - dev-ticker
-      - dev-liquidity-token-watcher
     volumes:
       - .:/usr/src/zksync
       - /usr/src/cache:/usr/src/cache

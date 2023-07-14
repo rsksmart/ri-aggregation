@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM rust:1.68 as builder
+FROM rust:1.69 as builder
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo install sccache --no-default-features
 WORKDIR /usr/src/rollup
@@ -16,4 +16,5 @@ EXPOSE 9876
 ENV RUST_BACKTRACE "full"
 ENV RUST_LOG info
 COPY --from=builder /usr/src/rollup/target/release/dev_ticker_server /bin/
+COPY --from=builder /usr/src/rollup/etc/tokens /etc/tokens
 ENTRYPOINT ["dev_ticker_server"]
