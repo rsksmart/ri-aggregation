@@ -16,5 +16,4 @@ EXPOSE 9876
 ENV RUST_BACKTRACE "full"
 ENV RUST_LOG info
 COPY --from=builder /usr/src/rollup/target/release/dev_ticker_server /bin/
-COPY --from=builder /usr/src/rollup/etc/tokens /etc/tokens
 ENTRYPOINT ["dev_ticker_server"]
