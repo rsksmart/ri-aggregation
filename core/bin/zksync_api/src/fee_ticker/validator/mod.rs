@@ -2,6 +2,7 @@
 //! an entity which decides whether certain ERC20 token is suitable for paying fees.
 
 pub mod cache;
+pub mod types;
 pub mod watcher;
 
 // Built-in uses
@@ -56,6 +57,7 @@ impl<W: TokenWatcher> MarketUpdater<W> {
         {
             vlog::error!("Error in updating token market volume {}", e);
         }
+
         Ok(market)
     }
 
@@ -141,12 +143,12 @@ impl FeeTokenValidator {
             Some(volume) => volume,
             None => return Ok(false),
         };
-
         if Utc::now() - volume.last_updated > self.available_time {
             vlog::warn!("Token market amount for {} is not relevant", &token.symbol)
         }
         let allowed = ratio_to_big_decimal(&volume.market_volume, 2) >= self.liquidity_volume;
         metrics::histogram!("ticker.validator.check_token", start.elapsed());
+
         Ok(allowed)
     }
 
@@ -162,8 +164,9 @@ impl FeeTokenValidator {
 mod tests {
     use super::*;
     use crate::fee_ticker::validator::cache::TokenInMemoryCache;
-    use num::rational::Ratio;
+    use crate::fee_ticker::validator::watcher::CoinGeckoTokenWatcher;
     use num::BigUint;
+    use num::{rational::Ratio, Zero};
     use std::collections::HashMap;
     use std::str::FromStr;
     use std::sync::Arc;
@@ -186,6 +189,20 @@ mod tests {
                 .unwrap()
                 .clone())
         }
+    }
+
+    #[tokio::test]
+    #[ignore]
+    // We can use this test only online, run it manually if you need to test connection to coingecko
+    async fn get_real_token_amount() {
+        let mainnet_rif_contract_addr = "2acc95758f8b5f583470ba265eb685a8f45fc9d5";
+
+        let mut watcher =
+            CoinGeckoTokenWatcher::new("https://api.coingecko.com/api/v3".to_string(), 30);
+        let rif_token_address: Address = mainnet_rif_contract_addr.parse().unwrap();
+        let rif_token = Token::new(TokenId(1), rif_token_address, "RIF", 18, TokenKind::ERC20);
+        let amount = watcher.get_token_market_volume(&rif_token).await.unwrap();
+        assert!(amount > BigDecimal::zero());
     }
 
     #[tokio::test]

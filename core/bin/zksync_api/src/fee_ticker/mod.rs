@@ -25,6 +25,7 @@ use tokio::time::Instant;
 // Workspace deps
 
 use zksync_config::configs::ticker::TokenPriceSource;
+use zksync_config::ZkSyncConfig;
 use zksync_storage::ConnectionPool;
 use zksync_token_db_cache::TokenDBCache;
 use zksync_types::{
@@ -43,8 +44,10 @@ use crate::fee_ticker::{
         coingecko::CoinGeckoAPI, coinmarkercap::CoinMarketCapAPI, FeeTickerAPI, TickerApi,
         CONNECTION_TIMEOUT,
     },
-    validator::{watcher::UniswapTokenWatcher, MarketUpdater},
+    validator::{watcher::CoinGeckoTokenWatcher, MarketUpdater},
 };
+
+pub use validator::types as CoinGeckoTypes;
 
 mod constants;
 mod ticker_api;
@@ -204,24 +207,24 @@ const CPK_CREATE2_FEE_TYPE: OutputFeeType = OutputFeeType::ChangePubKey(
 const TOKEN_INVALIDATE_CACHE: Duration = Duration::from_secs(5 * 60);
 
 #[must_use]
-pub fn run_updaters(
-    db_pool: ConnectionPool,
-    config: &zksync_config::TickerConfig,
-) -> Vec<JoinHandle<()>> {
+pub fn run_updaters(db_pool: ConnectionPool, config: &ZkSyncConfig) -> Vec<JoinHandle<()>> {
     let cache = (db_pool.clone(), TokenDBCache::new(TOKEN_INVALIDATE_CACHE));
 
-    let watcher = UniswapTokenWatcher::new(config.uniswap_url.clone());
+    let watcher = CoinGeckoTokenWatcher::new(
+        config.ticker.coingecko_base_url.clone(),
+        config.eth_client.chain_id,
+    );
 
     let updater = MarketUpdater::new(cache, watcher);
     let mut tasks = vec![tokio::spawn(
-        updater.keep_updated(config.token_market_update_time),
+        updater.keep_updated(config.ticker.token_market_update_time),
     )];
     let client = reqwest::ClientBuilder::new()
         .timeout(CONNECTION_TIMEOUT)
         .connect_timeout(CONNECTION_TIMEOUT)
         .build()
         .expect("Failed to build reqwest::Client");
-    let (price_source, base_url) = config.price_source();
+    let (price_source, base_url) = config.ticker.price_source();
     let price_updater = match price_source {
         TokenPriceSource::CoinMarketCap => {
             let token_price_api =

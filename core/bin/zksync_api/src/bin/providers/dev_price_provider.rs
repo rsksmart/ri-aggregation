@@ -3,15 +3,13 @@
 //! Implements coinmarketcap API for tokens deployed using `deploy-dev-erc20`
 //! Prices are randomly distributed around base values estimated from real world prices.
 
-use actix_cors::Cors;
-use actix_web::{middleware, web, App, HttpRequest, HttpResponse, HttpServer, Result};
+use actix_web::{web, HttpRequest, HttpResponse, Result};
 use bigdecimal::BigDecimal;
 use chrono::{SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{collections::HashMap, fs::read_to_string, path::Path};
 use std::{convert::TryFrom, time::Duration};
-use structopt::StructOpt;
 use zksync_crypto::rand::{thread_rng, Rng};
 use zksync_types::Address;
 
@@ -118,7 +116,7 @@ fn load_tokens(path: impl AsRef<Path>) -> Vec<TokenData> {
                 platforms.insert(String::from("rootstock"), token.address);
                 let id = match symbol.as_str() {
                     "rbtc" => String::from("rootstock"),
-                    "wbtc" => String::from("wrapped-bitcoin"),
+                    "wBTC" => String::from("wrapped-bitcoin"),
                     "bat" => String::from("basic-attention-token"),
                     "RIF" => String::from("RSK-infrastructure-framework"),
                     _ => symbol.clone(),
@@ -171,7 +169,7 @@ async fn handle_coingecko_token_price_query(
     Ok(HttpResponse::Ok().json(resp))
 }
 
-fn main_scope(sloppy_mode: bool) -> actix_web::Scope {
+pub fn create_price_service(sloppy_mode: bool) -> actix_web::Scope {
     let localhost_tokens = load_tokens("etc/tokens/localhost.json");
     let testnet_tokens = load_tokens("etc/tokens/testnet.json");
     let data: Vec<TokenData> = localhost_tokens
@@ -209,41 +207,4 @@ fn main_scope(sloppy_mode: bool) -> actix_web::Scope {
                 web::get().to(handle_coingecko_token_price_query),
             )
     }
-}
-
-/// Ticker implementation for dev environment
-///
-/// Implements coinmarketcap API for tokens deployed using `deploy-dev-erc20`
-/// Prices are randomly distributed around base values estimated from real world prices.
-#[derive(Debug, StructOpt, Clone, Copy)]
-struct FeeTickerOpts {
-    /// Activate "sloppy" mode.
-    ///
-    /// With the option, server will provide a random delay for requests
-    /// (60% of 0.1 delay, 30% of 0.1 - 1.0 delay, 10% of 5 seconds delay),
-    /// and will randomly return errors for 5% of requests.
-    #[structopt(long)]
-    sloppy: bool,
-}
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    let _vlog_guard = vlog::init();
-
-    let opts = FeeTickerOpts::from_args();
-    if opts.sloppy {
-        vlog::info!("Fee ticker server will run in a sloppy mode.");
-    }
-
-    HttpServer::new(move || {
-        App::new()
-            .wrap(Cors::default().allow_any_origin().max_age(3600))
-            .wrap(middleware::Logger::default())
-            .service(main_scope(opts.sloppy))
-    })
-    .bind("0.0.0.0:9876")
-    .unwrap()
-    .shutdown_timeout(1)
-    .run()
-    .await
 }
