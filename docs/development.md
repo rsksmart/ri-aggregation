@@ -29,7 +29,7 @@ This command will do the following:
 - Download and unpack files for cryptographical backend (`circuit`).
 - Generate required smart contracts.
 - Compile all the smart contracts.
-- Deploy smart contracts to the local RSKj network.
+- Deploy smart contracts to the local Rootstock network.
 - Initialize database and apply migrations.
 - Insert required data into created database.
 - Create “genesis block” for server.

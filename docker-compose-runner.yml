@@ -37,7 +37,7 @@ services:
       - /usr/src/keys:/usr/src/keys
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - OVERRIDE=docker
+      - ENV_OVERRIDE=docker
       - CACHE_DIR=/usr/src/cache
       - SCCACHE_CACHE_SIZE="50g"
       - CI=1

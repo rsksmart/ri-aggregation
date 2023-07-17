@@ -126,8 +126,8 @@ export const command = new Command('server')
     .option('--genesis', 'generate genesis data via server')
     .option('--docker', 'use docker container instead of local environment')
     .action(async (cmd: Command) => {
-        const { genesis, docker } = cmd;
-        if (genesis) {
+        const { genesis: gensisParam, docker } = cmd;
+        if (gensisParam) {
             await genesis(docker);
         } else {
             await server(docker);

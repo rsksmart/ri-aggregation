@@ -54,14 +54,14 @@ export function reload() {
     for (const envVar in env) {
         process.env[envVar] = env[envVar];
     }
-    load_override();
+    load_env_override();
 }
 
-export function load_override() {
-    if (!process.env.OVERRIDE) {
+export function load_env_override() {
+    if (!process.env.ENV_OVERRIDE) {
         return;
     }
-    const envFile = `./etc/env/${process.env.OVERRIDE}.env`;
+    const envFile = `./etc/env/${process.env.ENV_OVERRIDE}.env`;
     const env = dotenv.parse(fs.readFileSync(envFile));
     for (const envVar in env) {
         process.env[envVar] = env[envVar];
@@ -94,7 +94,7 @@ export async function load() {
     process.env.ENV_FILE = envFile;
     process.env.ENV_DIR = envDir;
     dotenv.config({ path: envFile });
-    load_override();
+    load_env_override();
 
     // This suppresses the warning that looks like: "Warning: Accessing non-existent property 'INVALID_ALT_NUMBER'...".
     // This warning is spawned from the `antlr4`, which is a dep of old `solidity-parser` library.

@@ -75,7 +75,7 @@ services:
       - /usr/src/keys:/usr/src/keys
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - OVERRIDE=docker
+      - ENV_OVERRIDE=docker
       - CI=1
 
   postgres:

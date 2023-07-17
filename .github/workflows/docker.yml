@@ -3,10 +3,10 @@ name: publish server docker image
 on:
   push:
     tags:
-      - 'prover:**'
-      - 'server:**'
-      - 'dev-ticker:**'
-      - 'dev-liquidity-token-watcher:**'
+      - '**.prover'
+      - '**.server'
+      - '**.dev-ticker'
+      - '**.environment'
 
 jobs:
   push_to_docker_hub:

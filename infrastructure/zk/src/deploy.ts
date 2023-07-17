@@ -5,34 +5,33 @@ import * as server from './server';
 import * as contract from './contract';
 import * as run from './run/run';
 import * as utils from './utils';
-import { announced, checkEnv } from './init';
 
 async function prepareEnvironment() {
-    await announced('Checking environment', checkEnv());
-    await announced('Compiling JS packages', run.yarn(false));
+    await utils.announced('Checking environment', utils.checkEnv());
+    await utils.announced('Compiling JS packages', run.yarn(false));
 }
 
 async function prepareKeys() {
-    await announced('Checking PLONK setup', run.plonkSetup());
-    await announced('Unpacking verification  keys', run.verifyKeys.unpack());
+    await utils.announced('Checking PLONK setup', run.plonkSetup());
+    await utils.announced('Unpacking verification  keys', run.verifyKeys.unpack());
 }
 
 async function prepareServer(docker: boolean) {
     await prepareEnvironment();
     await prepareKeys();
-    await announced('Setting up database', db.setup());
-    await announced('Building contracts', contract.build());
-    await announced('Deploying localhost ERC20 tokens', run.deployERC20('dev'));
-    await announced('Deploying localhost EIP1271 contract', run.deployEIP1271());
-    await announced('Deploying withdrawal helpers contracts', run.deployWithdrawalHelpersContracts());
-    await announced('Running server genesis setup', server.genesis(docker));
-    await announced('Deploying main contracts', contract.redeploy());
+    await utils.announced('Setting up database', db.setup());
+    await utils.announced('Building contracts', contract.build());
+    await utils.announced('Deploying localhost ERC20 tokens', run.deployERC20('dev'));
+    await utils.announced('Deploying localhost EIP1271 contract', run.deployEIP1271());
+    await utils.announced('Deploying withdrawal helpers contracts', run.deployWithdrawalHelpersContracts());
+    await utils.announced('Running server genesis setup', server.genesis(docker));
+    await utils.announced('Deploying main contracts', contract.redeploy());
 }
 
 async function prepareProver() {
     await prepareEnvironment();
     await prepareKeys();
-    await announced('Building contracts', contract.build());
+    await utils.announced('Building contracts', contract.build());
 }
 
 export async function dockerUp(service: string) {
@@ -48,7 +47,7 @@ export async function dockerRun(command: string) {
 function getEnvironmentFiles() {
     const DIRECTORY = './etc/env';
 
-    const extra = process.env.OVERRIDE ? `EXTRA_ENV_FILE=${DIRECTORY}/${process.env.OVERRIDE}.env` : '';
+    const extra = process.env.ENV_OVERRIDE ? `EXTRA_ENV_FILE=${DIRECTORY}/${process.env.ENV_OVERRIDE}.env` : '';
 
     return `ENV_FILE=${DIRECTORY}/${process.env.ZKSYNC_ENV}.env ${extra}`;
 }

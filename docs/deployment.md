@@ -21,11 +21,11 @@ compiled, we can select it with the command:
 zk env <env_name>
 ```
 
-### Override
+### Env Override
 
 To simplify the way that some of the environment variables can be updated, the override functionality was introduced.
 
-This functioanlity consist on setting the `OVERRIDE=<file_name>` environment variable, that will look for the
+This functioanlity includes `ENV_OVERRIDE=<file_name>`, setting environment variable that will look for the
 `<file_name>.env` inside the `./etc/env` directory to update all the variables in the file.
 
 ### Docker compose
@@ -78,6 +78,45 @@ Once the environment is ready, the `server` can be run using the following comma
 zk server --docker
 ```
 
+### Database
+
+#### New deployments
+
+During the new deployment process, the database is erased and the necessary structure is initializaed; after the
+initialization we could consider the database as empty.
+
+This is necessary for the server to create the genesis block.
+
+The `genesis root` hash is added in the `./genesis.log` and `./deployed_contracts.log` files.
+
+The `genesis root` hash is also updated in the environment variables and the `toml` files from the current
+`env profile`.
+
+#### Existing deployment
+
+In an existing deployment, the genesis block already exists therefore we just need to connect the server to the
+database.
+
+To environment variables from the `env profile` needs to match with the genesis root hash from the current database.
+
+### Contracts
+
+#### New deployments
+
+During the new deployment process, the contracts are built, deployed and verified with etherscan.
+
+The `contracts` hash are added in the `./deployed_contracts.log` file and we can find extra information in the
+`./deploy.log` file.
+
+The `contracts` hash is also updated in the environment variables and the `toml` files from the current `env profile`.
+
+#### Existing deployment
+
+In an existing deployment, the contracts were already deployed therefore we just need to run the server.
+
+To environment variables from the `env profile` needs to match with the addresses from the `server_config` table from
+the database.
+
 ## Prover
 
 To deploy the components that are needed by the `dummy-prover` we need to prepare the environment:
@@ -89,7 +128,7 @@ zk deploy --docker prepare-prover
 This command will do the following:
 
 - Generate `$ZKSYNC_HOME/etc/env/dev.env` file with settings for the applications.
-- Initialize docker containers with `rskj` Ethereum node and `postgres` database for local development.
+- Initialize docker containers with `RSKj` Ethereum node and `postgres` database for local development.
 - Download and unpack files for cryptographical backend (`circuit`).
 - Generate required smart contracts.
 
@@ -129,13 +168,13 @@ docker-compose -f docker-compose.deploy.yml up -d rskj postgres
 3. Prepare the environment, the `prepare-server` also includes the `prepare-prover` preparation steps.
 
 ```
-OVERRIDE=deploy zk deploy --docker prepare-server
+ENV_OVERRIDE=deploy zk deploy --docker prepare-server
 ```
 
 4. Enable the `dummy-prover` for local development.
 
 ```
-OVERRIDE=deploy zk dummy-prover --docker enable
+ENV_OVERRIDE=deploy zk dummy-prover --docker enable
 ```
 
 5. Initialize docker containers with `dev-ticker` for local development.
@@ -147,13 +186,13 @@ docker-compose -f docker-compose.deploy.yml up -d dev-ticker
 6. Start running the `server`.
 
 ```
-OVERRIDE=deploy zk server --docker
+ENV_OVERRIDE=deploy zk server --docker
 ```
 
 7. Start running the `dummy-prover`.
 
 ```
-OVERRIDE=deploy zk dummy-prover --docker run
+ENV_OVERRIDE=deploy zk dummy-prover --docker run
 ```
 
 <!-- markdownlint-enable MD029-->

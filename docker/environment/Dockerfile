@@ -7,7 +7,7 @@ RUN apt-get update; apt-get install -y make bash git gnupg openssl libssl-dev gc
 
 #install docker engine
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-RUN add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+RUN add-apt-repository "deb https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 RUN apt update; apt install -y docker-ce-cli
 
 # Install node and yarn
