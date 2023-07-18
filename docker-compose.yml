@@ -25,8 +25,9 @@ services:
       - ./docker/rskj/data:/var/lib/rsk/.rsk
   
   dev-ticker:
-    image: "rsksmart/rollup-dev-ticker:0.0.1-beta"
+    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
     env_file:
+      - ./etc/env/dev.env
       - ./etc/env/docker.env
     ports:
       - "9876:9876"
