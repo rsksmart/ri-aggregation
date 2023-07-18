@@ -1,5 +1,6 @@
 version: '3.2'
 services:
+
   postgres:
     image: "postgres:12"
     ports:
@@ -25,7 +26,7 @@ services:
       - ./docker/rskj/data:/var/lib/rsk/.rsk
   
   dev-ticker:
-    image: "rsksmart/rollup-dev-ticker:0.0.1-beta"
+    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
     env_file:
       - ./etc/env/docker.env
     ports:

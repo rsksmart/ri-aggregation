@@ -33,7 +33,6 @@ jobs:
                                   
         - name: Build and push image
           run: |
-            echo "Tag name from github.ref_name: ${{  github.ref_name }}"
             zk
             zk run verify-keys unpack
             zk docker push-from-tag ${{github.ref_name}}

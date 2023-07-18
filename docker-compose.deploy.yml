@@ -1,7 +1,8 @@
 version: '3.2'
 services:
+
   server:
-    image: "rsksmart/rollup-server:0.0.1-beta"
+    image: "rsksmart/rollup-server:1.0.0-beta"
     ports: #Ports that where configured using the environment variables
       - 3001:3001 # RestApi
       - 3002:3002 # Web3
@@ -44,7 +45,7 @@ services:
     command: --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics
   
   prover:
-    image: "rsksmart/rollup-prover:0.0.1-beta"
+    image: "rsksmart/rollup-prover:1.0.0-beta"
     env_file:
       - ${ENV_FILE-./etc/env/dev.env}
       - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
@@ -54,7 +55,7 @@ services:
         target: /keys/
 
   dev-ticker:
-    image: "rsksmart/rollup-dev-ticker:0.0.1-beta"
+    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
     env_file:
       - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
     ports:
@@ -63,7 +64,7 @@ services:
       - ./etc/tokens/:/etc/tokens
 
   rollup:
-    image: "rsksmart/rollup-environment:0.0.1-beta"
+    image: "rsksmart/rollup-environment:1.0.0-beta"
     command: tail -f /dev/null
     depends_on:
       - postgres
