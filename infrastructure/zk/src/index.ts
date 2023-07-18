@@ -20,6 +20,7 @@ import { command as completion } from './completion';
 import { command as config } from './config';
 import { command as apiDocs } from './api-docs';
 import { command as simulate } from './simulate';
+import { command as deploy } from './deploy';
 import * as env from './env';
 
 const COMMANDS = [
@@ -41,6 +42,7 @@ const COMMANDS = [
     config,
     apiDocs,
     simulate,
+    deploy,
     env.command,
     completion(program as Command)
 ];
