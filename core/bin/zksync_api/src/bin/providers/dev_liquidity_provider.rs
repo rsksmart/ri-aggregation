@@ -237,7 +237,9 @@ mod handlers_tests {
     #[actix_web::test]
     async fn get_coin_contract() {
         let expected_volume = BigDecimal::from_f32(2.34567).unwrap();
-        let token_address = "0xe978d5775bdCfB872c3Bf919Ce4169cDA6f8E271".to_string(); // an arbitrary, pre-generated address
+        let token_address = "0xe978d5775bdCfB872c3Bf919Ce4169cDA6f8E271"
+            .to_string()
+            .to_ascii_lowercase(); // an arbitrary, pre-generated address
         let expected_token = (token_address.clone(), "Token Name".to_string());
         let tokens = vec![expected_token];
         let platform_id = "localhost".to_string();
