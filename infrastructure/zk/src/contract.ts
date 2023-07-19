@@ -36,10 +36,10 @@ export async function publish() {
     await utils.spawn('yarn contracts publish-sources');
 }
 
-export async function deploy() {
+export async function deploy(args: string[] = []) {
     await utils.confirmAction();
     console.log('Deploying contracts, results will be inserted into the db');
-    await utils.spawn('yarn contracts deploy-no-build | tee deploy.log');
+    await utils.spawn(`yarn contracts deploy-no-build ${args}| tee deploy.log`);
     const deployLog = fs.readFileSync('deploy.log').toString();
     const envVars = [
         'CONTRACTS_GENESIS_ROOT',
@@ -90,6 +90,11 @@ export const command = new Command('contract').description('contract management'
 
 command.command('prepare-verify').description('initialize verification keys for contracts').action(prepareVerify);
 command.command('redeploy').description('redeploy contracts and update addresses in the db').action(redeploy);
-command.command('deploy').description('deploy contracts').action(deploy);
+command
+    .command('deploy')
+    .description('deploy contracts')
+    .action(async (cmd: Command) => {
+        await deploy(cmd.args);
+    });
 command.command('build').description('build contracts').action(build);
 command.command('publish').description('publish contracts').action(publish);

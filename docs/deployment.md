@@ -7,6 +7,12 @@ The deployment script can take advantage of docker and reduce the amount of comp
 
 ## Prerequisites
 
+To setup the main toolkit, `zk`, simply run:
+
+```
+zk
+```
+
 By default the rif-rollup system will use the `dev` environment configuration; to use different environment
 configuration we need to compile the configuration folder with the command:
 
@@ -34,8 +40,8 @@ The deployment script use the `docker-compose.deploy.yml` to execute the differe
 
 ### Docker
 
-Each of the command can use the `--docker` property that will use the `docker-compose.deploy.yml` instead of the local
-environment.
+Each of the command can use the `--with-docker` property that will use the `docker-compose.deploy.yml` file to execute
+the necessary process in a container instead of the local environment.
 
 ### Network
 
@@ -53,29 +59,27 @@ For `Mac / Windows` we need to use `host.docker.internal`.
 **Note:** The `host url (host.docker.internal)` may not be included in the `hosts` from the OS. We may need to include
 in their configuration pointing to the `localhost`.
 
+## Environment
+
 ## Server
 
-To deploy the components that are needed by the `server` we need to prepare the environment:
+To run the `server` we just need to execute the following command:
 
 ```
-zk deploy --docker prepare-server
+zk server
 ```
 
-This command will do the following:
+### Forced Exit
 
-- Generate `$ZKSYNC_HOME/etc/env/dev.env` file with settings for the applications.
-- Download and unpack files for cryptographical backend (`circuit`).
-- Generate required smart contracts.
-- Compile all the smart contracts.
-- Deploy smart contracts to the local RSKj network.
-- Initialize database and apply migrations.
-- Insert required data into created database.
-- Create “genesis block” for server.
+During the run process of the server, the preparation for the `forced exit requests account` is done. Depending where
+the `zk server` command is going to be executed, the `ETH_CLIENT_WEB3_URL` could be different, therefore an additional
+environment variable was created to provide more flexibility `FORCED_EXIT_REQUESTS_WEB3_URL`.
 
-Once the environment is ready, the `server` can be run using the following command:
+To validate that the preparation for the `forced exit requests account` can reach the web3 node, we can execute the
+following command:
 
 ```
-zk server --docker
+zk server test-web3-network
 ```
 
 ### Database
@@ -97,7 +101,7 @@ The `genesis root` hash is also updated in the environment variables and the `to
 In an existing deployment, the genesis block already exists therefore we just need to connect the server to the
 database.
 
-To environment variables from the `env profile` needs to match with the genesis root hash from the current database.
+The environment variables from the `env profile` needs to match with the genesis root hash from the current database.
 
 ### Contracts
 
@@ -114,39 +118,28 @@ The `contracts` hash is also updated in the environment variables and the `toml`
 
 In an existing deployment, the contracts were already deployed therefore we just need to run the server.
 
-To environment variables from the `env profile` needs to match with the addresses from the `server_config` table from
+The environment variables from the `env profile` needs to match with the addresses from the `server_config` table from
 the database.
 
 ## Prover
 
-To deploy the components that are needed by the `dummy-prover` we need to prepare the environment:
-
-```
-zk deploy --docker prepare-prover
-```
-
-This command will do the following:
-
-- Generate `$ZKSYNC_HOME/etc/env/dev.env` file with settings for the applications.
-- Initialize docker containers with `RSKj` Ethereum node and `postgres` database for local development.
-- Download and unpack files for cryptographical backend (`circuit`).
-- Generate required smart contracts.
-
 To use the `dummy-prover` we need to enable it, prior enabling it, the contracts must be already deployed. During the
 contracts deployment, the `genesis.log` file is generated; this file includes the variable `CONTRACTS_GENESIS_ROOT` and
-it's required for the dummy-prover to run. To enable the `dummy-prover` on docker:
+it's required for the dummy-prover to be enabled. To enable the `dummy-prover` on docker:
 
 ```
-zk dummy-prover --docker enable
+zk dummy-prover enable
 ```
 
 Once the `dummy-prover` is enabled, it can be run with the following command:
 
 ```
-zk dummy-prover --docker run
+zk dummy-prover run
 ```
 
 ## Miscellaneous
+
+### Local environment
 
 <!-- markdownlint-disable MD029-->
 
@@ -156,25 +149,62 @@ information necessary to understand the steps are described above:
 1. Create the `dev` environment.
 
 ```
+ENV_OVERRIDE=deploy zk init --no-sdk --with-docker
+```
+
+2. Enable the `dummy-prover` for local development.
+
+```
+ENV_OVERRIDE=deploy zk dummy-prover --with-docker enable
+```
+
+3. Start running the `server`.
+
+```
+ENV_OVERRIDE=deploy zk server --with-docker
+```
+
+4. Start running the `dummy-prover`.
+
+```
+ENV_OVERRIDE=deploy zk dummy-prover --with-docker run
+```
+
+<!-- markdownlint-enable MD029-->
+
+### Rollup environment
+
+A docker image was created to facilitate a way of preparing the environment from a docker container and avoid having all
+the dependencies installed in the local host.
+
+<!-- markdownlint-disable MD029-->
+
+1. Create the `dev` environment.
+
+```
 zk config compile dev
 ```
 
-2. Initialize docker containers with `RSKj` node and `postgres` database for local development.
+2. Initialize docker containers with `rollup` environent, `RSKj` node`postgres` database for local development.
 
 ```
-docker-compose -f docker-compose.deploy.yml up -d rskj postgres
+docker-compose -f docker-compose.deploy.yml up -d rskj postgres rollup
 ```
 
-3. Prepare the environment, the `prepare-server` also includes the `prepare-prover` preparation steps.
+3. Prepare the environment, inside the `rollup` container.
 
 ```
-ENV_OVERRIDE=deploy zk deploy --docker prepare-server
+docker-compose -f docker-compose.deploy.yml exec -T rollup zk
+```
+
+```
+docker-compose -f docker-compose.deploy.yml exec -T rollup zk init --no-sdk
 ```
 
 4. Enable the `dummy-prover` for local development.
 
 ```
-ENV_OVERRIDE=deploy zk dummy-prover --docker enable
+docker-compose -f docker-compose.deploy.yml exec -T rollup zk dummy-prover enable
 ```
 
 5. Initialize docker containers with `dev-ticker` for local development.
@@ -186,13 +216,13 @@ docker-compose -f docker-compose.deploy.yml up -d dev-ticker
 6. Start running the `server`.
 
 ```
-ENV_OVERRIDE=deploy zk server --docker
+ENV_OVERRIDE=deploy zk server --with-docker
 ```
 
 7. Start running the `dummy-prover`.
 
 ```
-ENV_OVERRIDE=deploy zk dummy-prover --docker run
+ENV_OVERRIDE=deploy zk dummy-prover --with-docker run
 ```
 
 <!-- markdownlint-enable MD029-->

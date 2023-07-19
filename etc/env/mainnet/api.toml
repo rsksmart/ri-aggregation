@@ -12,11 +12,25 @@ forced_exit_minimum_account_age_secs=0
 # List of account IDs that do not have to pay fees for operations.
 fee_free_accounts=[]
 
+# Whitelisted IPs for subsisdies
+subsidized_ips=["SUBSIDY_IP"]
+
+# Please note, that the prices are scaled by 10^6
+# The scaled maximum number of dollars to be subsidized is $250000
+max_subsidy_usd_scaled=250000000000
+
+# The type of the currently applied subsidy
+# At this moment, the server can support only one type of subsidy at a time
+subsidy_name="PartnerName"
+
 # Ability to perform change pub key with zero fee
 enforce_pubkey_change_fee=true
 
 max_number_of_transactions_per_batch=200
 max_number_of_authors_per_batch=10
+
+[api.token]
+invalidate_token_cache_period_sec=300
 
 # Configuration for the admin API server
 [api.admin]
@@ -29,6 +43,7 @@ url="http://127.0.0.1:8080"
 port=3001
 use_https=true
 url="https://127.0.0.1:3001"
+chain_id=30
 
 # Configuration for the JSON RPC server
 [api.json_rpc]

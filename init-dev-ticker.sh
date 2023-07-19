@@ -1,0 +1,7 @@
+#!/bin/bash
+
+DEPLOY_ENVIRONMENT="${DEPLOY_ENVIRONMENT:=dev}" 
+
+zk
+zk config compile $DEPLOY_ENVIRONMENT
+zk env $DEPLOY_ENVIRONMENT

@@ -76,6 +76,16 @@ export async function restart(container: string) {
     await utils.spawn(`docker-compose restart ${container}`);
 }
 
+export async function deployUp(service: string) {
+    console.log('WARNING! Using docker!');
+    await utils.spawn(`docker-compose -f docker-compose.deploy.yml up ${service}`);
+}
+
+export async function deployRun(command: string) {
+    console.log('WARNING! Using docker!');
+    await utils.spawn(`docker-compose -f docker-compose.deploy.yml run ${command}`);
+}
+
 export async function pull() {
     await utils.spawn('docker-compose pull postgres rskj dev-ticker tesseracts elastic');
 }

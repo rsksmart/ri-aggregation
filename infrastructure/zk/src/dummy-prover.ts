@@ -4,17 +4,17 @@ import * as utils from './utils';
 import * as server from './server';
 import * as contract from './contract';
 import * as env from './env';
-import * as deploy from './deploy';
+import * as docker from './docker';
 
-async function performRedeployment(docker: boolean) {
+async function performRedeployment(withDocker = false) {
     await contract.build();
-    await server.genesis(docker);
+    await server.genesis(withDocker);
     await contract.redeploy();
 }
 
-export async function run(docker = false) {
-    if (docker) {
-        await deploy.dockerUp('prover');
+export async function run(withDocker = false) {
+    if (withDocker) {
+        await docker.deployUp('prover');
     } else {
         await utils.spawn('cargo run --release --bin dummy_prover dummy-prover-instance');
     }
@@ -29,27 +29,27 @@ export async function status() {
     return false;
 }
 
-async function setStatus(value: boolean, redeploy: boolean, docker: boolean) {
+async function setStatus(value: boolean, redeploy: boolean, withDocker: boolean) {
     env.modify('CONTRACTS_TEST_DUMMY_VERIFIER', `CONTRACTS_TEST_DUMMY_VERIFIER="${value}"`);
     env.modify_contracts_toml('CONTRACTS_TEST_DUMMY_VERIFIER', `CONTRACTS_TEST_DUMMY_VERIFIER="${value}"`);
     await status();
     if (redeploy) {
         console.log('Redeploying the contract...');
-        await performRedeployment(docker);
+        await performRedeployment(withDocker);
         console.log('Done.');
     }
 }
 
-export async function enable(redeploy = true, docker = false) {
-    await setStatus(true, redeploy, docker);
+export async function enable(redeploy = true, withDocker = false) {
+    await setStatus(true, redeploy, withDocker);
 }
 
-export async function disable(redeploy = true, docker = false) {
-    await setStatus(false, redeploy, docker);
+export async function disable(redeploy = true, withDocker = false) {
+    await setStatus(false, redeploy, withDocker);
 }
 
 export const command = new Command('dummy-prover')
-    .option('--docker', 'use docker container instead of local environment')
+    .option('--with-docker', 'use a docker container instead of local environment')
     .description('commands for zksync dummy prover');
 
 command
@@ -57,9 +57,9 @@ command
     .description('launch the dummy prover')
     .action(async (cmd: Command) => {
         const {
-            parent: { docker }
+            parent: { withDocker }
         } = cmd;
-        await run(docker);
+        await run(withDocker);
     });
 
 command
@@ -69,9 +69,9 @@ command
     .action(async (cmd: Command) => {
         const {
             redeploy,
-            parent: { docker }
+            parent: { withDocker }
         } = cmd;
-        await enable(!!redeploy, docker);
+        await enable(!!redeploy, withDocker);
     });
 
 command
@@ -81,9 +81,9 @@ command
     .action(async (cmd: Command) => {
         const {
             redeploy,
-            parent: { docker }
+            parent: { withDocker }
         } = cmd;
-        await disable(!!redeploy, docker);
+        await disable(!!redeploy, withDocker);
     });
 
 command

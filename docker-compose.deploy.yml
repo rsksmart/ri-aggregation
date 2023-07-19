@@ -21,8 +21,8 @@ services:
         source: ./etc/token-lists
         target: /etc/token-lists
     env_file:
-      - ${ENV_FILE-./etc/env/dev.env}
-      - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
+      - ./etc/env/${ZKSYNC_ENV-dev}.env
+      - ./etc/env/${ENV_OVERRIDE-deploy}.env
     environment:
       - ZKSYNC_HOME=/
 
@@ -47,8 +47,8 @@ services:
   prover:
     image: "rsksmart/rollup-prover:1.0.0-beta"
     env_file:
-      - ${ENV_FILE-./etc/env/dev.env}
-      - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
+      - ./etc/env/${ZKSYNC_ENV-dev}.env
+      - ./etc/env/${ENV_OVERRIDE-deploy}.env
     volumes:
       - type: bind
         source: ./keys/
@@ -57,7 +57,7 @@ services:
   dev-ticker:
     image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
     env_file:
-      - ${EXTRA_ENV_FILE-./etc/env/deploy.env}
+      - ./etc/env/${ENV_OVERRIDE-deploy}.env
     ports:
       - "9876:9876"
     volumes:
@@ -66,17 +66,13 @@ services:
   rollup:
     image: "rsksmart/rollup-environment:1.0.0-beta"
     command: tail -f /dev/null
-    depends_on:
-      - postgres
-      - rskj
-      - dev-ticker
     volumes:
       - .:/usr/src/zksync
       - /usr/src/cache:/usr/src/cache
       - /usr/src/keys:/usr/src/keys
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - ENV_OVERRIDE=docker
+      - ENV_OVERRIDE=${ENV_OVERRIDE-deploy}
       - CI=1
 
   postgres:

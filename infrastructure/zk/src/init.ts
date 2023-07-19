@@ -9,9 +9,13 @@ import * as env from './env';
 import * as docker from './docker';
 import { up } from './up';
 
-export async function init(sdk: boolean) {
-    await utils.announced('Creating docker volumes', createVolumes());
+export async function init(sdk: boolean, withDocker: boolean) {
+    if (process.env.ZKSYNC_ENV !== 'dev') {
+        console.error('Init process designed for local dev only');
+        process.exit(1);
+    }
     if (!process.env.CI) {
+        await utils.announced('Creating docker volumes', createVolumes());
         await utils.announced('Pulling images', docker.pull());
         await utils.announced('Checking environment', utils.checkEnv());
         await utils.announced('Checking git hooks', env.gitHooks());
@@ -24,19 +28,19 @@ export async function init(sdk: boolean) {
     await utils.announced('Building contracts', contract.build());
     await utils.announced('Deploying localhost ERC20 tokens', run.deployERC20('dev'));
     await utils.announced('Deploying localhost EIP1271 contract', run.deployEIP1271());
-    await utils.announced('Deploying withdrawal helpers contracts', run.deployWithdrawalHelpersContracts());
-    await utils.announced('Running server genesis setup', server.genesis());
+    await utils.announced('Deploying localhost withdrawal helpers contracts', run.deployWithdrawalHelpersContracts());
+    await utils.announced('Running server genesis setup', server.genesis(withDocker));
     await utils.announced('Deploying main contracts', contract.redeploy());
     if (!process.env.CI) {
         await utils.announced('Restarting dev liquidity watcher', docker.restart('dev-ticker'));
     }
 }
 
-export async function reinit() {
+export async function reinit(withDocker: boolean) {
     await utils.announced('Setting up containers', up());
     await utils.announced('Setting up database', db.setup());
     await utils.announced('Building contracts', contract.build());
-    await utils.announced('Running server genesis setup', server.genesis(false));
+    await utils.announced('Running server genesis setup', server.genesis(withDocker));
     await utils.announced('Deploying main contracts', contract.redeploy());
     await utils.announced('Restarting dev liquidity watcher', docker.restart('dev-ticker'));
 }
@@ -50,10 +54,15 @@ async function createVolumes() {
 export const initCommand = new Command('init')
     .description('perform zksync network initialization for development')
     .option('--no-sdk', 'not include sdk packages')
+    .option('--with-docker', 'use docker container instead of local environment')
     .action(async (cmd: Command) => {
-        const { sdk } = cmd;
-        await init(!!sdk);
+        const { sdk, withDocker } = cmd;
+        await init(!!sdk, withDocker);
     });
 export const reinitCommand = new Command('reinit')
+    .option('--with-docker', 'use docker container instead of local environment')
     .description('"reinitializes" network. Runs faster than `init`, but requires `init` to be executed prior')
-    .action(reinit);
+    .action(async (cmd: Command) => {
+        const { withDocker } = cmd;
+        await reinit(withDocker);
+    });

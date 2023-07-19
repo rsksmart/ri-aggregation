@@ -14,6 +14,7 @@ services:
 
   rskj:
     image: rsksmart/rskj:HOP-4.4.0
+    entrypoint:  ["java", "-cp", "rsk.jar", "co.rsk.Start" ]
     ports:
       - "4444:4444"
       - "4445:4445"
@@ -28,7 +29,7 @@ services:
   dev-ticker:
     image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
     env_file:
-      - ./etc/env/docker.env
+      - ./etc/env/${ENV_OVERRIDE-deploy}.env
     ports:
       - "9876:9876"
     volumes:
