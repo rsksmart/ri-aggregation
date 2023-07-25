@@ -1,9 +1,9 @@
-# Rust SDK for zkSync
+# Rust SDK for rollup
 
-**zkSync** is a scaling and privacy engine for Rootstock. Its current functionality scope includes low gas transfers of
+**rollup** is a scaling and privacy engine for Rootstock. Its current functionality scope includes low gas transfers of
 RBTC and ERC20 tokens in the Rootstock network.
 
-This document is a description of the Rust library that can be used to interact with zkSync.
+This document is a description of the Rust library that can be used to interact with rollup.
 
 ## Usage
 

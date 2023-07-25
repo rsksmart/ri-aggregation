@@ -210,7 +210,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
     /// @param _zkSyncAddress The receiver Layer 2 address
     function depositRBTC(address _zkSyncAddress) external payable {
         require(_zkSyncAddress != SPECIAL_ACCOUNT_ADDRESS, "P");
-        require(msg.value > 0, "M"); // Zero-value deposits are forbidden by zkSync rollup logic
+        require(msg.value > 0, "M"); // Zero-value deposits are forbidden by rollup rollup logic
         requireActive();
         registerDeposit(0, SafeCast.toUint128(msg.value), _zkSyncAddress);
     }
@@ -877,7 +877,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n152",
-                "Register zkSync pubkey:\n\n",
+                "Register rollup pubkey:\n\n",
                 Bytes.bytesToHexASCIIBytes(abi.encodePacked(_changePk.pubKeyHash)),
                 "\n",
                 "nonce: 0x",

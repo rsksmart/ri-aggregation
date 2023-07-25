@@ -10,8 +10,8 @@ pub enum ChangePubKeyOpError {
     InvalidAccountAddress,
     #[error("ChangePubKey Rootstock auth data is incorrect")]
     InvalidAuthData,
-    #[error("ChangePubKey zkSync signature is incorrect")]
-    InvalidZksyncSignature,
+    #[error("ChangePubKey rollup signature is incorrect")]
+    InvalidRollupSignature,
     #[error("ChangePubKey account id is incorrect")]
     InvalidAccountId,
     #[error("ChangePubKey account id is bigger than max supported")]

@@ -36,7 +36,7 @@ impl TxHandler<ChangePubKey> for ZkSyncState {
 
         if let Some((pub_key_hash, _)) = tx.verify_signature() {
             if pub_key_hash != tx.new_pk_hash {
-                return Err(ChangePubKeyOpError::InvalidZksyncSignature);
+                return Err(ChangePubKeyOpError::InvalidRollupSignature);
             }
         }
         invariant!(

@@ -268,7 +268,7 @@ pub fn stored_ops_block_into_ops_block(op_block: StoredRollupOpsBlock) -> Rollup
             .into_iter()
             .map(|op| {
                 serde_json::from_value(op)
-                    .expect("couldn't deserialize `ZkSyncOp` from the database")
+                    .expect("couldn't deserialize `RollupOp` from the database")
             })
             .collect(),
         fee_account: AccountId::from(op_block.fee_account as u32),

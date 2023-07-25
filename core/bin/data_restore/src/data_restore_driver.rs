@@ -152,7 +152,7 @@ impl<T: Transport> DataRestoreDriver<T> {
     ) {
         let genesis_transaction = get_ethereum_transaction(&self.web3, &genesis_tx_hash)
             .await
-            .expect("Cant get zkSync genesis transaction");
+            .expect("Cant get rollup genesis transaction");
 
         // Setting genesis block number for events state
         let genesis_eth_block_number = self

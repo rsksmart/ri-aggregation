@@ -17,7 +17,7 @@ pub enum ClientError {
     IncorrectCredentials,
     #[error("Seed too short, must be at least 32 bytes long")]
     SeedTooShort,
-    #[error("Token is not supported by zkSync")]
+    #[error("Token is not supported by rollup")]
     UnknownToken,
     #[error("Incorrect address")]
     IncorrectAddress,

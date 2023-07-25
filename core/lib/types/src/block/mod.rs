@@ -17,7 +17,7 @@ mod incomplete_block;
 
 pub use incomplete_block::IncompleteBlock;
 
-/// An intermediate state of the block in the zkSync network.
+/// An intermediate state of the block in the rollup network.
 /// Contains the information about (so far) executed transactions and
 /// meta-information related to the block creating process.
 #[derive(Clone, Debug)]
@@ -71,7 +71,7 @@ impl ExecutedPriorityOp {
                 if let ZkSyncOp::Deposit(ref deposit) = self.op {
                     deposit.account_id
                 } else {
-                    panic!("Invalid type of zkSync operation, expected deposit")
+                    panic!("Invalid type of rollup operation, expected deposit")
                 }
             }
             crate::ZkSyncPriorityOp::FullExit(full_exit) => full_exit.account_id,

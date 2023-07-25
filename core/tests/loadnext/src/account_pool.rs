@@ -108,7 +108,7 @@ impl AccountPool {
             let address = pk_to_address(&eth_pk);
             vlog::info!("Master address is {:?}", &address);
             let zksync_pk = private_key_from_seed(eth_pk.as_bytes())
-                .expect("Can't generate the zkSync private key");
+                .expect("Can't generate the rollup private key");
             let wallet_credentials =
                 WalletCredentials::<PrivateKeySigner>::from_pk(address, zksync_pk, Some(eth_pk));
             Wallet::new(provider.clone(), wallet_credentials)
@@ -122,7 +122,7 @@ impl AccountPool {
         for _ in 0..config.accounts_amount {
             let eth_credentials = AccountCredentials::random(&mut rng);
             let zksync_pk = private_key_from_seed(eth_credentials.eth_pk.as_bytes())
-                .expect("Can't generate the zkSync private key");
+                .expect("Can't generate the rollup private key");
             let wallet_credentials = WalletCredentials::<PrivateKeySigner>::from_pk(
                 eth_credentials.address,
                 zksync_pk,

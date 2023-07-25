@@ -235,7 +235,7 @@ fn gates_count_zksync_main_circuit(chunks: usize) -> (usize, u32) {
 
 /// Calculates max zkSync circuit size for universal setup power of 21..26
 pub fn calculate_and_print_max_zksync_main_circuit_size() {
-    vlog::info!("Counting max zkSync circuit size for setup");
+    vlog::info!("Counting max rollup circuit size for setup");
     let mut chunks = 6;
     let mut setup_power = gates_count_zksync_main_circuit(chunks).1;
     while setup_power <= 26 {

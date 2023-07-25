@@ -34,7 +34,7 @@ impl<S: EthereumSigner> WalletCredentials<S> {
     ) -> Result<Self, ClientError> {
         // Pre-defined message to generate seed from.
         const MESSAGE: &str =
-            "Access zkSync account.\n\nOnly sign this message for a trusted client!";
+            "Access rollup account.\n\nOnly sign this message for a trusted client!";
 
         // Add chain_id to the message to prevent replay attacks between networks
         // This is added for testnets only

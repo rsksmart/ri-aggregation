@@ -126,7 +126,7 @@ impl ChangePubKeyEthAuthData {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChangePubKey {
-    /// zkSync network account ID to apply operation to.
+    /// rollup network account ID to apply operation to.
     pub account_id: AccountId,
     /// Address of the account.
     pub account: Address,
@@ -140,7 +140,7 @@ pub struct ChangePubKey {
     pub fee: BigUint,
     /// Current account nonce.
     pub nonce: Nonce,
-    /// Transaction zkSync signature. Must be signed with the key corresponding to the
+    /// Transaction rollup signature. Must be signed with the key corresponding to the
     /// `new_pk_hash` value. This signature is required to ensure that `fee_token` and `fee`
     /// fields can't be changed by an attacker.
     #[serde(default)]
@@ -152,7 +152,7 @@ pub struct ChangePubKey {
     /// Data needed to check if Rootstock address authorized ChangePubKey operation
     pub eth_auth_data: Option<ChangePubKeyEthAuthData>,
     /// Time range when the transaction is valid
-    /// This fields must be Option<...> because of backward compatibility with first version of ZkSync
+    /// This fields must be Option<...> because of backward compatibility with first version of Rollup
     #[serde(flatten)]
     pub time_range: Option<TimeRange>,
     #[serde(skip)]
@@ -160,7 +160,7 @@ pub struct ChangePubKey {
 }
 
 impl ChangePubKey {
-    /// Unique identifier of the transaction type in zkSync network.
+    /// Unique identifier of the transaction type in rollup network.
     pub const TX_TYPE: u8 = 7;
 
     /// Creates transaction from all the required fields.
@@ -258,7 +258,7 @@ impl ChangePubKey {
         }
     }
 
-    /// Encodes the transaction data as the byte sequence according to the old zkSync protocol with 2 bytes token.
+    /// Encodes the transaction data as the byte sequence according to the old rollup protocol with 2 bytes token.
     pub fn get_old_bytes(&self) -> Vec<u8> {
         let mut out = Vec::new();
         out.extend_from_slice(&[Self::TX_TYPE]);
@@ -274,7 +274,7 @@ impl ChangePubKey {
         out
     }
 
-    /// Encodes the transaction data as the byte sequence according to the zkSync protocol.
+    /// Encodes the transaction data as the byte sequence according to the rollup protocol.
     pub fn get_bytes(&self) -> Vec<u8> {
         self.get_bytes_with_version(CURRENT_TX_VERSION)
     }
@@ -301,7 +301,7 @@ impl ChangePubKey {
         // fee on contract (if fee amount is packed), or display non human-readable
         // amount in message (if fee amount is packed and is not unpacked on contract).
         // Either of these options is either non user-friendly or increase cost of
-        // operation. Instead, fee data is signed via zkSync signature, which is essentially
+        // operation. Instead, fee data is signed via rollup signature, which is essentially
         // free. This signature will be verified in the circuit.
 
         const CHANGE_PUBKEY_SIGNATURE_LEN: usize = 60;
@@ -333,12 +333,12 @@ impl ChangePubKey {
         // fee on contract (if fee amount is packed), or display non human-readable
         // amount in message (if fee amount is packed and is not unpacked on contract).
         // Either of these options is either non user-friendly or increase cost of
-        // operation. Instead, fee data is signed via zkSync signature, which is essentially
+        // operation. Instead, fee data is signed via rollup signature, which is essentially
         // free. This signature will be verified in the circuit.
 
         const CHANGE_PUBKEY_SIGNATURE_LEN: usize = 152;
         let mut eth_signed_msg = Vec::with_capacity(CHANGE_PUBKEY_SIGNATURE_LEN);
-        eth_signed_msg.extend_from_slice(b"Register zkSync pubkey:\n\n");
+        eth_signed_msg.extend_from_slice(b"Register rollup pubkey:\n\n");
         eth_signed_msg.extend_from_slice(
             format!(
                 "{pubkey}\n\
@@ -453,7 +453,7 @@ impl ChangePubKey {
     /// Verifies the transaction correctness:
     ///
     /// - Ethereum signature (if set) must correspond to the account address.
-    /// - zkSync signature must correspond to the `new_pk_hash` field of the transaction.
+    /// - rollup signature must correspond to the `new_pk_hash` field of the transaction.
     /// - `account_id` field must be within supported range.
     /// - `fee_token` field must be within supported range.
     /// - `fee` field must represent a packable value.

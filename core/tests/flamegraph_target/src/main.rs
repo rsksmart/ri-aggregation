@@ -26,7 +26,7 @@ impl FromStr for Target {
 #[derive(Debug, StructOpt)]
 #[structopt(
     name = "flamegraph_target",
-    about = "Binary for stress-testing zkSync components"
+    about = "Binary for stress-testing rollup components"
 )]
 struct Options {
     /// Name of the target to run.

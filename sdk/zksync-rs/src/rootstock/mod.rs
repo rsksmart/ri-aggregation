@@ -28,9 +28,9 @@ const RAW_ERC20_DEPOSIT_GAS_LIMIT: &str = include_str!("DepositERC20GasLimit.jso
 
 fn load_contract(raw_abi_string: &str) -> ethabi::Contract {
     let abi_string = serde_json::Value::from_str(raw_abi_string)
-        .expect("Malformed ZkSync contract file")
+        .expect("Malformed Rollup contract file")
         .get("abi")
-        .expect("Malformed ZkSync contract file")
+        .expect("Malformed Rollup contract file")
         .to_string();
     ethabi::Contract::load(abi_string.as_bytes()).unwrap()
 }
