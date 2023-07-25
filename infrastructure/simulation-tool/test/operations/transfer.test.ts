@@ -4,7 +4,7 @@ import { expect, use } from 'chai';
 import { Wallet as EthersWallet, constants } from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import config from '../../src/config';
+import config from '../../src/utils/config.utils';
 import {
     executeTransfer,
     geteTransferResult,
@@ -54,7 +54,8 @@ describe('executeTransfer', () => {
         sender.syncTransfer.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
         const recipient = sinon.createStubInstance(EthersWallet);
         const transfer = prepareTransfer(sender, recipient);
-        const { from, ...expectedParameters } = transfer;
+        const expectedParameters = { ...transfer };
+        delete expectedParameters.from;
         await executeTransfer(transfer);
 
         expect(sender.syncTransfer).to.have.been.calledOnceWith(expectedParameters);

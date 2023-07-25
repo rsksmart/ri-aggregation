@@ -1,10 +1,10 @@
 import { BigNumber, Wallet as EthersWallet, constants } from 'ethers';
 import { Wallet as RollupWallet, Transaction, utils } from '@rsksmart/rif-rollup-js-sdk/';
-import config from '../config';
-import { getRandomBigNumber } from '../numberUtils';
+import config from '../utils/config.utils';
+import { getRandomBigNumber } from '../utils/number.utils';
 import { TransactionReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
-import { chooseRandomWallet } from './utils';
 import { sleep } from '@rsksmart/rif-rollup-js-sdk/build/utils';
+import { chooseRandomWallet } from '../utils/wallet.utils';
 
 type PreparedTransfer = Omit<Parameters<RollupWallet['syncTransfer']>[number], 'amount'> & {
     amount: BigNumber;
@@ -54,19 +54,48 @@ const generateTransfers = (
 
 const executeTransfers = async (
     preparedTransfers: PreparedTransfer[],
-    funderL2Wallet: RollupWallet,
     delay: number
 ): Promise<Promise<Transaction>[]> => {
     const executedTx: Promise<Transaction>[] = [];
+    console.log('Executing transfers: ');
     for (const [i, transfer] of preparedTransfers.entries()) {
         const promiseOfTransfer = executeTransfer(transfer); // We could make an adapter wallet to use a single execute function for all operations
         executedTx.push(promiseOfTransfer);
+        process.stdout.write(`${i},`);
         preparedTransfers.length - 1 === i || (await sleep(delay));
     }
 
     return executedTx;
 };
 
+const resolveTransactions = async (executedTx: Promise<Transaction>[]) => {
+    // TODO: move to some L2 utils
+    console.log('Resolving transactions: ');
+    for (const [i, txPromise] of executedTx.entries()) {
+        const tx = await txPromise;
+        const receipt = await tx.awaitReceipt();
+        console.log(
+            `Transaction #${i} with hash #${tx.txHash} ${
+                receipt.success ? 'added' : 'failed with: ' + receipt.failReason
+            } in block #${receipt.block.blockNumber}.`
+        );
+        console.log('Waiting for block verification ...');
+        const verification = await tx.awaitVerifyReceipt();
+        console.log(
+            `Verification of block #${verification.block.blockNumber} ${
+                verification.success ? 'successfull' : 'failed with: ' + verification.failReason
+            }.`
+        );
+    }
+};
+
 export type { PreparedTransfer, TransferResult };
 
-export { prepareTransfer, executeTransfer, geteTransferResult, generateTransfers, executeTransfers };
+export {
+    prepareTransfer,
+    executeTransfer,
+    geteTransferResult,
+    generateTransfers,
+    executeTransfers,
+    resolveTransactions
+};

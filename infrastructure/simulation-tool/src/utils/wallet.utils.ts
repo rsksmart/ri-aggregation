@@ -1,7 +1,7 @@
 import { SyncProvider as RollupProvider, Transaction, Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
 import { Wallet as EthersWallet, constants, providers } from 'ethers';
-import config from './config';
-import { CHAIN_TO_NETWORK, NETWORK_TO_DERIVATION_PATH } from './constants';
+import config from './config.utils';
+import { NETWORK_TO_DERIVATION_PATH, CHAIN_TO_NETWORK } from '../constants/network';
 
 type L1WalletGenerator = Generator<EthersWallet>;
 
@@ -46,6 +46,11 @@ const activateL2Account = async (rollupWallet: RollupWallet): Promise<Transactio
 const createRollupWallet = (l1Wallet: EthersWallet, syncProvider: RollupProvider): Promise<RollupWallet> =>
     RollupWallet.fromEthSigner(l1Wallet, syncProvider);
 
+const chooseRandomWallet = (wallets: EthersWallet[]) => {
+    const randIndex = Math.floor(Math.random() * wallets.length);
+    return wallets.at(randIndex);
+};
+
 export type { L1WalletGenerator };
 export {
     baseDerivationPath,
@@ -53,5 +58,6 @@ export {
     deriveL1Wallets,
     generateL1Wallets,
     activateL2Account,
-    createWalletGenerator
+    createWalletGenerator,
+    chooseRandomWallet
 };

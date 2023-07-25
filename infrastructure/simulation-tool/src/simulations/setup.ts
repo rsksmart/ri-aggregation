@@ -1,33 +1,25 @@
-
-import {
-    RestProvider,
-    SyncProvider as RollupProvider,
-    Wallet as RollupWallet
-} from '@rsksmart/rif-rollup-js-sdk';
+import { RestProvider, SyncProvider as RollupProvider, Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
 import { Wallet as EthersWallet } from 'ethers';
-import config, { Config } from '../config';
-import { RandomAmountGenerator, createRandomAmountGenerator } from '../numberUtils';
-import {
-    L1WalletGenerator,
-    activateL2Account,
-    createWalletGenerator
-} from '../wallet';
-import { CHAIN_TO_NETWORK } from '../constants';
-import { prepareDevL1Account } from '../devUtils';
+import config, { Config } from '../utils/config.utils';
+import { RandomAmountGenerator, createRandomAmountGenerator } from '../utils/number.utils';
+import { L1WalletGenerator, activateL2Account, createWalletGenerator } from '../utils/wallet.utils';
+import { CHAIN_TO_NETWORK } from '../constants/network';
+import { prepareDevL1Account } from '../utils/dev.utils';
 import { depositToSelf } from '../operations/deposit';
 
-
 type Limits = `${keyof Config['weiLimits']}Generator`;
-type SimulationConfiguration = Partial<{
-    [key in Limits]: RandomAmountGenerator;
-}> & {
+type SimulationConfiguration = Partial<
+    {
+        [key in Limits]: RandomAmountGenerator;
+    }
+> & {
     l1WalletGenerator: L1WalletGenerator;
     rollupProvider: RollupProvider;
     funderL1Wallet: EthersWallet;
     funderL2Wallet: RollupWallet;
     txDelay: number;
     txCount: number;
-} & Config;
+};
 
 const SECOND_IN_MS = 1000;
 
@@ -58,17 +50,17 @@ const setupSimulation = async (): Promise<SimulationConfiguration> => {
     // Fund Funder on for development if need be
     await fundFunderInDev(funderL1Wallet);
 
+    const funderL2Balance = await funderL2Wallet.getBalance(0);
+    // Deposit to Funder L2 wallet
+    funderL2Balance.isZero() && (await depositToSelf(funderL1Wallet, funderL2Wallet));
+
     // Activate funder on L2 if need be
     if (!(await funderL2Wallet.isSigningKeySet())) {
         console.log('L2 wallet is not acivated.');
         await activateL2Account(funderL2Wallet);
     }
 
-    const funderL2Balance = await funderL2Wallet.getBalance(0);
-    // Deposit to Funder L2 wallet
-    funderL2Balance.isZero() && await depositToSelf(funderL1Wallet, funderL2Wallet);
-
-    const txCount = totalRunningTimeSeconds * transactionsPerSecond;
+    const txCount = Math.floor(totalRunningTimeSeconds * transactionsPerSecond);
     const txDelay = SECOND_IN_MS / transactionsPerSecond;
 
     // Create generators
@@ -84,11 +76,6 @@ const setupSimulation = async (): Promise<SimulationConfiguration> => {
     };
 };
 
-export type {
-    SimulationConfiguration
-};
+export type { SimulationConfiguration };
 
-export {
-    setupSimulation,
-    SECOND_IN_MS
-};
+export { setupSimulation, SECOND_IN_MS };

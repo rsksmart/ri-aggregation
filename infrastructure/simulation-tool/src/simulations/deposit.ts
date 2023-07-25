@@ -1,24 +1,47 @@
-import { PreparedDeposit, generateDeposits } from '../operations/deposit';
+import config from '../utils/config.utils';
 import {
-    generateL1Wallets
-} from '../wallet';
-import { SimulationConfiguration } from './common';
+    PreparedDeposit,
+    depositToSelf,
+    executeDeposits,
+    generateDeposits,
+    resolveDeposits
+} from '../operations/deposit';
+import { generateL1Wallets } from '../utils/wallet.utils';
+import { SimulationConfiguration } from './setup';
+import { BigNumber, constants } from 'ethers';
+import { RootstockOperation } from '@rsksmart/rif-rollup-js-sdk';
 
-const runSimulation = async ({ l1WalletGenerator, , numberOfAccounts, totalRunningTimeSeconds, transactionsPerSecond }: SimulationConfiguration) => {
-    console.log('Creating transfer recepients from HD wallet ...');
+const runSimulation = async ({
+    l1WalletGenerator,
+    funderL1Wallet,
+    funderL2Wallet,
+    txCount,
+    txDelay
+}: SimulationConfiguration) => {
+    const { numberOfAccounts } = config;
+    console.log('Creating deposit recepients from HD wallet ...');
     const recepients = generateL1Wallets(numberOfAccounts - 1, l1WalletGenerator);
     console.log(`Created ${recepients.length} recipients.`);
 
-    // Create transactions
-    console.log('Creating deposits ...');
-    const txCount = totalRunningTimeSeconds * transactionsPerSecond;
+    const preparedDeposits: PreparedDeposit[] = generateDeposits(txCount, funderL2Wallet, recepients);
+    console.log(`Created ${preparedDeposits.length} deposits`);
 
-    const preparedTransfers: PreparedDeposit[] = generateDeposits(txCount, funderL2Wallet, recepients);
-    console.log(`Created ${preparedTransfers.length} transfers`);
+    // Verify transactions
+    const totalDepositAmount = preparedDeposits.reduce((accumulator: BigNumber, deposit) => {
+        accumulator.add(deposit.amount);
 
+        return accumulator;
+    }, BigNumber.from(0));
+
+    if (totalDepositAmount.gt(await funderL2Wallet.getBalance(constants.AddressZero))) {
+        await depositToSelf(funderL1Wallet, funderL2Wallet, totalDepositAmount);
+    }
+
+    // Execute transactions
+    const executedTx: Promise<RootstockOperation>[] = await executeDeposits(preparedDeposits, txDelay);
+
+    // List execution results
+    await resolveDeposits(executedTx);
 };
 
-export {
-    runSimulation as runDepositSimulation
-};
-
+export { runSimulation as runDepositSimulation };
