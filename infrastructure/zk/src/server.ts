@@ -12,29 +12,32 @@ export async function core(withDocker = false) {
 
     if (withDocker) {
         await docker.deployUp('server-core');
-    } else {
-        await utils.spawn(
-            'cargo run --bin zksync_server --release -- --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics'
-        );
+        return;
     }
+
+    await utils.spawn(
+        'cargo run --bin zksync_server --release -- --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics'
+    );
 }
 
 export async function web3Node(withDocker = false) {
     if (withDocker) {
         await docker.deployUp('server-web3');
-    } else {
-        await utils.spawn('cargo run --bin zksync_server --release -- --components=web3-api');
+        return;
     }
+
+    await utils.spawn('cargo run --bin zksync_server --release -- --components=web3-api');
 }
 
 export async function apiNode(withDocker = false) {
     if (withDocker) {
         await docker.deployUp('server-api');
-    } else {
-        await utils.spawn(
-            'cargo run --bin zksync_server --release -- --components=web3-api,rest-api,rpc-api,rpc-websocket-api'
-        );
+        return;
     }
+
+    await utils.spawn(
+        'cargo run --bin zksync_server --release -- --components=web3-api,rest-api,rpc-api,rpc-websocket-api'
+    );
 }
 
 export async function server(withDocker = false) {
@@ -45,9 +48,10 @@ export async function server(withDocker = false) {
     prepareForcedExitRequestAccount();
     if (withDocker) {
         await docker.deployUp('server');
-    } else {
-        await utils.spawn('cargo run --bin zksync_server --release');
+        return;
     }
+
+    await utils.spawn('cargo run --bin zksync_server --release');
 }
 
 export async function genesis(withDocker = false) {
@@ -155,6 +159,7 @@ command
         } = cmd;
         await apiNode(withDocker);
     });
+
 command
     .command('web3')
     .description('start web3 node')

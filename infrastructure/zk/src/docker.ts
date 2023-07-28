@@ -77,13 +77,17 @@ export async function restart(container: string) {
 }
 
 export async function deployUp(service: string) {
-    console.log('WARNING! Using docker!');
+    printDockerWarning();
     await utils.spawn(`docker-compose -f docker-compose.deploy.yml up ${service}`);
 }
 
 export async function deployRun(command: string) {
-    console.log('WARNING! Using docker!');
+    printDockerWarning();
     await utils.spawn(`docker-compose -f docker-compose.deploy.yml run ${command}`);
+}
+
+function printDockerWarning() {
+    console.log('WARNING! Using docker!');
 }
 
 export async function pull() {
