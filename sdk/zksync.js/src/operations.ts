@@ -104,7 +104,7 @@ export class Transaction {
         const receipt = await this.sidechainProvider.notifyTransaction(this.txHash, 'COMMIT');
 
         if (!receipt.success) {
-            this.setErrorState(new ZKSyncTxError(`rollup transaction failed: ${receipt.failReason}`, receipt));
+            this.setErrorState(new ZKSyncTxError(`Rollup transaction failed: ${receipt.failReason}`, receipt));
             this.throwErrorIfFailedState();
         }
 

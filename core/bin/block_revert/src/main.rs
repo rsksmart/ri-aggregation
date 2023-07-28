@@ -209,8 +209,8 @@ enum Command {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(name = "rollup block revert tool", author = "Matter Labs")]
-#[structopt(about = "Tool to revert blocks in rollup network on contract and/or in storage")]
+#[structopt(name = "Rollup block revert tool", author = "Matter Labs")]
+#[structopt(about = "Tool to revert blocks in Rollup network on contract and/or in storage")]
 struct Opt {
     /// Last correct block, tool reverts blocks with numbers greater than this field.
     #[structopt(long)]

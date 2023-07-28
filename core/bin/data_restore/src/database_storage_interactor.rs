@@ -85,7 +85,7 @@ impl<'a> DatabaseStorageInteractor<'a> {
             .data_restore_schema()
             .save_rollup_ops(ops.as_slice())
             .await
-            .expect("Cant update rollup operations");
+            .expect("Cant update Rollup operations");
     }
 
     pub async fn update_tree_state(&mut self, block: Block, accounts_updated: AccountUpdates) {

@@ -143,7 +143,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // It's a `ServerCommand::Launch`, perform the usual routine.
-    vlog::info!("Running the rollup server");
+    vlog::info!("Running the Rollup server");
 
     run_server(&opt.components).await;
 

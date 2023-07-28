@@ -189,11 +189,11 @@ export abstract class AbstractWallet {
     // Operations below each come in three signatures:
     // - `getXXX`: get the full transaction with L2 signature.
     // - `signXXX`: get the full transaction with both L2 and L1 signatures.
-    // - `XXX` or `syncXXX`: sign and send the transaction to rollup.
+    // - `XXX` or `syncXXX`: sign and send the transaction to Rollup.
     //
     // All these methods accept incomplete transaction data, and if they return signed transaction, this transaction will
     // be "completed". "Incomplete transaction data" means that e.g. account IDs are not resolved or tokens are represented
-    // by their names/addresses rather than by their IDs in the rollup network.
+    // by their names/addresses rather than by their IDs in the Rollup network.
     //
 
     // Transfer part

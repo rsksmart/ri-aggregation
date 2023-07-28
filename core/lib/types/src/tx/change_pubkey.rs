@@ -126,7 +126,7 @@ impl ChangePubKeyEthAuthData {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ChangePubKey {
-    /// rollup network account ID to apply operation to.
+    /// Rollup network account ID to apply operation to.
     pub account_id: AccountId,
     /// Address of the account.
     pub account: Address,
@@ -140,7 +140,7 @@ pub struct ChangePubKey {
     pub fee: BigUint,
     /// Current account nonce.
     pub nonce: Nonce,
-    /// Transaction rollup signature. Must be signed with the key corresponding to the
+    /// Transaction Rollup signature. Must be signed with the key corresponding to the
     /// `new_pk_hash` value. This signature is required to ensure that `fee_token` and `fee`
     /// fields can't be changed by an attacker.
     #[serde(default)]
@@ -160,7 +160,7 @@ pub struct ChangePubKey {
 }
 
 impl ChangePubKey {
-    /// Unique identifier of the transaction type in rollup network.
+    /// Unique identifier of the transaction type in Rollup network.
     pub const TX_TYPE: u8 = 7;
 
     /// Creates transaction from all the required fields.
@@ -235,6 +235,7 @@ impl ChangePubKey {
             None,
             eth_signature,
         );
+
         tx.signature = TxSignature::sign_musig(private_key, &tx.get_bytes());
         tx.check_correctness()?;
         Ok(tx)
@@ -258,7 +259,7 @@ impl ChangePubKey {
         }
     }
 
-    /// Encodes the transaction data as the byte sequence according to the old rollup protocol with 2 bytes token.
+    /// Encodes the transaction data as the byte sequence according to the old Rollup protocol with 2 bytes token.
     pub fn get_old_bytes(&self) -> Vec<u8> {
         let mut out = Vec::new();
         out.extend_from_slice(&[Self::TX_TYPE]);
@@ -274,7 +275,7 @@ impl ChangePubKey {
         out
     }
 
-    /// Encodes the transaction data as the byte sequence according to the rollup protocol.
+    /// Encodes the transaction data as the byte sequence according to the Rollup protocol.
     pub fn get_bytes(&self) -> Vec<u8> {
         self.get_bytes_with_version(CURRENT_TX_VERSION)
     }
@@ -301,7 +302,7 @@ impl ChangePubKey {
         // fee on contract (if fee amount is packed), or display non human-readable
         // amount in message (if fee amount is packed and is not unpacked on contract).
         // Either of these options is either non user-friendly or increase cost of
-        // operation. Instead, fee data is signed via rollup signature, which is essentially
+        // operation. Instead, fee data is signed via Rollup signature, which is essentially
         // free. This signature will be verified in the circuit.
 
         const CHANGE_PUBKEY_SIGNATURE_LEN: usize = 60;
@@ -333,12 +334,12 @@ impl ChangePubKey {
         // fee on contract (if fee amount is packed), or display non human-readable
         // amount in message (if fee amount is packed and is not unpacked on contract).
         // Either of these options is either non user-friendly or increase cost of
-        // operation. Instead, fee data is signed via rollup signature, which is essentially
+        // operation. Instead, fee data is signed via Rollup signature, which is essentially
         // free. This signature will be verified in the circuit.
 
         const CHANGE_PUBKEY_SIGNATURE_LEN: usize = 152;
         let mut eth_signed_msg = Vec::with_capacity(CHANGE_PUBKEY_SIGNATURE_LEN);
-        eth_signed_msg.extend_from_slice(b"Register rollup pubkey:\n\n");
+        eth_signed_msg.extend_from_slice(b"Register Rollup pubkey:\n\n");
         eth_signed_msg.extend_from_slice(
             format!(
                 "{pubkey}\n\
@@ -453,7 +454,7 @@ impl ChangePubKey {
     /// Verifies the transaction correctness:
     ///
     /// - Ethereum signature (if set) must correspond to the account address.
-    /// - rollup signature must correspond to the `new_pk_hash` field of the transaction.
+    /// - Rollup signature must correspond to the `new_pk_hash` field of the transaction.
     /// - `account_id` field must be within supported range.
     /// - `fee_token` field must be within supported range.
     /// - `fee` field must represent a packable value.

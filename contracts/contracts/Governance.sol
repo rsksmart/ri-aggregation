@@ -170,7 +170,7 @@ contract Governance is Config {
         return
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n141",
-                "\nCreator's account ID in rollup: ",
+                "\nCreator's account ID in Rollup: ",
                 Bytes.bytesToHexASCIIBytes(abi.encodePacked((_creatorAccountId))),
                 "\nCreator: ",
                 Bytes.bytesToHexASCIIBytes(abi.encodePacked((_creatorAddress))),

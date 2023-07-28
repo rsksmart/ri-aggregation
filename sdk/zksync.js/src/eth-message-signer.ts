@@ -9,7 +9,7 @@ import {
 } from './utils';
 
 /**
- * Wrapper around `ethers.Signer` which provides convenient methods to get and sign messages required for rollup.
+ * Wrapper around `ethers.Signer` which provides convenient methods to get and sign messages required for Rollup.
  */
 export class EthMessageSigner {
     constructor(private ethSigner: ethers.Signer, private ethSignerType?: EthSignerType) {}
@@ -325,7 +325,7 @@ export class EthMessageSigner {
         const accountAddressHex = ethers.utils.hexlify(serializeAddress(accountAddress)).substr(2);
         const msgAccId = ethers.utils.hexlify(serializeAccountId(accountId)).substr(2);
         const message =
-            `\nCreator's account ID in rollup: ${msgAccId}\n` +
+            `\nCreator's account ID in Rollup: ${msgAccId}\n` +
             `Creator: ${accountAddressHex}\n` +
             `Factory: ${factoryAddressHex}`;
         const msgBytes = ethers.utils.toUtf8Bytes(message);

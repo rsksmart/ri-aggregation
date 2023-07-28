@@ -102,7 +102,7 @@ impl Web3Rpc for Web3RpcApp {
     }
 
     fn web3_client_version(&self) -> Result<String> {
-        Ok(String::from("rollup"))
+        Ok(String::from("Rollup"))
     }
 
     fn protocol_version(&self) -> Result<String> {

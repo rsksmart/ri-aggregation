@@ -10,7 +10,7 @@ pub enum ChangePubKeyOpError {
     InvalidAccountAddress,
     #[error("ChangePubKey Rootstock auth data is incorrect")]
     InvalidAuthData,
-    #[error("ChangePubKey rollup signature is incorrect")]
+    #[error("ChangePubKey Rollup signature is incorrect")]
     InvalidRollupSignature,
     #[error("ChangePubKey account id is incorrect")]
     InvalidAccountId,

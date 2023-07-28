@@ -53,7 +53,7 @@ contract ZkSyncNFTFactory is ERC721, NFTFactory {
         bytes32 contentHash,
         uint256 tokenId
     ) external override {
-        require(_msgSender() == _zkSyncAddress, "z"); // Minting allowed only from rollup
+        require(_msgSender() == _zkSyncAddress, "z"); // Minting allowed only from Rollup
         _safeMint(recipient, tokenId);
         _contentHashes[tokenId] = contentHash;
         uint256 creatorFingerprint = packCreatorFingerprint(creator, creatorAccountId, serialId);

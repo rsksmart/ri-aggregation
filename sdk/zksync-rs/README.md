@@ -1,9 +1,9 @@
-# Rust SDK for rollup
+# Rust SDK for RIF Rollup
 
-**rollup** is a scaling and privacy engine for Rootstock. Its current functionality scope includes low gas transfers of
+**Rollup** is a scaling and privacy engine for Rootstock. Its current functionality scope includes low gas transfers of
 RBTC and ERC20 tokens in the Rootstock network.
 
-This document is a description of the Rust library that can be used to interact with rollup.
+This document is a description of the Rust library that can be used to interact with Rollup.
 
 ## Usage
 

@@ -269,14 +269,14 @@ impl Toggle2FA {
     pub fn get_ethereum_sign_message(&self) -> String {
         let message = if self.enable {
             format!(
-                "By signing this message, you are opting into Two-factor Authentication protection by the rollup Server.\n\
+                "By signing this message, you are opting into Two-factor Authentication protection by the Rollup Server.\n\
                 Transactions now require signatures by both your L1 and L2 private key.\n\
                 Timestamp: {}",
                 self.timestamp.timestamp_millis()
             )
         } else {
             format!(
-                "You are opting out of Two-factor Authentication protection by the rollup Server.\n\
+                "You are opting out of Two-factor Authentication protection by the Rollup Server.\n\
                 Transactions now only require signatures by your L2 private key.\n\
                 BY SIGNING THIS MESSAGE, YOU ARE TRUSTING YOUR WALLET CLIENT TO KEEP YOUR L2 PRIVATE KEY SAFE!\n\
                 Timestamp: {}", 

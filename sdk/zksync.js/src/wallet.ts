@@ -764,7 +764,7 @@ export class Wallet extends AbstractWallet {
         }[]
     ): Promise<Transaction[]> {
         if (!this.signer) {
-            throw new Error('Rollup signer is required for sending rollup transactions.');
+            throw new Error('Rollup signer is required for sending Rollup transactions.');
         }
 
         if (transfers.length == 0) return [];
@@ -820,7 +820,7 @@ export class Wallet extends AbstractWallet {
         validUntil: number;
     }): Promise<Transfer> {
         if (!this.signer) {
-            throw new Error('Rollup signer is required for sending rollup transactions.');
+            throw new Error('Rollup signer is required for sending Rollup transactions.');
         }
 
         await this.setRequiredAccountIdFromServer('Transfer funds');
@@ -886,7 +886,7 @@ export class Wallet extends AbstractWallet {
         validUntil: number;
     }): Promise<Withdraw> {
         if (!this.signer) {
-            throw new Error('Rollup signer is required for sending rollup transactions.');
+            throw new Error('Rollup signer is required for sending Rollup transactions.');
         }
         await this.setRequiredAccountIdFromServer('Withdraw funds');
 
@@ -915,7 +915,7 @@ export class Wallet extends AbstractWallet {
         validUntil?: number;
     }): Promise<ForcedExit> {
         if (!this.signer) {
-            throw new Error('Rollup signer is required for sending rollup transactions.');
+            throw new Error('Rollup signer is required for sending Rollup transactions.');
         }
         await this.setRequiredAccountIdFromServer('perform a Forced Exit');
 
@@ -942,7 +942,7 @@ export class Wallet extends AbstractWallet {
         fee: BigNumberish;
     }): Promise<Swap> {
         if (!this.signer) {
-            throw new Error('rollup signer is required for swapping funds');
+            throw new Error('Rollup signer is required for swapping funds');
         }
         await this.setRequiredAccountIdFromServer('Swap submission');
         const feeToken = this.provider.tokenSet.resolveTokenId(swap.feeToken);
@@ -963,7 +963,7 @@ export class Wallet extends AbstractWallet {
         nonce: number;
     }): Promise<MintNFT> {
         if (!this.signer) {
-            throw new Error('Rollup signer is required for sending rollup transactions.');
+            throw new Error('Rollup signer is required for sending Rollup transactions.');
         }
         await this.setRequiredAccountIdFromServer('MintNFT');
 
@@ -991,7 +991,7 @@ export class Wallet extends AbstractWallet {
         validUntil: number;
     }): Promise<WithdrawNFT> {
         if (!this.signer) {
-            throw new Error('Rollup signer is required for sending rollup transactions.');
+            throw new Error('Rollup signer is required for sending Rollup transactions.');
         }
         await this.setRequiredAccountIdFromServer('WithdrawNFT');
 
@@ -1145,7 +1145,7 @@ export class Wallet extends AbstractWallet {
         validUntil?: number;
     }): Promise<Order> {
         if (!this.signer) {
-            throw new Error('rollup signer is required for signing an order');
+            throw new Error('Rollup signer is required for signing an order');
         }
         await this.setRequiredAccountIdFromServer('Swap order');
         const nonce = order.nonce != null ? await this.getNonce(order.nonce) : await this.getNonce();

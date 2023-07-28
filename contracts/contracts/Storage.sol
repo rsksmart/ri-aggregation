@@ -54,7 +54,7 @@ contract Storage {
     /// @notice Total number of committed blocks i.e. blocks[totalBlocksCommitted] points at the latest committed block
     uint32 public totalBlocksCommitted;
 
-    /// @Old rollup block stored data - not used in current version
+    /// @Old Rollup block stored data - not used in current version
     /// @member validator Block producer
     /// @member committedAtBlock ETH block number at which this block was committed
     /// @member cumulativeOnchainOperations Total number of operations in this and all previous blocks
@@ -118,7 +118,7 @@ contract Storage {
     /// @member priorityOperations Number of priority operations processed
     /// @member pendingOnchainOperationsHash Hash of all operations that must be processed after verify
     /// @member timestamp Rollup block timestamp, have the same format as Rootstock block constant
-    /// @member stateHash Root hash of the rollup state
+    /// @member stateHash Root hash of the Rollup state
     /// @member commitment Verified input for the zkSync circuit
     struct StoredBlockInfo {
         uint32 blockNumber;

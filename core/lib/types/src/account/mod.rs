@@ -22,7 +22,7 @@ mod account_update;
 pub mod error;
 mod pubkey_hash;
 
-/// rollup network account.
+/// Rollup network account.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Account {
     /// Hash of the account public key used to authorize operations for this account.
