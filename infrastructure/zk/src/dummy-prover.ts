@@ -15,9 +15,10 @@ async function performRedeployment(withDocker = false) {
 export async function run(withDocker = false) {
     if (withDocker) {
         await docker.deployUp('prover');
-    } else {
-        await utils.spawn('cargo run --release --bin dummy_prover dummy-prover-instance');
+        return;
     }
+
+    await utils.spawn('cargo run --release --bin dummy_prover dummy-prover-instance');
 }
 
 export async function status() {

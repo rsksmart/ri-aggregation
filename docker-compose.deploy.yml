@@ -49,10 +49,6 @@ services:
     env_file:
       - ./etc/env/${ZKSYNC_ENV-dev}.env
       - ./etc/env/${ENV_OVERRIDE-deploy}.env
-    volumes:
-      - type: bind
-        source: ./keys/
-        target: /keys/
 
   dev-ticker:
     image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
