@@ -29,27 +29,17 @@ const prepareTransfer = (l2sender: RollupWallet, recipient: EthersWallet): Prepa
 
 const executeTransfer = (preparedTransfer: PreparedTransfer): Promise<Transaction> => {
     const { from, ...transferParameters } = preparedTransfer;
-    // console.log(`Transferring ${transferParameters.amount} RBTC to ${transferParameters.to} ...` );
+    // console.log(`Transferring ${transferParameters.amount} RBTC to ${transferParameters.to} ...` ); // commented out to reduce noise (TODO: create more sophisticated logging)
 
     return from.syncTransfer(transferParameters);
-};
-
-const geteTransferResult = async (transfer: Transaction): Promise<TransferResult> => {
-    const opL2Receipt = await transfer.awaitReceipt();
-    const verifierReceipt = await transfer.awaitVerifyReceipt();
-
-    return {
-        opL2Receipt,
-        verifierReceipt
-    };
 };
 
 const generateTransfers = (
     numberOfTransfers: number,
     funderL2Wallet: RollupWallet,
-    recepients: EthersWallet[]
+    recipients: EthersWallet[]
 ): PreparedTransfer[] => {
-    return [...Array(numberOfTransfers)].map(() => prepareTransfer(funderL2Wallet, chooseRandomWallet(recepients)));
+    return [...Array(numberOfTransfers)].map(() => prepareTransfer(funderL2Wallet, chooseRandomWallet(recipients)));
 };
 
 const executeTransfers = async (
@@ -83,7 +73,7 @@ const resolveTransactions = async (executedTx: Promise<Transaction>[]) => {
         const verification = await tx.awaitVerifyReceipt();
         console.log(
             `Verification of block #${verification.block.blockNumber} ${
-                verification.success ? 'successfull' : 'failed with: ' + verification.failReason
+                verification.success ? 'successful' : 'failed with: ' + verification.failReason
             }.`
         );
     }
@@ -91,11 +81,4 @@ const resolveTransactions = async (executedTx: Promise<Transaction>[]) => {
 
 export type { PreparedTransfer, TransferResult };
 
-export {
-    prepareTransfer,
-    executeTransfer,
-    geteTransferResult,
-    generateTransfers,
-    executeTransfers,
-    resolveTransactions
-};
+export { prepareTransfer, executeTransfer, generateTransfers, executeTransfers, resolveTransactions };

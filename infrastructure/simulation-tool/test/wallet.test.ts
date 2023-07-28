@@ -10,7 +10,7 @@ import {
     createRollupWallet,
     createWalletGenerator,
     deriveL1Wallets
-} from '../src/wallet';
+} from '../src/utils/wallet.utils';
 
 use(sinonChai);
 

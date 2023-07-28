@@ -1,10 +1,9 @@
 import { Wallet as RollupWallet, RootstockOperation } from '@rsksmart/rif-rollup-js-sdk';
-import { PriorityOperationReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
-import { BigNumber, constants, ContractReceipt, Wallet as EthersWallet } from 'ethers';
+import { sleep } from '@rsksmart/rif-rollup-js-sdk/build/utils';
+import { BigNumber, ContractReceipt, Wallet as EthersWallet, constants } from 'ethers';
 import config from '../utils/config.utils';
 import { getRandomBigNumber } from '../utils/number.utils';
 import { chooseRandomWallet } from '../utils/wallet.utils';
-import { sleep } from '@rsksmart/rif-rollup-js-sdk/build/utils';
 
 type PreparedDeposit = Omit<Parameters<RollupWallet['depositToSyncFromRootstock']>[number], 'amount'> & {
     amount: BigNumber;
@@ -13,16 +12,14 @@ type PreparedDeposit = Omit<Parameters<RollupWallet['depositToSyncFromRootstock'
 
 type DepositResult = {
     opL1Receipt: ContractReceipt;
-    opL2Receipt: PriorityOperationReceipt;
-    verifierReceipt: PriorityOperationReceipt;
 };
 
-const prepareDeposit = (l2sender: RollupWallet, l1recipient: EthersWallet, amount?: BigNumber): PreparedDeposit => {
+const prepareDeposit = (l2sender: RollupWallet, recipientAddress?: string, amount?: BigNumber): PreparedDeposit => {
     const [minAmount, maxAmount] = config.weiLimits.deposit;
 
     return {
         amount: amount || getRandomBigNumber(minAmount, maxAmount),
-        depositTo: l1recipient.address,
+        depositTo: recipientAddress || l2sender.address(),
         token: constants.AddressZero,
         from: l2sender
     };
@@ -30,7 +27,7 @@ const prepareDeposit = (l2sender: RollupWallet, l1recipient: EthersWallet, amoun
 
 const executeDeposit = (preparedDeposit: PreparedDeposit): Promise<RootstockOperation> => {
     const { from, ...depositParameters } = preparedDeposit;
-    console.log(`Depositing ${depositParameters.amount} RBTC to L2 ...`);
+    // console.log(`Depositing ${depositParameters.amount} RBTC to L2 ...`); // commented out to reduce noise (TODO: create more sophisticated logging)
 
     return from.depositToSyncFromRootstock(depositParameters);
 };
@@ -38,30 +35,18 @@ const executeDeposit = (preparedDeposit: PreparedDeposit): Promise<RootstockOper
 const resolveRootstockOperation = async (rskOperation: RootstockOperation): Promise<DepositResult> => {
     const opL1Receipt: ContractReceipt = await rskOperation.awaitRootstockTxCommit();
     console.log(
-        `Rollup contract for RSK operation with hash #${rskOperation.ethTx.blockHash} ${
+        `Rollup contract for RSK operation with hash #${opL1Receipt.blockHash} ${
             opL1Receipt.status ? 'submitted' : 'rejected'
         }`
     );
-    const opL2Receipt: PriorityOperationReceipt = await rskOperation.awaitReceipt();
-    console.log(
-        `Priority operation with hash #${rskOperation.ethTx.blockHash} ${
-            opL2Receipt.executed ? 'executed' : 'failed'
-        } in block #${opL2Receipt.block.blockNumber}.`
-    );
 
-    console.log('Waiting for block verification ...');
-    const verifierReceipt = await rskOperation.awaitVerifyReceipt();
-    console.log(
-        `Verification of block #${verifierReceipt.block.blockNumber} ${
-            verifierReceipt.block.verified ? 'successfull' : 'failed'
-        }.`
-    );
+    return { opL1Receipt };
+};
 
-    return {
-        opL1Receipt,
-        opL2Receipt,
-        verifierReceipt
-    };
+const depositToSelf = async (funderL2Wallet: RollupWallet, amount: BigNumber) => {
+    const depositParams = prepareDeposit(funderL2Wallet, null, amount);
+    const promiseOfDeposit = await (await executeDeposits([depositParams], 0)).at(0);
+    await promiseOfDeposit.awaitReceipt();
 };
 
 const resolveDeposits = async (executedTx: Promise<RootstockOperation>[]) => {
@@ -75,20 +60,11 @@ const resolveDeposits = async (executedTx: Promise<RootstockOperation>[]) => {
 const generateDeposits = (
     numberOfDeposits: number,
     funderL2Wallet: RollupWallet,
-    recepients: EthersWallet[]
+    recipients: EthersWallet[]
 ): PreparedDeposit[] => {
-    console.log('🦆: numberOfDeposits:', numberOfDeposits);
-    return [...Array(numberOfDeposits)].map(() => prepareDeposit(funderL2Wallet, chooseRandomWallet(recepients)));
-};
-
-const depositToSelf = async (
-    l1wallet: EthersWallet,
-    l2wallet: RollupWallet,
-    amount?: BigNumber
-): Promise<DepositResult> => {
-    const preparedDeposit = prepareDeposit(l2wallet, l1wallet, amount);
-    const deposit = await executeDeposit(preparedDeposit);
-    return resolveRootstockOperation(deposit);
+    return [...Array(numberOfDeposits)].map(() =>
+        prepareDeposit(funderL2Wallet, chooseRandomWallet(recipients).address)
+    );
 };
 
 const executeDeposits = async (
@@ -110,10 +86,10 @@ const executeDeposits = async (
 export {
     depositToSelf,
     executeDeposit,
+    executeDeposits,
     generateDeposits,
-    resolveDeposits,
-    resolveRootstockOperation as resolveDeposit,
     prepareDeposit,
-    executeDeposits
+    resolveRootstockOperation as resolveDeposit,
+    resolveDeposits
 };
 export type { DepositResult, PreparedDeposit };

@@ -1,4 +1,5 @@
-import config from '../utils/config.utils';
+import { RootstockOperation } from '@rsksmart/rif-rollup-js-sdk';
+import { BigNumber, constants } from 'ethers';
 import {
     PreparedDeposit,
     depositToSelf,
@@ -6,24 +7,17 @@ import {
     generateDeposits,
     resolveDeposits
 } from '../operations/deposit';
+import config from '../utils/config.utils';
 import { generateL1Wallets } from '../utils/wallet.utils';
 import { SimulationConfiguration } from './setup';
-import { BigNumber, constants } from 'ethers';
-import { RootstockOperation } from '@rsksmart/rif-rollup-js-sdk';
 
-const runSimulation = async ({
-    l1WalletGenerator,
-    funderL1Wallet,
-    funderL2Wallet,
-    txCount,
-    txDelay
-}: SimulationConfiguration) => {
+const runSimulation = async ({ l1WalletGenerator, funderL2Wallet, txCount, txDelay }: SimulationConfiguration) => {
     const { numberOfAccounts } = config;
-    console.log('Creating deposit recepients from HD wallet ...');
-    const recepients = generateL1Wallets(numberOfAccounts - 1, l1WalletGenerator);
-    console.log(`Created ${recepients.length} recipients.`);
+    console.log('Creating deposit recipients from HD wallet ...');
+    const recipients = generateL1Wallets(numberOfAccounts - 1, l1WalletGenerator);
+    console.log(`Created ${recipients.length} recipients.`);
 
-    const preparedDeposits: PreparedDeposit[] = generateDeposits(txCount, funderL2Wallet, recepients);
+    const preparedDeposits: PreparedDeposit[] = generateDeposits(txCount, funderL2Wallet, recipients);
     console.log(`Created ${preparedDeposits.length} deposits`);
 
     // Verify transactions
@@ -34,7 +28,7 @@ const runSimulation = async ({
     }, BigNumber.from(0));
 
     if (totalDepositAmount.gt(await funderL2Wallet.getBalance(constants.AddressZero))) {
-        await depositToSelf(funderL1Wallet, funderL2Wallet, totalDepositAmount);
+        await depositToSelf(funderL2Wallet, totalDepositAmount);
     }
 
     // Execute transactions
