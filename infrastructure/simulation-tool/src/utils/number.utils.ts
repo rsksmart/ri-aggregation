@@ -1,9 +1,9 @@
 import { BigNumber, BigNumberish } from 'ethers';
 
-type RandomAmountGenerator = Generator<BigNumber>;
+type RandomAmountGenerator = Generator<BigNumber, BigNumber>;
 
 const getRandomBigNumber = (min: BigNumberish, max: BigNumberish): BigNumber => {
-    const diff = BigNumber.from(1).mul(max).sub(min);
+    const diff = BigNumber.from(max).sub(min);
     const randomDecimal = Math.random();
     const scaled = diff.mul(BigNumber.from((randomDecimal * 1e18).toFixed()));
     const randomNumber = scaled.div(BigNumber.from((1e18).toString()));
@@ -11,7 +11,7 @@ const getRandomBigNumber = (min: BigNumberish, max: BigNumberish): BigNumber => 
     return randomNumber.add(min);
 };
 
-function* createRandomAmountGenerator(minMaxTuple: [BigNumberish, BigNumberish]): Generator<BigNumber> {
+function* createRandomAmountGenerator(minMaxTuple: [BigNumberish, BigNumberish]): RandomAmountGenerator {
     const [min, max] = minMaxTuple;
 
     while (true) {

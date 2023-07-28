@@ -1,18 +1,12 @@
 import { RestProvider, SyncProvider as RollupProvider, Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
 import { Wallet as EthersWallet } from 'ethers';
-import config, { Config } from '../utils/config.utils';
-import { RandomAmountGenerator, createRandomAmountGenerator } from '../utils/number.utils';
+import config from '../utils/config.utils';
 import { L1WalletGenerator, activateL2Account, createWalletGenerator } from '../utils/wallet.utils';
 import { CHAIN_TO_NETWORK } from '../constants/network';
 import { prepareDevL1Account } from '../utils/dev.utils';
 import { depositToSelf } from '../operations/deposit';
 
-type Limits = `${keyof Config['weiLimits']}Generator`;
-type SimulationConfiguration = Partial<
-    {
-        [key in Limits]: RandomAmountGenerator;
-    }
-> & {
+type SimulationConfiguration = {
     l1WalletGenerator: L1WalletGenerator;
     rollupProvider: RollupProvider;
     funderL1Wallet: EthersWallet;
@@ -67,7 +61,6 @@ const setupSimulation = async (): Promise<SimulationConfiguration> => {
     return {
         rollupProvider,
         l1WalletGenerator,
-        transferToNewGenerator: createRandomAmountGenerator(config.weiLimits.transferToNew),
         funderL1Wallet,
         funderL2Wallet,
         txCount,

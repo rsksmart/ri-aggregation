@@ -8,8 +8,15 @@ const prepareDevL1Account = async (account: EthersWallet): Promise<providers.Tra
         .map((accountAddress: string) => provider.getSigner(accountAddress))
         .find(async (signer: Signer) => {
             let balance = await signer.getBalance();
-            return !balance.isZero;
+
+            return !balance.isZero();
         });
+
+    if (!loadedSigner) {
+        throw Error(
+            'The provider does not contain a list of wealthy dev accounts. Cannot continue, please check your hardhat configuration.'
+        );
+    }
 
     const latestBlock = await provider.getBlock('latest');
     const gasLimit = latestBlock.gasLimit;

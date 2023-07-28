@@ -3,22 +3,21 @@ import { Wallet as EthersWallet, constants, providers } from 'ethers';
 import config from './config.utils';
 import { NETWORK_TO_DERIVATION_PATH, CHAIN_TO_NETWORK } from '../constants/network';
 
-type L1WalletGenerator = Generator<EthersWallet>;
+type L1WalletGenerator = Generator<EthersWallet, EthersWallet>;
 
 const baseDerivationPath: string = NETWORK_TO_DERIVATION_PATH[CHAIN_TO_NETWORK[config.chainId]];
 
-function* createWalletGenerator(mnemonic: string, firstIndex: number = 0): Generator<EthersWallet> {
+function* createWalletGenerator(mnemonic: string, firstIndex: number = 0): L1WalletGenerator {
     const l1Provider = new providers.JsonRpcProvider(config.nodeUrl);
     let index = firstIndex;
     while (true) {
         const derivationPath = baseDerivationPath + index++;
 
-        const yieldLog = yield EthersWallet.fromMnemonic(mnemonic, derivationPath).connect(l1Provider);
-        yieldLog && console.log(`Generated ${derivationPath} log:`, yieldLog);
+        yield EthersWallet.fromMnemonic(mnemonic, derivationPath).connect(l1Provider);
     }
 }
 
-const generateL1Wallets = (numberOfAccounts: number, l1WalletGenerator: Generator<EthersWallet>): EthersWallet[] =>
+const generateL1Wallets = (numberOfAccounts: number, l1WalletGenerator: L1WalletGenerator): EthersWallet[] =>
     [...Array(numberOfAccounts)].map(() => l1WalletGenerator.next().value);
 
 const deriveL1Wallets = async (
