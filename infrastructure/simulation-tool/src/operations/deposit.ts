@@ -4,6 +4,7 @@ import { BigNumber, ContractReceipt, Wallet as EthersWallet, constants } from 'e
 import config from '../utils/config.utils';
 import { getRandomBigNumber } from '../utils/number.utils';
 import { chooseRandomWallet } from '../utils/wallet.utils';
+import { PriorityOperationReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
 
 type PreparedDeposit = Omit<Parameters<RollupWallet['depositToSyncFromRootstock']>[number], 'amount'> & {
     amount: BigNumber;
@@ -12,6 +13,7 @@ type PreparedDeposit = Omit<Parameters<RollupWallet['depositToSyncFromRootstock'
 
 type DepositResult = {
     opL1Receipt: ContractReceipt;
+    opL2Receipt: PriorityOperationReceipt;
 };
 
 const prepareDeposit = (l2sender: RollupWallet, recipientAddress?: string, amount?: BigNumber): PreparedDeposit => {
@@ -20,7 +22,7 @@ const prepareDeposit = (l2sender: RollupWallet, recipientAddress?: string, amoun
     return {
         amount: amount || getRandomBigNumber(minAmount, maxAmount),
         depositTo: recipientAddress || l2sender.address(),
-        token: constants.AddressZero,
+        token: 'RBTC',
         from: l2sender
     };
 };
@@ -39,8 +41,17 @@ const resolveRootstockOperation = async (rskOperation: RootstockOperation): Prom
             opL1Receipt.status ? 'submitted' : 'rejected'
         }`
     );
+    const opL2Receipt: PriorityOperationReceipt = await rskOperation.awaitReceipt();
+    console.log(
+        `Priority operation with hash #${opL1Receipt.blockHash} ${
+            opL2Receipt.executed ? 'executed' : 'failed'
+        } in L2 block #${opL2Receipt.block.blockNumber}.`
+    );
 
-    return { opL1Receipt };
+    return {
+        opL1Receipt,
+        opL2Receipt
+    };
 };
 
 const depositToSelf = async (funderL2Wallet: RollupWallet, amount: BigNumber) => {
@@ -89,7 +100,7 @@ export {
     executeDeposits,
     generateDeposits,
     prepareDeposit,
-    resolveRootstockOperation as resolveDeposit,
+    resolveRootstockOperation,
     resolveDeposits
 };
 export type { DepositResult, PreparedDeposit };

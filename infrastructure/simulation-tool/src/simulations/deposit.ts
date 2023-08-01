@@ -1,15 +1,10 @@
 import { RootstockOperation } from '@rsksmart/rif-rollup-js-sdk';
-import { BigNumber, constants } from 'ethers';
-import {
-    PreparedDeposit,
-    depositToSelf,
-    executeDeposits,
-    generateDeposits,
-    resolveDeposits
-} from '../operations/deposit';
+import { BigNumber } from 'ethers';
+import { PreparedDeposit, executeDeposits, generateDeposits, resolveDeposits } from '../operations/deposit';
 import config from '../utils/config.utils';
 import { generateL1Wallets } from '../utils/wallet.utils';
 import { SimulationConfiguration } from './setup';
+import { ensureFunds } from '../operations/common';
 
 const runSimulation = async ({ l1WalletGenerator, funderL2Wallet, txCount, txDelay }: SimulationConfiguration) => {
     const { numberOfAccounts } = config;
@@ -27,9 +22,7 @@ const runSimulation = async ({ l1WalletGenerator, funderL2Wallet, txCount, txDel
         return accumulator;
     }, BigNumber.from(0));
 
-    if (totalDepositAmount.gt(await funderL2Wallet.getBalance(constants.AddressZero))) {
-        await depositToSelf(funderL2Wallet, totalDepositAmount);
-    }
+    await ensureFunds(totalDepositAmount, funderL2Wallet);
 
     // Execute transactions
     const executedTx: Promise<RootstockOperation>[] = await executeDeposits(preparedDeposits, txDelay);

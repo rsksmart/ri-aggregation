@@ -11,18 +11,13 @@ type PreparedTransfer = Omit<Parameters<RollupWallet['syncTransfer']>[number], '
     from: RollupWallet;
 };
 
-type TransferResult = {
-    opL2Receipt: TransactionReceipt;
-    verifierReceipt: TransactionReceipt;
-};
-
 const prepareTransfer = (l2sender: RollupWallet, recipient: EthersWallet): PreparedTransfer => {
     const [minAmount, maxAmount] = config.weiLimits.transferToNew;
     return {
         from: l2sender,
         to: recipient.address,
         amount: utils.closestPackableTransactionAmount(getRandomBigNumber(minAmount, maxAmount)),
-        token: constants.AddressZero,
+        token: 'RBTC',
         nonce: 'committed'
     };
 };
@@ -79,6 +74,6 @@ const resolveTransactions = async (executedTx: Promise<Transaction>[]) => {
     }
 };
 
-export type { PreparedTransfer, TransferResult };
+export type { PreparedTransfer };
 
 export { prepareTransfer, executeTransfer, generateTransfers, executeTransfers, resolveTransactions };

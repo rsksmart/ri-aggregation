@@ -29,7 +29,7 @@ describe('prepareTransfer', () => {
         const recipient = sinon.createStubInstance(EthersWallet);
         const transfer = prepareTransfer(sender, recipient);
 
-        expect(transfer.token).to.eq(constants.AddressZero);
+        expect(transfer.token).to.eq('RBTC');
     });
 
     it('should return a transfer with nonce set to committed', () => {
@@ -54,7 +54,7 @@ describe('executeTransfer', () => {
         expect(sender.syncTransfer).to.have.been.calledOnceWith(expectedParameters);
     });
 
-    it('should return transfer operation', async () => {
+    it('should return Rollup transaction', async () => {
         const sender = sinon.createStubInstance(RollupWallet);
         sender.syncTransfer.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
         const recipient = sinon.createStubInstance(EthersWallet);
@@ -96,10 +96,10 @@ describe('generateTransfers', () => {
             return walletStub;
         });
         const transfers = generateTransfers(numberOfTransfers, funderL2Wallet, recipients);
-        const expectedrecipients = recipients.map((receipient) => receipient.address);
+        const expectedRecipients = recipients.map((receipient) => receipient.address);
 
         transfers.forEach((transfer) => {
-            expect(expectedrecipients).to.include(transfer.to);
+            expect(expectedRecipients).to.include(transfer.to);
         });
     });
 });
@@ -146,7 +146,7 @@ describe('executeTransfers', () => {
         expect(sleepStub).to.have.callCount(numberOfTransfers - 1);
     });
 
-    it('should executed correct number of transfers per seconf', async function () {
+    it('should executed correct number of transfers per second', async function () {
         const expectedTPS = 3;
         const totalSimTime = 3;
         const numberOfTransfers = expectedTPS * totalSimTime;

@@ -43,7 +43,7 @@ const setupSimulation = async (): Promise<SimulationConfiguration> => {
     // Fund Funder on for development if need be
     await fundFunderInDev(funderL1Wallet);
 
-    const funderL2Balance = await funderL2Wallet.getBalance(constants.AddressZero);
+    const funderL2Balance = await funderL2Wallet.getBalance('RBTC');
     // Deposit to Funder L2 wallet
     if (funderL2Balance.isZero()) {
         const funderl1Balance = await funderL1Wallet.getBalance();

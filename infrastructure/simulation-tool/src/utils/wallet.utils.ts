@@ -34,7 +34,7 @@ const activateL2Account = async (rollupWallet: RollupWallet): Promise<Transactio
     // might not be needed
     console.log('Activating account ...');
     const signKeyTransaction = await rollupWallet.setSigningKey({
-        feeToken: constants.AddressZero,
+        feeToken: 'RBTC',
         ethAuthType: 'ECDSA'
     });
     console.log('Account signing receipt:', await signKeyTransaction.awaitReceipt());

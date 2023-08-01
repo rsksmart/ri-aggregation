@@ -1,10 +1,10 @@
 import { Transaction } from '@rsksmart/rif-rollup-js-sdk';
-import { BigNumber, constants } from 'ethers';
+import { BigNumber } from 'ethers';
 import { PreparedTransfer, executeTransfers, generateTransfers, resolveTransactions } from '../operations/transfer';
 import { generateL1Wallets } from '../utils/wallet.utils';
-import { depositToSelf } from '../operations/deposit';
 import { SimulationConfiguration } from './setup';
 import config from '../utils/config.utils';
+import { ensureFunds } from '../operations/common';
 
 const runSimulation = async ({ l1WalletGenerator, txCount, txDelay, funderL2Wallet }: SimulationConfiguration) => {
     const { numberOfAccounts } = config;
@@ -26,9 +26,7 @@ const runSimulation = async ({ l1WalletGenerator, txCount, txDelay, funderL2Wall
         return accumulator;
     }, BigNumber.from(0));
 
-    if (totalTransferAmount.gt(await funderL2Wallet.getBalance(constants.AddressZero))) {
-        await depositToSelf(funderL2Wallet, totalTransferAmount);
-    }
+    await ensureFunds(totalTransferAmount, funderL2Wallet);
 
     // Execute transactions
     const executedTx: Promise<Transaction>[] = await executeTransfers(preparedTransfers, txDelay);

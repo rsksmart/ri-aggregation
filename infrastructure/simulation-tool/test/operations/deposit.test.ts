@@ -1,16 +1,18 @@
 import { Wallet as RollupWallet, RootstockOperation, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { expect, use } from 'chai';
-import { ContractReceipt, Wallet as EthersWallet, constants } from 'ethers';
+import { BigNumber, ContractReceipt, Wallet as EthersWallet, constants } from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {
+    depositToSelf,
     executeDeposit,
     executeDeposits,
     generateDeposits,
     prepareDeposit,
-    resolveDeposit
+    resolveRootstockOperation
 } from '../../src/operations/deposit';
 import config from '../../src/utils/config.utils';
+import { PriorityOperationReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
 
 use(sinonChai);
 
@@ -29,7 +31,7 @@ describe('prepareDeposit', () => {
         const { address } = sinon.createStubInstance(EthersWallet);
         const deposit = prepareDeposit(l2sender, address);
 
-        expect(deposit.token).to.eq(constants.AddressZero);
+        expect(deposit.token).to.eq('RBTC');
     });
     it('should return a deposit with depositTo set to l1recipient address', () => {
         const l2sender = sinon.createStubInstance(RollupWallet);
@@ -55,7 +57,7 @@ describe('executeDeposit', () => {
         expect(l2sender.depositToSyncFromRootstock).to.have.been.calledOnceWith(expectedParameters);
     });
 
-    it('should return deposit operation', async () => {
+    it('should return RootstockOperation', async () => {
         const l2sender = sinon.createStubInstance(RollupWallet);
         l2sender.depositToSyncFromRootstock.callsFake(() =>
             Promise.resolve(sinon.createStubInstance(RootstockOperation))
@@ -68,60 +70,63 @@ describe('executeDeposit', () => {
     });
 });
 
-describe('getDepositResult', () => {
+describe('resolveRootstockOperation', () => {
     it('should return deposit result', async () => {
         const depositOp = sinon.createStubInstance(RootstockOperation);
         const expectedL1Receipt = { confirmations: 1 } as ContractReceipt;
         depositOp.awaitRootstockTxCommit.callsFake(() => Promise.resolve(expectedL1Receipt));
-        const depositResult = await resolveDeposit(depositOp);
+        const expectedL2Receipt = { block: { blockNumber: 1 } } as PriorityOperationReceipt;
+        depositOp.awaitReceipt.callsFake(() => Promise.resolve(expectedL2Receipt));
+        const depositResult = await resolveRootstockOperation(depositOp);
 
         expect(depositResult.opL1Receipt).to.eq(expectedL1Receipt);
+        expect(depositResult.opL2Receipt).to.eq(expectedL2Receipt);
     });
 });
 
 describe('executeDeposits', () => {
-    it('should execute all transfers', async () => {
+    it('should execute all deposits', async () => {
         const numberOfDeposits = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
         const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const transfers = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
         const delay = 0;
         sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
-        const executedDeposits = await executeDeposits(transfers, delay);
+        const executedDeposits = await executeDeposits(deposits, delay);
 
         expect(executedDeposits.length).to.eq(numberOfDeposits);
     });
 
-    it('should return executed transfers', async () => {
+    it('should return executed deposits', async () => {
         const numberOfDeposits = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
         const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const transfers = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
         const delay = 0;
         sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
-        const executedDeposits = await executeDeposits(transfers, delay);
+        const executedDeposits = await executeDeposits(deposits, delay);
 
         for (const executedDeposit of executedDeposits) {
             expect(await executedDeposit).to.be.instanceOf(RootstockOperation);
         }
     });
 
-    it('should delay between transfers', async () => {
+    it('should delay between deposits', async () => {
         const numberOfDeposits = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
         const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const transfers = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
         const delay = 100;
         const sleepStub = sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
-        await executeDeposits(transfers, delay);
+        await executeDeposits(deposits, delay);
 
         expect(sleepStub).to.have.callCount(numberOfDeposits - 1);
     });
 
-    it('should executed correct number of transfers per seconf', async function () {
+    it('should executed correct number of deposits per second', async function () {
         const expectedTPS = 3;
         const totalSimTime = 3;
         const numberOfDeposits = expectedTPS * totalSimTime;
@@ -129,11 +134,36 @@ describe('executeDeposits', () => {
         const depositToSyncFromRootstockSpy = funderL2Wallet.depositToSyncFromRootstock;
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
         const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const transfers = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
         const delay = 1000 / expectedTPS;
         this.timeout(totalSimTime * 1000);
-        await executeDeposits(transfers, delay);
+        await executeDeposits(deposits, delay);
 
         expect(depositToSyncFromRootstockSpy.callCount / totalSimTime).to.eq(expectedTPS);
+    });
+});
+
+describe('depositToSelf', () => {
+    it('should execute deposit against own address', async () => {
+        const l2wallet = sinon.createStubInstance(RollupWallet);
+        l2wallet.depositToSyncFromRootstock.callsFake(() =>
+            Promise.resolve(sinon.createStubInstance(RootstockOperation))
+        );
+        await depositToSelf(l2wallet, BigNumber.from(50));
+
+        expect(l2wallet.depositToSyncFromRootstock).to.have.been.calledOnce;
+    });
+
+    it('should execute deposit with amount', async () => {
+        const l2wallet = sinon.createStubInstance(RollupWallet);
+        l2wallet.depositToSyncFromRootstock.callsFake(() =>
+            Promise.resolve(sinon.createStubInstance(RootstockOperation))
+        );
+        const expectedAmount = BigNumber.from(50);
+        await depositToSelf(l2wallet, expectedAmount);
+
+        expect(l2wallet.depositToSyncFromRootstock).to.have.been.calledWithMatch({
+            amount: expectedAmount
+        });
     });
 });
