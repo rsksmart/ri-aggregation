@@ -43,7 +43,7 @@ services:
       file: docker-compose.deploy.yml
       service: server
     command: --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics
-  
+
   prover:
     image: "rsksmart/rollup-prover:1.0.0-beta"
     env_file:
@@ -64,9 +64,7 @@ services:
     command: tail -f /dev/null
     volumes:
       - .:/usr/src/zksync
-      - /usr/src/cache:/usr/src/cache
       - /usr/src/keys:/usr/src/keys
-      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - ENV_OVERRIDE=${ENV_OVERRIDE-deploy}
       - CI=1

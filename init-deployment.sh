@@ -1,8 +1,12 @@
 #!/bin/bash
 
-DEPLOY_ENVIRONMENT="${DEPLOY_ENVIRONMENT:=dev}" 
+bash init.sh
 
-./init.sh
+
+echo "deleting contracts artifacts, cache and typechain"
+rm -rf contracts/artifacts;
+rm -rf contracts/cache;
+rm -rf contracts/typechain;
 
 docker-compose -f docker-compose.deploy.yml up -d rollup
 docker-compose -f docker-compose.deploy.yml exec -T rollup zk
