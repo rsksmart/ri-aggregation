@@ -185,7 +185,7 @@ the dependencies installed in the local host.
 zk config compile dev
 ```
 
-2. Initialize docker containers with `rollup` environent, `RSKj` node`postgres` database for local development.
+2. Initialize docker containers with `rollup` environment, `RSKj` node`postgres` database for local development.
 
 ```
 docker-compose -f docker-compose.deploy.yml up -d rskj postgres rollup
