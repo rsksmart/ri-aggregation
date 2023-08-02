@@ -33,10 +33,8 @@ export async function status() {
 async function setStatus(value: boolean, redeploy: boolean, withDocker: boolean) {
     env.modify('CONTRACTS_TEST_DUMMY_VERIFIER', `CONTRACTS_TEST_DUMMY_VERIFIER="${value}"`);
     env.modify_contracts_toml('CONTRACTS_TEST_DUMMY_VERIFIER', `CONTRACTS_TEST_DUMMY_VERIFIER="${value}"`);
-    if (withDocker) {
-        env.modify('MISC_DOCKER_DUMMY_PROVER', `MISC_DOCKER_DUMMY_PROVER=${value}`);
-        env.modify_contracts_toml('MISC_DOCKER_DUMMY_PROVER', `MISC_DOCKER_DUMMY_PROVER=${value}`);
-    }
+    env.modify('MISC_DOCKER_DUMMY_PROVER', `MISC_DOCKER_DUMMY_PROVER=${value}`);
+    env.modify_contracts_toml('MISC_DOCKER_DUMMY_PROVER', `MISC_DOCKER_DUMMY_PROVER=${value}`);
     await status();
     if (redeploy) {
         console.log('Redeploying the contract...');
