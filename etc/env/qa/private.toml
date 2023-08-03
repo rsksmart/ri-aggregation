@@ -7,20 +7,20 @@ database_url="postgres://postgres@localhost/plasma"
 [eth_sender.sender]
 # Set in env file for development, production, staging and testnet.
 #operator private key is cow6 rsk account <env_priv_key>
-operator_private_key="0x1b3160459f0187348d0100f57e10e200b1220c08992495e81462f1649d8b2eb2"
+operator_private_key="0x581690ccc251c08c0c4a209d0b2c5cdccfcedd06c70025283d849381f379066f"
 
 # Address to be used for zkSync account managing the interaction with a contract on Rootstock.
 # Derived from the `OPERATOR_PRIVATE_KEY`. <env_address>
-operator_commit_eth_addr="0xE24CC5927D581Ef685E8DC3AFd77fFFc1Fa616e7"
+operator_commit_eth_addr="0x1CcF7cE365D6B9529BE30c29EA85F4a756C63929"
 
 [chain.state_keeper]
 # <env_address>
-fee_account_addr="0xFd71351D4038B9011f52A582d2EA47460dFC942a"
+fee_account_addr="0x0768976f14aaCb8cD6e479f6deEb973C67eA6150"
 last_tx_signer_used="false"
 # <env_address>
-last_tx_signer_address="0xAA737996E8737f8f73Ac3d281fA73971E771E24d"
+last_tx_signer_address="0xd22F311F094B21E1D75cBd9229895129Deb299A0"
 # <env_priv_key>
-last_tx_signer_private_key="0x3675755f6bcf6607f663f5ed152ed513b572a422e9d2c0d9763e8ec7e5c5bab0"
+last_tx_signer_private_key="0x85392cccc08a00dfeaa90833bc5f0851f6ff8eac0eea0689af7fcb8146de8a09"
 
 [api.admin]
 # Secret for the authorization tokens generation
@@ -32,10 +32,10 @@ secret_auth="sample"
 
 [misc]
 # Private key for the fee seller account (cow7) <env_priv_key>
-fee_account_private_key="0xb4ef2efcfe2df005586b2c3634df9ad4221950a8ad2d7a79fe93044f3b22344a"
+fee_account_private_key="0xea09e1fe584019bef786ba95da92bd0c256f599457aa6bf1520c07eef3f77437"
 
 [forced_exit_requests]
 # L2 private key of the account that sends ForcedExits <env_priv_key>
 sender_private_key="0x0092788f3890ed50dcab7f72fb574a0a9d30b1bc778ba076c609c311a8555352" 
 # L1 private key of the account that sends ForcedExits <env_priv_key>
-sender_eth_private_key="0xcbac5824bebbc3f1eeba669095901a24c75f219c065be352e28abe6af1c4259d"
+sender_eth_private_key="0xd77b8a342be95c5c31fa85c20450b424663c4fb4a499cfc80c202c592c85c219"

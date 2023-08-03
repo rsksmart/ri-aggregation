@@ -12,7 +12,8 @@ const IMAGES = [
     'ci',
     'exit-tool',
     'event-listener',
-    'data-restore'
+    'data-restore',
+    'environment'
 ];
 
 async function dockerCommand(command: 'push' | 'build', image: string, tag: string) {
@@ -43,9 +44,7 @@ async function _build(image: string, tag: string) {
     }
 
     const imageTag = `-t rsksmart/rollup-${image}:${tag}`;
-    await utils.spawn(
-        `DOCKER_BUILDKIT=1 docker build ${imageTag} --platform linux/amd64 -f ./docker/${image}/Dockerfile .`
-    );
+    await utils.spawn(`DOCKER_BUILDKIT=1 docker build ${imageTag} -f ./docker/${image}/Dockerfile .`);
 }
 
 async function _push(image: string, tag: string) {
@@ -57,8 +56,9 @@ export async function build(image: string, tag: string) {
 }
 
 export async function buildFromTag(gitTag: string) {
-    const [image_name, image_tag] = gitTag.split(':');
-    await dockerCommand('build', image_name, image_tag);
+    const { imageName, imageTag } = getNameTag(gitTag);
+
+    await dockerCommand('build', imageName, imageTag);
 }
 
 export async function push(image: string, tag: string) {
@@ -67,17 +67,42 @@ export async function push(image: string, tag: string) {
 }
 
 export async function pushFromTag(gitTag: string) {
-    const [image_name, image_tag] = gitTag.split(':');
-    await dockerCommand('build', image_name, image_tag);
-    await dockerCommand('push', image_name, image_tag);
+    const { imageName, imageTag } = getNameTag(gitTag);
+    await dockerCommand('build', imageName, imageTag);
+    await dockerCommand('push', imageName, imageTag);
 }
 
 export async function restart(container: string) {
     await utils.spawn(`docker-compose restart ${container}`);
 }
 
+export async function deployUp(service: string) {
+    printDockerWarning();
+    await utils.spawn(`docker-compose -f docker-compose.deploy.yml up ${service}`);
+}
+
+export async function deployRun(command: string) {
+    printDockerWarning();
+    await utils.spawn(`docker-compose -f docker-compose.deploy.yml run ${command}`);
+}
+
+function printDockerWarning() {
+    console.log('WARNING! Using docker!');
+}
+
 export async function pull() {
     await utils.spawn('docker-compose pull postgres rskj dev-ticker tesseracts elastic');
+}
+
+function getNameTag(gitTag: string) {
+    const imageName = gitTag.substring(gitTag.lastIndexOf('.') + 1);
+
+    const imageTag = gitTag.replace(`.${imageName}`, '').substring(1);
+
+    return {
+        imageName,
+        imageTag
+    };
 }
 
 export const command = new Command('docker').description('docker management');

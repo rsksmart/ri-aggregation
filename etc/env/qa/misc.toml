@@ -11,6 +11,7 @@ prover_setup_network_dir="-"
 # Used to configure env for docker
 docker_dummy_prover=true
 
+
 # API key for the analytics script
 etherscan_api_key="unset"
 
@@ -44,10 +45,10 @@ listing_fee=660000000000000
 listing_cap=65436
 
 # The address which will receive funds from permissionless token listings <env_address>
-listing_treasury="0xde2e44c1797859DcF9bA408Fc19398e20DfF3701"
+listing_treasury="0xaFe6A91979021206ad79F58562Eef4204720E2A3"
 
 # Security council parameters <env_address>
 security_council_members_number=3
-security_council_members=["0x07473f4Fd742DaE806EA0f95E8522490aFf10250","0x33C2630eE0ac5423872e45b9e5Fb747429D6Fd77","0x9aa96eE486B8D0448771218baBD14bE60823C322"]
+security_council_members=["0x5C45dE30dcA2cF4F48202163F1Aec5d1a42Fba86","0x56dF84566a67e87808A73dA0Be61a40bda3e2AFA","0xCE004d039cD86b08274FC453bd5536E6e9F6Fac7"]
 
 security_council_threshold=2

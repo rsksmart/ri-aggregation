@@ -46,4 +46,3 @@ blocks_check_amount=10
 
 # How often we want to poll the RSK node (in milliseconds).
 eth_node_poll_interval=300
-

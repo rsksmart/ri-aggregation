@@ -1,5 +1,6 @@
 version: '3.2'
 services:
+
   postgres:
     image: "postgres:12"
     environment:
@@ -16,16 +17,14 @@ services:
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
   
   dev-ticker:
-    build:
-      context: .
-      dockerfile: ./docker/dev-ticker/Dockerfile
+    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
     env_file:
       - ./etc/env/docker.env
     volumes:
       - ./etc/tokens/:/etc/tokens
 
   zk:
-    image: "rsksmart/rollup-environment:0.0.1-beta"
+    image: "rsksmart/rollup-environment:1.0.0-beta"
     depends_on:
       - postgres
       - rskj
@@ -37,7 +36,7 @@ services:
       - /usr/src/keys:/usr/src/keys
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - IN_DOCKER=true
+      - ENV_OVERRIDE=docker
       - CACHE_DIR=/usr/src/cache
       - SCCACHE_CACHE_SIZE="50g"
       - CI=1

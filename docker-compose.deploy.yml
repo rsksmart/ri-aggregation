@@ -1,0 +1,87 @@
+version: '3.2'
+services:
+
+  server:
+    image: "rsksmart/rollup-server:1.0.0-beta"
+    ports: #Ports that where configured using the environment variables
+      - 3001:3001 # RestApi
+      - 3002:3002 # Web3
+      - 3030:3030 # JsonRpcHttp
+      - 3031:3031 # JsonRpcWs
+      - 3032:3032 # EventListener
+      - 3312:3312 # Prometheus
+      - 8080:8080 # AdminApi
+      - 8088:8088 # ProverApi
+      - 8090:8090 # PrivateApi
+    volumes:
+      - type: bind
+        source: ./etc/tokens
+        target: /etc/tokens
+      - type: bind
+        source: ./etc/token-lists
+        target: /etc/token-lists
+    env_file:
+      - ./etc/env/${ZKSYNC_ENV-dev}.env
+      - ./etc/env/${ENV_OVERRIDE-deploy}.env
+    environment:
+      - ZKSYNC_HOME=/
+
+  server-api:
+    extends:
+      file: docker-compose.deploy.yml
+      service: server
+    command: --components=web3-api,rest-api,rpc-api,rpc-websocket-api
+
+  server-web3:
+    extends:
+      file: docker-compose.deploy.yml
+      service: server
+    command: --components=web3-api
+
+  server-core:
+    extends:
+      file: docker-compose.deploy.yml
+      service: server
+    command: --components=eth-sender,witness-generator,forced-exit,prometheus,core,rejected-task-cleaner,fetchers,prometheus-periodic-metrics
+
+  prover:
+    image: "rsksmart/rollup-prover:1.0.0-beta"
+    env_file:
+      - ./etc/env/${ZKSYNC_ENV-dev}.env
+      - ./etc/env/${ENV_OVERRIDE-deploy}.env
+
+  dev-ticker:
+    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
+    env_file:
+      - ./etc/env/${ENV_OVERRIDE-deploy}.env
+    ports:
+      - "9876:9876"
+    volumes:
+      - ./etc/tokens/:/etc/tokens
+
+  rollup:
+    image: "rsksmart/rollup-environment:1.0.0-beta"
+    command: tail -f /dev/null
+    volumes:
+      - .:/usr/src/zksync
+      - /usr/src/keys:/usr/src/keys
+    environment:
+      - ENV_OVERRIDE=${ENV_OVERRIDE-deploy}
+      - CI=1
+
+  postgres:
+    image: "postgres:12"
+    ports:
+      - "5432:5432"
+    environment:
+        - POSTGRES_HOST_AUTH_METHOD=trust
+
+  rskj:
+    image: rsksmart/rskj:HOP-4.4.0
+    entrypoint:  ["java", "-cp", "rsk.jar", "co.rsk.Start" ]
+    ports:
+      - "4444:4444"
+      - "4445:4445"
+    volumes:
+      - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
+      - ./docker/rskj/node.conf:/etc/rsk/node.conf

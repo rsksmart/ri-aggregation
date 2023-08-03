@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export ZKSYNC_HOME=$PWD
+export PATH=$ZKSYNC_HOME/bin:$PATH
+
+DEPLOY_ENVIRONMENT="${DEPLOY_ENVIRONMENT:=dev}" 
+
+zk
+zk config compile $DEPLOY_ENVIRONMENT
+zk env $DEPLOY_ENVIRONMENT

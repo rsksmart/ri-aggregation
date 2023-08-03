@@ -22,8 +22,9 @@ export async function reset() {
 export async function drop() {
     await utils.confirmAction();
     console.log('Dropping DB...');
-    await utils.exec(`${SQL()} 'DROP OWNED BY CURRENT_USER CASCADE' ||
-                     (${SQL()} 'DROP SCHEMA IF EXISTS public CASCADE' && ${SQL()} 'CREATE SCHEMA public')`);
+    await utils.exec(`
+    (${SQL()} 'DROP OWNED BY CURRENT_USER CASCADE' || ${SQL()} 'DROP SCHEMA IF EXISTS public CASCADE') 
+     && ${SQL()} 'CREATE SCHEMA IF NOT EXISTS public'`);
 }
 
 export async function listMarketValue() {

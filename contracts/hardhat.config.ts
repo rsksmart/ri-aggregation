@@ -22,7 +22,7 @@ const testnetConfig = {
     UPGRADE_NOTICE_PERIOD: 0,
     MAX_AMOUNT_OF_REGISTERED_TOKENS: 1023,
     // PRIORITY_EXPIRATION: 101,
-    DUMMY_VERIFIER: false,
+    DUMMY_VERIFIER: process.env.CONTRACTS_TEST_DUMMY_VERIFIER === 'true',
     ZKSYNC_ADDRESS: process.env.CONTRACTS_CONTRACT_ADDR,
     NEW_ADDITIONAL_ZKSYNC_ADDRESS: process.env.CONTRACTS_ADDITIONAL_ZKSYNC_ADDR,
     UPGRADE_GATEKEEPER_ADDRESS: process.env.CONTRACTS_UPGRADE_GATEKEEPER_ADDR,
@@ -63,9 +63,7 @@ localConfig.SECURITY_COUNCIL_THRESHOLD = process.env.MISC_SECURITY_COUNCIL_THRES
 localConfig.EASY_EXODUS = process.env.CONTRACTS_TEST_EASY_EXODUS === 'true';
 
 const contractDefs = {
-    goerli: testnetConfig,
-    rinkeby: testnetConfig,
-    ropsten: testnetConfig,
+    testnet: testnetConfig,
     mainnet: prodConfig,
     test: testConfig,
     localhost: localConfig
