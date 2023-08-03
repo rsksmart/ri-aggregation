@@ -1,6 +1,6 @@
 import { Wallet as RollupWallet, RootstockOperation, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { expect, use } from 'chai';
-import { BigNumber, ContractReceipt, Wallet as EthersWallet, constants } from 'ethers';
+import { BigNumber, ContractReceipt, Wallet as EthersWallet } from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {
@@ -89,8 +89,8 @@ describe('executeDeposits', () => {
         const numberOfDeposits = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
-        const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const users = [funderL2Wallet, ...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
+        const deposits = generateDeposits(numberOfDeposits, users);
         const delay = 0;
         sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
         const executedDeposits = await executeDeposits(deposits, delay);
@@ -102,8 +102,8 @@ describe('executeDeposits', () => {
         const numberOfDeposits = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
-        const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const users = [funderL2Wallet, ...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
+        const deposits = generateDeposits(numberOfDeposits, users);
         const delay = 0;
         sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
         const executedDeposits = await executeDeposits(deposits, delay);
@@ -117,8 +117,8 @@ describe('executeDeposits', () => {
         const numberOfDeposits = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
-        const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const users = [funderL2Wallet, ...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
+        const deposits = generateDeposits(numberOfDeposits, users);
         const delay = 100;
         const sleepStub = sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
         await executeDeposits(deposits, delay);
@@ -133,8 +133,8 @@ describe('executeDeposits', () => {
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         const depositToSyncFromRootstockSpy = funderL2Wallet.depositToSyncFromRootstock;
         funderL2Wallet.depositToSyncFromRootstock.resolves(sinon.createStubInstance(RootstockOperation));
-        const recipients = [...Array(5)].map(() => sinon.createStubInstance(EthersWallet));
-        const deposits = generateDeposits(numberOfDeposits, funderL2Wallet, recipients);
+        const users = [funderL2Wallet, ...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
+        const deposits = generateDeposits(numberOfDeposits, users);
         const delay = 1000 / expectedTPS;
         this.timeout(totalSimTime * 1000);
         await executeDeposits(deposits, delay);

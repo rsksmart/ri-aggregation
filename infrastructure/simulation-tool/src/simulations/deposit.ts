@@ -1,33 +1,58 @@
-import { RootstockOperation } from '@rsksmart/rif-rollup-js-sdk';
-import { BigNumber } from 'ethers';
+import { RootstockOperation, Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
+import { BigNumber, constants } from 'ethers';
 import { PreparedDeposit, executeDeposits, generateDeposits, resolveDeposits } from '../operations/deposit';
 import config from '../utils/config.utils';
-import { generateL1Wallets } from '../utils/wallet.utils';
+import { generateWallets } from '../utils/wallet.utils';
 import { SimulationConfiguration } from './setup';
-import { ensureFunds } from '../operations/common';
+import { ensureL1Funds } from '../operations/common';
 
-const runSimulation = async ({ l1WalletGenerator, funderL2Wallet, txCount, txDelay }: SimulationConfiguration) => {
+const runSimulation = async ({ walletGenerator, funderL2Wallet, txCount, txDelay }: SimulationConfiguration) => {
     const { numberOfAccounts } = config;
-    console.log('Creating deposit recipients from HD wallet ...');
-    const recipients = generateL1Wallets(numberOfAccounts - 1, l1WalletGenerator);
-    console.log(`Created ${recipients.length} recipients.`);
+    console.log('Creating deposit users from HD wallet ...');
+    const users: RollupWallet[] = await generateWallets(numberOfAccounts - 1, walletGenerator);
+    console.log(`Created ${users.length} users.`);
 
-    const preparedDeposits: PreparedDeposit[] = generateDeposits(txCount, funderL2Wallet, recipients);
+    console.log(`Creating ${txCount} deposits ...`);
+    const preparedDeposits: PreparedDeposit[] = generateDeposits(txCount, [funderL2Wallet, ...users]);
     console.log(`Created ${preparedDeposits.length} deposits`);
 
     // Verify transactions
-    const totalDepositAmount = preparedDeposits.reduce((accumulator: BigNumber, deposit) => {
-        accumulator.add(deposit.amount);
+    type SenderOutgoings = Map<RollupWallet, BigNumber>;
+    type ReducedSenderOutgoings = {
+        senderToOutgoings: SenderOutgoings;
+        totalOutgoings: BigNumber;
+    };
+    const outgoingsPerSender = preparedDeposits.reduce<ReducedSenderOutgoings>(
+        ({ senderToOutgoings, totalOutgoings }, { from, amount }) =>
+            ({ x: console.log(`from: ${from.address()} value: ${amount.toString()}`) } && {
+                senderToOutgoings: senderToOutgoings.set(
+                    from,
+                    amount.add(senderToOutgoings.get(from) || constants.Zero)
+                ),
+                totalOutgoings: totalOutgoings.add(amount)
+            }),
+        {
+            senderToOutgoings: new Map<RollupWallet, BigNumber>(),
+            totalOutgoings: constants.Zero
+        }
+    );
 
-        return accumulator;
-    }, BigNumber.from(0));
-
-    await ensureFunds(totalDepositAmount, funderL2Wallet);
+    if (outgoingsPerSender.totalOutgoings.gt(await funderL2Wallet._ethSigner.getBalance())) {
+        throw new Error(
+            `Insufficient funds on funder account. Required: ${outgoingsPerSender.totalOutgoings.toString()}, available: ${await funderL2Wallet._ethSigner.getBalance()}`
+        );
+    }
+    const ensureAccountFunds = ensureL1Funds(funderL2Wallet._ethSigner);
+    for (const [sender, amount] of outgoingsPerSender.senderToOutgoings.entries()) {
+        await ensureAccountFunds(amount, sender._ethSigner);
+    }
 
     // Execute transactions
-    const executedTx: Promise<RootstockOperation>[] = await executeDeposits(preparedDeposits, txDelay);
+    const executedTx: RootstockOperation[] = await Promise.all(
+        (await executeDeposits(preparedDeposits, txDelay)).map((tx) => tx)
+    );
 
-    // List execution results
+    // // List execution results
     await resolveDeposits(executedTx);
 };
 

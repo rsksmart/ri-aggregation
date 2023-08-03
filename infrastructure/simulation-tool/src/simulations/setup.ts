@@ -1,14 +1,13 @@
-import { RestProvider, SyncProvider as RollupProvider, Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
-import { Wallet as EthersWallet, constants } from 'ethers';
+import { Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
+import { Signer } from 'ethers';
 import config from '../utils/config.utils';
-import { L1WalletGenerator, activateL2Account, createWalletGenerator } from '../utils/wallet.utils';
+import { RollupWalletGenerator, activateL2Account, createWalletGenerator } from '../utils/wallet.utils';
 import { CHAIN_TO_NETWORK } from '../constants/network';
 import { prepareDevL1Account } from '../utils/dev.utils';
 import { depositToSelf } from '../operations/deposit';
 
 type SimulationConfiguration = {
-    l1WalletGenerator: L1WalletGenerator;
-    rollupProvider: RollupProvider;
+    walletGenerator: RollupWalletGenerator;
     funderL2Wallet: RollupWallet;
     txDelay: number;
     txCount: number;
@@ -16,56 +15,53 @@ type SimulationConfiguration = {
 
 const SECOND_IN_MS = 1000;
 
-const fundFunderInDev = async (funderL1Wallet: EthersWallet) => {
+const fundFunderInDev = async (funderL1Wallet: Signer) => {
     const balance = await funderL1Wallet.getBalance();
     const network = await funderL1Wallet.provider.getNetwork();
     if (balance.isZero() && CHAIN_TO_NETWORK[network.chainId] === 'regtest') {
         console.log('HD wallet on regtest has no balance');
 
-        return prepareDevL1Account(funderL1Wallet as EthersWallet);
+        return prepareDevL1Account(funderL1Wallet);
     }
 };
 
 const setupSimulation = async (): Promise<SimulationConfiguration> => {
     // Read configuration
     console.log('Using configuration:', config);
-    const { rollupUrl, transactionsPerSecond, totalRunningTimeSeconds } = config;
+    const { transactionsPerSecond, totalRunningTimeSeconds } = config;
 
     // Read environment variables
     const mnemonic =
         process.env.MNEMONIC ||
         'coyote absorb fortune village riot razor bright finish number once churn junior various slice spatial';
     const l1WalletGenerator = createWalletGenerator(mnemonic);
-    const funderL1Wallet = l1WalletGenerator.next().value;
-    const rollupProvider = await RestProvider.newProvider(rollupUrl + '/api/v0.2');
-    const funderL2Wallet = await RollupWallet.fromEthSigner(funderL1Wallet, rollupProvider);
+    const funderWallet: RollupWallet = (await l1WalletGenerator.next()).value;
 
     // Fund Funder on for development if need be
-    await fundFunderInDev(funderL1Wallet);
+    await fundFunderInDev(funderWallet._ethSigner);
 
-    const funderL2Balance = await funderL2Wallet.getBalance('RBTC');
+    const funderL2Balance = await funderWallet.getBalance('RBTC');
     // Deposit to Funder L2 wallet
     if (funderL2Balance.isZero()) {
-        const funderl1Balance = await funderL1Wallet.getBalance();
-        await depositToSelf(funderL2Wallet, funderl1Balance.div(2));
+        const funderl1Balance = await funderWallet._ethSigner.getBalance();
+        console.log('Funder L2 wallet has no balance. Depositing from L1.');
+        await depositToSelf(funderWallet, funderl1Balance.div(2));
     }
 
     // Activate funder on L2 if need be
-    if (!(await funderL2Wallet.isSigningKeySet())) {
+    if (!(await funderWallet.isSigningKeySet())) {
         console.log('L2 wallet is not activated.');
-        await activateL2Account(funderL2Wallet);
+        await activateL2Account(funderWallet);
     }
 
     const txCount = Math.floor(totalRunningTimeSeconds * transactionsPerSecond);
     const txDelay = SECOND_IN_MS / transactionsPerSecond;
 
     return {
-        rollupProvider,
-        l1WalletGenerator,
-        funderL2Wallet,
+        walletGenerator: l1WalletGenerator,
+        funderL2Wallet: funderWallet,
         txCount,
-        txDelay,
-        ...config
+        txDelay
     };
 };
 

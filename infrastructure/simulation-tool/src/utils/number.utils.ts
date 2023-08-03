@@ -11,6 +11,11 @@ const getRandomBigNumber = (min: BigNumberish, max: BigNumberish): BigNumber => 
     return randomNumber.add(min);
 };
 
+const randomInRange = (min: number, max: number): number => {
+    const randomDecimal = Math.random();
+    return Math.floor(randomDecimal * (max + 1 - min)) + min;
+};
+
 function* createRandomAmountGenerator(minMaxTuple: [BigNumberish, BigNumberish]): RandomAmountGenerator {
     const [min, max] = minMaxTuple;
 
@@ -21,4 +26,4 @@ function* createRandomAmountGenerator(minMaxTuple: [BigNumberish, BigNumberish])
 
 export type { RandomAmountGenerator };
 
-export { getRandomBigNumber, createRandomAmountGenerator };
+export { getRandomBigNumber, randomInRange, createRandomAmountGenerator };

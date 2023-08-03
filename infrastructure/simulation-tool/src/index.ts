@@ -7,10 +7,12 @@ import config from './utils/config.utils';
 (async function () {
     const tasks = [runDepositSimulation, runTransferToNewSimulation];
 
-    config.totalRunningTimeSeconds = Math.floor(config.totalRunningTimeSeconds / tasks.length);
-    const simulationSetup = await setupSimulation();
-
     for (const task of tasks) {
+        const simulationSetup = await setupSimulation();
+
+        config.totalRunningTimeSeconds = Math.floor(config.totalRunningTimeSeconds / tasks.length);
+        simulationSetup.txCount = Math.floor(simulationSetup.txCount / tasks.length);
+
         await task(simulationSetup);
     }
 })();

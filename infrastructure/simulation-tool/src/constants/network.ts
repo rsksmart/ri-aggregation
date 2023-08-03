@@ -6,10 +6,12 @@ const CHAIN_TO_NETWORK: { [key in number]: typeof NETWORKS[number] } = {
     33: 'regtest'
 };
 
-const NETWORK_TO_DERIVATION_PATH: { [key in typeof NETWORKS[number]]: `m/44'/${number}'/0'/0/` } = {
-    mainnet: "m/44'/137'/0'/0/",
-    testnet: "m/44'/37310'/0'/0/",
-    regtest: "m/44'/37310'/0'/0/"
+const NETWORK_TO_DERIVATION_PATH: { [key in typeof NETWORKS[number]]: `m/44'/${number}'` } = {
+    mainnet: "m/44'/137'",
+    testnet: "m/44'/37310'",
+    regtest: "m/44'/37310'"
 };
 
-export { CHAIN_TO_NETWORK, NETWORK_TO_DERIVATION_PATH };
+const HardenedBit = 0x80000000; // 2^31 - max index for hardened derivation (from bip32)
+
+export { CHAIN_TO_NETWORK, NETWORK_TO_DERIVATION_PATH, HardenedBit };

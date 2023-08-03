@@ -1,6 +1,6 @@
-import { providers, Signer, Wallet as EthersWallet } from 'ethers';
+import { providers, Signer } from 'ethers';
 
-const prepareDevL1Account = async (account: EthersWallet): Promise<providers.TransactionReceipt> => {
+const prepareDevL1Account = async (account: Signer): Promise<providers.TransactionReceipt> => {
     console.log('Finding first account with some balance ...');
     const provider = account.provider as providers.JsonRpcProvider;
     const devAccounts = await provider.listAccounts();
@@ -23,7 +23,7 @@ const prepareDevL1Account = async (account: EthersWallet): Promise<providers.Tra
     console.log(`Found ${loadedSigner._address}. Syphoning ...`);
 
     const txRequest = await loadedSigner.populateTransaction({
-        to: account.address,
+        to: await account.getAddress(),
         value: (await loadedSigner.getBalance()).sub(gasLimit),
         gasLimit
     });

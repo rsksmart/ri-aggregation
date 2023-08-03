@@ -1,15 +1,14 @@
-import { Wallet as RollupWallet, Transaction, Provider as RollupProvider } from '@rsksmart/rif-rollup-js-sdk';
+import { Wallet as RollupWallet, Transaction } from '@rsksmart/rif-rollup-js-sdk';
 import { expect, use } from 'chai';
 import { Wallet as EthersWallet } from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {
     activateL2Account,
-    baseDerivationPath,
-    generateL1Wallets,
-    createRollupWallet,
     createWalletGenerator,
-    deriveL1Wallets
+    deriveWallets,
+    generateWallets,
+    getAccountPath
 } from '../../src/utils/wallet.utils';
 
 use(sinonChai);
@@ -24,102 +23,66 @@ describe('createWalletGenerator', () => {
         expect(generator).to.be.a('Generator');
     });
 
-    it('should return a function that returns a derived wallet', () => {
+    it('should return a function that returns a derived wallet', async () => {
         const generator = createWalletGenerator(MNEMONIC, 0);
-        const wallet = generator.next().value;
+        const wallet = (await generator.next()).value;
+        const expectedAddress = EthersWallet.fromMnemonic(MNEMONIC, getAccountPath(0)).address;
 
-        expect(wallet.mnemonic.phrase).to.eq(MNEMONIC);
+        expect(wallet.address()).to.eq(expectedAddress);
     });
 
-    it('should return consistently derived wallets', () => {
+    it('should return consistently derived wallets', async () => {
         const generator = createWalletGenerator(MNEMONIC, 0);
-        generator.next().value;
-        generator.next().value;
-        generator.next().value;
-        const expectedWallet = generator.next().value;
+        (await generator.next()).value;
+        (await generator.next()).value;
+        (await generator.next()).value;
+        const expectedWallet = (await generator.next()).value;
 
         const generator2 = createWalletGenerator(MNEMONIC, 3);
-        const actualWallet = generator2.next().value;
+        const actualWallet = (await generator2.next()).value;
 
         expect(expectedWallet.address).to.eq(actualWallet.address);
     });
 
-    it('should return wallets with provider', () => {
+    it('should return wallets with provider', async () => {
         const generator = createWalletGenerator(MNEMONIC, 0);
-        const wallet = generator.next().value;
+        const wallet = (await generator.next()).value;
 
         expect(wallet.provider).to.not.be.undefined;
     });
 });
 
-describe('createL1Wallets', () => {
-    it('should return expected number of wallets with given generator', () => {
+describe('generateWallets', () => {
+    it('should return expected number of wallets with given generator', async () => {
         const testCounts = [0, 4, 10];
         const generator = createWalletGenerator(MNEMONIC, 0);
-
-        testCounts.forEach((expectedWalletCount) => {
-            let wallets = generateL1Wallets(expectedWalletCount, generator);
+        for (const expectedWalletCount of testCounts) {
+            const wallets = await generateWallets(expectedWalletCount, generator);
 
             expect(wallets.length).to.eq(expectedWalletCount);
-        });
+        }
     });
 });
 
-describe('deriveL1Wallets', () => {
+describe('deriveWallets', () => {
     it('should return expected number of wallets', async () => {
         const testCounts = [0, 4, 10];
 
         testCounts.forEach(async (expectedWalletCount) => {
-            let wallets = await deriveL1Wallets(MNEMONIC, expectedWalletCount);
+            let wallets = await deriveWallets(MNEMONIC, expectedWalletCount);
 
             expect(wallets.length).to.eq(expectedWalletCount);
         });
     });
 
     it('should return wallet derived from given mnemonic', async () => {
-        const expectedMnemonic = MNEMONIC;
         const numberOfWallets = 5;
-        const wallets = await deriveL1Wallets(expectedMnemonic, numberOfWallets);
+        const wallets = await deriveWallets(MNEMONIC, numberOfWallets);
+        wallets.forEach((wallet, i) => {
+            const expectedAddress = EthersWallet.fromMnemonic(MNEMONIC, getAccountPath(i)).address;
 
-        wallets.forEach((wallet) => {
-            expect(wallet.mnemonic.phrase).to.eq(expectedMnemonic);
+            expect(wallet.address()).to.eq(expectedAddress);
         });
-    });
-
-    it('should return wallet with given derivation index', async () => {
-        const testIndexes = [0, 4, 10];
-        const numberOfWallets = 1;
-        for (const expectedIndex of testIndexes) {
-            const wallets = await deriveL1Wallets(MNEMONIC, numberOfWallets, expectedIndex);
-
-            expect(wallets.at(0).mnemonic.path).to.eq(baseDerivationPath + expectedIndex);
-        }
-    });
-
-    it('should increase derivation path index for each wallet', async () => {
-        const expectedIndex = 0;
-        const numberOfWallets = 5;
-        const wallets = await deriveL1Wallets(MNEMONIC, numberOfWallets, expectedIndex);
-
-        wallets.forEach((wallet, index) => {
-            expect(wallet.mnemonic.path).to.eq(baseDerivationPath + (expectedIndex + index));
-        });
-    });
-});
-
-describe('createRollupWallet', () => {
-    it('should return rollup wallet', async () => {
-        const actualRollupWallet = await createRollupWallet(
-            EthersWallet.createRandom(),
-            sinon.createStubInstance(RollupProvider)
-        );
-
-        expect(actualRollupWallet).to.be.instanceOf(RollupWallet);
-        expect(actualRollupWallet).to.have.property('address');
-        expect(actualRollupWallet).to.have.property('signer');
-        expect(actualRollupWallet).to.have.property('provider');
-        expect(actualRollupWallet).to.have.property('accountId');
-        expect(actualRollupWallet).to.have.property('_ethSigner');
     });
 });
 

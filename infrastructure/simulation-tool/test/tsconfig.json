@@ -12,6 +12,6 @@
   },
   "include": [
     "**/*.ts",
-    "../src/**.ts"
-, "../src/utils/config.utils.ts", "../src/constants/network.ts"  ]
+    "../src/**.ts" 
+  ]
 }
