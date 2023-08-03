@@ -162,7 +162,7 @@ contract AdditionalZkSync is Storage, Config, Events, ReentrancyGuard {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n110",
-                "Approved new ZkSync's target contracts hash\n0x",
+                "Approved new Rollup's target contracts hash\n0x",
                 Bytes.bytesToHexASCIIBytes(abi.encodePacked(targetsHash))
             )
         );

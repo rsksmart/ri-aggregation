@@ -31,9 +31,9 @@ use crate::{
 
 impl StoredExecutedTransaction {
     pub(crate) fn into_executed_tx(self) -> ExecutedTx {
-        let tx: ZkSyncTx = serde_json::from_value(self.tx).expect("Unparsable ZkSyncTx in db");
+        let tx: ZkSyncTx = serde_json::from_value(self.tx).expect("Unparsable RollupTx in db");
         let franklin_op: Option<ZkSyncOp> =
-            serde_json::from_value(self.operation).expect("Unparsable ZkSyncOp in db");
+            serde_json::from_value(self.operation).expect("Unparsable RollupOp in db");
         let eth_sign_data = self
             .eth_sign_data
             .map(|value| serde_json::from_value(value).expect("Unparsable EthSignData"));

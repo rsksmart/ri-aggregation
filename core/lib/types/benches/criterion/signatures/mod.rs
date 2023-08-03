@@ -76,7 +76,7 @@ pub fn bench_signatures(c: &mut Criterion) {
     let mut group = c.benchmark_group("Signature verify");
     group.throughput(Throughput::Elements(1));
     group.bench_function(
-        "bench_signature_verify_zksync_musig",
+        "bench_signature_verify_rollup_musig",
         bench_signature_zksync_musig_verify,
     );
     group.bench_function(

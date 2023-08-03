@@ -152,7 +152,7 @@ impl<T: Transport> DataRestoreDriver<T> {
     ) {
         let genesis_transaction = get_ethereum_transaction(&self.web3, &genesis_tx_hash)
             .await
-            .expect("Cant get zkSync genesis transaction");
+            .expect("Cant get Rollup genesis transaction");
 
         // Setting genesis block number for events state
         let genesis_eth_block_number = self
@@ -503,8 +503,8 @@ impl<T: Transport> DataRestoreDriver<T> {
         vlog::debug!("Updated state");
     }
 
-    /// Gets new operations blocks from events, updates rollup operations stored state.
-    /// Returns new rollup operations blocks
+    /// Gets new operations blocks from events, updates Rollup operations stored state.
+    /// Returns new Rollup operations blocks
     async fn update_operations_state(
         &mut self,
         interactor: &mut StorageInteractor<'_>,
@@ -529,7 +529,7 @@ impl<T: Transport> DataRestoreDriver<T> {
 
         // TODO (ZKS-722): either due to Rootstock node lag or unknown
         // bug in the events state, we have to additionally filter out
-        // already processed rollup blocks.
+        // already processed Rollup blocks.
         let mut last_processed_block = self.tree_state.block_number;
         for event in self
             .events_state

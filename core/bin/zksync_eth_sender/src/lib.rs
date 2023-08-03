@@ -393,8 +393,8 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
 
         // After storing all the tx data in the database, we can finally send the tx.
         vlog::info!(
-            "Sending new tx: [ETH Operation <id: {}, type: {:?}>. ETH tx: {}. ZKSync operation: {}]",
-            new_op.id, new_op.op_type, self.eth_tx_description(&signed_tx), self.zksync_operation_description(&new_op),
+            "Sending new tx: [ETH Operation <id: {}, type: {:?}>. ETH tx: {}. Rollup operation: {}]",
+            new_op.id, new_op.op_type, self.eth_tx_description(&signed_tx), self.rollup_operation_description(&new_op),
         );
         if let Err(e) = self.rootstock.send_raw_tx(signed_tx.raw_tx).await {
             // Sending tx error is not critical: this will result in transaction being considered stuck,
@@ -422,7 +422,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
 
     /// Helper method to obtain the string representation of the zkSync operation.
     /// Intended to be used for log entries.
-    fn zksync_operation_description(&self, operation: &ETHOperation) -> String {
+    fn rollup_operation_description(&self, operation: &ETHOperation) -> String {
         if let Some((id, op)) = &operation.op {
             let (first_block, last_block) = op.get_block_range();
             format!(
@@ -502,8 +502,8 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
                     }
 
                     vlog::info!(
-                        "Confirmed: [ETH Operation <id: {}, type: {:?}>. Tx hash: <{:#x}>. ZKSync operation: {}]",
-                        op.id, op.op_type, tx_hash, self.zksync_operation_description(op),
+                        "Confirmed: [ETH Operation <id: {}, type: {:?}>. Tx hash: <{:#x}>. Rollup operation: {}]",
+                        op.id, op.op_type, tx_hash, self.rollup_operation_description(op),
                     );
                     self.db
                         .confirm_operation(&mut transaction, tx_hash, op)

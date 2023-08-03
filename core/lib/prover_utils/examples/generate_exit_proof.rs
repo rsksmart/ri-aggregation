@@ -212,7 +212,7 @@ async fn main() {
     println!("\n\n");
     println!("==========================");
     println!("Generating proof completed");
-    println!("Below you can see the input data for the exit transaction on zkSync contract");
+    println!("Below you can see the input data for the exit transaction on Rollup contract");
     println!("Look up the manuals of your desired smart wallet in order to know how to sign and send this transaction to the Rootstock");
     println!("==========================");
 

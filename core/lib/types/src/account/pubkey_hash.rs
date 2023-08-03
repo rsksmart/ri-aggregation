@@ -12,7 +12,7 @@ use zksync_crypto::{
 
 /// Hash of the account's owner public key.
 ///
-/// This is an essential type used within zkSync network to authorize transaction author
+/// This is an essential type used within Rollup network to authorize transaction author
 /// to perform an operation.
 ///
 /// `PubKeyHash` is calculated as the Rescue hash of the public key byte sequence.

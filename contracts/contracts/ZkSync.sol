@@ -172,7 +172,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
     }
 
     /// @notice Sends tokens
-    /// @dev NOTE: will revert if transfer call fails or rollup balance difference (before and after transfer) is bigger than _maxAmount
+    /// @dev NOTE: will revert if transfer call fails or Rollup balance difference (before and after transfer) is bigger than _maxAmount
     /// @dev This function is used to allow tokens to spend zkSync contract balance up to amount that is requested
     /// @param _token Token address
     /// @param _to Address of recipient
@@ -191,7 +191,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         uint256 balanceAfter = _token.balanceOf(address(this));
         uint256 balanceDiff = balanceBefore.sub(balanceAfter);
         require(balanceDiff > 0, "c1"); // transfer is considered successful only if the balance of the contract decreased after transfer
-        require(balanceDiff <= _maxAmount, "7"); // rollup balance difference (before and after transfer) is bigger than `_maxAmount`
+        require(balanceDiff <= _maxAmount, "7"); // Rollup balance difference (before and after transfer) is bigger than `_maxAmount`
 
         // It is safe to convert `balanceDiff` to `uint128` without additional checks, because `balanceDiff <= _maxAmount`
         return uint128(balanceDiff);
@@ -210,7 +210,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
     /// @param _zkSyncAddress The receiver Layer 2 address
     function depositRBTC(address _zkSyncAddress) external payable {
         require(_zkSyncAddress != SPECIAL_ACCOUNT_ADDRESS, "P");
-        require(msg.value > 0, "M"); // Zero-value deposits are forbidden by zkSync rollup logic
+        require(msg.value > 0, "M"); // Zero-value deposits are forbidden by Rollup logic
         requireActive();
         registerDeposit(0, SafeCast.toUint128(msg.value), _zkSyncAddress);
     }
@@ -877,7 +877,7 @@ contract ZkSync is UpgradeableMaster, Storage, Config, Events, ReentrancyGuard {
         bytes32 messageHash = keccak256(
             abi.encodePacked(
                 "\x19Ethereum Signed Message:\n152",
-                "Register zkSync pubkey:\n\n",
+                "Register Rollup pubkey:\n\n",
                 Bytes.bytesToHexASCIIBytes(abi.encodePacked(_changePk.pubKeyHash)),
                 "\n",
                 "nonce: 0x",

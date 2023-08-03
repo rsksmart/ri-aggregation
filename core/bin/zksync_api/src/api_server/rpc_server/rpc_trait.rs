@@ -13,7 +13,7 @@ use zksync_api_types::{
     },
     TxWithSignature,
 };
-use zksync_crypto::params::ZKSYNC_VERSION;
+use zksync_crypto::params::ROLLUP_VERSION;
 use zksync_types::{
     tx::{EthBatchSignatures, TxEthSignatureVariant, TxHash},
     AccountId, Address, Fee, Token, TokenId, TokenLike, TotalFee, ZkSyncTx,
@@ -96,8 +96,8 @@ pub trait Rpc {
     fn get_eth_tx_for_withdrawal(&self, withdrawal_hash: TxHash)
         -> BoxFutureResult<Option<String>>;
 
-    #[rpc(name = "get_zksync_version", returns = "String")]
-    fn get_zksync_version(&self) -> Result<String>;
+    #[rpc(name = "get_rollup_version", returns = "String")]
+    fn get_rollup_version(&self) -> Result<String>;
 
     #[rpc(name = "get_nft", returns = "Option<ApiNFT>")]
     fn get_nft(&self, id: TokenId) -> BoxFutureResult<Option<ApiNFT>>;
@@ -191,8 +191,8 @@ impl Rpc for RpcApp {
         spawn!(self._impl_get_eth_tx_for_withdrawal(withdrawal_hash))
     }
 
-    fn get_zksync_version(&self) -> Result<String> {
-        Ok(String::from(ZKSYNC_VERSION))
+    fn get_rollup_version(&self) -> Result<String> {
+        Ok(String::from(ROLLUP_VERSION))
     }
 
     fn get_nft(&self, id: TokenId) -> BoxFutureResult<Option<ApiNFT>> {

@@ -105,7 +105,7 @@ export abstract class AbstractWallet {
         } else {
             const accountState = await this.getAccountState();
             if (!accountState.id) {
-                throw new Error("Can't resolve account id from the zkSync node");
+                throw new Error("Can't resolve account id from the Rootstock node");
             }
             return accountState.id;
         }
@@ -113,7 +113,7 @@ export abstract class AbstractWallet {
 
     async isCorrespondingSigningKeySet(): Promise<boolean> {
         if (!this.syncSignerConnected()) {
-            throw new Error('ZKSync signer is required for current pubkey calculation.');
+            throw new Error('Rollup signer is required for current pubkey calculation.');
         }
         const currentPubKeyHash = await this.getCurrentPubKeyHash();
         const signerPubKeyHash = await this.syncSignerPubKeyHash();
@@ -122,7 +122,7 @@ export abstract class AbstractWallet {
 
     async isSigningKeySet(): Promise<boolean> {
         if (!this.syncSignerConnected()) {
-            throw new Error('ZKSync signer is required for current pubkey calculation.');
+            throw new Error('Rollup signer is required for current pubkey calculation.');
         }
         const currentPubKeyHash = await this.getCurrentPubKeyHash();
         const zeroPubKeyHash = 'sync:0000000000000000000000000000000000000000';
@@ -189,11 +189,11 @@ export abstract class AbstractWallet {
     // Operations below each come in three signatures:
     // - `getXXX`: get the full transaction with L2 signature.
     // - `signXXX`: get the full transaction with both L2 and L1 signatures.
-    // - `XXX` or `syncXXX`: sign and send the transaction to zkSync.
+    // - `XXX` or `syncXXX`: sign and send the transaction to Rollup.
     //
     // All these methods accept incomplete transaction data, and if they return signed transaction, this transaction will
     // be "completed". "Incomplete transaction data" means that e.g. account IDs are not resolved or tokens are represented
-    // by their names/addresses rather than by their IDs in the zkSync network.
+    // by their names/addresses rather than by their IDs in the Rollup network.
     //
 
     // Transfer part
@@ -539,7 +539,7 @@ export abstract class AbstractWallet {
         ethTxOptions?: ethers.providers.TransactionRequest
     ): Promise<ContractTransaction> {
         if (!this.syncSignerConnected()) {
-            throw new Error('ZKSync signer is required for current pubkey calculation.');
+            throw new Error('Rollup signer is required for current pubkey calculation.');
         }
 
         const currentPubKeyHash = await this.getCurrentPubKeyHash();

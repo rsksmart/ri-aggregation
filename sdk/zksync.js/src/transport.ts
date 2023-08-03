@@ -59,7 +59,7 @@ export class HTTPTransport extends AbstractJSONRPCTransport {
             return response.result;
         } else if ('error' in response) {
             throw new JRPCError(
-                `zkSync API response error: code ${response.error.code}; message: ${response.error.message}`,
+                `Rollup API response error: code ${response.error.code}; message: ${response.error.message}`,
                 response.error
             );
         } else {
@@ -158,7 +158,7 @@ export class WSTransport extends AbstractJSONRPCTransport {
             return response.result;
         } else if ('error' in response) {
             throw new JRPCError(
-                `zkSync API response error: code ${response.error.code}; message: ${response.error.message}`,
+                `Rollup API response error: code ${response.error.code}; message: ${response.error.message}`,
                 response.error
             );
         } else {
