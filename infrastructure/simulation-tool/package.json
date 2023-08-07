@@ -5,8 +5,8 @@
   "license": "MIT",
   "main": "build/index.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha",
-    "test:watch": "NODE_ENV=test mocha --watch",
+    "test": "mocha",
+    "test:watch": "yarn test --watch",
     "build": "rm -rf build && tsc",
     "watch": "tsc --watch",
     "simulate": "node .",
