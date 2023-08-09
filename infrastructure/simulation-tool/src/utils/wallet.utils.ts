@@ -1,28 +1,33 @@
 import {
+    RestProvider,
     SyncProvider as RollupProvider,
-    Transaction,
     Wallet as RollupWallet,
-    RestProvider
+    Transaction
 } from '@rsksmart/rif-rollup-js-sdk';
 import { Wallet as EthersWallet, providers } from 'ethers';
+import { CHAIN_TO_NETWORK, NETWORK_TO_DERIVATION_PATH } from '../constants/network';
 import config from './config.utils';
-import { NETWORK_TO_DERIVATION_PATH, CHAIN_TO_NETWORK, HardenedBit } from '../constants/network';
 
 type RollupWalletGenerator = AsyncGenerator<RollupWallet, RollupWallet>;
 
 const baseDerivationPath: `m/44'/${number}'` = NETWORK_TO_DERIVATION_PATH[CHAIN_TO_NETWORK[config.chainId]];
 
-export function getAccountPath(index: number): `m/44'/${number}'/${number}'/0/0` {
-    if (typeof index !== 'number' || index < 0 || index >= HardenedBit || index % 1) {
-        throw Error(`invalid account index: ${index}`);
-    }
-    return `${baseDerivationPath}/${index}'/0/0`;
-}
+export const getAccountPath = (index: number): `m/44'/${number}'/${number}'/0/0` =>
+    `${baseDerivationPath}/${index}'/0/0`;
 
-async function* createWalletGenerator(mnemonic: string, firstIndex: number = 0): RollupWalletGenerator {
-    const { nodeUrl, rollupUrl } = config;
-    const l1Provider = new providers.JsonRpcProvider(nodeUrl);
-    const rollupProvider: RollupProvider = await RestProvider.newProvider(`${rollupUrl}/api/v0.2`);
+type WalletGeneratorFactoryParams = {
+    mnemonic: string;
+    firstIndex?: number;
+    l1Provider: providers.JsonRpcProvider;
+    l2Provider: RollupProvider;
+};
+
+async function* createWalletGenerator({
+    mnemonic,
+    firstIndex = 0,
+    l1Provider,
+    l2Provider
+}: WalletGeneratorFactoryParams): RollupWalletGenerator {
     let index = firstIndex;
     while (true) {
         const derivationPath = getAccountPath(index++);
@@ -30,7 +35,7 @@ async function* createWalletGenerator(mnemonic: string, firstIndex: number = 0):
 
         yield RollupWallet.fromEthSigner(
             EthersWallet.fromMnemonic(mnemonic, derivationPath).connect(l1Provider),
-            rollupProvider
+            l2Provider
         );
     }
 }
@@ -42,11 +47,10 @@ const generateWallets = async (
     Promise.all([...Array(numberOfAccounts)].map(async () => (await walletGenerator.next()).value));
 
 const deriveWallets = async (
-    mnemonic: string,
     walletCount: number,
-    firstDerivationIndex: number = 0
+    generatorParams: WalletGeneratorFactoryParams
 ): Promise<RollupWallet[]> => {
-    const walletGenerator = createWalletGenerator(mnemonic, firstDerivationIndex);
+    const walletGenerator = createWalletGenerator(generatorParams);
 
     return generateWallets(walletCount, walletGenerator);
 };
@@ -63,5 +67,5 @@ const activateL2Account = async (rollupWallet: RollupWallet): Promise<Transactio
     return signKeyTransaction;
 };
 
-export type { RollupWalletGenerator };
-export { baseDerivationPath, deriveWallets, generateWallets, activateL2Account, createWalletGenerator };
+export { activateL2Account, baseDerivationPath, createWalletGenerator, deriveWallets, generateWallets };
+export type { RollupWalletGenerator, WalletGeneratorFactoryParams };

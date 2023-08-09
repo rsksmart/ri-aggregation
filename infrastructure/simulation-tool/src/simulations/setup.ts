@@ -1,5 +1,5 @@
-import { Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
-import { BigNumber, Signer } from 'ethers';
+import { SyncProvider as RollupProvider, RestProvider, Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
+import { BigNumber, Signer, providers } from 'ethers';
 import config from '../utils/config.utils';
 import { RollupWalletGenerator, activateL2Account, createWalletGenerator } from '../utils/wallet.utils';
 import { CHAIN_TO_NETWORK } from '../constants/network';
@@ -43,7 +43,10 @@ const setupSimulation = async (): Promise<SimulationConfiguration> => {
     const mnemonic =
         process.env.MNEMONIC ||
         'coyote absorb fortune village riot razor bright finish number once churn junior various slice spatial';
-    const l1WalletGenerator = createWalletGenerator(mnemonic);
+    const { nodeUrl, rollupUrl } = config;
+    const l1Provider = new providers.JsonRpcProvider(nodeUrl);
+    const l2Provider: RollupProvider = await RestProvider.newProvider(`${rollupUrl}/api/v0.2`);
+    const l1WalletGenerator = createWalletGenerator({ mnemonic, l1Provider, l2Provider });
     const funderWallet: RollupWallet = (await l1WalletGenerator.next()).value;
 
     // Fund Funder on for development if need be
