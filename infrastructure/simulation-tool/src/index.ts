@@ -1,6 +1,7 @@
 import { setupSimulation } from './simulations/setup';
 import { runTransferToNewSimulation } from './simulations/transferToNew';
 import { runDepositSimulation } from './simulations/deposit';
+import { runWithdrawSimulation } from './simulations/withdraw';
 import config from './utils/config.utils';
 import { runChangePubKeySimulation } from './simulations/changePubKey';
 import { runTransferSimulation } from './simulations/transfer';
