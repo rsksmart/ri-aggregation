@@ -1,9 +1,4 @@
-import {
-    RestProvider,
-    SyncProvider as RollupProvider,
-    Wallet as RollupWallet,
-    Transaction
-} from '@rsksmart/rif-rollup-js-sdk';
+import { SyncProvider as RollupProvider, Wallet as RollupWallet, Transaction } from '@rsksmart/rif-rollup-js-sdk';
 import { Wallet as EthersWallet, providers } from 'ethers';
 import { CHAIN_TO_NETWORK, NETWORK_TO_DERIVATION_PATH } from '../constants/network';
 import config from './config.utils';

@@ -24,8 +24,7 @@ const prepareDevL1Account = async (account: Signer): Promise<providers.Transacti
 
     const txRequest = await loadedSigner.populateTransaction({
         to: await account.getAddress(),
-        value: (await loadedSigner.getBalance()).sub(gasLimit),
-        gasLimit
+        value: (await loadedSigner.getBalance()).sub(gasLimit)
     });
     const txResponse = await loadedSigner.sendTransaction(txRequest);
     const receipt = await txResponse.wait();

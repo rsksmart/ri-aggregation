@@ -2,11 +2,11 @@ import { BigNumber, Signer } from 'ethers';
 import { Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
 import { depositToSelf } from '../simulations/setup';
 
-const ensureL1Funds = (funder: Signer) => async (totalDepositAmount: BigNumber, account: Signer) => {
+const ensureL1Funds = (funder: Signer) => async (totalAmount: BigNumber, account: Signer) => {
     const accountBalance = await account.getBalance();
-    if (accountBalance.lt(totalDepositAmount)) {
+    if (accountBalance.lt(totalAmount)) {
         console.log(
-            `Funding account ${await account.getAddress()} with ${totalDepositAmount
+            `Funding account ${await account.getAddress()} with ${totalAmount
                 .sub(accountBalance)
                 .toString()} RBTC from funder ${await funder.getAddress()}`
         );
@@ -17,12 +17,11 @@ const ensureL1Funds = (funder: Signer) => async (totalDepositAmount: BigNumber, 
 
         const tx = await funder.sendTransaction({
             to: await account.getAddress(),
-            value: totalDepositAmount.sub(accountBalance).add(gasLimit.mul(gasPrice)),
-            gasLimit
+            value: totalAmount.sub(accountBalance).add(gasLimit.mul(gasPrice)) // Adds gas cost for a future transaction (totalAmount - balance would not be enough to cover gas cost)
         });
         await tx.wait();
         console.log(
-            `Account ${await account.getAddress()} now has ${await account.getBalance()} RBTC after funding to add to the total of ${totalDepositAmount.toString()} RBTC`
+            `Account ${await account.getAddress()} now has ${await account.getBalance()} RBTC after funding to add to the total of ${totalAmount.toString()} RBTC`
         );
     }
 };

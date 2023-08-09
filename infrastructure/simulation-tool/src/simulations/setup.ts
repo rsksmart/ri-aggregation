@@ -12,7 +12,7 @@ type SimulationConfiguration = {
     txCount: number;
 };
 
-const SECOND_IN_MS = 1000;
+const ONE_SECOND = 1000;
 
 const fundFunderInDev = async (funderL1Wallet: Signer) => {
     const balance = await funderL1Wallet.getBalance();
@@ -67,7 +67,7 @@ const setupSimulation = async (): Promise<SimulationConfiguration> => {
     }
 
     const txCount = Math.floor(totalRunningTimeSeconds * transactionsPerSecond);
-    const txDelay = SECOND_IN_MS / transactionsPerSecond;
+    const txDelay = ONE_SECOND / transactionsPerSecond;
 
     return {
         walletGenerator: l1WalletGenerator,
@@ -79,4 +79,4 @@ const setupSimulation = async (): Promise<SimulationConfiguration> => {
 
 export type { SimulationConfiguration };
 
-export { setupSimulation, SECOND_IN_MS, depositToSelf };
+export { setupSimulation, ONE_SECOND, depositToSelf };
