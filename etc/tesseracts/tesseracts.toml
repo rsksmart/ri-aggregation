@@ -29,7 +29,7 @@ db_store_neb     = false
 # web3 ----------------------------------------------
 
 # web3 json-rpc port, e.g. http://localhost:4444
-web3_url         = "http://rskj:4444" 
+web3_url         = "http://rskj:4444"
 
 # client type
 # "geth_clique" for geth PoS
