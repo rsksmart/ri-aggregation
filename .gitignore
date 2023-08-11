@@ -60,3 +60,6 @@ flamegraph.svg
 bin/mkcert
 
 docker/rskj/data
+
+# Files used to generate code-coverage reports
+*.profraw
