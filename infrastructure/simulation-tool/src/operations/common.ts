@@ -1,5 +1,5 @@
-import { BigNumber, Signer } from 'ethers';
-import { Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
+import { BigNumber, Signer, constants, ethers } from 'ethers';
+import { Wallet as RollupWallet, closestPackableTransactionFee } from '@rsksmart/rif-rollup-js-sdk';
 import { depositToSelf } from '../simulations/setup';
 
 const ensureL1Funds = (funder: Signer) => async (amount: BigNumber, account: Signer) => {
@@ -40,6 +40,22 @@ const ensureRollupFunds = async (amount: BigNumber, l2Wallet: RollupWallet) => {
     }
 };
 
+const ensureL2AccountActivation = async (account: RollupWallet) => {
+    const isActive = await account.isSigningKeySet();
+    console.log(`Account ${await account.address()} is active: ${isActive}`)
+    if (!isActive) {
+        try {
+            const res = await account.setSigningKey({
+                feeToken: constants.AddressZero,
+                ethAuthType: 'ECDSA'
+            });
+            const receipt = await res.awaitVerifyReceipt();
+        } catch (e) {
+            console.log(`Error activating account ${await account.address()}: ${e.message}`)
+        }
+    }
+}
+
 const getRandomElement = <T>(array: T[]): T => array[Math.floor(Math.random() * array.length)];
 
-export { ensureRollupFunds, getRandomElement, ensureL1Funds };
+export { ensureRollupFunds, getRandomElement, ensureL1Funds, ensureL2AccountActivation };
