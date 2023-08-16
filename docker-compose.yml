@@ -25,6 +25,14 @@ services:
       - ./docker/rskj/logback.xml:/etc/rsk/logback.xml
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
       - ./docker/rskj/data:/var/lib/rsk/.rsk
+    healthcheck:
+      # How to perform an healthcheck against an endpoint without curl/wget
+      # https://medium.com/bash-tips-and-tricks/part01-tcp-udp-request-with-a-native-bash-feature-and-without-curl-wget-9dcef59c30aa
+      test: "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/4444' || exit 1"
+      interval: 10s
+      timeout: 1m
+      retries: 5
+      start_period: 15s
   
   dev-ticker:
     image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
@@ -45,6 +53,9 @@ services:
     - type: bind
       source: ./volumes/tesseracts
       target: /var/lib/tesseracts/data
+    depends_on:
+      rskj:
+        condition: service_healthy
 
   elastic:
     image: elasticsearch:7.10.1
