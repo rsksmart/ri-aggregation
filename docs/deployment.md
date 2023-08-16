@@ -31,7 +31,7 @@ zk env <env_name>
 
 To simplify the way that some of the environment variables can be updated, the override functionality was introduced.
 
-This functioanlity includes `ENV_OVERRIDE=<file_name>`, setting environment variable that will look for the
+This functionality includes `ENV_OVERRIDE=<file_name>`, setting environment variable that will look for the
 `<file_name>.env` inside the `./etc/env` directory to update all the variables in the file.
 
 ### Docker compose
@@ -86,7 +86,7 @@ zk server test-web3-network
 
 #### New deployments
 
-During the new deployment process, the database is erased and the necessary structure is initializaed; after the
+During the new deployment process, the database is erased and the necessary structure is initialized; after the
 initialization we could consider the database as empty.
 
 This is necessary for the server to create the genesis block.
