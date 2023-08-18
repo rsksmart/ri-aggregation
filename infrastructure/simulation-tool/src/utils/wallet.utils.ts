@@ -51,7 +51,6 @@ const deriveWallets = async (
 };
 
 const activateL2Account = async (rollupWallet: RollupWallet): Promise<Transaction> => {
-    // might not be needed
     console.log('Activating account ...');
     const signKeyTransaction = await rollupWallet.setSigningKey({
         feeToken: 'RBTC',

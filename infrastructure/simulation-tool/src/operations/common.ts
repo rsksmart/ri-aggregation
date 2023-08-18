@@ -12,7 +12,7 @@ const ensureL1Funds = (funder: Signer) => async (totalAmount: BigNumber, account
         );
 
         const latestBlock = await funder.provider.getBlock('latest');
-        const gasLimit = latestBlock.gasLimit; // FIXME: this is not the correct gas limit
+        const gasLimit = latestBlock.gasLimit;
         const gasPrice = await funder.provider.getGasPrice();
 
         const tx = await funder.sendTransaction({

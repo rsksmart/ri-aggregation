@@ -119,7 +119,6 @@ describe('deriveWallets', () => {
 });
 
 describe('activateL2Account', () => {
-    // MIGHT NOT BE NEEDED
     it('should activate account', async () => {
         const walletStub = sinon.createStubInstance(RollupWallet);
         walletStub.setSigningKey.callsFake(() => {
