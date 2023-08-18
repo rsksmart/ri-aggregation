@@ -41,6 +41,7 @@ members = [
     "core/lib/notifier",
     "core/lib/api_types",
     "core/lib/balancer",
+    "core/lib/wallet_creator",
 
     # Test infrastructure
     "core/tests/flamegraph_target",
