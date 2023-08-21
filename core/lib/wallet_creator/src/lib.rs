@@ -33,8 +33,8 @@ pub async fn create_new_wallet(
     if address.is_empty() || private_key.is_empty() {
         (eth_address, eth_private_key) = eth_random_account_credentials();
     } else {
-        eth_address = address.parse().unwrap();
-        eth_private_key = private_key.parse().unwrap();
+        eth_address = address.parse().expect("Invalid L1 address");
+        eth_private_key = private_key.parse().expect("Invalid L1 private key");
     }
 
     println!("-> Address {:?}", eth_address);
