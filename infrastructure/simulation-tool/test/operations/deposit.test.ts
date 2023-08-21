@@ -127,7 +127,7 @@ describe('executeDeposits', () => {
         expect(sleepStub).to.have.callCount(numberOfDeposits - 1);
     });
 
-    it.only('should executed correct number of deposits per second', async function () {
+    it('should executed correct number of deposits per second', async function () {
         const expectedTPS = 3;
         const totalSimTime = 3;
         const numberOfDeposits = expectedTPS * totalSimTime;
