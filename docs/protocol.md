@@ -128,7 +128,7 @@ This includes, in particular, the following claims:
 |StateAmount|16|BE integer|State amount is represented as uint128 with a range from 0 to ~3.4 × 10^38. It allows to represent up to 3.4 × 10^20 "units" if standard Rootstock's 18 decimal symbols are used. This should be a sufficient range.|
 |Nonce|4|BE integer|Nonce is the total number of executed transactions of the account. In order to apply the update of this state, it is necessary to indicate the current account nonce in the corresponding transaction, after which it will be automatically incremented. If you specify the wrong nonce, the changes will not occur.|
 |RollupPubkeyHash|20|LE integer|To make a public key hash from a Rollup public key apply [Rescue hash function](#rescue-hash) to the `[x,y]` points of the key and then take the last 20 bytes of the result.|
-|EthAddress|20|LE integer|To make an Rootstock address from the Etherum's public key, all we need to do is to apply Keccak-256 hash function to the key and then take the last 20 bytes of the result.|
+|EthAddress|20|LE integer|To make an Rootstock address from the Ethereum's public key, all we need to do is to apply Keccak-256 hash function to the key and then take the last 20 bytes of the result.|
 |PackedRollupPubkey|32|LE integer|A Rollup public key is the first 32 bytes of a Rollup public key |
 |TxHash|32|LE integer|To get hash for transaction apply [SHA256 function](#sha256) to concatenated bytes of [transaction fields](#zk-sync-operations)|
 |Signature|64|LE integer|Read [transaction signature](#transaction-signature)|
@@ -1245,9 +1245,9 @@ function pubkey_message(account_id, nonce, new_pubkey_hash, additional_data /* a
 ```
 
 ```typescript
-function create2_address_zksync(creator_address, salt_arg /* abitrary 32 bytes */, new_pubkey_hash, code_hash): bytes {
+function create2_address_zksync(creator_address, salt_arg /* arbitrary 32 bytes */, new_pubkey_hash, code_hash): bytes {
   const salt = keccak256(salt_arg, new_pubkey_hash);
-  // address is derrived using EIP-1014 https://eips.ethereum.org/EIPS/eip-1014
+  // address is derived using EIP-1014 https://eips.ethereum.org/EIPS/eip-1014
   return CREATE2_ADDRESS(creator_address, salt, code_hash);
 }
 ```
@@ -2284,7 +2284,7 @@ phrase is chosen to be the first one from the series that generates matrix witho
 If number of hashed elements it not divisible by rate then extra field element equal to `1` is appended to the hash
 input.
 
-Number of input elements if internally forbidded to be equal to zero.
+Number of input elements if internally forbidden to be equal to zero.
 
 Outputs of Rescue hash are expected to be uniformly distributed in the field (but their bits are not uniformly
 distributed).
@@ -2318,7 +2318,7 @@ In test vectors we output only first element of the squeezed sponge. Such operat
 ### Bitpacking
 
 Rescue is an algebraic hash that operates over field elements, so any binary data (packed transaction) has first to be
-encode into the series of field elements. For this bit string `x` is encoded as seried of field elements placing `253`
+encode into the series of field elements. For this bit string `x` is encoded as series of field elements placing `253`
 bits into each element starting from the LSB.
 
 ### Transaction signature

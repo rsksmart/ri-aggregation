@@ -73,7 +73,7 @@ Switch between configurations:
 zk env <ENV_NAME>
 ```
 
-Default confiruration is `dev.env`, which is generated automatically from `dev.env.example` during `zk init` command
+Default configuration is `dev.env`, which is generated automatically from `dev.env.example` during `zk init` command
 execution.
 
 ## Build and run server + prover locally for development
@@ -91,8 +91,8 @@ The server can produce blocks of different sizes; the list of available sizes is
 `SUPPORTED_BLOCK_CHUNKS_SIZES` environment variable. Block sizes which will actually be produced by the server can be
 configured using the `BLOCK_CHUNK_SIZES` environment variable.
 
-Note: proof generation for large blocks requires a lot of resources and an average user machine is only capable
-ofcreating proofs for the smallest block sizes. As an alternative, a dummy-prover may be used for development (see
+Note: proof generation for large blocks requires a lot of resources and an average user machine is only capable of
+creating proofs for the smallest block sizes. As an alternative, a dummy-prover may be used for development (see
 [`development.md`](https://hackmd.io/S7hTv1EwSpWu8VCReDmsBg) for details).
 
 Run prover:
@@ -101,8 +101,8 @@ Run prover:
 zk prover
 ```
 
-Make sure you have environment variables set right, you can check it by running: `zk env`. You should
-see `* dev` inoutput.
+Make sure you have environment variables set right, you can check it by running: `zk env`. You should see `* dev` in
+output.
 
 ## Troubleshooting
 

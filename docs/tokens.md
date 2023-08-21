@@ -232,7 +232,7 @@ cost for the whole batch, in the provided _tokenForFees_ token. For that it will
   cost per chunk (in Wei) multiplied by the total number of chunks in the batch.
 
 The batch **build** process adds the _feeToken_ to be used to the last transaction of the batch if the transfer _token =
-feeToken_. Otherwise it adds a new Transfer Transaction with **0** amount of _feeToken_ to be transfered.
+feeToken_. Otherwise it adds a new Transfer Transaction with **0** amount of _feeToken_ to be transferred.
 
 During the **submission** of the Batch, the user will invoke
 [`submitTxsBatch`](https://docs.zksync.io/api/sdk/js/providers/#submit-transactions-batch) which starts the
@@ -241,7 +241,7 @@ process on the server.
 
 ### **_JS SDK side batch processing_**
 
-The server makes a distinction betwen batches that use:
+The server makes a distinction between batches that use:
 
 - a single token type to pay fees with (_feeToken_) (has to be a single )
 - multiple fee token types

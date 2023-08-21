@@ -5,11 +5,11 @@
 ## Deployment
 
 The contract must be deployed specifying the initial ("genesis") state root hash, appointing the **network governor**
-(see the "Governance" section), and linking the exit queue (see the "Cenosorship resistance" section).
+(see the "Governance" section), and linking the exit queue (see the "Censorship resistance" section).
 
 ## Governance
 
-Governance of the network will be excerised from a separate contract registered in the ZKSync contract as
+Governance of the network will be exercised from a separate contract registered in the ZKSync contract as
 `networkGovernor`. It has the power to:
 
 - Change the set of validators.
@@ -18,7 +18,7 @@ Governance of the network will be excerised from a separate contract registered 
 
 ## Cenosorship resistance
 
-To enforece censorship-resistance and enable guaranteed retrievability of the funds, ZKSync employs the mechanisms of
+To enforced censorship-resistance and enable guaranteed retrievability of the funds, ZKSync employs the mechanisms of
 **Priority queue** (soft enforcement) and **Exodus mode** (hard enforcement).
 
 ## Deposits
@@ -52,7 +52,7 @@ priority requests** are accrued to the owners' **root-chain balances** to make t
 
 It is a standard withdrawal operation. When a block with `partial_exit` **circuit operation** is committed, **withdraw
 onchain operation** for this withdrawal is created. If the block is verified, funds from the **withdrawal onchain
-operation** are acrued to the users' **root-chain balances**.
+operation** are accrued to the users' **root-chain balances**.
 
 If the block is reverted, this **withdraw onchain operations** are simply discarded.
 
@@ -81,7 +81,7 @@ If the block is reverted, this **withdraw onchain operations** are simply discar
 If ZKSync contract has entered Exodus mode and the block is unverified, this **withdraw onchain operations** and **full
 exit priority requests** are simply discarded.
 
-## Block committment
+## Block commitment
 
 Only a sender from the validator set can commit a block.
 
@@ -116,8 +116,8 @@ it will be stored in the mapping (operation type and expiration block) strictly 
   follows: `expirationBlock = block.number + 250` - about 1 hour for the transaction to expire, `block.number` - current
   Rootstock block number.
 
-When corresponding transactions are found in the commited block, their count must be recorded. If the block is verified,
-this count of the satisfied **priority requests** is removed from mapping.
+When corresponding transactions are found in the committed block, their count must be recorded. If the block is
+verified, this count of the satisfied **priority requests** is removed from mapping.
 
 If the block is reverted via Exodus Mode, the funds held by **Deposit priority requests** from this block are accrued to
 the owners' **root-chain balances** to make them possible to withdraw. And this **Deposit priority requests** will be
