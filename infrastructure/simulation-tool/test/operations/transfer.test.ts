@@ -6,11 +6,12 @@ import sinonChai from 'sinon-chai';
 import {
     executeTransfer,
     executeTransfers,
+    generateTransfersToExisting,
     generateTransfersToNew,
     prepareTransfer
 } from '../../src/operations/transfer';
 import config from '../../src/utils/config.utils';
-import { constants } from 'ethers';
+import { constants, ethers } from 'ethers';
 
 use(sinonChai);
 
@@ -46,30 +47,6 @@ describe('prepareTransfer', () => {
     });
 });
 
-describe('executeTransfer', () => {
-    it('should execute transfer', async () => {
-        const sender = sinon.createStubInstance(RollupWallet);
-        sender.syncTransfer.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
-        const recipient = constants.AddressZero;
-        const transfer = prepareTransfer(sender, recipient);
-        const expectedParameters = { ...transfer };
-        delete expectedParameters.from;
-        await executeTransfer(transfer);
-
-        expect(sender.syncTransfer).to.have.been.calledOnceWith(expectedParameters);
-    });
-
-    it('should return Rollup transaction', async () => {
-        const sender = sinon.createStubInstance(RollupWallet);
-        sender.syncTransfer.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
-        const recipient = constants.AddressZero;
-        const transfer = prepareTransfer(sender, recipient);
-        const transferOperation = await executeTransfer(transfer);
-
-        expect(transferOperation).to.be.instanceOf(Transaction);
-    });
-});
-
 describe('generateTransfersToNew', () => {
     it('should generate expected number of transfers', () => {
         const numberOfTransfers = 10;
@@ -101,6 +78,66 @@ describe('generateTransfersToNew', () => {
         transfers.forEach((transfer) => {
             expect(expectedRecipients).to.include(transfer.to);
         });
+    });
+});
+
+describe('generateTransfersToExisting', () => {
+    it('should generate expected number of transfers', () => {
+        const numberOfTransfers = 10;
+        const users = [...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
+        const transfers = generateTransfersToExisting(numberOfTransfers, users);
+
+        expect(transfers.length).to.eq(numberOfTransfers);
+    });
+
+    it('should generate transfers with sender from given senders', () => {
+        const numberOfTransfers = 10;
+        const users = [...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
+        const transfers = generateTransfersToNew(numberOfTransfers, users);
+
+        transfers.forEach((transfer) => {
+            expect(users).to.include(transfer.from);
+        });
+    });
+
+    it('should generate transfers with recipient from given users', () => {
+        const numberOfTransfers = 10;
+        const users = [...Array(numberOfTransfers)].map(() => {
+            const walletStub = sinon.createStubInstance(RollupWallet);
+            walletStub.address.callsFake(() => ethers.Wallet.createRandom().address);
+
+            return walletStub;
+        });
+        const transfers = generateTransfersToNew(numberOfTransfers, users);
+        const expectedRecipients = users.map((receipient) => receipient.address());
+
+        transfers.forEach((transfer) => {
+            expect(expectedRecipients).to.include(transfer.to);
+        });
+    });
+});
+
+describe('executeTransfer', () => {
+    it('should execute transfer', async () => {
+        const sender = sinon.createStubInstance(RollupWallet);
+        sender.syncTransfer.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
+        const recipient = constants.AddressZero;
+        const transfer = prepareTransfer(sender, recipient);
+        const expectedParameters = { ...transfer };
+        delete expectedParameters.from;
+        await executeTransfer(transfer);
+
+        expect(sender.syncTransfer).to.have.been.calledOnceWith(expectedParameters);
+    });
+
+    it('should return Rollup transaction', async () => {
+        const sender = sinon.createStubInstance(RollupWallet);
+        sender.syncTransfer.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
+        const recipient = constants.AddressZero;
+        const transfer = prepareTransfer(sender, recipient);
+        const transferOperation = await executeTransfer(transfer);
+
+        expect(transferOperation).to.be.instanceOf(Transaction);
     });
 });
 

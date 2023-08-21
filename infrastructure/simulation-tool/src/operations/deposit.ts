@@ -108,12 +108,12 @@ const resolveRootstockOperation = async (rskOperation: RootstockOperation): Prom
             opL2Receipt.executed ? 'executed' : 'failed'
         } in L2 block #${opL2Receipt.block.blockNumber}.`
     );
-    const verifierReceipt = await rskOperation.awaitVerifyReceipt();
-    console.log(
-        `Priority operation with hash #${opL1Receipt.blockHash} ${
-            verifierReceipt?.block?.verified ? 'verified' : 'failed to verify'
-        } in L2 block #${verifierReceipt?.block?.blockNumber}.`
-    );
+    const verifierReceipt = null; //await rskOperation.awaitVerifyReceipt(); FIXME: commented out for now to speed up simulation
+    // console.log(
+    //     `Priority operation with hash #${opL1Receipt.blockHash} ${
+    //         verifierReceipt?.block?.verified ? 'verified' : 'failed to verify'
+    //     } in L2 block #${verifierReceipt?.block?.blockNumber}.`
+    // );
 
     return {
         opL1Receipt,

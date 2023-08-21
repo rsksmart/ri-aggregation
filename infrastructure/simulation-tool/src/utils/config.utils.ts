@@ -13,6 +13,7 @@ type Config = {
     weiLimits: {
         deposit: TxValueLimits;
         transferToNew: TxValueLimits;
+        transfer: TxValueLimits;
     };
 };
 
