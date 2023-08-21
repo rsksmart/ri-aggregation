@@ -22,8 +22,8 @@ mod tests {
         println!("-> Address {:?}", eth_address);
         println!("-> Private key {:?}", eth_private_key);
 
-        assert_eq!(eth_address.is_zero(), false);
-        assert_eq!(eth_private_key.is_zero(), false);
+        assert!(!eth_address.is_zero());
+        assert!(!eth_private_key.is_zero());
     }
 
     #[tokio::test]
