@@ -3,7 +3,12 @@ import { utils } from '@rsksmart/rif-rollup-js-sdk/';
 import { expect, use } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { executeTransfer, executeTransfers, generateTransfers, prepareTransfer } from '../../src/operations/transfer';
+import {
+    executeTransfer,
+    executeTransfers,
+    generateTransfersToNew,
+    prepareTransfer
+} from '../../src/operations/transfer';
 import config from '../../src/utils/config.utils';
 import { constants } from 'ethers';
 
@@ -65,12 +70,12 @@ describe('executeTransfer', () => {
     });
 });
 
-describe('generateTransfers', () => {
+describe('generateTransfersToNew', () => {
     it('should generate expected number of transfers', () => {
         const numberOfTransfers = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
-        const users = [funderL2Wallet, ...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
-        const transfers = generateTransfers(numberOfTransfers, users);
+        const users = [...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
+        const transfers = generateTransfersToNew(numberOfTransfers, [funderL2Wallet, ...users]);
 
         expect(transfers.length).to.eq(numberOfTransfers);
     });
@@ -78,20 +83,20 @@ describe('generateTransfers', () => {
     it('should generate transfers with funder as sender', () => {
         const numberOfTransfers = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
-        const users = [funderL2Wallet, ...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
-        const transfers = generateTransfers(numberOfTransfers, users);
+        const users = [...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
+        const transfers = generateTransfersToNew(numberOfTransfers, [funderL2Wallet, ...users]);
 
         transfers.forEach((transfer) => {
-            expect(transfer.from).to.eq(funderL2Wallet);
+            expect(transfer.from.address()).to.eq(funderL2Wallet.address());
         });
     });
 
     it('should generate transfers with for users', () => {
         const numberOfTransfers = 10;
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
-        const users = [funderL2Wallet, ...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
-        const transfers = generateTransfers(numberOfTransfers, users);
-        const expectedRecipients = users.map((receipient) => receipient.address);
+        const users = [...Array(numberOfTransfers)].map(() => sinon.createStubInstance(RollupWallet));
+        const transfers = generateTransfersToNew(numberOfTransfers, [funderL2Wallet, ...users]);
+        const expectedRecipients = users.map((receipient) => receipient.address());
 
         transfers.forEach((transfer) => {
             expect(expectedRecipients).to.include(transfer.to);
@@ -105,7 +110,7 @@ describe('executeTransfers', () => {
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.syncTransfer.resolves(sinon.createStubInstance(Transaction));
         const users = [...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
-        const transfers = generateTransfers(numberOfTransfers, users);
+        const transfers = generateTransfersToNew(numberOfTransfers, [funderL2Wallet, ...users]);
         const delay = 0;
         sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
         const executedTransfers = await executeTransfers(transfers, delay);
@@ -118,13 +123,13 @@ describe('executeTransfers', () => {
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.syncTransfer.resolves(sinon.createStubInstance(Transaction));
         const users = [...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
-        const transfers = generateTransfers(numberOfTransfers, users);
+        const transfers = generateTransfersToNew(numberOfTransfers, [funderL2Wallet, ...users]);
         const delay = 0;
         sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
         const executedTransfers = await executeTransfers(transfers, delay);
 
-        for (const executedTransfer of executedTransfers) {
-            expect(await executedTransfer).to.be.instanceOf(Transaction);
+        for (let i = 0; i < executedTransfers.length; i++) {
+            expect(await executedTransfers[i], `tx: ${i}`).to.be.instanceOf(Transaction);
         }
     });
 
@@ -133,7 +138,7 @@ describe('executeTransfers', () => {
         const funderL2Wallet = sinon.createStubInstance(RollupWallet);
         funderL2Wallet.syncTransfer.resolves(sinon.createStubInstance(Transaction));
         const users = [...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
-        const transfers = generateTransfers(numberOfTransfers, users);
+        const transfers = generateTransfersToNew(numberOfTransfers, [funderL2Wallet, ...users]);
         const delay = 100;
         const sleepStub = sinon.stub(utils, 'sleep').callsFake(() => Promise.resolve());
         await executeTransfers(transfers, delay);
@@ -149,7 +154,7 @@ describe('executeTransfers', () => {
         const syncTransferSpy = funderL2Wallet.syncTransfer;
         funderL2Wallet.syncTransfer.resolves(sinon.createStubInstance(Transaction));
         const users = [...Array(5)].map(() => sinon.createStubInstance(RollupWallet));
-        const transfers = generateTransfers(numberOfTransfers, users);
+        const transfers = generateTransfersToNew(numberOfTransfers, [funderL2Wallet, ...users]);
         const delay = 1000 / expectedTPS;
         this.timeout(totalSimTime * 1000);
         await executeTransfers(transfers, delay);
