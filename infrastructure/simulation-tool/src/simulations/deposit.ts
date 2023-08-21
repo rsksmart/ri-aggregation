@@ -64,8 +64,7 @@ const runSimulation = async ({ walletGenerator, funderL2Wallet, txCount, txDelay
     );
     console.timeEnd('execution');
 
-    // // List execution results
-
+    // List execution results
     console.time('resolution');
     await resolveDeposits(executedTx);
     console.timeEnd('resolution');

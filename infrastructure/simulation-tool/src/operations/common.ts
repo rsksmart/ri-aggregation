@@ -8,7 +8,8 @@ const ensureL1Funds = (funder: Signer) => async (totalAmount: BigNumber, account
         const latestBlock = await funder.provider.getBlock('latest');
         const gasLimit = latestBlock.gasLimit;
         const gasPrice = await funder.provider.getGasPrice();
-        const value = totalAmount.sub(accountBalance).add(gasLimit.mul(gasPrice)); // Adds gas cost for a future transaction (totalAmount - balance would not be enough to cover gas cost);
+        // Adds gas cost for a future transaction (totalAmount - balance would not be enough to cover gas cost);
+        const value = totalAmount.sub(accountBalance).add(gasLimit.mul(gasPrice));
         console.log(
             `Funding account ${await account.getAddress()} with ${value} RBTC \nfrom funder ${await funder.getAddress()} \nwith ${await funder.getBalance(
                 'pending'

@@ -87,6 +87,11 @@ const executeDeposits = async (
 };
 
 const resolveRootstockOperation = async (rskOperation: RootstockOperation): Promise<DepositResult> => {
+    /* 
+     * FIXME:
+     *  - we shouldn't have undefined operation here, so we should filter them out before
+     *  - we shouldn't always wait for all of those events
+     */ 
     if (!rskOperation) {
         console.error('Operation is not defined.');
         return; // prevent throwing error in case of undefined operation
