@@ -2,7 +2,7 @@
 
 **Important** For localhost, you need to have a node of rsk and the zk server running.
 
-The purpose of this is command to add a new wallet to the L2. You can use it in two ways.
+The purpose of this command is to add a new wallet to the L2. You can use it in two ways.
 
 1. Create a new random wallet
 2. Use a wallet from L1 and the private key assigned to it
@@ -28,4 +28,16 @@ zk run generate-wallet <network> [l1-address] [l1-key]
 
 ## Tests
 
-Navigate to `ri-aggregation/core/lib/wallet_creator` and run `cargo test`.
+To execute the unit and integration tests, run the command:
+
+```
+zk test wallet-generator
+```
+
+Or to do it manually:
+
+Navigate to `ri-aggregation/core/lib/wallet_creator` and run:
+
+```
+cargo test
+```

@@ -1,10 +1,10 @@
 [package]
-name = "rif_aggreation_wallet_creator"
+name = "rif_rollup_wallet_generator"
 version = "1.0.0"
 edition = "2018"
 authors = ["RIF <hello@rifos.org>"]
 homepage = "https://www.rifos.org/"
-repository = "https://github.com/matter-labs/zksync"
+repository = "https://github.com/rsksmart/rif-rollup"
 license = "Apache-2.0"
 keywords = ["blockchain", "zksync"]
 categories = ["cryptography"]
@@ -43,9 +43,9 @@ integration-tests = []
 mint = []
 
 [[bin]]
-name = "rif_aggregation_wallet_creator"
+name = "rif_rollup_wallet_generator"
 path = "src/main.rs"
 
 [lib]
-name = "rif_aggreation_wallet_creator_lib"
+name = "rif_rollup_wallet_generator_lib"
 path = "src/lib.rs"

@@ -1,6 +1,6 @@
 use std::env;
 
-use rif_aggreation_wallet_creator_lib::create_new_wallet;
+use rif_rollup_wallet_generator_lib::create_new_wallet;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
