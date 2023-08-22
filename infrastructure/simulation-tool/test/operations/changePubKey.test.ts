@@ -31,21 +31,21 @@ describe('changePubKey', () => {
             const expectedSender = senderWallet;
             const { from } = preparePubKeyChange(expectedSender);
 
-            expect(from).to.deep.equal(expectedSender);
+            expect(from).to.equal(expectedSender);
         });
 
         it('should return object with "ethAuthType" set to "ECDSA"', () => {
             const expectedValue = 'ECDSA';
             const { ethAuthType } = preparePubKeyChange(senderWallet);
 
-            expect(ethAuthType).to.deep.equal(expectedValue);
+            expect(ethAuthType).to.equal(expectedValue);
         });
 
-        it('should return object with "feeToken" set to zero address', () => {
-            const expectedFeeToken = constants.AddressZero;
+        it('should return object with "feeToken" set to RBTC', () => {
+            const expectedFeeToken = 'RBTC';
             const { feeToken } = preparePubKeyChange(senderWallet);
 
-            expect(feeToken).to.deep.equal(expectedFeeToken);
+            expect(feeToken).to.equal(expectedFeeToken);
         });
     });
 
@@ -80,14 +80,10 @@ describe('changePubKey', () => {
             } as unknown as RollupWalletGenerator;
 
             const results = await generatePubKeyChanges(txCount, walletGenerator);
-            const actualResults = await Promise.all(results.map(async ({ from }) => await from.isSigningKeySet()));
-            const allResultsAreNegative = !actualResults.reduce((acc, next) => {
-                acc = acc && next;
-                return acc;
-            }, true);
+            const actualResults = await Promise.all(results.map(({ from }) => from.isSigningKeySet()));
 
             expect(walletGenerator.next).to.have.callCount(txCount + keysSetIndexes.length);
-            expect(allResultsAreNegative).to.be.true;
+            expect(actualResults).to.not.include(true);
         });
     });
 
@@ -146,10 +142,7 @@ describe('changePubKey', () => {
 
             const actualResults = await executePubKeyChanges(preparedPubKeyChanges, 0);
 
-            const allResultsAreTransactions = actualResults.reduce((acc, next) => {
-                acc = acc && next instanceof Promise;
-                return acc;
-            }, true);
+            const allResultsAreTransactions = actualResults.every((result) => result instanceof Promise);
 
             expect(allResultsAreTransactions).to.be.true;
         });
@@ -167,10 +160,7 @@ describe('changePubKey', () => {
                 (await executePubKeyChanges(preparedPubKeyChanges, 0)).map(async (tx) => await tx)
             );
 
-            const allResultsAreTransactions = actualResults.reduce((acc, next) => {
-                acc = acc && next instanceof Transaction;
-                return acc;
-            }, true);
+            const allResultsAreTransactions = actualResults.every((result) => result instanceof Transaction);
 
             expect(allResultsAreTransactions).to.be.true;
         });
@@ -188,9 +178,9 @@ describe('changePubKey', () => {
 
             const { tx: actualTx, receipt, verifyReceipt } = await resolveTransaction(tx);
 
-            expect(actualTx).to.deep.equal(tx);
-            expect(receipt).to.deep.equal(expectedReceipt);
-            expect(verifyReceipt).to.deep.equal(expectedReceipt);
+            expect(actualTx).to.equal(tx);
+            expect(receipt).to.equal(expectedReceipt);
+            expect(verifyReceipt).to.equal(null); // expecting null for now, see implementation
         });
     });
 

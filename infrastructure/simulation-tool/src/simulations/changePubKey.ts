@@ -6,13 +6,17 @@ import {
     resolvePubKeyChanges
 } from '../operations/changePubKey';
 import { SimulationConfiguration } from './setup';
+import { Transaction } from '@rsksmart/rif-rollup-js-sdk';
 
 const runSimulation = async ({ txCount, walletGenerator, funderL2Wallet, txDelay }: SimulationConfiguration) => {
     // prepare pubKeyChanges
+    console.log(`Preparing ${txCount} ChangePubKey transactions ...`);
     const preparedPubKeyChanges: PreparedPubKeyChange[] = await generatePubKeyChanges(txCount, walletGenerator);
 
     // ensure that all accounts are created on L2 and that they have sufficient balance
-    for (const pubKeyChange of preparedPubKeyChanges) {
+    console.log('Ensuring that all accounts are created on L2 and that they have sufficient balance ...');
+    for (const [i, pubKeyChange] of preparedPubKeyChanges.entries()) {
+        process.stdout.write(`${i},`);
         const { from, ethAuthType, feeToken } = pubKeyChange;
         const accountId = await from.getAccountId();
         const feeType = {
@@ -32,7 +36,8 @@ const runSimulation = async ({ txCount, walletGenerator, funderL2Wallet, txDelay
     }
 
     // execute pubKeyChanges
-    const executedTx = await Promise.all((await executePubKeyChanges(preparedPubKeyChanges, txDelay)).map((tx) => tx));
+
+    const executedTx: Transaction[] = await Promise.all(await executePubKeyChanges(preparedPubKeyChanges, txDelay));
 
     // list execution results
     const receipts = await resolvePubKeyChanges(executedTx);

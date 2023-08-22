@@ -59,9 +59,7 @@ const runSimulation = async ({ walletGenerator, funderL2Wallet, txCount, txDelay
 
     // Execute transactions
     console.time('execution');
-    const executedTx: RootstockOperation[] = await Promise.all(
-        (await executeDeposits(preparedDeposits, txDelay)).map(async (tx) => await tx)
-    );
+    const executedTx: RootstockOperation[] = await Promise.all(await executeDeposits(preparedDeposits, txDelay));
     console.timeEnd('execution');
 
     // List execution results
