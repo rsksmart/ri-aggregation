@@ -12,7 +12,7 @@ The purpose of this command is to add a new wallet to the L2. You can use it in 
 To run the tool run directly the Rust binary:
 
 ```
-cargo run rif_aggregation_wallet_creator <network> <eth_address> <private_key>` to add a L1 to L2.
+cargo run --bin rif_rollup_wallet_generator <network> <eth_address> <private_key>` to add a L1 to L2.
 ```
 
 Or run it through the infrastructure command:
@@ -24,7 +24,7 @@ zk run generate-wallet <network> [l1-address] [l1-key]
 ## Note
 
 - The wallet address and private key will be printed on console.
-- The networks suppoerted are `localhost`, `mainnet` (RSK Mainnet) and `testnet` (RSK Testnet).
+- The networks supported are `localhost`, `mainnet` (RSK Mainnet) and `testnet` (RSK Testnet).
 
 ## Tests
 
