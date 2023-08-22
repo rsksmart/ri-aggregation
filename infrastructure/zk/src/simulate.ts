@@ -20,4 +20,5 @@ export const command = new Command('simulate')
     // .option('--config', 'Path to overriding configuration')
     .action(start);
 
+command.command('build').description('Build the simulator prior to execution').action(build);
 command.command('setup').description('Configure the simulator interactively prior to execution').action(setup);

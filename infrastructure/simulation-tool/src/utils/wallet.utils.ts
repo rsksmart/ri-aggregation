@@ -1,7 +1,8 @@
 import { SyncProvider as RollupProvider, Wallet as RollupWallet, Transaction } from '@rsksmart/rif-rollup-js-sdk';
-import { Wallet as EthersWallet, providers } from 'ethers';
+import { Wallet as EthersWallet, Signer, providers } from 'ethers';
 import { CHAIN_TO_NETWORK, NETWORK_TO_DERIVATION_PATH } from '../constants/network';
 import config from './config.utils';
+import { Address } from '@rsksmart/rif-rollup-js-sdk/build/types';
 
 type RollupWalletGenerator = AsyncGenerator<RollupWallet, RollupWallet>;
 
@@ -26,14 +27,20 @@ async function* createWalletGenerator({
     let index = firstIndex;
     while (true) {
         const derivationPath = getAccountPath(index++);
-        console.log('🦆 ~ file: wallet.utils.ts:29 ~ function*createWalletGenerator ~ derivationPath:', derivationPath);
-
         yield RollupWallet.fromEthSigner(
             EthersWallet.fromMnemonic(mnemonic, derivationPath).connect(l1Provider),
             l2Provider
         );
     }
 }
+
+const getNonceFor = async (signer: Signer, nonceMap: Map<Address, number>): Promise<number> => {
+    const address = await signer.getAddress();
+    const nextNonce = nonceMap.has(address) ? nonceMap.get(address) + 1 : await signer.getTransactionCount('pending');
+    nonceMap.set(address, nextNonce);
+
+    return nextNonce;
+};
 
 const generateWallets = async (
     numberOfAccounts: number,
@@ -61,5 +68,5 @@ const activateL2Account = async (rollupWallet: RollupWallet): Promise<Transactio
     return signKeyTransaction;
 };
 
-export { activateL2Account, baseDerivationPath, createWalletGenerator, deriveWallets, generateWallets };
+export { activateL2Account, baseDerivationPath, createWalletGenerator, deriveWallets, generateWallets, getNonceFor };
 export type { RollupWalletGenerator, WalletGeneratorFactoryParams };
