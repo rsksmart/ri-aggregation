@@ -1,0 +1,33 @@
+name: rif-rollup CI unit/integration tests
+on: 
+  push:
+    paths:
+      - 'infrastructure/simulation-tool'
+      - 'infrastructure/zk/src/simulator.ts'
+      - 'infrastructure/zk/src/test.ts'
+  
+jobs:
+  simulation-tool-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup-env
+        run: |
+          echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
+          echo $(pwd)/bin >> $GITHUB_PATH
+
+      - name: start-services
+        run: |
+          which ci_run
+          docker-compose -f docker-compose-runner.yml up --build -d zk
+          which ci_run
+
+      - name: init
+        run: |
+          ci_run zk
+          ci_run zk run yarn
+
+      - name: run simulation-tool test
+        run: zk test simulator
