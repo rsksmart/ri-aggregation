@@ -123,3 +123,11 @@ command
     .action(async (threads: number | null, testName: string | null, options: string[]) => {
         await circuit(threads || 1, testName || '', ...options);
     });
+
+command
+    .command('simulator')
+    .aliases(['s', 'sim', 'simul', 'simulate', 'simulation', 'simulations', 'simulation-tool'])
+    .description('run the simulator unit tests')
+    .action(async () => {
+        await utils.spawn('zk simulator test');
+    });
