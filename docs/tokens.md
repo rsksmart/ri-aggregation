@@ -188,8 +188,8 @@ const batch = await sender
 
 By specifying the fee token (_tokenForFees_) during the Batch build process, it is expected for all the transactions
 included to have the “fee amount” in 0, otherwise, the build process will fail. The build process will
-[automatically calculate](https://github.com/rsksmart/rif-rollup/blob/main/sdk/zksync.js/src/batch-builder.ts#L110) the
-cost for the whole batch, in the provided _tokenForFees_ token. For that it will first calculate the fee with the
+[automatically calculate](https://github.com/rsksmart/rif-rollup-js-sdk/blob/main/src/batch-builder.ts#L110) the cost
+for the whole batch, in the provided _tokenForFees_ token. For that it will first calculate the fee with the
 [following formula](https://github.com/rsksmart/rif-rollup/blob/main/core/bin/zksync_api/src/fee_ticker/mod.rs#L408):
 
 > $

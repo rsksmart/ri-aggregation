@@ -1,6 +1,6 @@
 import { expect, use } from 'chai';
 import { utils } from 'ethers';
-import { Wallet, crypto, Signer, No2FAWalletSigner } from 'zksync';
+import { Wallet, crypto, Signer, No2FAWalletSigner } from '@rsksmart/rif-rollup-js-sdk';
 import chaiAsPromised from 'chai-as-promised';
 import { Tester } from '../tester/tester';
 import '../tester/priority-ops';

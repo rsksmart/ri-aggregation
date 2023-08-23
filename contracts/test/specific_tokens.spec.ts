@@ -1,7 +1,7 @@
 import { Contract, ethers, constants, BigNumber } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
-import { ETHProxy } from 'zksync';
-import { Address, TokenAddress } from 'zksync/build/types';
+import { RBTCProxy } from '@rsksmart/rif-rollup-js-sdk';
+import { Address, TokenAddress } from '@rsksmart/rif-rollup-js-sdk/build/types';
 import { Deployer, readContractCode, readProductionContracts } from '../src.ts/deploy';
 import { ZkSyncWithdrawalUnitTestFactory } from '../typechain';
 
@@ -34,7 +34,7 @@ describe('zkSync process tokens which have no return value in `transfer` and `tr
 
     let zksyncContract;
     let tokenContract;
-    let ethProxy;
+    let rbtcProxy;
     before(async () => {
         [wallet, exitWallet] = await hardhat.ethers.getSigners();
 
@@ -53,7 +53,7 @@ describe('zkSync process tokens which have no return value in `transfer` and `tr
         const govContract = deployer.governanceContract(wallet);
         await govContract.addToken(tokenContract.address);
 
-        ethProxy = new ETHProxy(wallet.provider, {
+        rbtcProxy = new RBTCProxy(wallet.provider, {
             mainContract: zksyncContract.address,
             govContract: govContract.address
         });
@@ -122,7 +122,7 @@ describe('zkSync process tokens which have no return value in `transfer` and `tr
 
         const sendERC20 = await tokenContract.transfer(zksyncContract.address, withdrawAmount.mul(2));
         await sendERC20.wait();
-        const tokenId = await ethProxy.resolveTokenId(tokenContract.address);
+        const tokenId = await rbtcProxy.resolveTokenId(tokenContract.address);
 
         await zksyncContract.setBalanceToWithdraw(wallet.address, tokenId, withdrawAmount);
         const onchainBalBefore_first_subtest = await onchainBalance(wallet, tokenContract.address);
@@ -144,7 +144,7 @@ describe('zkSync process tokens which have no return value in `transfer` and `tr
 
         const sendERC20 = await tokenContract.transfer(zksyncContract.address, withdrawAmount);
         await sendERC20.wait();
-        const tokenId = await ethProxy.resolveTokenId(tokenContract.address);
+        const tokenId = await rbtcProxy.resolveTokenId(tokenContract.address);
 
         await zksyncContract.setBalanceToWithdraw(wallet.address, tokenId, withdrawAmount);
 
@@ -162,7 +162,7 @@ describe('zkSync process tokens which have no return value in `transfer` and `tr
         await tokenContract.transfer(zksyncContract.address, withdrawAmount);
 
         for (const tokenAddress of [tokenContract.address]) {
-            const tokenId = await ethProxy.resolveTokenId(tokenAddress);
+            const tokenId = await rbtcProxy.resolveTokenId(tokenAddress);
 
             await zksyncContract.setBalanceToWithdraw(exitWallet.address, tokenId, withdrawAmount);
 
@@ -182,7 +182,7 @@ describe('zkSync process tokens which take fee from sender', function () {
 
     let zksyncContract;
     let tokenContract;
-    let ethProxy;
+    let rbtcProxy;
     let FEE_AMOUNT;
     before(async () => {
         [wallet, exitWallet] = await hardhat.ethers.getSigners();
@@ -201,7 +201,7 @@ describe('zkSync process tokens which take fee from sender', function () {
         const govContract = deployer.governanceContract(wallet);
         await govContract.addToken(tokenContract.address);
 
-        ethProxy = new ETHProxy(wallet.provider, {
+        rbtcProxy = new RBTCProxy(wallet.provider, {
             mainContract: zksyncContract.address,
             govContract: govContract.address
         });
@@ -240,7 +240,7 @@ describe('zkSync process tokens which take fee from sender', function () {
         const sendERC20 = await tokenContract.transfer(zksyncContract.address, withdrawAmount.mul(2));
         await sendERC20.wait();
         const token = tokenContract.address;
-        const tokenId = await ethProxy.resolveTokenId(token);
+        const tokenId = await rbtcProxy.resolveTokenId(token);
 
         // test one withdrawal
         await zksyncContract.setBalanceToWithdraw(wallet.address, tokenId, withdrawAmount);
@@ -298,7 +298,7 @@ describe('zkSync process tokens which take fee from sender', function () {
         await tokenContract.transfer(zksyncContract.address, withdrawAmount);
 
         for (const tokenAddress of [tokenContract.address]) {
-            const tokenId = await ethProxy.resolveTokenId(tokenAddress);
+            const tokenId = await rbtcProxy.resolveTokenId(tokenAddress);
 
             await zksyncContract.setBalanceToWithdraw(exitWallet.address, tokenId, 0);
 

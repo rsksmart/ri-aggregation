@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
-import * as zksync from 'zksync';
+import * as zksync from '@rsksmart/rif-rollup-js-sdk';
 import * as ethers from 'ethers';
 
 export function getDirPath() {
@@ -54,7 +54,7 @@ async function setupWallet() {
 
     const syncWallet = await zksync.Wallet.fromEthSigner(ethWallet, syncProvider);
 
-    const depositHandle = await syncWallet.depositToSyncFromEthereum({
+    const depositHandle = await syncWallet.depositToSyncFromRootstock({
         depositTo: syncWallet.address(),
         token: 'RBTC',
         amount: syncWallet.provider.tokenSet.parseToken('RBTC', '1000')

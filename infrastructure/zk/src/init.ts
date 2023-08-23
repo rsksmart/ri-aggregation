@@ -9,7 +9,7 @@ import * as env from './env';
 import * as docker from './docker';
 import { up } from './up';
 
-export async function init(sdk: boolean, withDocker: boolean) {
+export async function init(crypto: boolean, withDocker: boolean) {
     if (process.env.ZKSYNC_ENV !== 'dev') {
         console.error('Init process designed for local dev only');
         process.exit(1);
@@ -21,7 +21,7 @@ export async function init(sdk: boolean, withDocker: boolean) {
         await utils.announced('Checking git hooks', env.gitHooks());
         await utils.announced('Setting up containers', up());
     }
-    await utils.announced('Compiling JS packages', run.yarn(sdk));
+    await utils.announced('Compiling JS packages', run.yarn(crypto));
     await utils.announced('Checking PLONK setup', run.plonkSetup());
     await utils.announced('Unpacking verification  keys', run.verifyKeys.unpack());
     await utils.announced('Setting up database', db.setup());
@@ -53,11 +53,11 @@ async function createVolumes() {
 
 export const initCommand = new Command('init')
     .description('perform zksync network initialization for development')
-    .option('--no-sdk', 'not include sdk packages')
+    .option('--no-crypto', 'not include sdk packages')
     .option('--with-docker', 'use docker container instead of local environment')
     .action(async (cmd: Command) => {
-        const { sdk, withDocker } = cmd;
-        await init(!!sdk, withDocker);
+        const { crypto, withDocker } = cmd;
+        await init(!!crypto, withDocker);
     });
 export const reinitCommand = new Command('reinit')
     .option('--with-docker', 'use docker container instead of local environment')

@@ -47,9 +47,6 @@ jobs:
       - name: restart dev-ticker
         run: docker-compose -f docker-compose-runner.yml restart dev-ticker
 
-      - name: js-unit-tests
-        run: ci_run zk test js
-
       - name: contracts-unit-tests
         run: ci_run zk test contracts
 

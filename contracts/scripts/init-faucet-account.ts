@@ -1,7 +1,7 @@
 import { ArgumentParser } from 'argparse';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as zksync from 'zksync';
+import * as zksync from '@rsksmart/rif-rollup-js-sdk';
 import { ethers, Wallet } from 'ethers';
 import { web3Provider } from './utils';
 
@@ -70,7 +70,7 @@ async function main() {
         console.log('Mint successful');
     }
 
-    const deposit = await deployerWallet.depositToSyncFromEthereum({
+    const deposit = await deployerWallet.depositToSyncFromRootstock({
         depositTo: faucetEthWallet.address,
         token: 'MLTT',
         amount: DEPOSIT_AMOUNT,

@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types, utils, SyncProvider } from 'zksync';
+import { Wallet, types, utils, SyncProvider } from '@rsksmart/rif-rollup-js-sdk';
 import { BigNumber, ethers } from 'ethers';
 
 import { RevertReceiveAccountFactory, RevertTransferERC20Factory } from '../../../../../contracts/typechain';
@@ -78,7 +78,7 @@ Tester.prototype.testRecoverRBTCWithdrawal = async function (from: Wallet, to: A
     // Make sure that the withdrawal will fail
     await setRevert(from.ethSigner(), this.syncProvider, to, 'RBTC', true);
     const balanceBefore = await this.ethProvider.getBalance(to);
-    const withdrawTx = await from.withdrawFromSyncToEthereum({
+    const withdrawTx = await from.withdrawFromSyncToRootstock({
         ethAddress: to,
         token: 'RBTC',
         amount
@@ -120,7 +120,7 @@ Tester.prototype.testRecoverERC20Withdrawal = async function (
         utils.getEthereumBalance(from.ethSigner().provider as ethers.providers.Provider, from.provider, to, token);
 
     const balanceBefore = await getToBalance();
-    const withdrawTx = await from.withdrawFromSyncToEthereum({
+    const withdrawTx = await from.withdrawFromSyncToRootstock({
         ethAddress: to,
         token: token,
         amount
@@ -169,7 +169,7 @@ Tester.prototype.testRecoverMultipleWithdrawals = async function (
 
     // Send the withdrawals and wait until they are sent onchain
     for (let i = 0; i < to.length; i++) {
-        const withdrawTx = await from.withdrawFromSyncToEthereum({
+        const withdrawTx = await from.withdrawFromSyncToRootstock({
             ethAddress: to[i],
             token: token[i],
             amount: amount[i]
