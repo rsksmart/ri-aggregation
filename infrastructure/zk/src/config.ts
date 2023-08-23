@@ -53,9 +53,14 @@ async function loadConfig(environment: string, configName: string) {
     const fileContents = await fs.promises.readFile(configPath);
     try {
         return toml.parse(fileContents.toString());
-    } catch (e) {
+    } catch (e: unknown) {
+        const { line, column, message } = e as {
+            line: number;
+            column: number;
+            message: string;
+        }; // FIXME: 🤯
         console.error(
-            `<${environment}/${configName}> load failed: Parsing error on line ${e.line} column ${e.column}: ${e.message}`
+            `<${environment}/${configName}> load failed: Parsing error on line ${line} column ${column}: ${message}`
         );
         process.exit(1);
     }
