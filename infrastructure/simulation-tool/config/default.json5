@@ -2,7 +2,7 @@
     "rollupUrl": "https://127.0.0.1:3001",
     "nodeUrl": "http://127.0.0.1:4444",
     "chainId": 33,
-    "transactionsPerSecond": 5,
+    "transactionsPerSecond": 20,
     "totalRunningTimeSeconds": 10,
     "numberOfAccounts": 100,
     "weiLimits": {
