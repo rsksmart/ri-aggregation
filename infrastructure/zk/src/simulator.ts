@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import * as utils from './utils';
 
 export const simulator = new Command('simulator')
-    .aliases(['s', 'sim', 'simul', 'simulate', 'simulation', 'simulation-tool'])
+    .aliases(['s', 'sim', 'simul', 'simulate', 'simulation', 'simulations', 'simulation-tool'])
     .description('Open up a dedicated TUI for running transaction simulations on Rollup')
     .action(async (_cmd: Command) => {
         await utils.spawn('yarn run simulation-tool simulate');
