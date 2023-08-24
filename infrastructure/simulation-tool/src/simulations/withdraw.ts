@@ -6,7 +6,7 @@ import {
 } from '../operations/withdraw';
 import { SimulationConfiguration } from './setup';
 import config from '../utils/config.utils';
-import { Wallet as RollupWallet, Transaction, utils } from '@rsksmart/rif-rollup-js-sdk';
+import { Wallet as RollupWallet, Transaction } from '@rsksmart/rif-rollup-js-sdk';
 import { generateWallets } from '../utils/wallet.utils';
 import { ensureL2AccountActivation, ensureRollupFunds, ensureRollupFundsFromRollup } from '../operations/common';
 import { BigNumber, ethers } from 'ethers';

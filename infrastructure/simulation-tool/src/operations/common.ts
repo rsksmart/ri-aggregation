@@ -1,5 +1,5 @@
-import { BigNumber, Signer, constants, ethers } from 'ethers';
-import { Wallet as RollupWallet, closestPackableTransactionFee, utils } from '@rsksmart/rif-rollup-js-sdk';
+import { BigNumber, Signer, constants } from 'ethers';
+import { Wallet as RollupWallet, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { depositToSelf } from '../simulations/setup';
 
 const ensureL1Funds = (funder: Signer) => async (amount: BigNumber, account: Signer) => {

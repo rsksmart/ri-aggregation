@@ -1,6 +1,6 @@
-import { Wallet as RollupWallet, RootstockOperation, Transaction, utils } from '@rsksmart/rif-rollup-js-sdk';
+import { Wallet as RollupWallet, Transaction, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { expect, use } from 'chai';
-import { BigNumber, ContractReceipt, Wallet as EthersWallet } from 'ethers';
+import { BigNumber, Wallet as EthersWallet } from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {
@@ -11,7 +11,7 @@ import {
     resolveWithdrawTransaction
 } from '../../src/operations/withdraw';
 import config from '../../src/utils/config.utils';
-import { PriorityOperationReceipt, TransactionReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
+import { TransactionReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
 
 use(sinonChai);
 

@@ -1,9 +1,9 @@
-import { Wallet as RollupWallet, RootstockOperation, Transaction, utils } from '@rsksmart/rif-rollup-js-sdk';
+import { Wallet as RollupWallet, Transaction, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { sleep } from '@rsksmart/rif-rollup-js-sdk/build/utils';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber } from 'ethers';
 import { getRandomBigNumber } from '../utils/number.utils';
 import config from '../utils/config.utils';
-import { ensureRollupFunds, getRandomElement } from './common';
+import { getRandomElement } from './common';
 import { TransactionReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
 
 type PreparedWithdrawal = Parameters<RollupWallet['withdrawFromSyncToRootstock']>[number] & {
