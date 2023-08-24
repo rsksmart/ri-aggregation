@@ -1,5 +1,5 @@
 import { BigNumber, Signer, constants, ethers } from 'ethers';
-import { Wallet as RollupWallet, closestPackableTransactionFee } from '@rsksmart/rif-rollup-js-sdk';
+import { Wallet as RollupWallet, closestPackableTransactionFee, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { depositToSelf } from '../simulations/setup';
 
 const ensureL1Funds = (funder: Signer) => async (amount: BigNumber, account: Signer) => {
@@ -40,22 +40,38 @@ const ensureRollupFunds = async (amount: BigNumber, l2Wallet: RollupWallet) => {
     }
 };
 
+const ensureRollupFundsFromRollup = async (
+    totalDepositAmount: BigNumber,
+    from: RollupWallet,
+    l2Wallet: RollupWallet
+) => {
+    if (totalDepositAmount.gt(await l2Wallet.getBalance('RBTC'))) {
+        const transfer = await from.syncTransfer({
+            to: l2Wallet.address(),
+            amount: utils.closestGreaterOrEqPackableTransactionAmount(totalDepositAmount),
+            token: 'RBTC',
+            nonce: 'committed'
+        });
+
+        await transfer.awaitReceipt();
+    }
+};
+
 const ensureL2AccountActivation = async (account: RollupWallet) => {
     const isActive = await account.isSigningKeySet();
-    console.log(`Account ${await account.address()} is active: ${isActive}`)
     if (!isActive) {
         try {
             const res = await account.setSigningKey({
                 feeToken: constants.AddressZero,
                 ethAuthType: 'ECDSA'
             });
-            const receipt = await res.awaitVerifyReceipt();
+            await res.awaitReceipt();
         } catch (e) {
-            console.log(`Error activating account ${await account.address()}: ${e.message}`)
+            console.log(`Error activating account ${await account.address()}: ${e.message}`);
         }
     }
-}
+};
 
 const getRandomElement = <T>(array: T[]): T => array[Math.floor(Math.random() * array.length)];
 
-export { ensureRollupFunds, getRandomElement, ensureL1Funds, ensureL2AccountActivation };
+export { ensureRollupFunds, getRandomElement, ensureL1Funds, ensureL2AccountActivation, ensureRollupFundsFromRollup };
