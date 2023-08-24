@@ -1,6 +1,6 @@
 import { Wallet as RollupWallet, Transaction, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { expect, use } from 'chai';
-import { BigNumber, Wallet as EthersWallet } from 'ethers';
+import { Wallet as EthersWallet } from 'ethers';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import {
