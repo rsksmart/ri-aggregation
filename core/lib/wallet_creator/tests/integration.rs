@@ -13,6 +13,7 @@ mod tests {
     // use serde_json as ser;
 
     #[tokio::test]
+    #[cfg_attr(not(feature = "integration-tests"), ignore)]
     async fn test_using_random_keys() -> Result<(), anyhow::Error> {
         let eth_address: H160;
         let eth_private_key: H256;
@@ -32,6 +33,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[cfg_attr(not(feature = "integration-tests"), ignore)]
     async fn test_using_user_address() -> Result<(), anyhow::Error> {
         // assert_eq!(bad_add(1, 2), 3);
         let eth_private_key: H256 = H256::from_low_u64_be(1_000);

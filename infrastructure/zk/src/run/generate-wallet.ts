@@ -3,7 +3,7 @@ import * as utils from '../utils';
 
 export async function generateWallet(network: string, l1Address: string, l1PrivateKey: string) {
     await utils.spawn(
-        `cargo run --bin rif_aggregation_wallet_creator --release -- ${network} ${l1Address} ${l1PrivateKey}`
+        `cargo run --bin rif_rollup_wallet_generator --release -- ${network} ${l1Address} ${l1PrivateKey}`
     );
 }
 
