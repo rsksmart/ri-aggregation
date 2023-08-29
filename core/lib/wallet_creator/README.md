@@ -28,16 +28,32 @@ zk run generate-wallet <network> [l1-address] [l1-key]
 
 ## Tests
 
-To execute the unit and integration tests, run the command:
+The tests are included in the `zk test i all` suite, to run indvidually:
+
+For unit tests, run the command:
 
 ```
 zk test wallet-generator
+```
+
+For integration tests, run the command:
+
+```
+zk test i wallet-generator
 ```
 
 Or to do it manually:
 
 Navigate to `ri-aggregation/core/lib/wallet_creator` and run:
 
+Unit tests
+
 ```
 cargo test
+```
+
+Integration tests
+
+```
+cargo test -- --ignored
 ```

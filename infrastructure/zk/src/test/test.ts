@@ -104,7 +104,7 @@ command.command('server-rust').description('run unit-tests for server binaries a
 command.command('crypto-rust').description('run unit-tests for rust crypto binaries and libraries').action(cryptoRust);
 command
     .command('wallet-generator')
-    .description('run unit/integration-tests for the wallet-generator library')
+    .description('run unit-tests for the wallet-generator library')
     .action(walletGenerator);
 
 command
