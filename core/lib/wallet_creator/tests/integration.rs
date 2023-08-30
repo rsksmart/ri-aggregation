@@ -5,12 +5,10 @@ use zksync::{
 
 use rif_rollup_wallet_generator_lib::{create_new_wallet, eth_random_account_credentials};
 
-// #[test]
 #[cfg(test)]
 mod tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
-    // use serde_json as ser;
 
     #[tokio::test]
     #[cfg_attr(not(feature = "integration-tests"), ignore)]
@@ -35,7 +33,6 @@ mod tests {
     #[tokio::test]
     #[cfg_attr(not(feature = "integration-tests"), ignore)]
     async fn test_using_user_address() -> Result<(), anyhow::Error> {
-        // assert_eq!(bad_add(1, 2), 3);
         let eth_private_key: H256 = H256::from_low_u64_be(1_000);
 
         let eth_address = PackedEthSignature::address_from_private_key(&eth_private_key).unwrap();

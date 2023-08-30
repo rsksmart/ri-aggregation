@@ -1,4 +1,4 @@
-# RIF Aggregation wallet creators
+# RIF Rollup Wallet Generator
 
 **Important** For localhost, you need to have a node of rsk and the zk server running.
 
