@@ -149,7 +149,7 @@ information necessary to understand the steps are described above:
 1. Create the `dev` environment.
 
 ```
-ENV_OVERRIDE=deploy zk init --no-sdk --with-docker
+ENV_OVERRIDE=deploy zk init --no-crypto --with-docker
 ```
 
 2. Enable the `dummy-prover` for local development.
@@ -198,7 +198,7 @@ docker-compose -f docker-compose.deploy.yml exec -T rollup zk
 ```
 
 ```
-docker-compose -f docker-compose.deploy.yml exec -T rollup zk init --no-sdk
+docker-compose -f docker-compose.deploy.yml exec -T rollup zk init --no-crypto
 ```
 
 4. Enable the `dummy-prover` for local development.
