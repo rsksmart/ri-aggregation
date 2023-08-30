@@ -1,5 +1,5 @@
 //! Utils for signing zksync transactions.
-//! This crate is compiled into wasm to be used in `zksync.js`.
+//! This crate is compiled into wasm to be used in `@rsksmart/rif-rollup-js-sdk`.
 
 #[cfg(test)]
 mod tests;

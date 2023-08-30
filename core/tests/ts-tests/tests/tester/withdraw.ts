@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types, ETHProxy } from 'zksync';
+import { Wallet, types, RBTCProxy } from '@rsksmart/rif-rollup-js-sdk';
 import { BigNumber, Signer } from 'ethers';
 
 type TokenLike = types.TokenLike;
@@ -51,7 +51,7 @@ Tester.prototype.testWithdraw = async function (
     const { totalFee: fee } = await this.syncProvider.getTransactionFee(type, wallet.address(), token);
     const balanceBefore = await wallet.getBalance(token);
 
-    const handle = await wallet.withdrawFromSyncToEthereum({
+    const handle = await wallet.withdrawFromSyncToRootstock({
         ethAddress: wallet.address(),
         token,
         amount,
@@ -101,13 +101,13 @@ Tester.prototype.testWithdrawNFT = async function (
     // Checking that the metadata was saved correctly
     await handle.awaitVerifyReceipt();
 
-    const ethProxy = new ETHProxy(this.ethProvider, await this.syncProvider.getContractAddress());
-    const withdrawPendingNFTBalanceTrx = await ethProxy
-        .getZkSyncContract()
+    const rbtcProxy = new RBTCProxy(this.ethProvider, await this.syncProvider.getContractAddress());
+    const withdrawPendingNFTBalanceTrx = await rbtcProxy
+        .getRifRollupContract()
         .connect(withdrawer)
         .withdrawPendingNFTBalance(nft.id);
     await withdrawPendingNFTBalanceTrx.wait();
-    const defaultFactory = await ethProxy.getDefaultNFTFactory();
+    const defaultFactory = await rbtcProxy.getDefaultNFTFactory();
 
     const creatorId = await defaultFactory.getCreatorAccountId(nft.id);
     const contentHash = await defaultFactory.getContentHash(nft.id);

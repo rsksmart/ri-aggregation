@@ -1,14 +1,14 @@
 import { Contract, constants, BigNumber, Wallet } from 'ethers';
 import { keccak256, parseEther } from 'ethers/lib/utils';
-import { ETHProxy } from 'zksync';
-import { Address, TokenAddress } from 'zksync/build/types';
+import { RBTCProxy } from '@rsksmart/rif-rollup-js-sdk';
+import { Address, TokenAddress } from '@rsksmart/rif-rollup-js-sdk/build/types';
 import { Deployer, readContractCode, readProductionContracts } from '../src.ts/deploy';
 
 const hardhat = require('hardhat');
 const { simpleEncode } = require('ethereumjs-abi');
 const { expect } = require('chai');
 const { getCallRevertReason, IERC20_INTERFACE, increaseTime, evmMine, DEFAULT_GAS_LIMIT } = require('./common');
-import * as zksync from 'zksync';
+import * as zksync from '@rsksmart/rif-rollup-js-sdk';
 import {
     ZkSync,
     TestnetERC20Token,
@@ -288,7 +288,7 @@ describe('zkSync withdraw unit tests', function () {
     let zksyncContract: ZkSync;
     let tokenContract: TestnetERC20Token;
     let incorrectTokenContract;
-    let ethProxy: ETHProxy;
+    let rbtcProxy: RBTCProxy;
     let EOA_Address: string;
     let tokenNoTransferReturnValue: DummyERC20NoTransferReturnValue;
     let tokenBytesTransferReturnValue: DummyERC20BytesTransferReturnValue;
@@ -331,7 +331,7 @@ describe('zkSync withdraw unit tests', function () {
         await govContract.addToken(tokenNoTransferReturnValue.address);
         await govContract.addToken(tokenBytesTransferReturnValue.address);
 
-        ethProxy = new ETHProxy(wallet.provider, {
+        rbtcProxy = new RBTCProxy(wallet.provider, {
             mainContract: zksyncContract.address,
             govContract: govContract.address
         });
@@ -411,7 +411,7 @@ describe('zkSync withdraw unit tests', function () {
 
         const sendERC20 = await tokenContract.transfer(zksyncContract.address, withdrawAmount.mul(2));
         await sendERC20.wait();
-        const tokenId = await ethProxy.resolveTokenId(tokenContract.address);
+        const tokenId = await rbtcProxy.resolveTokenId(tokenContract.address);
 
         await zksyncContract.setBalanceToWithdraw(wallet.address, tokenId, withdrawAmount);
         await performWithdraw(wallet, tokenContract.address, tokenId, withdrawAmount);
@@ -427,7 +427,7 @@ describe('zkSync withdraw unit tests', function () {
 
         const sendERC20 = await tokenContract.transfer(zksyncContract.address, withdrawAmount);
         await sendERC20.wait();
-        const tokenId = await ethProxy.resolveTokenId(tokenContract.address);
+        const tokenId = await rbtcProxy.resolveTokenId(tokenContract.address);
 
         await zksyncContract.setBalanceToWithdraw(wallet.address, tokenId, withdrawAmount);
 
@@ -567,7 +567,7 @@ describe('zkSync test process next operation', function () {
     let zksyncContract: ZkSyncProcessOpUnitTest;
     let tokenContract;
     let incorrectTokenContract;
-    let ethProxy;
+    let rbtcProxy;
 
     const EMPTY_KECCAK = hardhat.ethers.utils.keccak256('0x');
 
@@ -598,7 +598,7 @@ describe('zkSync test process next operation', function () {
         const govContract = deployer.governanceContract(wallet);
         await govContract.addToken(tokenContract.address);
 
-        ethProxy = new ETHProxy(wallet.provider, {
+        rbtcProxy = new RBTCProxy(wallet.provider, {
             mainContract: zksyncContract.address,
             govContract: govContract.address
         });
@@ -693,7 +693,7 @@ describe('zkSync test process next operation', function () {
 
     it('Process full exit', async () => {
         zksyncContract.connect(wallet);
-        const tokenId = await ethProxy.resolveTokenId(tokenContract.address);
+        const tokenId = await rbtcProxy.resolveTokenId(tokenContract.address);
         const fullExitAmount = parseEther('0.7');
         const accountId = 0x00faffaf;
         const serialId = 0;

@@ -1,6 +1,6 @@
 import { use } from 'chai';
 import { utils } from 'ethers';
-import { Wallet } from 'zksync';
+import { Wallet } from '@rsksmart/rif-rollup-js-sdk';
 import chaiAsPromised from 'chai-as-promised';
 import { Tester } from '../tester/tester';
 import '../tester/priority-ops';

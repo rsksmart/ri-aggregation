@@ -5,7 +5,6 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "sdk/zksync.js",
       "sdk/zksync-crypto",
       "contracts",
       "infrastructure/zk",
@@ -17,11 +16,9 @@
     ]
   },
   "scripts": {
-    "build:zksync-sdk": "yarn zksync prepublish",
     "build:crypto": "yarn crypto build",
     "build:reading-tool": "yarn reading-tool build",
     "build:simulation-tool": "yarn simulation-tool build",
-    "zksync": "yarn workspace zksync",
     "crypto": "yarn workspace zksync-crypto",
     "contracts": "yarn workspace franklin-contracts",
     "ts-tests": "yarn workspace ts-tests",

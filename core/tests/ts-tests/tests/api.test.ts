@@ -1,4 +1,4 @@
-import { Wallet, RestProvider, getDefaultRestProvider, types, utils } from 'zksync';
+import { Wallet, RestProvider, getDefaultRestProvider, types, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { Tester } from './tester/tester';
 import * as ethers from 'ethers';
 import './tester/priority-ops';

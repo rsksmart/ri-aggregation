@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types } from 'zksync';
+import { Wallet, types } from '@rsksmart/rif-rollup-js-sdk';
 import { BigNumber } from 'ethers';
 
 type TokenLike = types.TokenLike;
@@ -16,7 +16,7 @@ declare module './tester' {
 Tester.prototype.testDeposit = async function (wallet: Wallet, token: TokenLike, amount: BigNumber, approve?: boolean) {
     const balanceBefore = await wallet.getBalance(token);
 
-    const depositHandle = await this.syncWallet.depositToSyncFromEthereum({
+    const depositHandle = await this.syncWallet.depositToSyncFromRootstock({
         depositTo: wallet.address(),
         token: token,
         amount,

@@ -92,11 +92,10 @@ export async function tokenInfo(address: string) {
 }
 
 // installs all dependencies and builds our js packages
-export async function yarn(sdk = true) {
+export async function yarn(crypto = true) {
     await utils.spawn('yarn');
-    if (sdk) {
+    if (crypto) {
         await utils.spawn('yarn build:crypto');
-        await utils.spawn('yarn build:zksync-sdk');
     }
 
     await utils.spawn('yarn build:reading-tool');

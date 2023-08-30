@@ -1,13 +1,17 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types, Create2WalletSigner } from 'zksync';
+import { Wallet, types, Create2WalletSigner, Transaction } from '@rsksmart/rif-rollup-js-sdk';
 import { BigNumber, ethers } from 'ethers';
-import { ChangePubKey, SignedTransaction, TxEthSignature } from 'zksync/build/types';
-import { submitSignedTransactionsBatch } from 'zksync/build/wallet';
-import { MAX_TIMESTAMP } from 'zksync/build/utils';
-import { Transaction } from 'zksync';
-import { Transfer, Withdraw } from 'zksync/build/types';
 import {
+    ChangePubKey,
+    SignedTransaction,
+    TxEthSignature,
+    Transfer,
+    Withdraw
+} from '@rsksmart/rif-rollup-js-sdk/build/types';
+import { submitSignedTransactionsBatch } from '@rsksmart/rif-rollup-js-sdk/build/wallet';
+import {
+    MAX_TIMESTAMP,
     serializeAccountId,
     serializeAddress,
     serializeAmountFull,
@@ -16,8 +20,8 @@ import {
     serializeNonce,
     serializeTimestamp,
     numberToBytesBE
-} from 'zksync/build/utils';
-import { HTTPTransport } from 'zksync/build/transport';
+} from '@rsksmart/rif-rollup-js-sdk/build/utils';
+import { HTTPTransport } from '@rsksmart/rif-rollup-js-sdk/build/transport';
 
 type TokenLike = types.TokenLike;
 
@@ -141,7 +145,7 @@ Tester.prototype.testWrongSignature = async function (
     expect(thrown, 'Sending tx with incorrect ETH signature must throw').to.be.true;
 
     const { totalFee } = await this.syncProvider.getTransactionFee('Withdraw', from.address(), token);
-    const signedWithdraw = await from.signWithdrawFromSyncToEthereum({
+    const signedWithdraw = await from.signWithdrawFromSyncToRootstock({
         ethAddress: from.address(),
         token: token,
         amount: amount.div(2),
@@ -322,7 +326,7 @@ Tester.prototype.testBackwardCompatibleEthMessages = async function (
         validFrom: 0,
         validUntil: MAX_TIMESTAMP
     };
-    const withdraw = (await to.signWithdrawFromSyncToEthereum(_withdraw)).tx as Withdraw;
+    const withdraw = (await to.signWithdrawFromSyncToRootstock(_withdraw)).tx as Withdraw;
     stringFee = from.provider.tokenSet.formatToken(_transfer.token, 0);
     const withdrawMessage =
         `Withdraw ${stringAmount} ${stringToken}\n` +

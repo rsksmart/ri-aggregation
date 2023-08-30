@@ -10,7 +10,7 @@ repository = "https://github.com/matter-labs/zksync"
 license = "Apache-2.0"
 keywords = ["blockchain", "zksync"]
 categories = ["cryptography"]
-publish = false # This library is not published stand-alone, it is bundled with `zksync.js`.
+publish = false # This library is not published stand-alone, it is bundled with `@rsksmart/rif-rollup-js-sdk`.
 
 [lib]
 crate-type = ["cdylib"]

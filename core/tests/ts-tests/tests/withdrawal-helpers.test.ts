@@ -1,4 +1,4 @@
-import { Wallet } from 'zksync';
+import { Wallet } from '@rsksmart/rif-rollup-js-sdk';
 import { Tester } from './tester/tester';
 import { utils } from 'ethers';
 import './tester/priority-ops';

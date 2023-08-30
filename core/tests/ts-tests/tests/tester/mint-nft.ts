@@ -1,6 +1,6 @@
 import { Tester } from './tester';
 import { expect } from 'chai';
-import { Wallet, types } from 'zksync';
+import { Wallet, types } from '@rsksmart/rif-rollup-js-sdk';
 import { utils } from 'ethers';
 
 type TokenLike = types.TokenLike;

@@ -15,7 +15,7 @@
   "author": "",
   "dependencies": {
     "@ethersproject/logger": "^5.4.0",
-    "@rsksmart/rif-rollup-js-sdk": "^0.13.4-alpha",
+    "@rsksmart/rif-rollup-js-sdk": "^0.13.7-alpha",
     "config": "^3.3.9",
     "ethers": "^5.4.4"
   },

@@ -89,5 +89,4 @@ This section provides an overview on folders / sub-projects that exist in this r
 - `/keys`: Verification keys for `circuit` module.
 - `/sdk`: Implementation of client libraries for zkSync network in different programming languages.
   - `/zksync-crypto`: zkSync network cryptographic primitives, which can be compiled to WASM.
-  - `/zksync.js`: A JavaScript / TypeScript client library for zkSync.
   - `/zksync-rs`: Rust client library for zkSync.

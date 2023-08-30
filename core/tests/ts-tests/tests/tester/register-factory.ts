@@ -3,7 +3,7 @@ import fs from 'fs';
 import { Tester } from './tester';
 import { Signer, utils } from 'ethers';
 import { expect } from 'chai';
-import { Wallet, types, ETHProxy, utils as zkutils } from 'zksync';
+import { Wallet, types, RBTCProxy, utils as zkutils } from '@rsksmart/rif-rollup-js-sdk';
 type TokenLike = types.TokenLike;
 
 function readContractCode(name: string) {
@@ -29,8 +29,8 @@ declare module './tester' {
 
 Tester.prototype.testRegisterFactory = async function (wallet: Wallet, withdrawer: Signer, feeToken: TokenLike) {
     const contractAddress = await wallet.provider.getContractAddress();
-    const ethProxy = new ETHProxy(wallet.ethSigner().provider!, contractAddress);
-    const defaultNFTFactoryAddress = (await ethProxy.getGovernanceContract().defaultFactory()).toLowerCase();
+    const rbtcProxy = new RBTCProxy(wallet.ethSigner().provider!, contractAddress);
+    const defaultNFTFactoryAddress = (await rbtcProxy.getGovernanceContract().defaultFactory()).toLowerCase();
 
     const type = 'MintNFT';
     const contentHash = utils.randomBytes(32);
@@ -90,8 +90,8 @@ Tester.prototype.testRegisterFactory = async function (wallet: Wallet, withdrawe
     });
     const receiptWithdraw = await handleWithdraw.awaitVerifyReceipt();
     expect(receiptWithdraw.success, `Withdraw NFT failed with a reason: ${receiptWithdraw.failReason}`).to.be.true;
-    const withdrawPendingNFTBalanceTrx = await ethProxy
-        .getZkSyncContract()
+    const withdrawPendingNFTBalanceTrx = await rbtcProxy
+        .getRifRollupContract()
         .connect(withdrawer)
         .withdrawPendingNFTBalance(nft.id);
     await withdrawPendingNFTBalanceTrx.wait();
