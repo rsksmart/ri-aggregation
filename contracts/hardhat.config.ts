@@ -3,6 +3,7 @@ import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-ethers';
 import 'hardhat-typechain';
 import 'hardhat-contract-sizer';
+import 'solidity-coverage';
 
 const prodConfig = {
     // UPGRADE_NOTICE_PERIOD: 0,
