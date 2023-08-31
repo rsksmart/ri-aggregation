@@ -24,20 +24,20 @@ const runSimulation = async ({ txCount, txDelay, walletGenerator, funderL2Wallet
     let totalNeeded = BigNumber.from(0);
     const neededAmounts = preparedWithdrawals.reduce((accounts, { from, amount, ethAddress }) => {
         if (accounts.has(ethAddress)) {
-            accounts.set(ethAddress, [from, accounts.get(ethAddress)[1].add(amount)]);
+            accounts.set(ethAddress, { wallet: from, total: accounts.get(ethAddress).total.add(amount) });
             totalNeeded.add(amount);
         } else {
-            accounts.set(ethAddress, [from, amount]);
+            accounts.set(ethAddress, { wallet: from, total: amount });
             totalNeeded.add(amount);
         }
 
         return accounts;
-    }, new Map<String, [RollupWallet, BigNumber]>());
+    }, new Map<String, { wallet: RollupWallet; total: BigNumber }>());
 
     console.log(`Ensuring L1 & L2 funds for ${neededAmounts.size} users...`);
     await ensureRollupFunds(totalNeeded, funderL2Wallet);
     let accountIdx = 0;
-    for (const [wallet, amount] of neededAmounts.values()) {
+    for (const { wallet, total: amount } of neededAmounts.values()) {
         process.stdout.write((accountIdx++).toString() + ',');
         await ensureRollupFundsFromRollup(amount.add(gasCost), funderL2Wallet, wallet);
         await ensureL2AccountActivation(wallet);

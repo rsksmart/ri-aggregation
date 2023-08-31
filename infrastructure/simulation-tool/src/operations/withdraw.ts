@@ -6,13 +6,14 @@ import config from '../utils/config.utils';
 import { getRandomElement } from './common';
 import { TransactionReceipt } from '@rsksmart/rif-rollup-js-sdk/build/types';
 
-type PreparedWithdrawal = Parameters<RollupWallet['withdrawFromSyncToRootstock']>[number] & {
+type PreparedWithdrawal = Omit<Parameters<RollupWallet['withdrawFromSyncToRootstock']>, 'amount'>[number] & {
     amount: BigNumber;
     from: RollupWallet;
 };
 
 type WithdrawResult = {
     opL2Receipt: TransactionReceipt;
+    verifyReceipt: TransactionReceipt;
 };
 
 const prepareWithdrawal = (recipient: RollupWallet, amount?: BigNumber): PreparedWithdrawal => {
@@ -35,10 +36,10 @@ const generateWithdrawals = (numberOfWithdrawals: number, users: RollupWallet[])
     });
 };
 
-const executeWithdrawal = async (preparedWithdrawal: PreparedWithdrawal): Promise<Transaction> => {
-    console.log(`Withdrawing ${preparedWithdrawal.amount} RBTC from ${preparedWithdrawal.from.address()}`); // commented out to reduce noise (TODO: create more sophisticated logging)
-
-    return preparedWithdrawal.from.withdrawFromSyncToRootstock(preparedWithdrawal);
+const executeWithdrawal = async ({ from, ...preparedWithdrawal }: PreparedWithdrawal): Promise<Transaction> => {
+    // console.log(`Withdrawing ${preparedWithdrawal.amount} RBTC from ${from.address()}`);
+    // commented out to reduce noise (TODO: create more sophisticated logging)
+    return from.withdrawFromSyncToRootstock(preparedWithdrawal);
 };
 
 const executeWithdrawals = async (
@@ -51,18 +52,7 @@ const executeWithdrawals = async (
     const shouldSleep = (i: number) => preparedWithdrawals.length - 1 > i;
     for (const [i, preparedWithdrawal] of preparedWithdrawals.entries()) {
         process.stdout.write(`${i},`);
-        // console.log("🦆 ~ file: deposit.ts:68 ~ firstNonce + i:", nonceMap.get(preparedDeposit.from.address()))
-        transactions.push(
-            executeWithdrawal(preparedWithdrawal)
-                .then((tx) => {
-                    console.log(`Withdrawal #${i} submitted.`, tx.state);
-                    return tx;
-                })
-                .catch((e) => {
-                    console.error(`Withdrawal #${i} failed with: ${e}`);
-                    return e;
-                })
-        );
+        transactions.push(executeWithdrawal(preparedWithdrawal));
 
         shouldSleep(i) && (await sleep(delay));
     }
@@ -87,10 +77,11 @@ const resolveTransaction = async (executedTx: Transaction): Promise<WithdrawResu
         );
 
         return {
-            opL2Receipt: receipt
+            opL2Receipt: receipt,
+            verifyReceipt: verification
         };
     } catch (e) {
-        console.log(e);
+        console.error(e);
     }
 };
 

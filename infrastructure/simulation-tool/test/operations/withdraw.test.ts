@@ -18,21 +18,21 @@ use(sinonChai);
 describe('prepareWithdraw', () => {
     it('should return a withdraw parameters with amount between min and max', () => {
         const l2sender = sinon.createStubInstance(RollupWallet);
-        const deposit = prepareWithdrawal(l2sender);
+        const withdrawal = prepareWithdrawal(l2sender);
         const [minAmount, maxAmount] = config.weiLimits.deposit;
 
-        expect(deposit.amount.gte(minAmount)).to.be.true;
-        expect(deposit.amount.lt(maxAmount)).to.be.true;
+        expect(withdrawal.amount.gte(minAmount), 'greater than min').to.be.true;
+        expect(withdrawal.amount.lt(maxAmount), 'less than max').to.be.true;
     });
 
-    it('should return a deposit with token address set to zero', () => {
+    it('should return a withdraw with token set to "RBTC"', () => {
         const l2sender = sinon.createStubInstance(RollupWallet);
-        const deposit = prepareWithdrawal(l2sender);
+        const withdrawal = prepareWithdrawal(l2sender);
 
-        expect(deposit.token).to.eq('RBTC');
+        expect(withdrawal.token).to.eq('RBTC');
     });
 
-    it('should return a deposit with ethAddress set to the L1 address', () => {
+    it('should return a withdrawal with ethAddress set to the L1 address', () => {
         const l2sender = sinon.createStubInstance(RollupWallet);
         const { address: expectedAddress } = sinon.createStubInstance(EthersWallet);
         const withdrawal = prepareWithdrawal(l2sender);
@@ -42,11 +42,11 @@ describe('prepareWithdraw', () => {
 });
 
 describe('executeWithdraw', () => {
-    it('should execute deposit', async () => {
+    it('should execute withdrawal', async () => {
         const l2sender = sinon.createStubInstance(RollupWallet);
         l2sender.withdrawFromSyncToRootstock.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
         const withdrawal = prepareWithdrawal(l2sender);
-        const expectedParameters = { ...withdrawal };
+        const { from, ...expectedParameters } = withdrawal;
         await executeWithdrawal(withdrawal);
 
         expect(l2sender.withdrawFromSyncToRootstock).to.have.been.calledOnceWith(expectedParameters);
@@ -63,7 +63,7 @@ describe('executeWithdraw', () => {
 });
 
 describe('resolveTransaction', () => {
-    it('should return deposit result', async () => {
+    it('should return withdrawal result', async () => {
         const withdrawOp = sinon.createStubInstance(Transaction);
         const expectedL2Receipt = {
             block: {
@@ -107,7 +107,7 @@ describe('executeWithdrawals', () => {
         sleepStub.restore();
     });
 
-    it('should return executed deposits', async () => {
+    it('should return executed withdrawals', async () => {
         const numberOfWithdrawals = 10;
         const users = [...Array(5)].map(() => {
             const l2Wallet = sinon.createStubInstance(RollupWallet);
@@ -125,7 +125,7 @@ describe('executeWithdrawals', () => {
         sleepStub.restore();
     });
 
-    it('should delay between deposits', async () => {
+    it('should delay between withdrawals', async () => {
         const numberOfWithdrawals = 10;
         const users = [...Array(5)].map(() => {
             const l2Wallet = sinon.createStubInstance(RollupWallet);

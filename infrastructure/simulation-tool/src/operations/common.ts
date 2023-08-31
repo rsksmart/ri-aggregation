@@ -41,14 +41,14 @@ const ensureRollupFunds = async (amount: BigNumber, l2Wallet: RollupWallet) => {
 };
 
 const ensureRollupFundsFromRollup = async (
-    totalDepositAmount: BigNumber,
+    totalTransferAmount: BigNumber,
     from: RollupWallet,
     l2Wallet: RollupWallet
 ) => {
-    if (totalDepositAmount.gt(await l2Wallet.getBalance('RBTC'))) {
+    if (totalTransferAmount.gt(await l2Wallet.getBalance('RBTC'))) {
         const transfer = await from.syncTransfer({
             to: l2Wallet.address(),
-            amount: utils.closestGreaterOrEqPackableTransactionAmount(totalDepositAmount),
+            amount: utils.closestGreaterOrEqPackableTransactionAmount(totalTransferAmount),
             token: 'RBTC',
             nonce: 'committed'
         });
@@ -58,7 +58,7 @@ const ensureRollupFundsFromRollup = async (
 };
 
 const ensureL2AccountActivation = async (account: RollupWallet) => {
-    const isActive = await account.isSigningKeySet();
+    const isActive = (await account.isSigningKeySet()) && Boolean(await account.getAccountId());
     if (!isActive) {
         try {
             const res = await account.setSigningKey({

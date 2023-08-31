@@ -31,7 +31,7 @@ const depositToSelf = async (funderL2Wallet: RollupWallet, amount: BigNumber) =>
         amount
     });
 
-    return await promiseOfDeposit.awaitVerifyReceipt();
+    return await promiseOfDeposit.awaitReceipt();
 };
 
 const setupSimulation = async (): Promise<SimulationConfiguration> => {
