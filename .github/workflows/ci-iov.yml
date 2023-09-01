@@ -108,9 +108,10 @@ jobs:
           ci_run "grcov . --binary-path ./target/release/deps/ -s . -t cobertura --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o target/release/coverage/cobertura.xml"
           docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/cobertura.xml coverage.cobertura.xml
       
-      - name: Code Coverage Summary
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        if: always()
+      - uses: codecov/codecov-action@v3
         with:
-          filename: coverage.cobertura.xml
+          files: ./coverage.cobertura.xml 
+          flags: unit-tests
+          name: codecov-umbrella # optional
+          verbose: true # optional (default = false)
             
