@@ -1,4 +1,4 @@
-name: rif-rollup CI unit/integration tests
+name: Simulation tool tests
 on: 
   push:
     paths:

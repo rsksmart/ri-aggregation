@@ -1,4 +1,4 @@
-name: rif-rollup CI unit/integration tests
+name: Unit/integration tests
 on: 
   pull_request:
     types: [ready_for_review]
