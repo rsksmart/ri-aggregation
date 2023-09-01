@@ -19,7 +19,6 @@ type WithdrawResult = {
 const prepareWithdrawal = (recipient: RollupWallet, amount?: BigNumber): PreparedWithdrawal => {
     let [minAmount, maxAmount] = config.weiLimits.withdraw;
     const value = amount || utils.closestPackableTransactionAmount(getRandomBigNumber(minAmount, maxAmount));
-    console.log(`Preparing withdrawal of ${value} RBTC from ${recipient.address()}.`);
 
     return {
         ethAddress: recipient.address(),
@@ -68,17 +67,10 @@ const resolveTransaction = async (executedTx: Transaction): Promise<WithdrawResu
                 receipt.success ? 'added' : 'failed with: ' + receipt.failReason
             } in block #${receipt.block.blockNumber}.`
         );
-        console.log('Waiting for block verification ...');
-        const verification = await executedTx.awaitVerifyReceipt();
-        console.log(
-            `Verification of block #${verification.block.blockNumber} ${
-                verification.success ? 'successful' : 'failed with: ' + verification.failReason
-            }.`
-        );
 
         return {
             opL2Receipt: receipt,
-            verifyReceipt: verification
+            verifyReceipt: null
         };
     } catch (e) {
         console.error(e);

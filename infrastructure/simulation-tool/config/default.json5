@@ -7,7 +7,7 @@
   numberOfAccounts: 100,
   weiLimits: {
     deposit: [1, 1e5],
-    transferToNew: [1, 1e5],
+    transferToNew: [1e5, 1e7],
     transfer: [1e5, 1e7],
     withdraw: [1, 1e5],
   },

@@ -12,7 +12,7 @@ import { ensureL2AccountActivation, ensureRollupFunds, ensureRollupFundsFromRoll
 import { BigNumber, ethers } from 'ethers';
 
 const runSimulation = async ({ txCount, txDelay, walletGenerator, funderL2Wallet }: SimulationConfiguration) => {
-    const gasCost = ethers.utils.parseEther('0.001');
+    const gasCost = ethers.utils.parseEther('0.0001');
     const { numberOfAccounts } = config;
     console.log('Creating withdraw users from HD wallet ...');
     const users: RollupWallet[] = await generateWallets(numberOfAccounts - 1, walletGenerator);
@@ -47,7 +47,9 @@ const runSimulation = async ({ txCount, txDelay, walletGenerator, funderL2Wallet
     const executedTx: Transaction[] = await Promise.all(await executeWithdrawals(preparedWithdrawals, txDelay));
 
     console.log(`Executed ${executedTx.length} withdrawals`);
+    console.time('Withdrawals execution');
     await resolveWithdrawTransactions(executedTx);
+    console.timeEnd('Withdrawals execution');
 };
 
 export { runSimulation as runWithdrawSimulation };
