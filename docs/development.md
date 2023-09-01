@@ -181,6 +181,24 @@ zk test db
   **Note**. If you have compilation issues with `sqlx`, then make sure to run `zk up` before running the tests. Also, if
   you see some tests fail, you might need to call `zk db reset` and restart the tests.
 
+### Code coverage
+
+To measure code coverage of unit tests, just set the environment variable `CODE_COVERAGE` to `true`.
+```bash
+CODE_COVERAGE=true zk test prover
+```
+
+Code coverage is measured using the following tests:
+
+- `zk test witness-generator`
+- `zk test server-rust`
+- `zk test crypto-rust --no-circuit`
+
+Reports can be generated using [grcov](https://github.com/mozilla/grcov):
+```bash
+grcov . --binary-path ./target/release/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/release/coverage/html
+```
+
 ## Developing circuit
 
 - To generate proofs one must have the universal setup files (which are downloaded during the first initialization).
