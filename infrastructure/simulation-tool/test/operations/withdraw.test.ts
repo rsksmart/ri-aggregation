@@ -46,7 +46,8 @@ describe('executeWithdraw', () => {
         const l2sender = sinon.createStubInstance(RollupWallet);
         l2sender.withdrawFromSyncToRootstock.callsFake(() => Promise.resolve(sinon.createStubInstance(Transaction)));
         const withdrawal = prepareWithdrawal(l2sender);
-        const { from, ...expectedParameters } = withdrawal;
+        const expectedParameters = { ...withdrawal };
+        delete expectedParameters.from;
         await executeWithdrawal(withdrawal);
 
         expect(l2sender.withdrawFromSyncToRootstock).to.have.been.calledOnceWith(expectedParameters);
