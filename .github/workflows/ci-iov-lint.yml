@@ -1,4 +1,4 @@
-name: rif-rollup CI lint
+name: Lint
 on: [push]
   
 jobs:

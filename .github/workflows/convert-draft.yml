@@ -1,4 +1,4 @@
-name: rif-rollup Mark as draft
+name: Mark as draft
 on:
   pull_request_review:
     types: [submitted]
