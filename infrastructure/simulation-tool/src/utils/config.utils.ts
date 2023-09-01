@@ -14,6 +14,7 @@ type Config = {
         deposit: TxValueLimits;
         transferToNew: TxValueLimits;
         transfer: TxValueLimits;
+        withdraw: TxValueLimits;
     };
 };
 

@@ -1,5 +1,5 @@
-import { BigNumber, Signer } from 'ethers';
-import { Wallet as RollupWallet } from '@rsksmart/rif-rollup-js-sdk';
+import { BigNumber, Signer, constants } from 'ethers';
+import { Wallet as RollupWallet, utils } from '@rsksmart/rif-rollup-js-sdk';
 import { depositToSelf } from '../simulations/setup';
 
 const ensureL1Funds = (funder: Signer) => async (amount: BigNumber, account: Signer) => {
@@ -40,6 +40,38 @@ const ensureRollupFunds = async (amount: BigNumber, l2Wallet: RollupWallet) => {
     }
 };
 
+const ensureRollupFundsFromRollup = async (
+    totalTransferAmount: BigNumber,
+    from: RollupWallet,
+    l2Wallet: RollupWallet
+) => {
+    if (totalTransferAmount.gt(await l2Wallet.getBalance('RBTC'))) {
+        const transfer = await from.syncTransfer({
+            to: l2Wallet.address(),
+            amount: utils.closestGreaterOrEqPackableTransactionAmount(totalTransferAmount),
+            token: 'RBTC',
+            nonce: 'committed'
+        });
+
+        await transfer.awaitReceipt();
+    }
+};
+
+const ensureL2AccountActivation = async (account: RollupWallet) => {
+    const isActive = (await account.isSigningKeySet()) && Boolean(await account.getAccountId());
+    if (!isActive) {
+        try {
+            const res = await account.setSigningKey({
+                feeToken: constants.AddressZero,
+                ethAuthType: 'ECDSA'
+            });
+            await res.awaitReceipt();
+        } catch (e) {
+            console.log(`Error activating account ${await account.address()}: ${e.message}`);
+        }
+    }
+};
+
 const getRandomElement = <T>(array: T[]): T => array[Math.floor(Math.random() * array.length)];
 
-export { ensureRollupFunds, getRandomElement, ensureL1Funds };
+export { ensureRollupFunds, getRandomElement, ensureL1Funds, ensureL2AccountActivation, ensureRollupFundsFromRollup };

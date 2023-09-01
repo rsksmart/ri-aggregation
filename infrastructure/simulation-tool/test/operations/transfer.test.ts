@@ -24,7 +24,7 @@ describe('prepareTransfer', () => {
         const sender = sinon.createStubInstance(RollupWallet);
         const recipient = constants.AddressZero;
         const transfer = prepareTransfer(sender, recipient);
-        const [minAmount, maxAmount] = config.weiLimits.transferToNew;
+        const [minAmount, maxAmount] = config.weiLimits.transfer;
 
         expect(transfer.amount.gte(minAmount)).to.be.true;
         expect(transfer.amount.lt(maxAmount)).to.be.true;
