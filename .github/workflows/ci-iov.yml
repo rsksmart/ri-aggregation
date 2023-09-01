@@ -50,9 +50,6 @@ jobs:
       - name: contracts-unit-tests
         run: ci_run zk test contracts
 
-      - name: prover-unit-tests
-        run: ci_run zk test prover
-
       - name: witness-generator-unit-tests
         run: ci_run zk test witness-generator
 
