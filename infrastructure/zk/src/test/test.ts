@@ -29,7 +29,9 @@ export async function db(reset: boolean, ...args: string[]) {
     await runOnTestDb(
         reset,
         'core/lib/storage',
-        `${CODE_COVERAGE_ENABLED? CODE_COVERAGE_FLAGS : ''} cargo test --release -p zksync_storage --lib -- --ignored --nocapture --test-threads=1 
+        `${
+            CODE_COVERAGE_ENABLED ? CODE_COVERAGE_FLAGS : ''
+        } cargo test --release -p zksync_storage --lib -- --ignored --nocapture --test-threads=1 
         ${args.join(' ')}`
     );
 }
@@ -40,7 +42,9 @@ export async function rustApi(reset: boolean, ...args: string[]) {
     await runOnTestDb(
         reset,
         'core/bin/zksync_api',
-        `${CODE_COVERAGE_ENABLED? CODE_COVERAGE_FLAGS : ''} cargo test --release -p zksync_api --lib -- --ignored --nocapture --test-threads=1 api_server
+        `${
+            CODE_COVERAGE_ENABLED ? CODE_COVERAGE_FLAGS : ''
+        } cargo test --release -p zksync_api --lib -- --ignored --nocapture --test-threads=1 api_server
         ${args.join(' ')}`
     );
 }
@@ -51,17 +55,21 @@ export async function contracts() {
 
 export async function circuit(threads: number = 1, testName?: string, ...args: string[]) {
     await utils.spawn(
-        `${CODE_COVERAGE_ENABLED? CODE_COVERAGE_FLAGS : ''} cargo test --no-fail-fast --release -p zksync_circuit ${testName || ''}
+        `${CODE_COVERAGE_ENABLED ? CODE_COVERAGE_FLAGS : ''} cargo test --no-fail-fast --release -p zksync_circuit ${
+            testName || ''
+        }
          -- --ignored --test-threads ${threads} ${args.join(' ')}`
     );
 }
 
 export async function prover() {
-    await utils.spawn(`${CODE_COVERAGE_ENABLED? CODE_COVERAGE_FLAGS : ''} cargo test -p zksync_prover --release`);
+    await utils.spawn(`${CODE_COVERAGE_ENABLED ? CODE_COVERAGE_FLAGS : ''} cargo test -p zksync_prover --release`);
 }
 
 export async function witness_generator() {
-    await utils.spawn(`${CODE_COVERAGE_ENABLED? CODE_COVERAGE_FLAGS : ''} cargo test -p zksync_witness_generator --release`);
+    await utils.spawn(
+        `${CODE_COVERAGE_ENABLED ? CODE_COVERAGE_FLAGS : ''} cargo test -p zksync_witness_generator --release`
+    );
 }
 
 export async function js() {
@@ -70,19 +78,19 @@ export async function js() {
 
 async function rustCryptoTests() {
     process.chdir('sdk/zksync-crypto');
-    await utils.spawn(`${CODE_COVERAGE_ENABLED? CODE_COVERAGE_FLAGS : ''} cargo test --release`);
+    await utils.spawn(`${CODE_COVERAGE_ENABLED ? CODE_COVERAGE_FLAGS : ''} cargo test --release`);
     process.chdir(process.env.ZKSYNC_HOME as string);
 }
 
 export async function serverRust() {
-    await utils.spawn(`${CODE_COVERAGE_ENABLED? CODE_COVERAGE_FLAGS : ''} cargo test --release`);
+    await utils.spawn(`${CODE_COVERAGE_ENABLED ? CODE_COVERAGE_FLAGS : ''} cargo test --release`);
     await db(true);
     await rustApi(true);
     await prover();
 }
 
 export async function cryptoRust(runCircuit = true) {
-    if ( runCircuit) {
+    if (runCircuit) {
         await circuit(25);
     }
     await rustCryptoTests();

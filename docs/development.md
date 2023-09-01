@@ -184,6 +184,7 @@ zk test db
 ### Code coverage
 
 To measure code coverage of unit tests, just set the environment variable `CODE_COVERAGE` to `true`.
+
 ```bash
 CODE_COVERAGE=true zk test prover
 ```
@@ -195,6 +196,7 @@ Code coverage is measured using the following tests:
 - `zk test crypto-rust --no-circuit`
 
 Reports can be generated using [grcov](https://github.com/mozilla/grcov):
+
 ```bash
 grcov . --binary-path ./target/release/deps/ -s . -t html --branch --ignore-not-existing --ignore '../*' --ignore "/*" -o target/release/coverage/html
 ```
