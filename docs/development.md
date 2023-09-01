@@ -183,6 +183,13 @@ zk test db
 
 ### Code coverage
 
+**Note**. Code coverage measurement requires `grcov` and `llvm-tools-preview` to be installed.
+
+```bash
+cargo install grcov
+rustup component add llvm-tools-preview
+```
+
 To measure code coverage of unit tests, just set the environment variable `CODE_COVERAGE` to `true`.
 
 ```bash
