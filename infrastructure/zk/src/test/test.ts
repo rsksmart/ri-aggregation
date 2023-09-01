@@ -88,6 +88,11 @@ export async function rust() {
     await cryptoRust();
 }
 
+export async function walletGenerator() {
+    process.chdir('core/lib/wallet_creator');
+    await utils.spawn('cargo test');
+}
+
 export const command = new Command('test').description('run test suites').addCommand(integration.command);
 
 command.command('js').description('run unit-tests for javascript packages').action(js);
@@ -97,6 +102,10 @@ command.command('contracts').description('run unit-tests for the contracts').act
 command.command('rust').description('run unit-tests for all rust binaries and libraries').action(rust);
 command.command('server-rust').description('run unit-tests for server binaries and libraries').action(serverRust);
 command.command('crypto-rust').description('run unit-tests for rust crypto binaries and libraries').action(cryptoRust);
+command
+    .command('wallet-generator')
+    .description('run unit-tests for the wallet-generator library')
+    .action(walletGenerator);
 
 command
     .command('db')

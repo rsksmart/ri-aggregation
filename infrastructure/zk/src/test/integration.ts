@@ -97,6 +97,7 @@ export async function all() {
     await apiDocs();
     await withdrawalHelpers();
     await rustSDK();
+    await walletGenerator();
     // have to kill server before running data-restore
     await utils.spawn('killall zksync_server');
     await run.dataRestore.checkExisting();
@@ -187,6 +188,10 @@ export async function rustSDK() {
     await utils.spawn('cargo test -p zksync --release -- --ignored --test-threads=1');
 }
 
+export async function walletGenerator() {
+    await utils.spawn('cargo test -p rif_rollup_wallet_generator --release -- --ignored --test-threads=1');
+}
+
 export const command = new Command('integration').description('zksync integration tests').alias('i');
 
 command
@@ -227,6 +232,14 @@ command
     .option('--with-server')
     .action(async (cmd: Command) => {
         cmd.withServer ? await withServer(rustSDK, 1200) : await rustSDK();
+    });
+
+command
+    .command('wallet-generator')
+    .description('run wallet generator integration tests')
+    .option('--with-server')
+    .action(async (cmd: Command) => {
+        cmd.withServer ? await withServer(walletGenerator, 1200) : await walletGenerator();
     });
 
 command

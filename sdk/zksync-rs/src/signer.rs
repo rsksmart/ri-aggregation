@@ -75,6 +75,10 @@ impl<S: EthereumSigner> Signer<S> {
         self.account_id
     }
 
+    pub fn get_zk_private_key(&self) -> String {
+        self.private_key.0.to_string()
+    }
+
     pub async fn sign_change_pubkey_tx(
         &self,
         nonce: Nonce,

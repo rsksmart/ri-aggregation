@@ -8,6 +8,7 @@ import * as verifyKeys from './verify-keys';
 import * as eventListener from './event-listener';
 import * as dataRestore from './data-restore';
 import * as docker from '../docker';
+import * as walletGenerator from './generate-wallet';
 
 export { verifyKeys, dataRestore };
 
@@ -235,7 +236,8 @@ export const command = new Command('run')
     .description('run miscellaneous applications')
     .addCommand(verifyKeys.command)
     .addCommand(dataRestore.command)
-    .addCommand(eventListener.command);
+    .addCommand(eventListener.command)
+    .addCommand(walletGenerator.command);
 
 command.command('test-accounts').description('print rootstock test accounts').action(testAccounts);
 command.command('explorer').description('run zksync explorer locally').action(explorer);
