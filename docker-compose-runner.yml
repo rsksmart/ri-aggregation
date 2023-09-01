@@ -24,7 +24,7 @@ services:
       - ./etc/tokens/:/etc/tokens
 
   zk:
-    image: "rsksmart/rollup-environment:1.0.0-beta"
+    image: "rsksmart/rollup-environment:1.1.0-beta"
     depends_on:
       - postgres
       - rskj
@@ -42,3 +42,4 @@ services:
       - CI=1
       - CAROOT=/usr/src/zksync
       - NODE_EXTRA_CA_CERTS=/usr/src/zksync/rootCA.pem
+      - CODE_COVERAGE=true
