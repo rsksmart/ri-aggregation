@@ -105,7 +105,8 @@ jobs:
           ci_run cat server.log
           ci_run cat api.log
           ci_run cat dummy_prover.log
-          ci_run "grcov . --binary-path ./target/release/deps/ -s . -t cobertura --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o target/release/coverage/cobertura.xml"
+          ci_run mkdir -p ./target/release/coverage/
+          ci_run "grcov . --binary-path ./target/release/deps/ -s . -t cobertura --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o ./target/release/coverage/cobertura.xml"
           docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/cobertura.xml coverage.cobertura.xml
       
       - uses: codecov/codecov-action@v3
