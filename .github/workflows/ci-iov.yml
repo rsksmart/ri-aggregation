@@ -46,6 +46,10 @@ jobs:
 
       - name: restart dev-ticker
         run: docker-compose -f docker-compose-runner.yml restart dev-ticker
+      
+      # FIXME: to be removed
+      - name: prover-unit-tests
+        run: ci_run zk test prover
 
       - name: contracts-unit-tests
         run: ci_run zk test contracts
