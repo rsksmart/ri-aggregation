@@ -14,7 +14,9 @@ jobs:
             node-version: "16.x"
 
         - name: Use rust
-          run: rustup install 1.69.0
+          run: |
+            rustup install 1.69.0
+            rustup default 1.69.0
 
         - name: Toolchain info
           run: |
