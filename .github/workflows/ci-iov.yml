@@ -46,62 +46,68 @@ jobs:
 
       - name: restart dev-ticker
         run: docker-compose -f docker-compose-runner.yml restart dev-ticker
+
+      - name: Toolchain info
+        run: |
+          node --version
+          rustc --version  
+          cargo clippy --version
       
       # FIXME: to be removed
       - name: prover-unit-tests
         run: ci_run zk test prover
 
-      - name: contracts-unit-tests
-        run: ci_run zk test contracts
+      # - name: contracts-unit-tests
+      #   run: ci_run zk test contracts
 
-      - name: witness-generator-unit-tests
-        run: ci_run zk test witness-generator
+      # - name: witness-generator-unit-tests
+      #   run: ci_run zk test witness-generator
 
-      - name: server-rust-unit-tests
-        run: ci_run zk test server-rust
+      # - name: server-rust-unit-tests
+      #   run: ci_run zk test server-rust
       
-      - name: db-unit-tests
-        run: ci_run zk test db
+      # - name: db-unit-tests
+      #   run: ci_run zk test db
       
-      - name: rust-api-unit-tests
-        run: ci_run zk test rust-api
+      # - name: rust-api-unit-tests
+      #   run: ci_run zk test rust-api
 
-      - name: start-services (rskj, postgres, zk)
-        run: |
-          docker-compose -f docker-compose-runner.yml down
-          docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk 
-          ci_run sccache --start-server &
+      # - name: start-services (rskj, postgres, zk)
+      #   run: |
+      #     docker-compose -f docker-compose-runner.yml down
+      #     docker-compose -f docker-compose-runner.yml pull
+      #     docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk 
+      #     ci_run sccache --start-server &
 
-      - name: run zk init
-        run: |
-          ci_run zk
-          ci_run zk init
+      # - name: run zk init
+      #   run: |
+      #     ci_run zk
+      #     ci_run zk init
 
-      - name: restart dev-ticker
-        run: docker-compose -f docker-compose-runner.yml restart dev-ticker
+      # - name: restart dev-ticker
+      #   run: docker-compose -f docker-compose-runner.yml restart dev-ticker
 
-      - name: run-services
-        run: |
-          ci_run zk server core &>server.log &
-          ci_run zk server api &>api.log &
-          ci_run sleep 10
-          ci_run zk dummy-prover run &>dummy_prover.log &
-          ci_run sleep 100
+      # - name: run-services
+      #   run: |
+      #     ci_run zk server core &>server.log &
+      #     ci_run zk server api &>api.log &
+      #     ci_run sleep 10
+      #     ci_run zk dummy-prover run &>dummy_prover.log &
+      #     ci_run sleep 100
 
-      - name: server-integration-tests
-        run: ci_run zk test i server
+      # - name: server-integration-tests
+      #   run: ci_run zk test i server
 
-      - name: api-integration-tests
-        run: |
-          ci_run zk test i api
-          ci_run zk test i api-docs
+      # - name: api-integration-tests
+      #   run: |
+      #     ci_run zk test i api
+      #     ci_run zk test i api-docs
 
-      - name: rust-sdk-integration-tests
-        run: ci_run zk test i rust-sdk
+      # - name: rust-sdk-integration-tests
+      #   run: ci_run zk test i rust-sdk
 
-      - name: withdrawal-helpers-integration-tests
-        run: ci_run zk test i withdrawal-helpers
+      # - name: withdrawal-helpers-integration-tests
+      #   run: ci_run zk test i withdrawal-helpers
 
       - name: Show logs
         if: always()

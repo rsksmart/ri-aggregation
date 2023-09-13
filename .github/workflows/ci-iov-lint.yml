@@ -24,7 +24,7 @@ jobs:
           run: |
             node --version
             rustc --version  
-            cargo clippy --version      
+            cargo clippy --version 
 
         - name: setup-env
           run: |
