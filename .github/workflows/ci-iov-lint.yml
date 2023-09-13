@@ -18,6 +18,7 @@ jobs:
             rustup install 1.69.0
             rustup default 1.69.0
             rustup component add clippy
+            rustup component add rustfmt
 
         - name: Toolchain info
           run: |
