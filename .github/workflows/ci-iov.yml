@@ -50,8 +50,8 @@ jobs:
       - name: Toolchain info
         run: |
           node --version
-          rustc --version  
-          cargo clippy --version
+          ci_run rustc --version  
+          ci_run cargo clippy --version
       
       # FIXME: to be removed
       - name: prover-unit-tests
