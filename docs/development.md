@@ -190,7 +190,7 @@ cargo install grcov
 rustup component add llvm-tools-preview
 ```
 
-To measure code coverage of unit tests, just set the environment variable `CODE_COVERAGE` to `true`.
+To measure code coverage of unit tests, just set the environment variable `CODE_COVERAGE` to `true` or `1`.
 
 ```bash
 CODE_COVERAGE=true zk test prover
