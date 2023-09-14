@@ -204,7 +204,7 @@ async fn test_receiving_heartbeats() {
         &prover_name,
     )
     .fuse();
-    // FIXME: reset the timeout option
+    // We need to set an higher timeout value to avoid the test to fail
     let timeout = tokio::time::sleep(Duration::from_secs(30)).fuse();
 
     pin_mut!(prover_work_cycle, timeout);
