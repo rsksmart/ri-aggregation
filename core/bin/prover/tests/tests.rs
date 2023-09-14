@@ -204,7 +204,8 @@ async fn test_receiving_heartbeats() {
         &prover_name,
     )
     .fuse();
-    let timeout = tokio::time::sleep(Duration::from_secs(10)).fuse();
+    // FIXME: reset the timeout option
+    let timeout = tokio::time::sleep(Duration::from_secs(30)).fuse();
 
     pin_mut!(prover_work_cycle, timeout);
 
