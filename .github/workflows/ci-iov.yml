@@ -5,7 +5,8 @@ on:
   
 jobs:
   unit-integration-tests:
-    if: github.event.pull_request.draft == false
+    # FIXME:
+    # if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     
     steps:
