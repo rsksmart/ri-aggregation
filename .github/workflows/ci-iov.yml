@@ -117,13 +117,13 @@ jobs:
           # ci_run cat dummy_prover.log
         run: |
           ci_run mkdir -p ./target/release/coverage/
-          ci_run "grcov . --binary-path ./target/release/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o ./target/release/coverage/lcov.info"
-          docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/lcov.info lcov.info
-          du lcov.info
+          ci_run "grcov . --binary-path ./target/release/deps/ -s . -t cobertura --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o ./target/release/coverage/cobertura.xml"
+          docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/cobertura.xml coverage.cobertura.xml
+          du coverage.cobertura.xml
       
       - uses: codecov/codecov-action@v3
         with:
-          files: ./lcov.info
+          files: ./coverage.cobertura.xml
           flags: unit-tests
           name: codecov-umbrella # optional
           verbose: true # optional (default = false)
