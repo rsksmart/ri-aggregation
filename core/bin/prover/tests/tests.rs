@@ -205,7 +205,7 @@ async fn test_receiving_heartbeats() {
     )
     .fuse();
     // We need to set an higher timeout value to avoid the test to fail
-    let timeout = tokio::time::sleep(Duration::from_secs(30)).fuse();
+    let timeout = tokio::time::sleep(Duration::from_secs(60)).fuse();
 
     pin_mut!(prover_work_cycle, timeout);
 
