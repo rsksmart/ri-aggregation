@@ -111,10 +111,11 @@ jobs:
 
       - name: Show logs
         if: always()
+        # FIXME
+          # ci_run cat server.log
+          # ci_run cat api.log
+          # ci_run cat dummy_prover.log
         run: |
-          ci_run cat server.log
-          ci_run cat api.log
-          ci_run cat dummy_prover.log
           ci_run mkdir -p ./target/release/coverage/
           ci_run "grcov . --binary-path ./target/release/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o ./target/release/coverage/lcov.info"
           docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/lcov.info lcov.info
