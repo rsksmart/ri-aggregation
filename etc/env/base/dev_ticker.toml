@@ -2,3 +2,4 @@
 blacklisted_tokens="0x0000000000000000000000000000000000000001"
 default_volume=500
 regime="whitelist"
+proxy_cache_timout=5

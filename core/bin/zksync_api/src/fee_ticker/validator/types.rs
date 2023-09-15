@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 // --------- locally simplified Contract struct for retreiving market data only
@@ -23,4 +25,15 @@ pub struct AssetPlatform {
     pub chain_identifier: Option<i64>,
     pub name: String,
     pub shortname: String,
+}
+
+// ---------------------------------------------
+//  /coins/list
+// ---------------------------------------------
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CoinsListItem {
+    pub id: String,
+    pub symbol: String,
+    pub name: String,
+    pub platforms: Option<HashMap<String, Option<String>>>,
 }

@@ -9,6 +9,7 @@ pub struct DevTickerConfig {
     pub blacklisted_tokens: HashSet<String>,
     pub default_volume: u32,
     pub regime: Regime,
+    pub proxy_cache_timout: u16,
 }
 
 impl DevTickerConfig {
@@ -36,6 +37,7 @@ mod tests {
             blacklisted_tokens,
             default_volume: 500,
             regime: Regime::Whitelist,
+            proxy_cache_timout: 5,
         }
     }
 
@@ -46,6 +48,7 @@ DEV_TICKER_BLACKLISTED_TOKENS="0x6b175474e89094c44da98b954eedeac495271d0f"
 DEV_TICKER_BLACKLISTED_TOKENS="0x0000000000000000000000000000000000000001"
 DEV_TICKER_DEFAULT_VOLUME="500"
 DEV_TICKER_REGIME="whitelist"
+DEV_TICKER_PROXY_CACHE_TIMEOUT="5"
         "#;
         set_env(config);
 
