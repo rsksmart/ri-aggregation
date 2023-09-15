@@ -53,6 +53,9 @@ jobs:
           ci_run rustc --version  
           ci_run cargo clippy --version
 
+      - name: prover-unit-tests
+        run: ci_run zk test prover
+
       - name: contracts-unit-tests
         run: ci_run zk test contracts
 
@@ -114,6 +117,7 @@ jobs:
           ci_run mkdir -p ./target/release/coverage/
           ci_run "grcov . --binary-path ./target/release/deps/ -s . -t cobertura --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o ./target/release/coverage/cobertura.xml"
           docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/cobertura.xml coverage.cobertura.xml
+          du coverage.cobertura.xml
       
       - uses: codecov/codecov-action@v3
         with:
