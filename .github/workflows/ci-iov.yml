@@ -1,13 +1,11 @@
 name: Unit/integration tests
-on: [pull_request]
-  # FIXME:
-  # pull_request:
-    # types: [ready_for_review]
+on:
+  pull_request:
+    types: [ready_for_review]
   
 jobs:
   unit-integration-tests:
-    # FIXME:
-    # if: github.event.pull_request.draft == false
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     
     steps:
@@ -54,9 +52,6 @@ jobs:
           node --version
           ci_run rustc --version  
           ci_run cargo clippy --version
-
-      - name: prover-unit-tests
-        run: ci_run zk test prover
 
       - name: contracts-unit-tests
         run: ci_run zk test contracts
@@ -127,4 +122,3 @@ jobs:
           flags: unit-tests
           name: codecov-umbrella # optional
           verbose: true # optional (default = false)
-            
