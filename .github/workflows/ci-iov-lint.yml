@@ -1,4 +1,4 @@
-name: rif-rollup CI lint
+name: Lint
 on: [push]
   
 jobs:
@@ -14,13 +14,17 @@ jobs:
             node-version: "16.x"
 
         - name: Use rust
-          run: rustup install 1.69.0
+          run: |
+            rustup install 1.69.0
+            rustup default 1.69.0
+            rustup component add clippy
+            rustup component add rustfmt
 
         - name: Toolchain info
           run: |
             node --version
             rustc --version  
-            cargo clippy --version      
+            cargo clippy --version 
 
         - name: setup-env
           run: |

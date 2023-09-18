@@ -36,6 +36,10 @@ RUN chmod +x solc-static-linux
 RUN mv solc-static-linux /usr/local/bin/solc
 RUN apt-get install -y axel postgresql
 
+# Install tools used to measure code coverage
+RUN cargo install grcov
+RUN rustup component add llvm-tools-preview
+
 # Setup the environment
 ENV ZKSYNC_HOME=/usr/src/zksync
 ENV PATH="${ZKSYNC_HOME}/bin:${PATH}"

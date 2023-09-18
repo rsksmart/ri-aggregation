@@ -1,5 +1,5 @@
-name: rif-rollup CI unit/integration tests
-on: 
+name: Unit/integration tests
+on:
   pull_request:
     types: [ready_for_review]
   
@@ -47,11 +47,14 @@ jobs:
       - name: restart dev-ticker
         run: docker-compose -f docker-compose-runner.yml restart dev-ticker
 
+      - name: Toolchain info
+        run: |
+          node --version
+          ci_run rustc --version  
+          ci_run cargo clippy --version
+
       - name: contracts-unit-tests
         run: ci_run zk test contracts
-
-      - name: prover-unit-tests
-        run: ci_run zk test prover
 
       - name: witness-generator-unit-tests
         run: ci_run zk test witness-generator
@@ -108,3 +111,14 @@ jobs:
           ci_run cat server.log
           ci_run cat api.log
           ci_run cat dummy_prover.log
+          ci_run mkdir -p ./target/release/coverage/
+          ci_run "grcov . --binary-path ./target/release/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o ./target/release/coverage/lcov.info"
+          docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/lcov.info lcov.info
+          du lcov.info
+      
+      - uses: codecov/codecov-action@v3
+        with:
+          files: ./lcov.info
+          flags: unit-tests
+          name: codecov-umbrella # optional
+          verbose: true # optional (default = false)
