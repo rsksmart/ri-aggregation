@@ -20,6 +20,8 @@ use zksync_types::{Address, Token, TokenId, TokenLike, TokenPrice};
 // Local deps
 use crate::fee_ticker::PriceError;
 
+const TICKET_INFO_GET_LAST_TOKEN_PRICE: &str = "ticker_info.get_last_token_price";
+
 pub trait FeeTickerClone {
     fn clone_box(&self) -> Box<dyn FeeTickerInfo>;
 }
@@ -194,7 +196,16 @@ impl FeeTickerInfo for TickerInfo {
 
         // TODO: remove hardcode for RDOC token
         if token.symbol == "RDOC" {
-            metrics::histogram!("ticker_info.get_last_token_price", start.elapsed(), "type" => "RDOC");
+            metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => "RDOC");
+            return Ok(TokenPrice {
+                usd_price: Ratio::from_integer(1u32.into()),
+                last_updated: Utc::now(),
+            });
+        }
+
+        // TODO: remove hardcode for USDRIF token
+        if token.symbol == "USDRIF" {
+            metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => "USDRIF");
             return Ok(TokenPrice {
                 usd_price: Ratio::from_integer(1u32.into()),
                 last_updated: Utc::now(),
@@ -210,7 +221,7 @@ impl FeeTickerInfo for TickerInfo {
             return Ok(historical_price);
         }
 
-        metrics::histogram!("ticker_info.get_last_token_price", start.elapsed(), "type" => "error");
+        metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => "error");
         Err(PriceError::db_error("No price stored in database"))
     }
 
@@ -308,6 +319,23 @@ mod tests {
             .unwrap();
 
         assert_eq!(actual_quote.usd_price.to_u32().unwrap(), RDOC_VALUE);
+    }
+
+    #[tokio::test]
+    async fn should_return_one_for_usdrif() {
+        const USDRIF_SYMBOL: &str = "USDRIF";
+        const USDRIF_VALUE: u32 = 1;
+
+        let usdrif_token_like = TokenLike::Symbol(String::from(USDRIF_SYMBOL));
+
+        let connection_pool = ConnectionPool::new(Some(1));
+        let ticker_api = TickerInfo::new(connection_pool);
+
+        let actual_quote = FeeTickerInfo::get_last_token_price(&ticker_api, usdrif_token_like)
+            .await
+            .unwrap();
+
+        assert_eq!(actual_quote.usd_price.to_u32().unwrap(), USDRIF_VALUE);
     }
 
     #[tokio::test]
