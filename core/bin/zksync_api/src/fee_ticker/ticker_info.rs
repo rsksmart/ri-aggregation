@@ -194,22 +194,21 @@ impl FeeTickerInfo for TickerInfo {
             }
         };
 
+        let price_1_usd = TokenPrice {
+            usd_price: Ratio::from_integer(1u32.into()),
+            last_updated: Utc::now(),
+        };
+
         // TODO: remove hardcode for RDOC token
         if token.symbol == "RDOC" {
             metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => "RDOC");
-            return Ok(TokenPrice {
-                usd_price: Ratio::from_integer(1u32.into()),
-                last_updated: Utc::now(),
-            });
+            return Ok(price_1_usd);
         }
 
         // TODO: remove hardcode for USDRIF token
         if token.symbol == "USDRIF" {
             metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => "USDRIF");
-            return Ok(TokenPrice {
-                usd_price: Ratio::from_integer(1u32.into()),
-                last_updated: Utc::now(),
-            });
+            return Ok(price_1_usd);
         }
 
         let historical_price = self
