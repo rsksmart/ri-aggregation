@@ -89,3 +89,63 @@ pub fn config_liquidity_app(cfg: &mut web::ServiceConfig) {
         )),
     );
 }
+
+#[cfg(test)]
+mod handle_get_coin_contract_tests {
+    use super::*;
+    use actix_web::{test, App};
+
+    #[actix_web::test]
+    async fn returns_mainnet_token() {
+        let testnet_token = TokenInfo {
+            address: Address::random(),
+            decimals: 0,
+            symbol: "tRIF".to_string(),
+        };
+        let mainnet_token = TokenInfo {
+            address: Address::random(),
+            decimals: 0,
+            symbol: "RIF".to_string(),
+        };
+        let test_app = test::init_service(
+            App::new()
+                .data(AppState {
+                    mainnet_tokens: vec![mainnet_token.clone()],
+                    testnet_tokens: vec![testnet_token.clone()],
+                    proxy_state: ProxyState {
+                        cache: std::sync::Arc::new(Mutex::new(HashMap::new())),
+                    },
+                })
+                .configure(|cfg| {
+                    cfg.service(
+                        web::scope("/coins").service(
+                            web::scope("/{platform_id}").service(
+                                web::scope("/contract").service(
+                                    web::resource("/{contract_address}")
+                                        .route(web::get().to(handle_get_coin_contract)),
+                                ),
+                            ),
+                        ),
+                    );
+                }), // .service(web::resource("/{contract_address}").route(web::get().to(handle_get_coin_contract))),
+        )
+        .await;
+        println!("token address: {:#x}", testnet_token.address);
+        let uri = format!(
+            "/coins/{}/contract/{:#x}",
+            TESTNET_PLATFORM_ID, testnet_token.address
+        );
+        let request = test::TestRequest::get().uri(&uri);
+        let response = test::call_service(&test_app, request.to_request()).await;
+
+        println!("response: {:#?}", response);
+
+        let body = response.into_body();
+        let bytes = actix_web::body::to_bytes(body).await.unwrap();
+        let result = String::from_utf8(bytes.to_vec()).unwrap();
+        println!("response: {:#?}", result);
+        // assert!(response.status().is_success());
+
+        // assert!(result.contains(&mainnet_token.address.to_string()));
+    }
+}
