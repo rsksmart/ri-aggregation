@@ -407,7 +407,7 @@ impl RootstockAccount {
     ) -> Result<ETHExecResult, anyhow::Error> {
         let data = self.main_contract_eth_client.encode_tx_data(
             "executeBlocks",
-            execute_operation.get_eth_tx_args().as_slice(),
+            execute_operation.get_eth_tx_args(false).as_slice(),
         );
 
         let signed_tx = self

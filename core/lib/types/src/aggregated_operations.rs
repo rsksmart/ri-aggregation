@@ -118,9 +118,7 @@ impl BlocksExecuteOperation {
         Token::Tuple(vec![stored_block, processable_ops_pubdata])
     }
 
-    pub fn get_eth_tx_args(&self) -> Vec<Token> {
-        // Does not make automatic withdrawals in execute operation
-        let complete_withdrawals = Token::Bool(false);
+    pub fn get_eth_tx_args(&self, complete_withdrawals: bool) -> Vec<Token> {
         vec![
             Token::Array(
                 self.blocks
@@ -128,7 +126,7 @@ impl BlocksExecuteOperation {
                     .map(BlocksExecuteOperation::get_eth_tx_args_for_block)
                     .collect(),
             ),
-            complete_withdrawals,
+            Token::Bool(complete_withdrawals),
         ]
     }
 

@@ -379,6 +379,7 @@ pub(crate) async fn default_eth_sender() -> ETHSender<MockDatabase> {
         Vec::new(),
         Vec::new(),
         default_eth_parameters(),
+        false,
     )
     .await
 }
@@ -393,6 +394,7 @@ pub(crate) async fn concurrent_eth_sender(max_txs_in_flight: u64) -> ETHSender<M
         Vec::new(),
         Vec::new(),
         default_eth_parameters(),
+        false,
     )
     .await
 }
@@ -413,6 +415,7 @@ pub(crate) async fn restored_eth_sender(
         aggregated_operations,
         unprocessed_operations,
         eth_parameters,
+        false,
     )
     .await
 }
@@ -424,6 +427,7 @@ async fn build_eth_sender(
     aggregated_operations: Vec<(i64, AggregatedOperation)>,
     unprocessed_operations: Vec<(i64, AggregatedOperation)>,
     eth_parameters: ETHParams,
+    complete_withdrawals: bool,
 ) -> ETHSender<MockDatabase> {
     let rootstock = RootstockGateway::Mock(MockEthereum::default());
     let db = MockDatabase::with_restorable_state(
@@ -442,6 +446,7 @@ async fn build_eth_sender(
             is_enabled: true,
             operator_commit_eth_addr: Default::default(),
             operator_private_key: Default::default(),
+            complete_withdrawals,
         },
         gas_price_limit: GasLimit {
             default: 1000,
@@ -452,6 +457,21 @@ async fn build_eth_sender(
     };
 
     ETHSender::new(options, db, rootstock).await
+}
+
+/// Helper method for configurable creation of `ETHSender`.
+pub(crate) async fn complete_withdrawals_eth_sender(
+    complete_withdrawals: bool,
+) -> ETHSender<MockDatabase> {
+    build_eth_sender(
+        1,
+        Vec::new(),
+        Vec::new(),
+        Vec::new(),
+        default_eth_parameters(),
+        complete_withdrawals,
+    )
+    .await
 }
 
 /// Behaves the same as `ETHSender::sign_new_tx`, but does not affect nonce.

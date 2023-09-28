@@ -24,6 +24,7 @@ pub struct ApiConfigData {
     gov_contract: Address,
     deposit_confirmations: u64,
     zksync_version: ZksyncVersion,
+    complete_withdrawals: bool,
     // TODO: server_version (ZKS-627)
 }
 
@@ -35,6 +36,7 @@ impl ApiConfigData {
             gov_contract: config.contracts.governance_addr,
             deposit_confirmations: config.eth_watch.confirmations_for_eth_event,
             zksync_version: ZksyncVersion::ContractV4,
+            complete_withdrawals: config.eth_sender.sender.complete_withdrawals,
         }
     }
 }

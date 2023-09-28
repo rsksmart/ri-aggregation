@@ -3,9 +3,9 @@ use std::time::Duration;
 // External uses
 use serde::Deserialize;
 // Workspace uses
-use zksync_types::{Address, H256};
+use zksync_types::{network::Network, Address, H256};
 // Local uses
-use crate::envy_load;
+use crate::{configs::chain::Eth, envy_load};
 
 /// Configuration for the Rootstock sender crate.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
@@ -18,8 +18,16 @@ pub struct ETHSenderConfig {
 
 impl ETHSenderConfig {
     pub fn from_env() -> Self {
+        let eth: Eth = envy_load!("eth", "CHAIN_ETH_");
+        let sender: Sender = envy_load!("eth_sender", "ETH_SENDER_SENDER_");
+
+        assert!(
+            !(sender.complete_withdrawals && eth.network == Network::Mainnet),
+            "The withdrawals cannot be automatic in mainnet"
+        );
+
         Self {
-            sender: envy_load!("eth_sender", "ETH_SENDER_SENDER_"),
+            sender,
             gas_price_limit: envy_load!(
                 "eth_sender.gas_price_limit",
                 "ETH_SENDER_GAS_PRICE_LIMIT_"
@@ -44,6 +52,8 @@ pub struct Sender {
     pub max_txs_in_flight: u64,
     /// Whether sender should interact with L1 or not.
     pub is_enabled: bool,
+    /// Automatic withdrawals in execute aggregated operation
+    pub complete_withdrawals: bool,
 }
 
 impl Sender {
@@ -94,6 +104,7 @@ mod tests {
                     "c1783a9a8222e47778911c58bb5aac1343eb425159ff140799e0a283bfb8fa16",
                 ),
                 operator_commit_eth_addr: addr("debe71e1de41fc77c44df4b6db940026e31b0e71"),
+                complete_withdrawals: false,
             },
             gas_price_limit: GasLimit {
                 default: 400000000000,
@@ -112,6 +123,7 @@ ETH_SENDER_SENDER_EXPECTED_WAIT_TIME_BLOCK="30"
 ETH_SENDER_SENDER_TX_POLL_PERIOD="3"
 ETH_SENDER_SENDER_MAX_TXS_IN_FLIGHT="3"
 ETH_SENDER_SENDER_IS_ENABLED="true"
+ETH_SENDER_SENDER_COMPLETE_WITHDRAWALS="false"
 ETH_SENDER_SENDER_OPERATOR_PRIVATE_KEY="0xc1783a9a8222e47778911c58bb5aac1343eb425159ff140799e0a283bfb8fa16"
 ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR="0xdebe71e1de41fc77c44df4b6db940026e31b0e71"
 ETH_SENDER_GAS_PRICE_LIMIT_DEFAULT="400000000000"
@@ -143,5 +155,28 @@ ETH_SENDER_GAS_PRICE_LIMIT_SCALE_FACTOR="1"
             config.gas_price_limit.sample_interval(),
             Duration::from_secs(config.gas_price_limit.sample_interval)
         );
+    }
+
+    #[test]
+    #[should_panic(expected = "The withdrawals cannot be automatic in mainnet")]
+    fn from_env_mainnet() {
+        let config = r#"
+ETH_SENDER_SENDER_WAIT_CONFIRMATIONS="1"
+ETH_SENDER_SENDER_EXPECTED_WAIT_TIME_BLOCK="30"
+ETH_SENDER_SENDER_TX_POLL_PERIOD="3"
+ETH_SENDER_SENDER_MAX_TXS_IN_FLIGHT="3"
+ETH_SENDER_SENDER_IS_ENABLED="true"
+ETH_SENDER_SENDER_COMPLETE_WITHDRAWALS="true"
+ETH_SENDER_SENDER_OPERATOR_PRIVATE_KEY="0xc1783a9a8222e47778911c58bb5aac1343eb425159ff140799e0a283bfb8fa16"
+ETH_SENDER_SENDER_OPERATOR_COMMIT_ETH_ADDR="0xdebe71e1de41fc77c44df4b6db940026e31b0e71"
+ETH_SENDER_GAS_PRICE_LIMIT_DEFAULT="400000000000"
+ETH_SENDER_GAS_PRICE_LIMIT_UPDATE_INTERVAL="150"
+ETH_SENDER_GAS_PRICE_LIMIT_SAMPLE_INTERVAL="15"
+ETH_SENDER_GAS_PRICE_LIMIT_SCALE_FACTOR="1"
+CHAIN_ETH_NETWORK="mainnet"
+        "#;
+        set_env(config);
+
+        ETHSenderConfig::from_env();
     }
 }

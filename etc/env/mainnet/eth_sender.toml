@@ -16,6 +16,8 @@ tx_poll_period=3
 max_txs_in_flight=1
 # Whether sender should interact with L1 or not.
 is_enabled=true
+# Automatic withdrawals in execute aggregated operation
+complete_withdrawals=false
 
 [eth_sender.gas_price_limit]
 # Gas price limit to be used by GasAdjuster until the statistics data is gathered.
