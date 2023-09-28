@@ -199,15 +199,9 @@ impl FeeTickerInfo for TickerInfo {
             last_updated: Utc::now(),
         };
 
-        // TODO: remove hardcode for RDOC token
-        if token.symbol == "RDOC" {
-            metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => "RDOC");
-            return Ok(price_1_usd);
-        }
-
-        // TODO: remove hardcode for USDRIF token
-        if token.symbol == "USDRIF" {
-            metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => "USDRIF");
+        // TODO: remove hardcode for tokens
+        if ["RDOC", "USDRIF"].contains(&token.symbol.as_str()) {
+            metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => token.symbol);
             return Ok(price_1_usd);
         }
 
