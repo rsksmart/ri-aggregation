@@ -29,7 +29,7 @@ export async function deployERC20(command: 'dev' | 'new', name?: string, symbol?
     if (command == 'dev') {
         await utils.spawn(`yarn --silent --cwd contracts deploy-erc20 add-multi '[
             { "name": "wBTC", "symbol": "wBTC", "decimals":  8, "implementation": "RevertTransferERC20" },
-            { "name": "RDOCs", "symbol": "RDOC", "decimals": 18 },
+            { "name": "RDOC", "symbol": "RDOC", "decimals": 18 },
             { "name": "USDRIF", "symbol": "USDRIF", "decimals": 18 },
             { "name": "RSK Infrastructure Framework", "symbol": "RIF", "decimals": 18  }
           ]' > ./etc/tokens/localhost.json`);
