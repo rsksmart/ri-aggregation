@@ -43,7 +43,6 @@ url="http://127.0.0.1:8080"
 port=3001
 use_https=false
 url="https://127.0.0.1:3001"
-chain_id=30
 
 # Configuration for the JSON RPC server
 [api.json_rpc]
@@ -59,6 +58,7 @@ ws_url="ws://127.0.0.1:3031"
 port=3002
 url="http://127.0.0.1:3002"
 max_block_range=10
+chain_id=30
 
 # Configuration for the core private server.
 [api.private]

@@ -5,7 +5,7 @@ use serde::Deserialize;
 // Workspace uses
 use zksync_types::{network::Network, Address, H256};
 // Local uses
-use crate::{configs::chain::Eth, envy_load};
+use crate::{configs::chain::Eth, envy_load, ETHClientConfig};
 
 /// Configuration for the Rootstock sender crate.
 #[derive(Debug, Deserialize, Clone, PartialEq)]
@@ -20,9 +20,11 @@ impl ETHSenderConfig {
     pub fn from_env() -> Self {
         let eth: Eth = envy_load!("eth", "CHAIN_ETH_");
         let sender: Sender = envy_load!("eth_sender", "ETH_SENDER_SENDER_");
+        let client: ETHClientConfig = envy_load!("eth_client", "ETH_CLIENT_");
 
         assert!(
-            !(sender.complete_withdrawals && eth.network == Network::Mainnet),
+            !(sender.complete_withdrawals
+                && (eth.network == Network::Mainnet || client.chain_id == 30)),
             "The withdrawals cannot be automatic in mainnet"
         );
 
@@ -130,6 +132,10 @@ ETH_SENDER_GAS_PRICE_LIMIT_DEFAULT="400000000000"
 ETH_SENDER_GAS_PRICE_LIMIT_UPDATE_INTERVAL="150"
 ETH_SENDER_GAS_PRICE_LIMIT_SAMPLE_INTERVAL="15"
 ETH_SENDER_GAS_PRICE_LIMIT_SCALE_FACTOR="1"
+CHAIN_ETH_NETWORK="mainnet"
+ETH_CLIENT_CHAIN_ID=30
+ETH_CLIENT_GAS_PRICE_FACTOR="1"
+ETH_CLIENT_WEB3_URL="http://127.0.0.1:4444"
         "#;
         set_env(config);
 
@@ -174,6 +180,9 @@ ETH_SENDER_GAS_PRICE_LIMIT_UPDATE_INTERVAL="150"
 ETH_SENDER_GAS_PRICE_LIMIT_SAMPLE_INTERVAL="15"
 ETH_SENDER_GAS_PRICE_LIMIT_SCALE_FACTOR="1"
 CHAIN_ETH_NETWORK="mainnet"
+ETH_CLIENT_CHAIN_ID=30
+ETH_CLIENT_GAS_PRICE_FACTOR="1"
+ETH_CLIENT_WEB3_URL="http://127.0.0.1:4444"
         "#;
         set_env(config);
 
