@@ -77,7 +77,7 @@ impl TokenPriceAPI for CoinGeckoAPI {
             .query(&[
                 ("vs_currency", "usd"),
                 ("days", "1"),
-                ("interval", "hourly"),
+                // Removed ("interval", "hourly"), parameter as hourly charts are only available to coingecko enterprice plan customers
             ])
             .send()
             .await
@@ -86,38 +86,12 @@ impl TokenPriceAPI for CoinGeckoAPI {
             .await
             .map_err(PriceError::api_error)?;
 
-        let last_updated_timestamp_ms = market_chart
+        let coin_gecko_token_price = market_chart
             .prices
             .last()
-            .ok_or_else(|| PriceError::api_error("CoinGecko returned empty price data"))?
-            .0;
-
-        // Take prices over the last 6 hours
-        let usd_prices = market_chart
-            .prices
-            .into_iter()
-            .rev()
-            .take(6)
-            .map(|token_price| token_price.1);
-
-        // We use max price for RBTC token because we spend RBTC with each commit and collect token
-        // so it is in our interest to assume highest price for RBTC.
-        // Theoretically we should use min and max price for RBTC in our ticker formula when we
-        // calculate fee for tx with RBTC token. Practically if we use only max price foe RBTC it is fine because
-        // we don't need to sell this token lnd price only affects ZKP cost of such tx which is negligible.
-        // For other tokens we use average price
-        let usd_price = if token.id.0 == 0 {
-            usd_prices.max()
-        } else {
-            let len = usd_prices.len();
-            if len == 0 {
-                None
-            } else {
-                Some(usd_prices.sum::<Ratio<BigUint>>() / BigUint::from(len))
-            }
-        };
-        let usd_price = usd_price
             .ok_or_else(|| PriceError::api_error("CoinGecko returned empty price data"))?;
+        let last_updated_timestamp_ms = &coin_gecko_token_price.0;
+        let usd_price = coin_gecko_token_price.1.clone();
 
         let naive_last_updated = NaiveDateTime::from_timestamp(
             last_updated_timestamp_ms / 1_000,                      // ms to s
