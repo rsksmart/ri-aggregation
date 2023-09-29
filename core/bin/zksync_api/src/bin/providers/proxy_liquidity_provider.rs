@@ -1,13 +1,13 @@
 use std::{collections::HashMap, fs::read_to_string, path::Path, str::FromStr};
 
-use actix_web::{web, HttpResponse, Result};
+use actix_web::{web, FromRequest, HttpResponse, Result};
 use tokio::sync::Mutex;
 use zksync_api::fee_ticker::CoinGeckoTypes::AssetPlatform;
 use zksync_config::ETHClientConfig;
 use zksync_types::{Address, TokenInfo};
 use zksync_utils::remove_prefix;
 
-use super::proxy_utils::{proxy_request, ProxyState, API_PATH, API_URL};
+use super::proxy_utils::{cache_proxy_request, ProxyState, API_PATH, API_URL};
 
 const TESTNET_PLATFORM_ID: &str = "testnet";
 const TESTNET_PLATFORM_NAME: &str = "Rootstock Testnet";
@@ -28,9 +28,16 @@ fn load_tokens(path: impl AsRef<Path>) -> Result<Vec<TokenInfo>, serde_json::Err
 }
 
 async fn handle_get_coin_contract(
-    path: web::Path<(String, String)>,
-    data: web::Data<AppState>,
+    reqest: web::HttpRequest,
+    // path: web::Path<(String, String)>,
+    // data: web::Data<AppState>,
 ) -> HttpResponse {
+    let data: &web::Data<AppState> = reqest.app_data().unwrap();
+    let query = reqest.query_string();
+    let path = web::Path::<(String, String)>::extract(&reqest)
+        .await
+        .unwrap();
+
     let (_, contract_address) = path.into_inner();
     let testnet_token_address = Address::from_str(remove_prefix(&contract_address)).unwrap();
 
@@ -51,18 +58,28 @@ async fn handle_get_coin_contract(
         None => None,
     };
 
-    let url = format!(
-        "{}{}/coins/{}/market_chart/{}",
-        API_URL,
-        API_PATH,
-        ROOTSTOCK_PLATFORM_ID,
-        match mainnet_token {
-            Some(token) => token.address,
-            None => testnet_token_address,
-        },
-    );
+    let query = reqest.query_string();
+    let forward_url = match query.is_empty() {
+        true => reqest.uri().to_string(),
+        false => format!(
+            "{}{}/coins/{}/market_chart/{}?{}",
+            API_URL,
+            API_PATH,
+            ROOTSTOCK_PLATFORM_ID,
+            match mainnet_token {
+                Some(token) => token.address,
+                None => testnet_token_address,
+            },
+            query
+        ),
+    };
 
-    proxy_request(&url, &data.proxy_state.cache).await
+    cache_proxy_request(
+        reqwest::Client::new(),
+        &forward_url,
+        &data.proxy_state.cache,
+    )
+    .await
 }
 
 struct AppState {
