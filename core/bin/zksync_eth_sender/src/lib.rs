@@ -772,7 +772,7 @@ impl<DB: DatabaseInterface> ETHSender<DB> {
                     .encode_tx_data("proveBlocks", args.as_slice())
             }
             AggregatedOperation::ExecuteBlocks(operation) => {
-                let args = operation.get_eth_tx_args();
+                let args = operation.get_eth_tx_args(self.options.sender.complete_withdrawals);
                 self.rootstock
                     .encode_tx_data("executeBlocks", args.as_slice())
             }

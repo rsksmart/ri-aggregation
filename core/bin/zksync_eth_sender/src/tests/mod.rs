@@ -1,7 +1,7 @@
 // Local uses
 use self::mock::{
-    concurrent_eth_sender, create_signed_tx, default_eth_parameters, default_eth_sender,
-    restored_eth_sender,
+    complete_withdrawals_eth_sender, concurrent_eth_sender, create_signed_tx,
+    default_eth_parameters, default_eth_sender, restored_eth_sender,
 };
 use super::{transactions::TxCheckOutcome, ETHSender, TxCheckMode};
 use web3::types::U64;
@@ -971,4 +971,34 @@ async fn concurrent_operations_order() {
             eth_sender.db.assert_confirmed(&tx).await;
         }
     }
+}
+
+#[tokio::test]
+async fn complete_withdrawals_true() {
+    let eth_sender = complete_withdrawals_eth_sender(true).await;
+
+    let operations_count = 1;
+    let execute_operations = &test_data::EXECUTE_BLOCKS_OPERATIONS[..operations_count];
+    let op = &execute_operations.first().unwrap().1;
+
+    let raw_tx = eth_sender.operation_to_raw_tx(op);
+
+    let complete_withdrawals = raw_tx[..64].last().unwrap();
+
+    assert!(*complete_withdrawals == 1);
+}
+
+#[tokio::test]
+async fn complete_withdrawals_false() {
+    let eth_sender = complete_withdrawals_eth_sender(false).await;
+
+    let operations_count = 1;
+    let execute_operations = &test_data::EXECUTE_BLOCKS_OPERATIONS[..operations_count];
+    let op = &execute_operations.first().unwrap().1;
+
+    let raw_tx = eth_sender.operation_to_raw_tx(op);
+
+    let complete_withdrawals = raw_tx[..64].last().unwrap();
+
+    assert!(*complete_withdrawals == 0);
 }
