@@ -33,7 +33,6 @@ async fn handle_get_coin_contract(
     // data: web::Data<AppState>,
 ) -> HttpResponse {
     let data: &web::Data<AppState> = reqest.app_data().unwrap();
-    let query = reqest.query_string();
     let path = web::Path::<(String, String)>::extract(&reqest)
         .await
         .unwrap();
@@ -75,7 +74,7 @@ async fn handle_get_coin_contract(
     };
 
     cache_proxy_request(
-        reqwest::Client::new(),
+        &reqwest::Client::new(),
         &forward_url,
         &data.proxy_state.cache,
     )
@@ -126,7 +125,7 @@ mod handle_get_coin_contract_tests {
         };
         let test_app = test::init_service(
             App::new()
-                .data(AppState {
+                .app_data(AppState {
                     mainnet_tokens: vec![mainnet_token.clone()],
                     testnet_tokens: vec![testnet_token.clone()],
                     proxy_state: ProxyState {
