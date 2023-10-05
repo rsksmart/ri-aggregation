@@ -3,17 +3,17 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 // --------- locally simplified Contract struct for retreiving market data only
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, PartialEq)]
 pub struct TotalVolumeSimplified {
     pub usd: Option<f64>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, PartialEq)]
 pub struct MarketDataSimplified {
     pub total_volume: TotalVolumeSimplified,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, PartialEq)]
 pub struct ContractSimplified {
     pub liquidity_score: f64,
     pub market_data: MarketDataSimplified,

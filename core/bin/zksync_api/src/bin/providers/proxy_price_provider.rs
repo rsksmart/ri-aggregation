@@ -1,14 +1,17 @@
 use std::collections::HashMap;
 use tokio::sync::Mutex;
 
-use actix_web::{web, HttpRequest, HttpResponse, Scope};
+use actix_web::{
+    web::{self, Data},
+    HttpRequest, HttpResponse, Scope,
+};
 use zksync_api::fee_ticker::CoinGeckoTypes::CoinsListItem;
 
-use super::proxy_utils::{cache_proxy_request, ProxyState, API_PATH, API_URL};
+use super::proxy_utils::{cache_proxy_request, HttpClient, ProxyState, API_PATH, API_URL};
 
 const RIF_TOKEN_TESTNET_ADDRESS: &str = "0x19f64674D8a5b4e652319F5e239EFd3bc969a1FE";
 
-async fn fetch_coins_list(_: web::Data<ProxyState>, _: web::Path<(bool,)>) -> HttpResponse {
+async fn fetch_coins_list(_: web::Data<AppState>, _: web::Path<(bool,)>) -> HttpResponse {
     let rootstock_platform: HashMap<String, Option<String>> = vec![(
         "rootstock".to_string(),
         Some(RIF_TOKEN_TESTNET_ADDRESS.to_string()),
@@ -33,7 +36,7 @@ async fn fetch_coins_list(_: web::Data<ProxyState>, _: web::Path<(bool,)>) -> Ht
 }
 
 async fn fetch_market_chart(reqest: HttpRequest) -> HttpResponse {
-    let data: &web::Data<ProxyState> = reqest.app_data().unwrap();
+    let data: &web::Data<AppState> = reqest.app_data().unwrap();
     let query = reqest.query_string();
     let path = reqest.path().to_string();
     let forward_url = match query.is_empty() {
@@ -41,12 +44,20 @@ async fn fetch_market_chart(reqest: HttpRequest) -> HttpResponse {
         false => format!("{}{}/{}?{}", API_URL, API_PATH, path, query),
     };
 
-    cache_proxy_request(&reqwest::Client::new(), &forward_url, &data.cache).await
+    cache_proxy_request(&*data.proxy_client, &forward_url, &data.proxy_state.cache).await
+}
+
+struct AppState {
+    proxy_state: ProxyState,
+    proxy_client: Box<dyn HttpClient>,
 }
 
 pub(crate) fn create_price_service() -> Scope {
-    let shared_data = web::Data::new(ProxyState {
-        cache: std::sync::Arc::new(Mutex::new(HashMap::new())),
+    let shared_data: Data<AppState> = web::Data::new(AppState {
+        proxy_state: ProxyState {
+            cache: std::sync::Arc::new(Mutex::new(HashMap::new())),
+        },
+        proxy_client: Box::new(reqwest::Client::new()),
     });
 
     web::scope(API_PATH)

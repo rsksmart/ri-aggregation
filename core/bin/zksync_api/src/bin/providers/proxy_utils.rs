@@ -41,7 +41,7 @@ impl HttpClient for reqwest::Client {
     }
 }
 
-pub(crate) async fn cache_proxy_request<C: HttpClient>(
+pub(crate) async fn cache_proxy_request<C: HttpClient + ?Sized>(
     client: &C,
     url: &str,
     cache: &Mutex<HashMap<String, ResponseCache<Value>>>,
@@ -78,52 +78,10 @@ pub(crate) async fn cache_proxy_request<C: HttpClient>(
 
 #[cfg(test)]
 mod proxy_request_tests {
+    use crate::providers::test_utils::{FakeBody, FakeHttpClient};
+
     use super::*;
     use actix_web::web::Bytes;
-    use reqwest::{Error, Response};
-    use std::sync::atomic::{AtomicBool, Ordering};
-
-    type ResponseGenerator = dyn Fn(&str) -> Result<Response, Error> + Send + Sync;
-
-    struct FakeHttpClient {
-        called: Arc<AtomicBool>,
-        response_generator: Box<ResponseGenerator>,
-    }
-
-    #[async_trait::async_trait]
-    impl HttpClient for FakeHttpClient {
-        async fn get(&self, url: &str) -> Result<Response, Error> {
-            self.called.store(true, Ordering::Relaxed);
-
-            (self.response_generator)(url)
-        }
-    }
-
-    impl Default for FakeHttpClient {
-        fn default() -> Self {
-            Self {
-                called: Default::default(),
-                response_generator: Box::new(|url| {
-                    let body = json!({ "called_url": url}).to_string();
-
-                    Ok(Response::from(hyper::Response::new(hyper::Body::from(
-                        body,
-                    ))))
-                }),
-            }
-        }
-    }
-
-    impl FakeHttpClient {
-        fn was_called(&self) -> bool {
-            self.called.load(Ordering::Relaxed)
-        }
-    }
-
-    #[derive(Debug, PartialEq, serde::Deserialize)]
-    struct FakeBody {
-        called_url: String,
-    }
 
     #[actix_web::test]
     async fn calls_given_url() {

@@ -7,7 +7,7 @@ use zksync_config::ETHClientConfig;
 use zksync_types::{Address, TokenInfo};
 use zksync_utils::remove_prefix;
 
-use super::proxy_utils::{cache_proxy_request, ProxyState, API_PATH, API_URL};
+use super::proxy_utils::{cache_proxy_request, HttpClient, ProxyState, API_PATH, API_URL};
 
 const TESTNET_PLATFORM_ID: &str = "testnet";
 const TESTNET_PLATFORM_NAME: &str = "Rootstock Testnet";
@@ -27,11 +27,7 @@ fn load_tokens(path: impl AsRef<Path>) -> Result<Vec<TokenInfo>, serde_json::Err
     serde_json::from_str(&read_to_string(path).unwrap())
 }
 
-async fn handle_get_coin_contract(
-    reqest: web::HttpRequest,
-    // path: web::Path<(String, String)>,
-    // data: web::Data<AppState>,
-) -> HttpResponse {
+async fn handle_get_coin_contract(reqest: web::HttpRequest) -> HttpResponse {
     let data: &web::Data<AppState> = reqest.app_data().unwrap();
     let path = web::Path::<(String, String)>::extract(&reqest)
         .await
@@ -61,7 +57,7 @@ async fn handle_get_coin_contract(
     let forward_url = match query.is_empty() {
         true => reqest.uri().to_string(),
         false => format!(
-            "{}{}/coins/{}/market_chart/{}?{}",
+            "{}{}/coins/{}/contract/{}?{}",
             API_URL,
             API_PATH,
             ROOTSTOCK_PLATFORM_ID,
@@ -73,18 +69,14 @@ async fn handle_get_coin_contract(
         ),
     };
 
-    cache_proxy_request(
-        &reqwest::Client::new(),
-        &forward_url,
-        &data.proxy_state.cache,
-    )
-    .await
+    cache_proxy_request(&*data.proxy_client, &forward_url, &data.proxy_state.cache).await
 }
 
 struct AppState {
     mainnet_tokens: Vec<TokenInfo>,
     testnet_tokens: Vec<TokenInfo>,
     proxy_state: ProxyState,
+    proxy_client: Box<dyn HttpClient>,
 }
 
 pub fn config_liquidity_app(cfg: &mut web::ServiceConfig) {
@@ -94,6 +86,7 @@ pub fn config_liquidity_app(cfg: &mut web::ServiceConfig) {
         proxy_state: ProxyState {
             cache: std::sync::Arc::new(Mutex::new(HashMap::new())),
         },
+        proxy_client: Box::new(reqwest::Client::new()),
     };
     cfg.app_data(web::Data::new(shared_data));
     cfg.service(web::resource("/asset_platforms").route(web::get().to(handle_get_asset_platforms)));
@@ -109,7 +102,11 @@ pub fn config_liquidity_app(cfg: &mut web::ServiceConfig) {
 #[cfg(test)]
 mod handle_get_coin_contract_tests {
     use super::*;
+    use crate::providers::test_utils::FakeHttpClient;
     use actix_web::{test, App};
+    use zksync_api::fee_ticker::CoinGeckoTypes::{
+        ContractSimplified, MarketDataSimplified, TotalVolumeSimplified,
+    };
 
     #[actix_web::test]
     async fn returns_mainnet_token() {
@@ -123,14 +120,45 @@ mod handle_get_coin_contract_tests {
             decimals: 0,
             symbol: "RIF".to_string(),
         };
+
+        let expected_uri = format!(
+            "/coins/{}/contract/{:#x}",
+            TESTNET_PLATFORM_ID, testnet_token.address
+        );
+
+        let request = test::TestRequest::get().uri(&expected_uri.clone());
+        let http_client_stub = FakeHttpClient::from_generator(Box::new(move |url| {
+            if url.eq(&expected_uri) {
+                let contract = ContractSimplified {
+                    liquidity_score: 666.6,
+                    market_data: MarketDataSimplified {
+                        total_volume: TotalVolumeSimplified { usd: Some(999.9) },
+                    },
+                };
+
+                return Ok(reqwest::Response::from(hyper::Response::new(
+                    hyper::Body::from(serde_json::to_string(&contract).unwrap()),
+                )));
+            }
+
+            Err(
+                reqwest::blocking::Response::from(hyper::Response::new("{}"))
+                    .error_for_status()
+                    .unwrap_err(),
+            )
+        }));
+
         let test_app = test::init_service(
+            #[allow(deprecated)]
+            // Allowed deprecated .data function as .app_data is not working inside the test service
             App::new()
-                .app_data(AppState {
+                .data(AppState {
                     mainnet_tokens: vec![mainnet_token.clone()],
                     testnet_tokens: vec![testnet_token.clone()],
                     proxy_state: ProxyState {
                         cache: std::sync::Arc::new(Mutex::new(HashMap::new())),
                     },
+                    proxy_client: Box::new(http_client_stub),
                 })
                 .configure(|cfg| {
                     cfg.service(
@@ -143,25 +171,32 @@ mod handle_get_coin_contract_tests {
                             ),
                         ),
                     );
-                }), // .service(web::resource("/{contract_address}").route(web::get().to(handle_get_coin_contract))),
+                })
+                .service(
+                    web::resource("/{contract_address}")
+                        .route(web::get().to(handle_get_coin_contract)),
+                ),
         )
         .await;
-        println!("token address: {:#x}", testnet_token.address);
-        let uri = format!(
-            "/coins/{}/contract/{:#x}",
-            TESTNET_PLATFORM_ID, testnet_token.address
-        );
-        let request = test::TestRequest::get().uri(&uri);
-        let response = test::call_service(&test_app, request.to_request()).await;
 
-        println!("response: {:#?}", response);
+        let response = test::call_service(&test_app, request.to_request()).await;
+        assert!(response.status().is_success());
 
         let body = response.into_body();
         let bytes = actix_web::body::to_bytes(body).await.unwrap();
         let result = String::from_utf8(bytes.to_vec()).unwrap();
-        println!("response: {:#?}", result);
-        // assert!(response.status().is_success());
 
-        // assert!(result.contains(&mainnet_token.address.to_string()));
+        let ContractSimplified {
+            liquidity_score,
+            market_data,
+        } = serde_json::from_str(&result).unwrap();
+
+        assert_eq!(liquidity_score, 666.6);
+        assert_eq!(
+            market_data,
+            MarketDataSimplified {
+                total_volume: TotalVolumeSimplified { usd: Some(999.9) }
+            }
+        );
     }
 }
