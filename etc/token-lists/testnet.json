@@ -10,6 +10,12 @@
       "decimals": 18,
       "symbol": "rDOC",
       "name": "rDOC"
+    },
+    {
+      "address": "0x8dbf326e12a9ff37ed6ddf75ada548c2640a6482",
+      "decimals": 18,
+      "symbol": "USDRIF",
+      "name": "RIF US Dollar"
     }
   ]
   
