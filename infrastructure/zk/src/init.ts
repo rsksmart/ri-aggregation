@@ -53,7 +53,7 @@ async function createVolumes() {
 
 export const initCommand = new Command('init')
     .description('perform zksync network initialization for development')
-    .option('--no-crypto', 'not include sdk packages')
+    .option('--no-crypto', 'not include crypto packages')
     .option('--with-docker', 'use docker container instead of local environment')
     .action(async (cmd: Command) => {
         const { crypto, withDocker } = cmd;

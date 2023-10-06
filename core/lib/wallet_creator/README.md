@@ -44,7 +44,7 @@ zk test i wallet-generator
 
 Or to do it manually:
 
-Navigate to `ri-aggregation/core/lib/wallet_creator` and run:
+Navigate to `./core/lib/wallet_creator` and run:
 
 Unit tests
 
