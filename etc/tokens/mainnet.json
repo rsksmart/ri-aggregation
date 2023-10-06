@@ -10,5 +10,11 @@
         "decimals": 18,
         "symbol": "RDOC",
         "name": "RIF Dollar on Chain"
+    },
+    {
+        "address": "0x3A15461d8AE0f0Fb5fA2629e9dA7D66A794a6E37",
+        "decimals": 18,
+        "symbol": "USDRIF",
+        "name": "RIF US Dollar"
     }
 ]
