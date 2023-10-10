@@ -33,7 +33,7 @@ impl Default for FakeHttpClient {
         Self {
             called: Default::default(),
             response_generator: Box::new(|url| {
-                let body = json!({ "called_url": url}).to_string();
+                let body = json!({ "called_url": url }).to_string();
 
                 Ok(Response::from(hyper::Response::new(hyper::Body::from(
                     body,

@@ -57,7 +57,7 @@ pub(crate) async fn cache_proxy_request<C: HttpClient + ?Sized>(
     }
 
     // Fetch data if not in cache or stale
-    match client.get(url.clone()).await {
+    match client.get(url).await {
         Ok(response) => match response.json::<Value>().await {
             Ok(data) => {
                 // Cache the fetched data

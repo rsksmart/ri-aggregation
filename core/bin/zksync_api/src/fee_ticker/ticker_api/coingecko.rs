@@ -78,6 +78,7 @@ impl TokenPriceAPI for CoinGeckoAPI {
                 ("vs_currency", "usd"),
                 ("days", "1"),
                 // Removed ("interval", "hourly"), parameter as hourly charts are only available to coingecko enterprice plan customers
+                // The default interval is daily
             ])
             .send()
             .await
