@@ -36,9 +36,6 @@ async function dockerCommand(command: 'push' | 'build', image: string, tag: stri
 }
 
 async function _build(image: string, tag: string) {
-    if (image == 'nginx') {
-        await utils.spawn('yarn explorer build');
-    }
     if (image == 'server' || image == 'prover') {
         await contract.build();
     }

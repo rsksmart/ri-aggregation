@@ -83,7 +83,6 @@ This section provides an overview on folders / sub-projects that exist in this r
 - `/docker`: Dockerfiles used for development of zkSync and for packaging zkSync for a production environment.
 - `/etc`: Configration files.
   - `/env`: `.env` files that contain environment variables for different configuration of zkSync Server / Prover.
-  - `/js`: Configuration files for JavaScript applications (such as Explorer).
   - `/tokens`: Configuration of supported Rootstock ERC-20 tokens.
 - `/infrastructure`: Application that aren't naturally a part of zkSync core, but are related to it.
 - `/keys`: Verification keys for `circuit` module.
