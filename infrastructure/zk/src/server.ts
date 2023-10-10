@@ -4,8 +4,10 @@ import * as env from './env';
 import fs from 'fs';
 import * as db from './db/db';
 import * as docker from './docker';
+import * as forcedExit from './run/forced-exit';
 
 export async function core(withDocker = false) {
+    await prepareForcedExitAccountRequest();
     if (withDocker) {
         await docker.deployUp('server-core');
         return;
@@ -37,12 +39,22 @@ export async function apiNode(withDocker = false) {
 }
 
 export async function server(withDocker = false) {
+    await prepareForcedExitAccountRequest();
     if (withDocker) {
         await docker.deployUp('server');
         return;
     }
 
-    await utils.spawn('cargo run --bin zksync_server --release');
+    await utils.spawn('cargo run --bin zksync_server --release&');
+}
+
+async function prepareForcedExitAccountRequest() {
+    if (process.env.ZKSYNC_ENV === 'dev') {
+        const address = '0x09a1eda29f664ac8f68106f6567276df0c65d859';
+        const privateKey = '0x082f57b8084286a079aeb9f2d0e17e565ced44a2cb9ce4844e6d4b9d89f3f595';
+        const amount = '0.001';
+        await forcedExit.depositToForcedExitSenderAccount(address, privateKey, amount);
+    }
 }
 
 export async function genesis(withDocker = false) {

@@ -143,10 +143,6 @@ export async function revertReason(txHash: string, web3url?: string) {
     await utils.spawn(`yarn contracts ts-node scripts/revert-reason.ts ${txHash} ${web3url || ''}`);
 }
 
-export async function explorer() {
-    await utils.spawn('yarn explorer serve');
-}
-
 export async function exitProof(...args: string[]) {
     await utils.spawn(`cargo run --example generate_exit_proof --release -- ${args.join(' ')}`);
 }
@@ -245,7 +241,6 @@ export const command = new Command('run')
     .addCommand(forcedExit.command);
 
 command.command('test-accounts').description('print rootstock test accounts').action(testAccounts);
-command.command('explorer').description('run zksync explorer locally').action(explorer);
 command
     .command('yarn')
     .description('install all JS dependencies')
