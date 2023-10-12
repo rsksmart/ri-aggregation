@@ -44,5 +44,5 @@ RUN rustup component add llvm-tools-preview
 ENV ZKSYNC_HOME=/usr/src/zksync
 ENV PATH="${ZKSYNC_HOME}/bin:${PATH}"
 ENV CI=0
-RUN cargo install sccache
+RUN cargo install sccache --locked
 ENV RUSTC_WRAPPER=/usr/local/cargo/bin/sccache

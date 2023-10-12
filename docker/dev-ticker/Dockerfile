@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:experimental
 FROM rust:1.69 as builder
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    cargo install sccache --no-default-features
+    cargo install sccache --no-default-features --locked
 WORKDIR /usr/src/rollup
 COPY . .
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
