@@ -38,13 +38,10 @@ async fn fetch_coins_list() -> HttpResponse {
 }
 
 async fn fetch_market_chart(request: HttpRequest) -> HttpResponse {
-    println!("fetch_market_chart started");
     let data: &web::Data<ProxyState> = request.app_data().unwrap();
     let query = request.query_string();
     let path = request.path().to_string();
     let forward_url = format!("{}{}?{}", API_URL, path, query);
-
-    println!("fetch_market_chart, before cache_proxy_request");
 
     cache_proxy_request(&reqwest::Client::new(), &forward_url, &data.cache).await
 }
@@ -85,7 +82,6 @@ mod fetch_market_chart_tests {
             .uri("/api/v3/coins/rif-token/market_chart?vs_currency=usd&days=1")
             .to_request();
         let response = test::call_service(&test_app, req).await;
-        println!("{:?}", response);
         assert!(response.status().is_success());
 
         let body = response.into_body();
