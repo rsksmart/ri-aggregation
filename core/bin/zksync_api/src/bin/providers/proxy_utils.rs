@@ -9,8 +9,10 @@ use actix_web::{web::Json, HttpResponse};
 use serde_json::{json, Value};
 use zksync_config::DevTickerConfig;
 
-pub(crate) const API_URL: &str = "https://api.coingecko.com"; // TODO: could be eventually added to the config files
-pub(crate) const API_PATH: &str = "/api/v3"; // TODO: could be eventually added to the config files
+// TODO: could be eventually added to the config files
+pub(crate) const API_URL: &str = "https://api.coingecko.com";
+// TODO: could be eventually added to the config files
+pub(crate) const API_PATH: &str = "/api/v3";
 
 #[derive(Debug)]
 pub(crate) struct ResponseCache<T> {
@@ -52,14 +54,19 @@ pub(crate) async fn cache_proxy_request<C: HttpClient + ?Sized>(
         if cached.last_fetched.elapsed()
             < Duration::from_secs(DevTickerConfig::from_env().proxy_cache_timout as u64)
         {
+            vlog::info!("Cached value: VALID, key {}", url);
             return HttpResponse::Ok().json(&cached.data);
         }
+        vlog::info!("Cached value: EXPIRED, key: {}", url);
     }
+
+    vlog::info!("Cached value not found or expired, fetching from {}", url);
 
     // Fetch data if not in cache or stale
     match client.get(url).await {
         Ok(response) => match response.json::<Value>().await {
             Ok(data) => {
+                vlog::info!("Inserting data into cache with key {}", url.to_string());
                 // Cache the fetched data
                 lock.insert(
                     url.to_string(),
@@ -68,6 +75,7 @@ pub(crate) async fn cache_proxy_request<C: HttpClient + ?Sized>(
                         last_fetched: Instant::now(),
                     },
                 );
+                vlog::info!("Inserted data into cache. Cache length {}", lock.len());
                 HttpResponse::Ok().json(data)
             }
             Err(err) => proxy_request_error(url, err),

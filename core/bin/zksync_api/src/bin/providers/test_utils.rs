@@ -44,12 +44,6 @@ impl Default for FakeHttpClient {
 }
 
 impl FakeHttpClient {
-    pub(crate) fn from_generator(response_generator: Box<ResponseGenerator>) -> Self {
-        Self {
-            response_generator,
-            ..Default::default()
-        }
-    }
 
     pub(crate) fn was_called(&self) -> bool {
         self.called.load(Ordering::Relaxed)

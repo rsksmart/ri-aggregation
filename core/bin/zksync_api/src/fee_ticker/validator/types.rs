@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
+use num::{rational::Ratio, BigUint};
 use serde::{Deserialize, Serialize};
+use zksync_utils::UnsignedRatioSerializeAsDecimal;
 
 // --------- locally simplified Contract struct for retreiving market data only
 #[derive(Serialize, Deserialize, Debug, Default, PartialEq)]
@@ -36,4 +38,16 @@ pub struct CoinsListItem {
     pub symbol: String,
     pub name: String,
     pub platforms: Option<HashMap<String, Option<String>>>,
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CoinGeckoTokenPrice(
+    pub i64, // timestamp (milliseconds)
+    #[serde(with = "UnsignedRatioSerializeAsDecimal")] pub Ratio<BigUint>, // price
+);
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CoinGeckoMarketChart {
+    pub prices: Vec<CoinGeckoTokenPrice>,
 }

@@ -1,16 +1,14 @@
 use super::{TokenPriceAPI, REQUEST_TIMEOUT};
-use crate::fee_ticker::ticker_api::PriceError;
+use crate::fee_ticker::{ticker_api::PriceError, CoinGeckoTypes::CoinGeckoMarketChart};
 use async_trait::async_trait;
 use chrono::{DateTime, NaiveDateTime, Utc};
-use num::rational::Ratio;
-use num::BigUint;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::time::Instant;
 use zksync_types::{Address, Token, TokenPrice};
-use zksync_utils::{remove_prefix, UnsignedRatioSerializeAsDecimal};
+use zksync_utils::remove_prefix;
 
 #[derive(Debug, Clone)]
 pub struct CoinGeckoAPI {
@@ -116,17 +114,6 @@ pub struct CoinGeckoTokenInfo {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CoinGeckoTokenList(pub Vec<CoinGeckoTokenInfo>);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CoinGeckoTokenPrice(
-    pub i64, // timestamp (milliseconds)
-    #[serde(with = "UnsignedRatioSerializeAsDecimal")] pub Ratio<BigUint>, // price
-);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct CoinGeckoMarketChart {
-    pub(crate) prices: Vec<CoinGeckoTokenPrice>,
-}
 
 #[cfg(test)]
 mod tests {
