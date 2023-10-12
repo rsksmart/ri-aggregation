@@ -71,11 +71,14 @@ pub(crate) fn config_liquidity_app() -> Scope {
     web::scope("")
         .service(web::resource("/asset_platforms").route(web::get().to(handle_get_asset_platforms)))
         .service(
-            web::scope("/coins").service(web::scope("/{platform_id}").service(
-                web::scope("/contract").service(
-                    web::resource("/{contract_address}").route(web::get().to(handle_get_coin_contract)),
+            web::scope("/coins").service(
+                web::scope("/{platform_id}").service(
+                    web::scope("/contract").service(
+                        web::resource("/{contract_address}")
+                            .route(web::get().to(handle_get_coin_contract)),
+                    ),
                 ),
-            )),
+            ),
         )
 }
 
@@ -143,8 +146,13 @@ mod handle_get_coin_contract_tests {
             market_data,
         } = serde_json::from_str(&result).unwrap();
 
-        assert!(liquidity_score > 0.0, "Liquidity score is not greater than 0");
-        assert!(market_data.total_volume.usd.is_some() && market_data.total_volume.usd.unwrap() > 0.0, "Total volume in USD is not greater than 0");
-
+        assert!(
+            liquidity_score > 0.0,
+            "Liquidity score is not greater than 0"
+        );
+        assert!(
+            market_data.total_volume.usd.is_some() && market_data.total_volume.usd.unwrap() > 0.0,
+            "Total volume in USD is not greater than 0"
+        );
     }
 }

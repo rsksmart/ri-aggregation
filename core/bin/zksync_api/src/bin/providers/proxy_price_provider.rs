@@ -87,19 +87,15 @@ mod fetch_market_chart_tests {
         let response = test::call_service(&test_app, req).await;
         println!("{:?}", response);
         assert!(response.status().is_success());
-        
+
         let body = response.into_body();
         let bytes = actix_web::body::to_bytes(body).await.unwrap();
         let result = String::from_utf8(bytes.to_vec()).unwrap();
 
-        let CoinGeckoMarketChart {
-            prices,
-        } = serde_json::from_str(&result).unwrap();
+        let CoinGeckoMarketChart { prices } = serde_json::from_str(&result).unwrap();
 
         assert!(!prices.is_empty(), "No prices returned");
     }
-
-    
 }
 
 #[cfg(test)]

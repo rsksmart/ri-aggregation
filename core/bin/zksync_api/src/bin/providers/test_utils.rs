@@ -44,7 +44,6 @@ impl Default for FakeHttpClient {
 }
 
 impl FakeHttpClient {
-
     pub(crate) fn was_called(&self) -> bool {
         self.called.load(Ordering::Relaxed)
     }

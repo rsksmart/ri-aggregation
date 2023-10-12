@@ -1,14 +1,19 @@
 use actix_cors::Cors;
-use actix_web::{middleware, App, HttpServer, web};
+use actix_web::{middleware, web, App, HttpServer};
 use providers::{
-    dev_liquidity_provider, dev_price_provider, proxy_liquidity_provider, proxy_price_provider, proxy_utils::ProxyState,
+    dev_liquidity_provider, dev_price_provider, proxy_liquidity_provider, proxy_price_provider,
+    proxy_utils::ProxyState,
+};
+use std::{
+    collections::HashMap,
+    fs::read_to_string,
+    path::{Path, PathBuf},
 };
 use structopt::StructOpt;
+use tokio::sync::Mutex;
 use zksync_config::ZkSyncConfig;
 use zksync_types::{network::Network, TokenInfo};
-use tokio::sync::Mutex;
 use zksync_utils::parse_env;
-use std::{collections::HashMap, fs::read_to_string, path::{Path, PathBuf}};
 
 mod providers;
 
@@ -22,7 +27,6 @@ struct FeeTickerOpts {
     #[structopt(long)]
     sloppy: bool,
 }
-
 
 fn load_tokens(path: impl AsRef<Path>) -> Result<Vec<TokenInfo>, serde_json::Error> {
     let mut full_path = parse_env::<PathBuf>("ZKSYNC_HOME");

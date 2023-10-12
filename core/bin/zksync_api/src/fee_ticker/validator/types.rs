@@ -40,7 +40,6 @@ pub struct CoinsListItem {
     pub platforms: Option<HashMap<String, Option<String>>>,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CoinGeckoTokenPrice(
     pub i64, // timestamp (milliseconds)
