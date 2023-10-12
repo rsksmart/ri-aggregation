@@ -53,8 +53,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Cors::default().send_wildcard().max_age(3600))
             .wrap(middleware::Logger::default());
         match network {
-            // FIXME: remove localhost
-            Network::Localhost | Network::Testnet => base_app
+            Network::Testnet => base_app
                 .app_data(shared_data.clone())
                 .service(proxy_price_provider::create_price_service())
                 .service(proxy_liquidity_provider::config_liquidity_app()),
