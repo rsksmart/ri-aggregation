@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import fetch from 'node-fetch';
-import { BigNumber, BigNumberish, ethers } from 'ethers';
+import { BigNumber, BigNumberish, ethers, providers } from 'ethers';
 import * as utils from '../utils';
 
 type State = {
@@ -81,7 +81,7 @@ async function processJsonRpcRequest(nodeUrl: string, forcedExitAccount: string)
 async function prepareForcedExitSenderAccount(
     l1Address: string,
     privateKey: string,
-    amount: string,
+    amount: string | undefined,
     nodeUrl: string,
     nodeType: string
 ): Promise<void> {
@@ -92,28 +92,29 @@ async function prepareForcedExitSenderAccount(
     await depositToForcedExitSenderAccount(l1Address, privateKey, amount);
 }
 
-export async function depositToForcedExitSenderAccount(l1Address: string, privateKey: string, amount: string) {
+export async function depositToForcedExitSenderAccount(l1Address?: string, privateKey?: string, amount = '0.0001') {
     console.log('Depositing to the forced exit sender account sender');
 
-    const provider = new ethers.providers.JsonRpcProvider(
-        process.env.FORCED_EXIT_REQUESTS_WEB3_URL ?? process.env.ETH_CLIENT_WEB3_URL
-    );
-    const wallet = new ethers.Wallet(privateKey, provider);
+    const parsedAmount = ethers.utils.parseEther(amount);
 
-    if (l1Address.toLowerCase() !== wallet.address.toLowerCase()) {
-        console.log('L1 address does not match the provided private key');
+    const signer = await retrieveSigner(parsedAmount, l1Address, privateKey);
+
+    if (!signer) {
+        console.log('Must provide an L1 address and L1 private key that matches');
         return;
     }
 
     const mainZkSyncContract = new ethers.Contract(
         process.env.CONTRACTS_CONTRACT_ADDR as string,
         await utils.readZkSyncAbi(),
-        wallet
+        signer
     );
 
     const forcedExitAccount = process.env.FORCED_EXIT_REQUESTS_SENDER_ACCOUNT_ADDRESS as string;
+    const gasPrice = await signer.getGasPrice();
     const depositTransaction = (await mainZkSyncContract.depositRBTC(forcedExitAccount, {
-        value: ethers.utils.parseEther(amount)
+        value: parsedAmount,
+        gasPrice
     })) as ethers.ContractTransaction;
 
     console.log(`Deposit transaction hash: ${depositTransaction.hash}`);
@@ -121,6 +122,57 @@ export async function depositToForcedExitSenderAccount(l1Address: string, privat
     await depositTransaction.wait();
 
     console.log('Deposit to the forced exit sender account has been successfully completed');
+}
+
+async function retrieveSigner(
+    amount: BigNumberish,
+    l1Address?: string,
+    privateKey?: string
+): Promise<ethers.Signer | undefined> {
+    const provider = new providers.JsonRpcProvider(
+        process.env.FORCED_EXIT_REQUESTS_WEB3_URL ?? process.env.ETH_CLIENT_WEB3_URL
+    );
+
+    let signer: ethers.Signer | undefined;
+    if (l1Address && privateKey) {
+        signer = new ethers.Wallet(privateKey, provider);
+
+        const address = await signer.getAddress();
+
+        if (l1Address.toLowerCase() !== address.toLowerCase()) {
+            console.log('L1 address does not match the provided private key');
+            return undefined;
+        }
+    }
+
+    if (!signer && process.env.ZKSYNC_ENV === 'dev') {
+        signer = await findWealthyAccount(amount, provider);
+    }
+
+    return signer;
+}
+
+async function findWealthyAccount(
+    requiredBalance: BigNumberish,
+    provider: providers.JsonRpcProvider
+): Promise<ethers.Signer | undefined> {
+    let accounts: string[] = [];
+    try {
+        accounts = await provider.listAccounts();
+
+        for (let i = accounts.length - 1; i >= 0; i--) {
+            const signer = provider.getSigner(i);
+            const balance = await signer.getBalance();
+            if (balance.gte(requiredBalance)) {
+                console.log(`Found funded account ${await signer.getAddress()}`);
+
+                return signer;
+            }
+        }
+    } catch (error) {
+        console.log('Failed to retrieve accounts and balances:', error);
+    }
+    console.log(`could not find unlocked account with sufficient balance; all accounts:\n - ${accounts.join('\n - ')}`);
 }
 
 export const command = new Command('forced-exit')
@@ -141,12 +193,15 @@ command
 command
     .command('prepare')
     .description('deposit to forced exit sender account if necessary')
-    .arguments('<l1Address>')
-    .arguments('<privateKey>')
-    .arguments('[amount]')
-    .action(async (l1Address: string, privateKey: string, amount = '0.0001', cmd: Command) => {
+    .requiredOption('--address <l1Address>', 'L1 address')
+    .requiredOption('-p, --privateKey <privateKey>', 'Private key of the L1 address')
+    .option('--amount <amount>', 'Amount of RBTC to deposit (default: 0.0001')
+    .action(async (cmd: Command) => {
         const {
+            address,
+            privateKey,
+            amount,
             parent: { nodeUrl, nodeType }
         } = cmd;
-        await prepareForcedExitSenderAccount(l1Address, privateKey, amount, nodeUrl, nodeType);
+        await prepareForcedExitSenderAccount(address, privateKey, amount, nodeUrl, nodeType);
     });
