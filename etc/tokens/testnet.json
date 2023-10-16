@@ -2,13 +2,13 @@
     {
         "address": "0x19f64674D8a5b4e652319F5e239EFd3bc969a1FE",
         "decimals": 18,
-        "symbol": "RIF",
+        "symbol": "TRIF",
         "name": "RSK Infrastructure Framework"
     },
     {
         "address": "0xC3De9f38581F83e281F260D0ddBAac0E102Ff9F8",
         "decimals": 18,
-        "symbol": "rDOC",
+        "symbol": "RDOC",
         "name": "RIF Dollar on Chain"
     },
     {
