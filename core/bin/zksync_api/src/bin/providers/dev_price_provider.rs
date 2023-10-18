@@ -5,7 +5,7 @@
 
 use actix_web::{web, HttpRequest, HttpResponse, Result};
 use bigdecimal::BigDecimal;
-use chrono::{Utc, SecondsFormat};
+use chrono::{SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{collections::HashMap, fs::read_to_string, path::Path};
@@ -88,7 +88,6 @@ async fn handle_coinmarketcap_token_price_query(
     vlog::info!("1.0 {} = {} USD", query.symbol, price);
     Ok(HttpResponse::Ok().json(resp))
 }
-
 
 #[derive(Debug, Deserialize)]
 struct Token {
@@ -201,7 +200,10 @@ pub fn create_price_service(sloppy_mode: bool) -> actix_web::Scope {
                 "/cryptocurrency/quotes/latest",
                 web::get().to(handle_coinmarketcap_token_price_query),
             )
-            .route(format!("{}/coins/list", API_PATH).as_str(), web::get().to(handle_coingecko_token_list))
+            .route(
+                format!("{}/coins/list", API_PATH).as_str(),
+                web::get().to(handle_coingecko_token_list),
+            )
             .route(
                 format!("{}/coins/{{coin_id}}/market_chart", API_PATH).as_str(),
                 web::get().to(handle_coingecko_token_price_query),
