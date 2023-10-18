@@ -76,7 +76,7 @@ async function rustCryptoTests() {
 }
 
 export async function serverRust() {
-    await utils.spawn(`${CARGO_FLAGS} cargo test --release`);
+    await utils.spawn(`${CARGO_FLAGS} cargo test --release -- --test-threads=1`);
     await db(true);
     await rustApi(true);
     await prover();
