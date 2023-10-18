@@ -5,7 +5,7 @@
 
 use actix_web::{web, HttpRequest, HttpResponse, Result};
 use bigdecimal::BigDecimal;
-use chrono::Utc;
+use chrono::{SecondsFormat, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::{collections::HashMap, fs::read_to_string, path::Path};
@@ -48,6 +48,45 @@ macro_rules! make_sloppy {
             resp
         }
     }};
+}
+
+async fn handle_coinmarketcap_token_price_query(
+    query: web::Query<CoinMarketCapTokenQuery>,
+    _data: web::Data<Vec<TokenData>>,
+) -> Result<HttpResponse> {
+    let symbol = query.symbol.clone();
+    let base_price = match symbol.as_str() {
+        "RBTC" => BigDecimal::from(1800),
+        "wBTC" => BigDecimal::from(9000),
+        // Even though these tokens have their base price equal to
+        // the default one, we still keep them here so that in the future it would
+        // be easier to change the default price without affecting the important tokens
+        "DAI" => BigDecimal::from(1),
+        "tGLM" => BigDecimal::from(1),
+        "GLM" => BigDecimal::from(1),
+
+        "RIF" => BigDecimal::try_from(0.053533).unwrap(),
+        _ => BigDecimal::from(1),
+    };
+    let random_multiplier = thread_rng().gen_range(0.9, 1.1);
+
+    let price = base_price * BigDecimal::try_from(random_multiplier).unwrap();
+
+    let last_updated = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
+    let resp = json!({
+        "data": {
+            symbol: {
+                "quote": {
+                    "USD": {
+                        "price": price.to_string(),
+                        "last_updated": last_updated
+                    }
+                }
+            }
+        }
+    });
+    vlog::info!("1.0 {} = {} USD", query.symbol, price);
+    Ok(HttpResponse::Ok().json(resp))
 }
 
 #[derive(Debug, Deserialize)]
@@ -140,22 +179,33 @@ pub fn create_price_service(sloppy_mode: bool) -> actix_web::Scope {
         .chain(testnet_tokens.into_iter())
         .collect();
     if sloppy_mode {
-        web::scope(API_PATH)
+        web::scope("")
             .app_data(web::Data::new(data))
             .route(
-                "/coins/list",
+                "/cryptocurrency/quotes/latest",
+                web::get().to(make_sloppy!(handle_coinmarketcap_token_price_query)),
+            )
+            .route(
+                format!("{}/coins/list", API_PATH).as_str(),
                 web::get().to(make_sloppy!(handle_coingecko_token_list)),
             )
             .route(
-                "/coins/{coin_id}/market_chart",
+                format!("{}/coins/{{coin_id}}/market_chart", API_PATH).as_str(),
                 web::get().to(make_sloppy!(handle_coingecko_token_price_query)),
             )
     } else {
-        web::scope(API_PATH)
+        web::scope("")
             .app_data(web::Data::new(data))
-            .route("/coins/list", web::get().to(handle_coingecko_token_list))
             .route(
-                "/coins/{coin_id}/market_chart",
+                "/cryptocurrency/quotes/latest",
+                web::get().to(handle_coinmarketcap_token_price_query),
+            )
+            .route(
+                format!("{}/coins/list", API_PATH).as_str(),
+                web::get().to(handle_coingecko_token_list),
+            )
+            .route(
+                format!("{}/coins/{{coin_id}}/market_chart", API_PATH).as_str(),
                 web::get().to(handle_coingecko_token_price_query),
             )
     }
