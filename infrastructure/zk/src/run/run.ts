@@ -9,6 +9,7 @@ import * as eventListener from './event-listener';
 import * as dataRestore from './data-restore';
 import * as docker from '../docker';
 import * as walletGenerator from './generate-wallet';
+import * as forcedExit from './forced-exit';
 
 export { verifyKeys, dataRestore };
 
@@ -96,7 +97,7 @@ export async function tokenInfo(address: string) {
 }
 
 // installs all dependencies and builds our js packages
-export async function yarn(crypto = true) {
+export async function yarn(crypto: boolean) {
     await utils.spawn('yarn');
     if (crypto) {
         await utils.spawn('yarn build:crypto');
@@ -140,10 +141,6 @@ export async function plonkSetup(powers?: number[]) {
 
 export async function revertReason(txHash: string, web3url?: string) {
     await utils.spawn(`yarn contracts ts-node scripts/revert-reason.ts ${txHash} ${web3url || ''}`);
-}
-
-export async function explorer() {
-    await utils.spawn('yarn explorer serve');
 }
 
 export async function exitProof(...args: string[]) {
@@ -240,17 +237,17 @@ export const command = new Command('run')
     .addCommand(verifyKeys.command)
     .addCommand(dataRestore.command)
     .addCommand(eventListener.command)
-    .addCommand(walletGenerator.command);
+    .addCommand(walletGenerator.command)
+    .addCommand(forcedExit.command);
 
 command.command('test-accounts').description('print rootstock test accounts').action(testAccounts);
-command.command('explorer').description('run zksync explorer locally').action(explorer);
 command
     .command('yarn')
     .description('install all JS dependencies')
-    .option('--no-sdk', 'not include sdk packages')
+    .option('--no-crypto', 'not include crypto packages')
     .action(async (cmd: Command) => {
-        const { sdk } = cmd;
-        await yarn(!!sdk);
+        const { crypto } = cmd;
+        await yarn(!!crypto);
     });
 command.command('test-upgrade <main_contract> <gatekeeper_contract>').action(testUpgrade);
 command.command('cat-logs [exit_code]').description('print server and prover logs').action(catLogs);

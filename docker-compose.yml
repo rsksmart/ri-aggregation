@@ -35,8 +35,9 @@ services:
       start_period: 15s
   
   dev-ticker:
-    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
+    image: "rsksmart/rollup-dev-ticker:1.1.0-beta"
     env_file:
+      - ./etc/env/${ZKSYNC_ENV-dev}.env
       - ./etc/env/${ENV_OVERRIDE-deploy}.env
     ports:
       - "9876:9876"

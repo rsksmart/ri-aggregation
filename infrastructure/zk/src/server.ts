@@ -4,12 +4,10 @@ import * as env from './env';
 import fs from 'fs';
 import * as db from './db/db';
 import * as docker from './docker';
-
-import { ethers } from 'ethers';
+import * as forcedExit from './run/forced-exit';
 
 export async function core(withDocker = false) {
-    prepareForcedExitRequestAccount();
-
+    forcedExit.depositToForcedExitSenderAccount();
     if (withDocker) {
         await docker.deployUp('server-core');
         return;
@@ -41,11 +39,7 @@ export async function apiNode(withDocker = false) {
 }
 
 export async function server(withDocker = false) {
-    // By the time this function is run the server is most likely not be running yet
-    // However, it does not matter, since the only thing the function does is depositing
-    // to the forced exit sender account, and server should be capable of recognizing
-    // priority operaitons that happened before it was booted
-    prepareForcedExitRequestAccount();
+    forcedExit.depositToForcedExitSenderAccount();
     if (withDocker) {
         await docker.deployUp('server');
         return;
@@ -77,64 +71,6 @@ export async function genesis(withDocker = false) {
     fs.copyFileSync('genesis.log', `logs/${label}/genesis.log`);
     env.modify('CONTRACTS_GENESIS_ROOT', genesisRoot);
     env.modify_contracts_toml('CONTRACTS_GENESIS_ROOT', genesisRoot);
-}
-
-// This functions deposits funds onto the forced exit sender account
-// This is needed to make sure that it has the account id
-async function prepareForcedExitRequestAccount() {
-    console.log('Depositing to the forced exit sender account');
-    const forcedExitAccount = process.env.FORCED_EXIT_REQUESTS_SENDER_ACCOUNT_ADDRESS as string;
-
-    const ethProvider = getEthProvider();
-
-    // This is the private key of the first test account ()
-    const ethRichWallet = new ethers.Wallet(
-        '0x20e4a6381bd3826a14f8da63653d94e7102b38eb5f929c7a94652f41fa7ba323',
-        ethProvider
-    );
-
-    const gasPrice = await ethProvider.getGasPrice();
-
-    const topupTransaction = await ethRichWallet.sendTransaction({
-        to: forcedExitAccount,
-        // The amount for deposit should be enough to send at least
-        // one transaction to retrieve the funds form the forced exit smart contract
-        value: ethers.utils.parseEther('100.0'),
-        gasPrice
-    });
-
-    await topupTransaction.wait();
-
-    const mainZkSyncContract = new ethers.Contract(
-        process.env.CONTRACTS_CONTRACT_ADDR as string,
-        await utils.readZkSyncAbi(),
-        ethRichWallet
-    );
-
-    const depositTransaction = (await mainZkSyncContract.depositRBTC(forcedExitAccount, {
-        // Here the amount to deposit does not really matter, as it is done purely
-        // to guarantee that the account exists in the network
-        value: ethers.utils.parseEther('1.0'),
-        gasLimit: ethers.BigNumber.from('200000'),
-        gasPrice
-    })) as ethers.ContractTransaction;
-
-    await depositTransaction.wait();
-
-    console.log('Deposit to the forced exit sender account has been successfully completed');
-}
-
-function getEthProvider() {
-    return new ethers.providers.JsonRpcProvider(
-        process.env.FORCED_EXIT_REQUESTS_WEB3_URL ?? process.env.ETH_CLIENT_WEB3_URL
-    );
-}
-
-async function testWeb3Network() {
-    const ethProvider = getEthProvider();
-
-    const network = await ethProvider.getNetwork();
-    console.log(`current network chain id ${network.chainId}`);
 }
 
 export const command = new Command('server')
@@ -178,8 +114,3 @@ command
         } = cmd;
         await core(withDocker);
     });
-
-command
-    .command('test-web3-network')
-    .description('test if web3 node can be reached to prepare the forced exit requests account')
-    .action(testWeb3Network);

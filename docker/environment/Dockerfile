@@ -26,6 +26,7 @@ ENV RUSTUP_HOME=/usr/local/rustup \
     PATH=/usr/local/cargo/bin:$PATH
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 RUN rustup install 1.69.0
+RUN rustup override set 1.69.0
 RUN cargo install diesel_cli  --version=1.4.0 --no-default-features --features postgres
 RUN cargo install --version=0.5.6 sqlx-cli
 RUN cargo install wasm-pack --git https://github.com/d3lm/wasm-pack --rev 713868b204f151acd1989c3f29ff9d3bc944c306
