@@ -51,9 +51,12 @@ services:
       - ./etc/env/${ENV_OVERRIDE-deploy}.env
 
   dev-ticker:
-    image: "rsksmart/rollup-dev-ticker:1.1.0-beta"
+    image: "rsksmart/rollup-dev-ticker:1.1.1-beta"
     env_file:
+      - ./etc/env/${ZKSYNC_ENV-dev}.env
       - ./etc/env/${ENV_OVERRIDE-deploy}.env
+    environment:
+      - ZKSYNC_HOME=/
     ports:
       - "9876:9876"
     volumes:
