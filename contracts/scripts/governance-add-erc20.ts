@@ -10,7 +10,7 @@ const ethTestConfig = JSON.parse(fs.readFileSync(`${testConfigPath}/eth.json`, {
 const deployer = new Deployer({ deployWallet: ethers.Wallet.createRandom() });
 const provider = web3Provider();
 const governorWallet = process.env.MNEMONIC
-    ? Wallet.fromMnemonic(process.env.MNEMONIC, "m/44'/137'/0'/0/1").connect(provider)
+    ? Wallet.fromMnemonic(process.env.MNEMONIC, "m/44'/37310'/0'/0/0").connect(provider)
     : new Wallet(Buffer.from(ethTestConfig.account_with_rbtc_cow1_privK, 'hex'), provider);
 
 async function governanceAddToken(address: string) {
