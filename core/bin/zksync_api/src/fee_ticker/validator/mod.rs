@@ -85,7 +85,7 @@ impl<W: TokenWatcher> MarketUpdater<W> {
                         tokens
                             .into_iter()
                             .filter(|token| {
-                                !unavailable_market_volume_tokens.contains(&token.symbol.as_str())
+                                !unavailable_market_volume_tokens.contains(&token.symbol.to_uppercase().as_str())
                             })
                             .collect_vec(),
                     )
