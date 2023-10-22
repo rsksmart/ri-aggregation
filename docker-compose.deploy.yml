@@ -2,7 +2,7 @@ version: '3.2'
 services:
 
   server:
-    image: "rsksmart/rollup-server:1.0.1-beta"
+    image: "rsksmart/rollup-server:1.1.0-beta"
     ports: #Ports that where configured using the environment variables
       - 3001:3001 # RestApi
       - 3002:3002 # Web3
