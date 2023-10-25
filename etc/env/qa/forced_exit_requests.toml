@@ -24,7 +24,7 @@ wait_confirmations=1
 
 # The account of the ForcedExit sender
 # The private key is defined in sender_eth_private_key <env_address>
-sender_account_address="0xa4dea4d5c954f5fd9e87f0e9752911e83a3d18b3"
+sender_account_address="0x47DD9BB622fFF25CF562aC264e6075807B754EC8"
 
 # The time after which an invalid request is deleted in milliseconds
 expiration_period=3000

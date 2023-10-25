@@ -38,4 +38,4 @@ fee_account_private_key="0xea09e1fe584019bef786ba95da92bd0c256f599457aa6bf1520c0
 # L2 private key of the account that sends ForcedExits <env_priv_key>
 sender_private_key="0x0092788f3890ed50dcab7f72fb574a0a9d30b1bc778ba076c609c311a8555352" 
 # L1 private key of the account that sends ForcedExits <env_priv_key>
-sender_eth_private_key="0xd77b8a342be95c5c31fa85c20450b424663c4fb4a499cfc80c202c592c85c219"
+sender_eth_private_key="0xd783469124d7db80f6531ca19156cb777a1922d9edbbb1a9a35b75b5b981b2d8"

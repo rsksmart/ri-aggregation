@@ -22,17 +22,11 @@ async fn fetch_coins_list() -> HttpResponse {
     // TODO: we always return the platforms, instead of checking for the query param `include_platform` to be true
     let rif_token = CoinsListItem {
         id: "rif-token".to_string(),
-        platforms: Some(rootstock_platform.clone()),
+        platforms: Some(rootstock_platform),
         name: "RIF Token".to_string(),
         symbol: "TRIF".to_string(),
     };
-    let rbtc = CoinsListItem {
-        id: "rootstock".to_string(),
-        symbol: "TRBTC".to_string(),
-        name: "Rootstock RSK".to_string(),
-        platforms: Some(rootstock_platform),
-    };
-    let coin_list: &[CoinsListItem] = &[rif_token, rbtc];
+    let coin_list: &[CoinsListItem] = &[rif_token];
 
     HttpResponse::Ok().json(coin_list)
 }
