@@ -20,7 +20,7 @@ jobs:
 
       - name: start-services
         run: |
-          docker-compose -f docker-compose-runner.yml up --build -d zk
+          docker-compose -f docker-compose.ci.yml up --build -d zk
 
       - name: init
         run: |
