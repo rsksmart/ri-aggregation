@@ -49,8 +49,8 @@ jobs:
           ci_run zk
           ci_run zk init
 
-      - name: restart dev-ticker
-        run: docker-compose -f docker-compose.ci.yml up dev-ticker
+      - name: start dev-ticker
+        run: docker-compose -f docker-compose.ci.yml up -d dev-ticker
 
       - name: Toolchain info
         run: |
@@ -85,8 +85,8 @@ jobs:
           ci_run zk
           ci_run zk init
 
-      - name: restart dev-ticker
-        run: docker-compose -f docker-compose.ci.yml restart dev-ticker
+      - name: start dev-ticker
+        run: docker-compose -f docker-compose.ci.yml up -d dev-ticker
 
       - name: run-services
         run: |

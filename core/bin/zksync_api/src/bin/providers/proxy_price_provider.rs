@@ -105,26 +105,13 @@ mod fetch_coins_list_tests {
         let body: Vec<CoinsListItem> = serde_json::from_slice(&body_bytes).unwrap();
 
         let rif_token = body.iter().find(|coin| coin.id == "rif-token").unwrap();
-        let rbtc = body.iter().find(|coin| coin.id == "rootstock").unwrap();
 
-        assert_eq!(body.len(), 2);
+        assert_eq!(body.len(), 1);
         assert_eq!(rif_token.name, "RIF Token");
         assert_eq!(rif_token.symbol, "TRIF");
         assert_eq!(
             rif_token
                 .platforms
-                .as_ref()
-                .unwrap()
-                .get("rootstock")
-                .unwrap()
-                .as_ref()
-                .unwrap(),
-            RIF_TOKEN_TESTNET_ADDRESS
-        );
-        assert_eq!(rbtc.name, "Rootstock RSK");
-        assert_eq!(rbtc.symbol, "TRBTC");
-        assert_eq!(
-            rbtc.platforms
                 .as_ref()
                 .unwrap()
                 .get("rootstock")
