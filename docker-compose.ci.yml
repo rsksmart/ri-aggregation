@@ -19,7 +19,7 @@ services:
   dev-ticker:
     image: "rsksmart/rollup-dev-ticker:1.1.2-beta"
     env_file:
-      - ./etc/env/${ZKSYNC_ENV-deploy}.env # default to deploy instead of dev.env, since dev.env is not versioned
+      - ./etc/env/dev.env
       - ./etc/env/docker.env
     environment:
       - ZKSYNC_HOME=/

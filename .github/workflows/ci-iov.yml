@@ -21,6 +21,11 @@ jobs:
         run: |
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
+      
+      # dev.env file is required before running zk init
+      - name: create-empty-dev-file
+        run: |
+          touch $ZKSYNC_HOME/etc/env/dev.env
 
       - name: start-services
         run: |
