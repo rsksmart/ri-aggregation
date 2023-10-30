@@ -10,8 +10,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo build --bin dev_ticker_server --release
 
 FROM debian:bullseye
-RUN apt update
-RUN apt install openssl -y
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 EXPOSE 9876
 ENV RUST_BACKTRACE "full"
 ENV RUST_LOG info

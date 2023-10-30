@@ -200,7 +200,7 @@ impl FeeTickerInfo for TickerInfo {
         };
 
         // TODO: remove hardcode for tokens
-        if ["RDOC", "USDRIF"].contains(&token.symbol.as_str()) {
+        if ["RDOC", "USDRIF"].contains(&token.symbol.to_uppercase().as_str()) {
             metrics::histogram!(TICKET_INFO_GET_LAST_TOKEN_PRICE, start.elapsed(), "type" => token.symbol);
             return Ok(price_1_usd);
         }

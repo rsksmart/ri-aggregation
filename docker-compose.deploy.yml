@@ -2,7 +2,7 @@ version: '3.2'
 services:
 
   server:
-    image: "rsksmart/rollup-server:1.0.1-beta"
+    image: "rsksmart/rollup-server:1.1.1-beta"
     ports: #Ports that where configured using the environment variables
       - 3001:3001 # RestApi
       - 3002:3002 # Web3
@@ -51,9 +51,12 @@ services:
       - ./etc/env/${ENV_OVERRIDE-deploy}.env
 
   dev-ticker:
-    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
+    image: "rsksmart/rollup-dev-ticker:1.1.2-beta"
     env_file:
+      - ./etc/env/${ZKSYNC_ENV-dev}.env
       - ./etc/env/${ENV_OVERRIDE-deploy}.env
+    environment:
+      - ZKSYNC_HOME=/
     ports:
       - "9876:9876"
     volumes:

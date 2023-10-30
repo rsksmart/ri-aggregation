@@ -75,7 +75,7 @@ impl TokenPriceAPI for CoinGeckoAPI {
             .query(&[
                 ("vs_currency", "usd"),
                 ("days", "1"),
-                // Removed ("interval", "hourly"), parameter as hourly charts are only available to coingecko enterprice plan customers
+                // Removed ("interval", "hourly"), parameter as hourly charts are only available to coingecko enterprise plan customers
                 // The default interval is daily
             ])
             .send()

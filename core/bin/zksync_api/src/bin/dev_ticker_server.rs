@@ -11,7 +11,7 @@ use std::{
 };
 use structopt::StructOpt;
 use tokio::sync::Mutex;
-use zksync_config::ZkSyncConfig;
+use zksync_config::ChainConfig;
 use zksync_types::{network::Network, TokenInfo};
 use zksync_utils::parse_env;
 
@@ -37,7 +37,7 @@ fn load_tokens(path: impl AsRef<Path>) -> Result<Vec<TokenInfo>, serde_json::Err
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let _vlog_guard = vlog::init();
-    let network = ZkSyncConfig::from_env().chain.eth.network;
+    let network = ChainConfig::from_env().eth.network;
 
     let opts = FeeTickerOpts::from_args();
     if opts.sloppy {

@@ -21,12 +21,17 @@ jobs:
         run: |
           echo ZKSYNC_HOME=$(pwd) >> $GITHUB_ENV
           echo $(pwd)/bin >> $GITHUB_PATH
+      
+      # dev.env file is required before running zk init
+      - name: create-empty-dev-file
+        run: |
+          touch $ZKSYNC_HOME/etc/env/dev.env
 
       - name: start-services
         run: |
-          docker-compose -f docker-compose-runner.yml down
-          docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml -f docker-compose-runner.unit-tests.yml up --build -d rskj postgres zk 
+          docker-compose -f docker-compose.ci.yml down
+          docker-compose -f docker-compose.ci.yml pull
+          docker-compose -f docker-compose.ci.yml -f docker-compose.ci.unit-tests.yml up --build -d rskj postgres zk 
           ci_run sccache --start-server &
             
       - name: generate SSL certificates
@@ -44,8 +49,8 @@ jobs:
           ci_run zk
           ci_run zk init
 
-      - name: restart dev-ticker
-        run: docker-compose -f docker-compose-runner.yml restart dev-ticker
+      - name: start dev-ticker
+        run: docker-compose -f docker-compose.ci.yml up -d dev-ticker
 
       - name: Toolchain info
         run: |
@@ -70,9 +75,9 @@ jobs:
 
       - name: start-services (rskj, postgres, zk)
         run: |
-          docker-compose -f docker-compose-runner.yml down
-          docker-compose -f docker-compose-runner.yml pull
-          docker-compose -f docker-compose-runner.yml up --build -d rskj postgres zk 
+          docker-compose -f docker-compose.ci.yml down
+          docker-compose -f docker-compose.ci.yml pull
+          docker-compose -f docker-compose.ci.yml up --build -d rskj postgres zk 
           ci_run sccache --start-server &
 
       - name: run zk init
@@ -80,8 +85,8 @@ jobs:
           ci_run zk
           ci_run zk init
 
-      - name: restart dev-ticker
-        run: docker-compose -f docker-compose-runner.yml restart dev-ticker
+      - name: start dev-ticker
+        run: docker-compose -f docker-compose.ci.yml up -d dev-ticker
 
       - name: run-services
         run: |
@@ -113,7 +118,7 @@ jobs:
           ci_run cat dummy_prover.log
           ci_run mkdir -p ./target/release/coverage/
           ci_run "grcov . --binary-path ./target/release/deps/ -s . -t lcov --branch --ignore-not-existing --ignore '../*' --ignore '/*' -o ./target/release/coverage/lcov.info"
-          docker compose -f docker-compose-runner.yml cp zk:/usr/src/zksync/target/release/coverage/lcov.info lcov.info
+          docker compose -f docker-compose.ci.yml cp zk:/usr/src/zksync/target/release/coverage/lcov.info lcov.info
           du lcov.info
       
       - uses: codecov/codecov-action@v3

@@ -22,17 +22,11 @@ async fn fetch_coins_list() -> HttpResponse {
     // TODO: we always return the platforms, instead of checking for the query param `include_platform` to be true
     let rif_token = CoinsListItem {
         id: "rif-token".to_string(),
-        platforms: Some(rootstock_platform.clone()),
+        platforms: Some(rootstock_platform),
         name: "RIF Token".to_string(),
         symbol: "TRIF".to_string(),
     };
-    let rbtc = CoinsListItem {
-        id: "rootstock".to_string(),
-        symbol: "TRBTC".to_string(),
-        name: "Rootstock RSK".to_string(),
-        platforms: Some(rootstock_platform),
-    };
-    let coin_list: &[CoinsListItem] = &[rif_token, rbtc];
+    let coin_list: &[CoinsListItem] = &[rif_token];
 
     HttpResponse::Ok().json(coin_list)
 }
@@ -111,26 +105,13 @@ mod fetch_coins_list_tests {
         let body: Vec<CoinsListItem> = serde_json::from_slice(&body_bytes).unwrap();
 
         let rif_token = body.iter().find(|coin| coin.id == "rif-token").unwrap();
-        let rbtc = body.iter().find(|coin| coin.id == "rootstock").unwrap();
 
-        assert_eq!(body.len(), 2);
+        assert_eq!(body.len(), 1);
         assert_eq!(rif_token.name, "RIF Token");
         assert_eq!(rif_token.symbol, "TRIF");
         assert_eq!(
             rif_token
                 .platforms
-                .as_ref()
-                .unwrap()
-                .get("rootstock")
-                .unwrap()
-                .as_ref()
-                .unwrap(),
-            RIF_TOKEN_TESTNET_ADDRESS
-        );
-        assert_eq!(rbtc.name, "Rootstock RSK");
-        assert_eq!(rbtc.symbol, "TRBTC");
-        assert_eq!(
-            rbtc.platforms
                 .as_ref()
                 .unwrap()
                 .get("rootstock")

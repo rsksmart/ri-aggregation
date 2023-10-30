@@ -17,9 +17,12 @@ services:
       - ./docker/rskj/node.conf:/etc/rsk/node.conf
   
   dev-ticker:
-    image: "rsksmart/rollup-dev-ticker:1.0.0-beta"
+    image: "rsksmart/rollup-dev-ticker:1.1.2-beta"
     env_file:
+      - ./etc/env/dev.env
       - ./etc/env/docker.env
+    environment:
+      - ZKSYNC_HOME=/
     volumes:
       - ./etc/tokens/:/etc/tokens
 
@@ -28,7 +31,6 @@ services:
     depends_on:
       - postgres
       - rskj
-      - dev-ticker
     command: tail -f /dev/null
     volumes:
       - .:/usr/src/zksync

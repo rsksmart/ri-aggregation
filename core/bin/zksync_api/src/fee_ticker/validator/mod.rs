@@ -14,6 +14,7 @@ use std::{
 use bigdecimal::BigDecimal;
 use chrono::Utc;
 
+use itertools::Itertools;
 // Workspace uses
 use zksync_types::{
     tokens::{Token, TokenLike, TokenMarketVolume},
@@ -73,10 +74,24 @@ impl<W: TokenWatcher> MarketUpdater<W> {
     pub async fn keep_updated(mut self, duration_secs: u64) {
         let mut error_counter = 0;
 
+        // Market volume is not available for these tokens and
+        // we don't need it because they're added among the unconditionally_valid_tokens
+        let unavailable_market_volume_tokens = ["RDOC", "RBTC", "USDRIF"];
         loop {
             let tokens = self.tokens_cache.get_all_tokens().await;
             let result = match tokens {
-                Ok(tokens) => self.update_all_tokens(tokens).await,
+                Ok(tokens) => {
+                    self.update_all_tokens(
+                        tokens
+                            .into_iter()
+                            .filter(|token| {
+                                !unavailable_market_volume_tokens
+                                    .contains(&token.symbol.to_uppercase().as_str())
+                            })
+                            .collect_vec(),
+                    )
+                    .await
+                }
                 Err(e) => Err(e),
             };
 
